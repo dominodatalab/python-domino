@@ -27,7 +27,8 @@ for run in raw_runs:
   # flatten diagnosticStatistics which are stored in a nested array of dictionaries
   if run['diagnosticStatistics'] != None:
     for stat in run['diagnosticStatistics'].get('data',[]):
-      run['diagnosticStatistics.{0}'.format(stat['key'])] = stat['value']
+      stat_key = 'diagnosticStatistics.{0}'.format(stat['key'])
+      run[stat_key] = stat['value']
     run['diagnosticStatistics.isError'] = run['diagnosticStatistics'].get('isError',None)
   # delete diagnosticStatistics - we extracted all the value from it up above
   del run['diagnosticStatistics']
