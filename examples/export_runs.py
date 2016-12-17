@@ -7,7 +7,7 @@ output_dir = "results"
 
 # connect to domino; be sure to have these environment variables set
 #  (runs inside a Domino executor automatically set these for you)
-domino = Domino("nick/digits", api_key=os.environ['DOMINO_USER_API_KEY'], host=os.environ['DOMINO_API_HOST'])
+domino = Domino("nick/winequality", api_key=os.environ['DOMINO_USER_API_KEY'], host=os.environ['DOMINO_API_HOST'])
 raw_runs = domino.runs_list()['data']
 
 # print number of runs to STDOUT
