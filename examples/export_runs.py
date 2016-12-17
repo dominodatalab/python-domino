@@ -50,3 +50,4 @@ all_runs_df['millisecondsInExecution'] = all_runs_df.completed - all_runs_df.sta
 all_runs_df.to_csv('{0}/all_runs.csv'.format(output_dir), index=False)
 
 print "Finished exporting run information to {0}/all_runs.json and {0}/all_runs.csv".format(output_dir)
+
