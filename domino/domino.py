@@ -10,10 +10,10 @@ class Domino:
     def __init__(self, project, api_key=None, host=None):
         self._configure_logging()
 
-        if 'DOMINO_API_HOST' in os.environ:
-            host = os.environ['DOMINO_API_HOST']
-        elif host is not None:
+        if host is not None:
             host = host
+        elif 'DOMINO_API_HOST' in os.environ:
+            host = os.environ['DOMINO_API_HOST']
         else:
             raise Exception("Host must be provided, either via the constructor value or through DOMINO_API_HOST environment variable.")
 
