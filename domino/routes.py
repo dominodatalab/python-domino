@@ -13,8 +13,8 @@ class _Routes:
     def files_list(self, commitId, path):
         return self._build_url() + '/files/' + commitId + '/' + path
 
-    def file_upload(self, path):
-        return self._build_url() + '/' + path
+    def files_upload(self, path):
+        return self._build_url() + path
 
     def blobs_get(self, key):
         return self._build_url() + '/blobs/' + key
