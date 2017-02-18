@@ -67,6 +67,15 @@ class Domino:
         url = self._routes.blobs_get(key)
         return self._open_url(url)
 
+    def endpoint_state(self):
+        url = self._routes.endpoint_get_state()
+        return self._get(url)
+
+    def endpoint_unpublish(self):
+        url = self._routes.endpoint()
+        response = requests.delete(url, auth=('', self._api_key))
+        return response
+
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()
 
