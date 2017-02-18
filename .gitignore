@@ -2,4 +2,4 @@
 dist/
 MANIFEST
 examples/results/
-
+*.pyc
