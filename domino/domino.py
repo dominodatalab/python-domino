@@ -59,12 +59,19 @@ class Domino:
         url = self._routes.files_list(commitId, path)
         return self._get(url)
 
+    def files_upload(self, path, file):
+        url = self._routes.files_upload(path)
+        return self._put_file(url, file)
+
     def blobs_get(self, key):
         url = self._routes.blobs_get(key)
         return self._open_url(url)
 
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()
+
+    def _put_file(self, url, file):
+        return requests.put(url, files={'file':file}, auth=('', self._api_key))
 
     def _open_url(self, url):
         password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()

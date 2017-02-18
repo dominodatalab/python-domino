@@ -38,6 +38,13 @@ List the files in a folder in the Domino project. The parameters are:
 * commitId: The commitId to list files from.
 * path: (Defaults to "/") The path to list from.
 
+### Domino#files_upload
+
+Upload a Python file object into the specified path inside the project. See `examples/upload_file.py` for an example. The parameters, both of which are required, are:
+
+* path: The path to save the file to. For example, `/README.md` will write to the root directory of the project while `/data/numbers.csv` will save the file to a subfolder named `data` (if the `data` folder does not yet exist, it will be created)
+* file: A Python file object. For example, `f = open("authors.txt","rb")`
+
 ### Domino#blobs_get
 
 Retrieve a file from the Domino server by blob key. The parameters are:
