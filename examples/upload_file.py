@@ -11,6 +11,6 @@ f = open('numbers.csv', 'rb')
 r = domino.files_upload("/a_new_folder/a_new_file.csv", f)
 
 if r.status_code == 201:
-	print "Upload successful"
+	print(":) Upload successful")
 else:
-	print "!! Upload failed"
+	print("!! Upload failed")
