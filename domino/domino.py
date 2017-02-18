@@ -68,12 +68,26 @@ class Domino:
         return self._open_url(url)
 
     def endpoint_state(self):
-        url = self._routes.endpoint_get_state()
+        url = self._routes.endpoint_state()
         return self._get(url)
 
     def endpoint_unpublish(self):
         url = self._routes.endpoint()
         response = requests.delete(url, auth=('', self._api_key))
+        return response
+
+    def endpoint_publish(self, file, function, commitId):
+        url = self._routes.endpoint_publish()
+
+        request = {
+            "commitId": commitId,
+            "bindingDefinition": {
+                "file": file,
+                "function": function
+            }
+        }
+
+        response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
     def _get(self, url):

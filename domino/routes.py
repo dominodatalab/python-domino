@@ -27,8 +27,11 @@ class _Routes:
     def _build_endpoint_url(self):
         return self.host + '/v1/' + self._owner_username + '/' + self._project_name + '/endpoint'
 
-    def endpoint_get_state(self):
-        return self._build_endpoint_url() + '/state'
-
     def endpoint(self):
         return self._build_endpoint_url()
+
+    def endpoint_state(self):
+        return self._build_endpoint_url() + '/state'
+
+    def endpoint_publish(self):
+        return self._build_endpoint_url() + '/publishRelease'
