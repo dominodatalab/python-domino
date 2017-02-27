@@ -2,14 +2,14 @@ from distutils.core import setup
 
 setup(
     name='python-domino',
-    version='0.1.5',
-    author='Domino Data labs',
-    author_email='chris@dominodatalab.com',
+    version='0.1.8',
+    author='Domino Data Lab',
+    author_email='support@dominodatalab.com',
     packages=['domino'],
     scripts=[],
     url='http://www.dominodatalab.com',
     license='LICENSE.txt',
-    description='Python bindings for Domino API',
+    description='Python bindings for the Domino API',
     long_description='',
     install_requires=[
         'requests>=2.4.2'

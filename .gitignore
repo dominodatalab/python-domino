@@ -1,3 +1,5 @@
 .idea/
 dist/
 MANIFEST
+examples/results/
+*.pyc

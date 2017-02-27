@@ -1,8 +1,10 @@
 from .routes import _Routes
+
 try:
     import urllib2
 except ImportError:
     import urllib.request as urllib2
+
 import json
 import os
 import logging
@@ -62,15 +64,45 @@ class Domino:
         url = self._routes.files_list(commitId, path)
         return self._get(url)
 
+    def files_upload(self, path, file):
+        url = self._routes.files_upload(path)
+        return self._put_file(url, file)
+
     def blobs_get(self, key):
         url = self._routes.blobs_get(key)
         return self._open_url(url)
 
+    def endpoint_state(self):
+        url = self._routes.endpoint_state()
+        return self._get(url)
+
+    def endpoint_unpublish(self):
+        url = self._routes.endpoint()
+        response = requests.delete(url, auth=('', self._api_key))
+        return response
+
+    def endpoint_publish(self, file, function, commitId):
+        url = self._routes.endpoint_publish()
+
+        request = {
+            "commitId": commitId,
+            "bindingDefinition": {
+                "file": file,
+                "function": function
+            }
+        }
+
+        response = requests.post(url, auth=('', self._api_key), json=request)
+        return response
+
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()
 
+    def _put_file(self, url, file):
+        return requests.put(url, files={'file':file}, auth=('', self._api_key))
+
     def _open_url(self, url):
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = urllib.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self._routes.host, '', self._api_key)
         handler = urllib2.HTTPBasicAuthHandler(password_mgr)
         opener = urllib2.build_opener(handler)
