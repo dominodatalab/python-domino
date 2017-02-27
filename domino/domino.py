@@ -1,12 +1,9 @@
 from .routes import _Routes
 
 try:
-    # For Python 3.0 and later
-    import urllib.request
-except ImportError:
-    # Fall back to Python 2's urllib2
     import urllib2
-    urllib = urllib2
+except ImportError:
+    import urllib.request as urllib2
 
 import json
 import os
@@ -107,6 +104,6 @@ class Domino:
     def _open_url(self, url):
         password_mgr = urllib.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self._routes.host, '', self._api_key)
-        handler = urllib.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib.build_opener(handler)
+        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+        opener = urllib2.build_opener(handler)
         return opener.open(url)
