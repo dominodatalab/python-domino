@@ -1,5 +1,13 @@
 from .routes import _Routes
-import urllib2
+
+try:
+    # For Python 3.0 and later
+    import urllib.request
+except ImportError:
+    # Fall back to Python 2's urllib2
+    import urllib2
+    urllib = urllib2
+
 import json
 import os
 import logging
@@ -97,8 +105,8 @@ class Domino:
         return requests.put(url, files={'file':file}, auth=('', self._api_key))
 
     def _open_url(self, url):
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = urllib.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self._routes.host, '', self._api_key)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib2.build_opener(handler)
+        handler = urllib.HTTPBasicAuthHandler(password_mgr)
+        opener = urllib.build_opener(handler)
         return opener.open(url)
