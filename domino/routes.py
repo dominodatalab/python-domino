@@ -41,3 +41,7 @@ class _Routes:
     # Miscellaneous URLs
     def deployment_version(self):
         return self.host + '/version'
+
+    def project_create(self):
+        return self.host + '/new'
+        
