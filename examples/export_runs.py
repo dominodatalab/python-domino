@@ -28,11 +28,12 @@ all_runs = []
 for run in raw_runs:
   # flatten diagnosticStatistics
   # *which are stored in a nested array of dictionaries)
-    if run['diagnosticStatistics'] != None:
-        for stat in run['diagnosticStatistics'].get('data',[]):
+    if run['diagnosticStatistics'] is not None:
+        for stat in run['diagnosticStatistics'].get('data', []):
             stat_key = 'diagnosticStatistics.{0}'.format(stat['key'])
             run[stat_key] = stat['value']
-        run['diagnosticStatistics.isError'] = run['diagnosticStatistics'].get('isError',None)
+        run['diagnosticStatistics.isError'] = run['diagnosticStatistics'].get(
+            'isError', None)
     # delete diagnosticStatistics - we extracted all the value from it up above
     del run['diagnosticStatistics']
     # add run to array
@@ -54,4 +55,5 @@ all_runs_df['millisecondsInExecution'] = \
 # write dataframe to a CSV
 all_runs_df.to_csv('{0}/all_runs.csv'.format(output_dir), index=False)
 
-print("Finished exporting run information to {0}/all_runs.json and {0}/all_runs.csv".format(output_dir))
+print("Finished exporting run information to {0}/all_runs.json \
+      and {0}/all_runs.csv".format(output_dir))
