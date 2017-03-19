@@ -24,6 +24,14 @@ class _Routes:
     def blobs_get(self, key):
         return self._build_project_url() + '/blobs/' + key
 
+    def _build_old_project_url(self):
+        # TODO refactor once these API endpoints are supported in REST API
+        return self.host + '/' \
+            + self._owner_username + '/' + self._project_name
+
+    def collaborators_get(self): 
+        return self._build_old_project_url() + '/collaborators'
+
     # Endpoint URLs
     def _build_endpoint_url(self):
         return self.host + '/v1/' + \
@@ -44,4 +52,3 @@ class _Routes:
 
     def project_create(self):
         return self.host + '/new'
-        
