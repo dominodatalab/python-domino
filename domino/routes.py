@@ -6,7 +6,8 @@ class _Routes:
 
     # Project URLs
     def _build_project_url(self):
-        return self.host + '/v1/projects/' + self._owner_username + '/' + self._project_name
+        return self.host + '/v1/projects/' + \
+            self._owner_username + '/' + self._project_name
 
     def runs_list(self):
         return self._build_project_url() + '/runs'
@@ -25,7 +26,8 @@ class _Routes:
 
     # Endpoint URLs
     def _build_endpoint_url(self):
-        return self.host + '/v1/' + self._owner_username + '/' + self._project_name + '/endpoint'
+        return self.host + '/v1/' + \
+            self._owner_username + '/' + self._project_name + '/endpoint'
 
     def endpoint(self):
         return self._build_endpoint_url()
@@ -35,3 +37,7 @@ class _Routes:
 
     def endpoint_publish(self):
         return self._build_endpoint_url() + '/publishRelease'
+
+    # Miscellaneous URLs
+    def deployment_version(self):
+        return self.host + '/version'

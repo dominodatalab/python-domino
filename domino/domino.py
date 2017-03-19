@@ -5,7 +5,6 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-import json
 import os
 import logging
 import requests
@@ -20,7 +19,9 @@ class Domino:
         elif 'DOMINO_API_HOST' in os.environ:
             host = os.environ['DOMINO_API_HOST']
         else:
-            raise Exception("Host must be provided, either via the constructor value or through DOMINO_API_HOST environment variable.")
+            raise Exception("Host must be provided, either via the \
+                constructor value or through DOMINO_API_HOST environment \
+                variable.")
 
         self._logger.info('Initializing Domino API with host ' + host)
 
@@ -35,7 +36,9 @@ class Domino:
         elif api_key is not None:
             self._api_key = api_key
         else:
-            raise Exception("API key must be provided, either via the constructor value or through DOMINO_USER_API_KEY environment variable.")
+            raise Exception("API key must be provided, either via the \
+                constructor value or through DOMINO_USER_API_KEY environment \
+                variable.")
 
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
@@ -45,7 +48,9 @@ class Domino:
         url = self._routes.runs_list()
         return self._get(url)
 
-    def runs_start(self, command, isDirect=False, commitId=None, title=None, tier=None, publishApiEndpoint=None):
+    def runs_start(self, command, isDirect=False, commitId=None, title=None, \
+        tier=None, publishApiEndpoint=None):
+    
         url = self._routes.runs_start()
 
         request = {
@@ -95,14 +100,19 @@ class Domino:
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
+    def deployment_version(self):
+        url = self._routes.deployment_version()
+        return self._get(url)
+
+    # Helper methods
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()
 
     def _put_file(self, url, file):
-        return requests.put(url, files={'file':file}, auth=('', self._api_key))
+        return requests.put(url, files={'file': file}, auth=('', self._api_key))
 
     def _open_url(self, url):
-        password_mgr = urllib.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self._routes.host, '', self._api_key)
         handler = urllib2.HTTPBasicAuthHandler(password_mgr)
         opener = urllib2.build_opener(handler)
