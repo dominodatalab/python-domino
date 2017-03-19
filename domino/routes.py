@@ -29,7 +29,7 @@ class _Routes:
         return self.host + '/' \
             + self._owner_username + '/' + self._project_name
 
-    def collaborators_get(self): 
+    def collaborators_get(self):
         return self._build_old_project_url() + '/collaborators'
 
     # Endpoint URLs
