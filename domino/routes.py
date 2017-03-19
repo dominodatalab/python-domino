@@ -32,6 +32,9 @@ class _Routes:
     def collaborators_get(self):
         return self._build_old_project_url() + '/collaborators'
 
+    def collaborators_add(self):
+        return self._build_old_project_url() + '/addCollaborator'
+
     # Endpoint URLs
     def _build_endpoint_url(self):
         return self.host + '/v1/' + \
