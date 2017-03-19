@@ -48,9 +48,9 @@ class Domino:
         url = self._routes.runs_list()
         return self._get(url)
 
-    def runs_start(self, command, isDirect=False, commitId=None, title=None, 
+    def runs_start(self, command, isDirect=False, commitId=None, title=None,
                    tier=None, publishApiEndpoint=None):
-    
+
         url = self._routes.runs_start()
 
         request = {
