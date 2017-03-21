@@ -29,12 +29,10 @@ class Domino:
         project_name = project.split("/")[1]
         self._routes = _Routes(host, owner_username, project_name)
 
-        self._api_key = api_key
-
-        if 'DOMINO_USER_API_KEY' in os.environ:
-            self._api_key = os.environ['DOMINO_USER_API_KEY']
-        elif api_key is not None:
+        if api_key is not None:
             self._api_key = api_key
+        elif 'DOMINO_USER_API_KEY' in os.environ:
+            self._api_key = os.environ['DOMINO_USER_API_KEY']
         else:
             raise Exception("API key must be provided, either via the \
                 constructor value or through DOMINO_USER_API_KEY environment \
@@ -103,6 +101,15 @@ class Domino:
     def deployment_version(self):
         url = self._routes.deployment_version()
         return self._get(url)
+
+    def project_create(self, owner_username, project_name):
+        url = self._routes.project_create()
+        request = {
+            'owner': owner_username,
+            'name': project_name
+        }
+        response = requests.post(url, auth=('', self._api_key), data=request)
+        return response
 
     # Helper methods
     def _get(self, url):
