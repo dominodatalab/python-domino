@@ -109,7 +109,12 @@ class Domino:
             'name': project_name
         }
         response = requests.post(url, auth=('', self._api_key), data=request)
-        return response
+        if response.url == url:  # an error occured
+            raise Exception(
+                ("An error occured while trying to create your project. "
+                 "You probably have a project with that name already"))
+        else:
+            return response
 
     # Helper methods
     def _get(self, url):
