@@ -120,6 +120,10 @@ class Domino:
         else:
             return response
 
+    def collaborators_get(self):
+        url = self._routes.collaborators_get()
+        return self._get(url)
+
     # Helper methods
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()
