@@ -112,13 +112,31 @@ class Domino:
             'owner': owner_username,
             'name': project_name
         }
-        response = requests.post(url, auth=('', self._api_key), data=request)
-        if response.url == url:  # an error occured
-            raise Exception(
-                ("An error occured while trying to create your project. "
-                 "You probably have a project with that name already"))
+        response = requests.post(url, auth=('', self._api_key), data=request,
+                                 allow_redirects=False)
+        disposition = parse_play_flash_cookie(response)
+        if disposition.get("error"):
+            raise Exception(disposition.get("message"))
         else:
-            return response
+            return disposition
+
+    def collaborators_get(self):
+        url = self._routes.collaborators_get()
+        return self._get(url)
+
+    def collaborators_add(self, usernameOrEmail, message=""):
+        url = self._routes.collaborators_add()
+        request = {
+            'collaboratorUsernameOrEmail': usernameOrEmail,
+            'welcomeMessage': message
+        }
+        response = requests.post(url, auth=('', self._api_key), data=request,
+                                 allow_redirects=False)
+        disposition = parse_play_flash_cookie(response)
+        if disposition.get("error"):
+            raise Exception(disposition.get("message"))
+        else:
+            return disposition
 
     # Helper methods
     def _get(self, url):
@@ -134,3 +152,16 @@ class Domino:
         handler = urllib2.HTTPBasicAuthHandler(password_mgr)
         opener = urllib2.build_opener(handler)
         return opener.open(url)
+
+
+def parse_play_flash_cookie(response):
+    flash_cookie = response.cookies['PLAY_FLASH']
+    messageType, message = flash_cookie.split("=")
+    # Format message into user friendly string
+    message = urllib2.unquote(message).replace("+", " ")
+    # Discern error disposition
+    if(messageType == "dominoFlashError"):
+        error = True
+    else:
+        error = False
+    return dict(messageType=messageType, message=message, error=error)

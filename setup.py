@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='python-domino',
-    version='0.1.9',
+    version='0.2.0',
     author='Domino Data Lab',
     author_email='support@dominodatalab.com',
     packages=['domino'],
