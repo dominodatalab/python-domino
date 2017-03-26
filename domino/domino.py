@@ -63,6 +63,10 @@ class Domino:
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response.json()
 
+    def runs_status(self, runId):
+        url = self._routes.runs_status(runId)
+        return self._get(url)
+
     def files_list(self, commitId, path='/'):
         url = self._routes.files_list(commitId, path)
         return self._get(url)

@@ -15,6 +15,9 @@ class _Routes:
     def runs_start(self):
         return self._build_project_url() + '/runs'
 
+    def runs_status(self, runId):
+        return self._build_project_url() + '/runs/' + runId
+
     def files_list(self, commitId, path):
         return self._build_project_url() + '/files/' + commitId + '/' + path
 
