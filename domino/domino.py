@@ -38,6 +38,11 @@ class Domino:
                 constructor value or through DOMINO_USER_API_KEY environment \
                 variable.")
 
+        # Get version
+        self._version = self.deployment_version().get("version")
+        print(self._version)
+
+
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
@@ -107,6 +112,7 @@ class Domino:
         return self._get(url)
 
     def project_create(self, owner_username, project_name):
+        self.requires_at_least("1.53.0.0")
         url = self._routes.project_create()
         request = {
             'owner': owner_username,
@@ -121,10 +127,12 @@ class Domino:
             return disposition
 
     def collaborators_get(self):
+        self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()
         return self._get(url)
 
     def collaborators_add(self, usernameOrEmail, message=""):
+        self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_add()
         request = {
             'collaboratorUsernameOrEmail': usernameOrEmail,
@@ -152,6 +160,12 @@ class Domino:
         handler = urllib2.HTTPBasicAuthHandler(password_mgr)
         opener = urllib2.build_opener(handler)
         return opener.open(url)
+
+    def requires_at_least(self, at_least_version):
+        if at_least_version > self._version:
+            raise Exception("You need at least version {} but your deployment \
+                            seems to be running {}".format(
+                            at_least_version, self._version))
 
 
 def parse_play_flash_cookie(response):
