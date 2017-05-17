@@ -72,6 +72,12 @@ class Domino:
         url = self._routes.blobs_get(key)
         return self._open_url(url)
 
+    def fork_project(self, target_name):
+	url = self._routes.fork_project()
+	request = { "overrideProjectName" : target_name }
+	response = requests.post(url, auth=('', self._api_key), data=request)
+	return response.status_code
+
     def endpoint_state(self):
         url = self._routes.endpoint_state()
         return self._get(url)
