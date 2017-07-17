@@ -105,7 +105,7 @@ class Domino:
         return requests.get(url, auth=('', self._api_key)).json()
 
     def _put_file(self, url, file):
-        return requests.put(url, files={'file':file}, auth=('', self._api_key))
+        return requests.put(url, data=file, auth=('', self._api_key))
 
     def _open_url(self, url):
         password_mgr = urllib.HTTPPasswordMgrWithDefaultRealm()
