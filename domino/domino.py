@@ -5,7 +5,6 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-import json
 import os
 import logging
 import requests
@@ -20,7 +19,9 @@ class Domino:
         elif 'DOMINO_API_HOST' in os.environ:
             host = os.environ['DOMINO_API_HOST']
         else:
-            raise Exception("Host must be provided, either via the constructor value or through DOMINO_API_HOST environment variable.")
+            raise Exception("Host must be provided, either via the \
+                constructor value or through DOMINO_API_HOST environment \
+                variable.")
 
         self._logger.info('Initializing Domino API with host ' + host)
 
@@ -28,14 +29,19 @@ class Domino:
         project_name = project.split("/")[1]
         self._routes = _Routes(host, owner_username, project_name)
 
-        self._api_key = api_key
-
-        if 'DOMINO_USER_API_KEY' in os.environ:
-            self._api_key = os.environ['DOMINO_USER_API_KEY']
-        elif api_key is not None:
+        if api_key is not None:
             self._api_key = api_key
+        elif 'DOMINO_USER_API_KEY' in os.environ:
+            self._api_key = os.environ['DOMINO_USER_API_KEY']
         else:
-            raise Exception("API key must be provided, either via the constructor value or through DOMINO_USER_API_KEY environment variable.")
+            raise Exception("API key must be provided, either via the \
+                constructor value or through DOMINO_USER_API_KEY environment \
+                variable.")
+
+        # Get version
+        self._version = self.deployment_version().get("version")
+        print(self._version)
+
 
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
@@ -45,7 +51,9 @@ class Domino:
         url = self._routes.runs_list()
         return self._get(url)
 
-    def runs_start(self, command, isDirect=False, commitId=None, title=None, tier=None, publishApiEndpoint=None):
+    def runs_start(self, command, isDirect=False, commitId=None, title=None,
+                   tier=None, publishApiEndpoint=None):
+
         url = self._routes.runs_start()
 
         request = {
@@ -59,6 +67,10 @@ class Domino:
 
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response.json()
+
+    def runs_status(self, runId):
+        url = self._routes.runs_status(runId)
+        return self._get(url)
 
     def files_list(self, commitId, path='/'):
         url = self._routes.files_list(commitId, path)
@@ -101,6 +113,46 @@ class Domino:
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
+    def deployment_version(self):
+        url = self._routes.deployment_version()
+        return self._get(url)
+
+    def project_create(self, owner_username, project_name):
+        self.requires_at_least("1.53.0.0")
+        url = self._routes.project_create()
+        request = {
+            'owner': owner_username,
+            'name': project_name
+        }
+        response = requests.post(url, auth=('', self._api_key), data=request,
+                                 allow_redirects=False)
+        disposition = parse_play_flash_cookie(response)
+        if disposition.get("error"):
+            raise Exception(disposition.get("message"))
+        else:
+            return disposition
+
+    def collaborators_get(self):
+        self.requires_at_least("1.53.0.0")
+        url = self._routes.collaborators_get()
+        return self._get(url)
+
+    def collaborators_add(self, usernameOrEmail, message=""):
+        self.requires_at_least("1.53.0.0")
+        url = self._routes.collaborators_add()
+        request = {
+            'collaboratorUsernameOrEmail': usernameOrEmail,
+            'welcomeMessage': message
+        }
+        response = requests.post(url, auth=('', self._api_key), data=request,
+                                 allow_redirects=False)
+        disposition = parse_play_flash_cookie(response)
+        if disposition.get("error"):
+            raise Exception(disposition.get("message"))
+        else:
+            return disposition
+
+    # Helper methods
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()
 
@@ -108,8 +160,27 @@ class Domino:
         return requests.put(url, data=file, auth=('', self._api_key))
 
     def _open_url(self, url):
-        password_mgr = urllib.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self._routes.host, '', self._api_key)
         handler = urllib2.HTTPBasicAuthHandler(password_mgr)
         opener = urllib2.build_opener(handler)
         return opener.open(url)
+
+    def requires_at_least(self, at_least_version):
+        if at_least_version > self._version:
+            raise Exception("You need at least version {} but your deployment \
+                            seems to be running {}".format(
+                            at_least_version, self._version))
+
+
+def parse_play_flash_cookie(response):
+    flash_cookie = response.cookies['PLAY_FLASH']
+    messageType, message = flash_cookie.split("=")
+    # Format message into user friendly string
+    message = urllib2.unquote(message).replace("+", " ")
+    # Discern error disposition
+    if(messageType == "dominoFlashError"):
+        error = True
+    else:
+        error = False
+    return dict(messageType=messageType, message=message, error=error)
