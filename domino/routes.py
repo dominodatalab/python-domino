@@ -10,7 +10,7 @@ class _Routes:
             self._owner_username + '/' + self._project_name
 
     def _build_project_url_private_api(self):
-	return self.host + '/u/' + self._owner_username + '/' + self._project_name
+        return self.host + '/u/' + self._owner_username + '/' + self._project_name
 
     def runs_list(self):
         return self._build_project_url() + '/runs'
