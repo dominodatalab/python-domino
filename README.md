@@ -10,7 +10,7 @@ using the API.
 You can set up the connection by creating new instance of `Domino`.
 
 
-> #### *class* Domino(project, api_key=None, host=None)
+> ### *class* Domino(project, api_key=None, host=None)
 
 The parameters are:
 
@@ -24,12 +24,12 @@ The parameters are:
 
 ## Methods
 
-> **runs_list**()
+> ### runs_list()
 
 List the runs on the selected project.
 
 
-> **runs_start**(command, isDirect, commitId, title, tier, publishApiEndpoint)
+> ### runs_start(*command, isDirect, commitId, title, tier, publishApiEndpoint*)
 
 Start a new run on the selected project. The parameters are:
 
@@ -41,27 +41,27 @@ Start a new run on the selected project. The parameters are:
 * *tier:* (Optional) The hardware tier to use for the run. Will use project default tier if not provided.
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 
-> **runs_stdout**(runId)
+> ### runs_stdout(*runId*)
 
 Get stdout emitted by a particular run.  The parameters are:
 
 * *runId:* string that identifies the run
 
-> **files_list**(commitId, path)
+> ### files_list(*commitId, path*)
 
 List the files in a folder in the Domino project. The parameters are:
 
 * *commitId:* The commitId to list files from.
 * *path:* (Defaults to "/") The path to list from.
 
-> **files_upload**(path, file)
+> ### files_upload(*path, file*)
 
 Upload a Python file object into the specified path inside the project. See `examples/upload_file.py` for an example. The parameters, both of which are required, are:
 
 * *path:* The path to save the file to. For example, `/README.md` will write to the root directory of the project while `/data/numbers.csv` will save the file to a subfolder named `data` (if the `data` folder does not yet exist, it will be created)
 * *file:* A Python file object. For example, `f = open("authors.txt","rb")`
 
-> **blobs_get**(key)
+> ### blobs_get(*key*)
 
 Retrieve a file from the Domino server by blob key. The parameters are:
 
