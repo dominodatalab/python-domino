@@ -42,7 +42,6 @@ class Domino:
         self._version = self.deployment_version().get("version")
         print(self._version)
 
-
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
@@ -70,6 +69,18 @@ class Domino:
 
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
+        return self._get(url)
+
+    def runs_stdout(self, runId):
+        """
+        Get std out emitted by a particular run.
+
+        parameters
+        ----------
+        runId : string
+                the id associated with the run.
+        """
+        url = self._routes.runs_stdout(runId)
         return self._get(url)
 
     def files_list(self, commitId, path='/'):
