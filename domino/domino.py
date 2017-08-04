@@ -70,13 +70,44 @@ class Domino:
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response.json()
 
-
     def runs_start_blocking(self, command, isDirect=False, commitId=None, title=None,
                             tier=None, publishApiEndpoint=None, poll_freq=5,
                             max_poll_time=6000):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
         see if the task is done.  If the task errors an exception is raised.
+
+        parameters
+        ----------
+        command : list of strings
+                  list that containst the name of the file to run in index 0 and
+                  args in subsequent positions.
+                  example:
+                  >> domino.runs_start(["main.py", "arg1", "arg2"])
+
+        isDirect : boolean (Optional)
+                   Whether or not this command should be passed directly to a shell.
+
+        commitId : string (Optional)
+                   The commitId to launch from. If not provided, will launch from latest commit.
+
+        title    : string (Optional)
+                   A title for the run
+
+        tier     : string (Optional)
+                   The hardware tier to use for the run. Will use project default
+                   tier if not provided.
+
+        publishApiEndpoint : boolean (Optional)
+                            Whether or not to publish an API endpoint from the resulting output.
+
+        poll_freq : int (Optional)
+                    Number of seconds in between polling of the Domino server for
+                    status of the task that is running.
+
+        max_poll_time : int (Optional)
+                        Maximum number of seconds to wait for a task to complete.
+                        If this threshold is exceeded, an exception is raised.
         """
         run_response = self.runs_start(command, isDirect, commitId, title,
                                        tier, publishApiEndpoint)
