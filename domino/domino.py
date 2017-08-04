@@ -8,6 +8,9 @@ except ImportError:
 import os
 import logging
 import requests
+import time
+import pprint
+import logging
 
 
 class Domino:
@@ -67,9 +70,58 @@ class Domino:
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response.json()
 
+
+    def runs_start_blocking(self, command, isDirect=False, commitId=None, title=None,
+                            tier=None, publishApiEndpoint=None, poll_freq=5,
+                            max_poll_time=6000):
+        """
+        Run a tasks that runs in a blocking loop that periodically checks to
+        see if the task is done.  If the task errors an exception is raised.
+        """
+        run_response = self.runs_start(command, isDirect, commitId, title,
+                                       tier, publishApiEndpoint)
+        run_id = run_response['runId']
+
+        poll_start = time.time()
+        while True:
+            run_info = self.get_run_info(run_id)
+            elapsed_time = time.time() - poll_start
+
+            if elapsed_time >= max_poll_time:
+                raise Exception('Run exceeded maximum time of {} seconds'.format(max_poll_time))
+
+            if run_info is None:
+                raise Exception("Tried to access nonexistent run id {}.".
+                                format(run_id))
+
+            output_commit_id = run_info.get('outputCommitId')
+            if not output_commit_id:
+                time.sleep(poll_freq)
+                continue
+
+            # once task has finished running check to see if it was successfull
+            else:
+                stdout_msg = self.runs_stdout(run_id)
+
+                if run_info['status'] != 'Succeeded':
+                    header_msg = ("Remote run {0} finished but did not succeed.\n"
+                                  .format(run_id))
+                    raise Exception(header_msg + stdout_msg)
+
+                logging.info(stdout_msg)
+                break
+
+        return run_response
+
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
         return self._get(url)
+
+    def get_run_info(self, run_id):
+        for run_info in self.runs_list()['data']:
+            if run_info['id'] == run_id:
+                return run_info
+
 
     def runs_stdout(self, runId):
         """
@@ -81,7 +133,8 @@ class Domino:
                 the id associated with the run.
         """
         url = self._routes.runs_stdout(runId)
-        return self._get(url)
+        # pprint.pformat outputs a string that is ready to be printed
+        return pprint.pformat(self._get(url)['stdout'])
 
     def files_list(self, commitId, path='/'):
         url = self._routes.files_list(commitId, path)
