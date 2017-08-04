@@ -43,6 +43,20 @@ Start a new run on the selected project. The parameters are:
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 
 
+> ### runs_start_blocking(*command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
+
+Same as method `run_start` except make a blocking request that waits until job is finished.
+
+* *command:* The command to run as an array of strings where members of the array represent arguments
+  of the command. E.g. `["main.py", "hi mom"]`
+* *isDirect:* (Optional) Whether or not this command should be passed directly to a shell.
+* *commitId:* (Optional) The commitId to launch from. If not provided, will launch from latest commit.
+* *title:* (Optional) A title for the run.
+* *tier:* (Optional) The hardware tier to use for the run. Will use project default tier if not provided.
+* *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
+* *poll_freq:* (Optional) Number of seconds in between polling of the Domino server for status of the task that is running.
+* *max_poll_time:* (Optional) Maximum number of seconds to wait for a task to complete.  If this threshold is exceeded, an exception is raised.
+
 > ### runs_stdout(*runId*)
 
 Get stdout emitted by a particular run.  The parameters are:
