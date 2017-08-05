@@ -10,7 +10,6 @@ import logging
 import requests
 import time
 import pprint
-import logging
 
 
 class Domino:
@@ -43,7 +42,7 @@ class Domino:
 
         # Get version
         self._version = self.deployment_version().get("version")
-        print(self._version)
+        print("Your Domino deployment is running version {}".format(self._version))
 
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
@@ -70,9 +69,9 @@ class Domino:
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response.json()
 
-    def runs_start_blocking(self, command, isDirect=False, commitId=None, title=None,
-                            tier=None, publishApiEndpoint=None, poll_freq=5,
-                            max_poll_time=6000):
+    def runs_start_blocking(self, command, isDirect=False, commitId=None,
+                            title=None, tier=None, publishApiEndpoint=None,
+                            poll_freq=5, max_poll_time=6000):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
         see if the task is done.  If the task errors an exception is raised.
@@ -153,7 +152,6 @@ class Domino:
             if run_info['id'] == run_id:
                 return run_info
 
-
     def runs_stdout(self, runId):
         """
         Get std out emitted by a particular run.
@@ -181,7 +179,7 @@ class Domino:
 
     def fork_project(self, target_name):
         url = self._routes.fork_project()
-        request = { "overrideProjectName" : target_name }
+        request = { "overrideProjectName" : target_name}
         response = requests.post(url, auth=('', self._api_key), data=request)
         return response.status_code
 

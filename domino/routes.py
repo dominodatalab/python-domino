@@ -33,7 +33,6 @@ class _Routes:
     def blobs_get(self, key):
         return self._build_project_url() + '/blobs/' + key
 
-
     def fork_project(self):
         return self._build_project_url_private_api() + '/fork'
 
@@ -50,7 +49,6 @@ class _Routes:
 
     def collaborators_remove(self):
         return self._build_old_project_url() + '/removeCollaborator'
-
 
     # Endpoint URLs
     def _build_endpoint_url(self):
