@@ -247,7 +247,7 @@ class Domino:
         
     def app_publish(self):
         url = self._routes.app_publish()
-        request = {"language" : "App"}
+        request = {"language": "App"}
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
