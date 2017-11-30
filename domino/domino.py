@@ -249,9 +249,7 @@ class Domino:
         url = self._routes.app_publish()
         request = {"language": "App"}
         response = requests.post(url, auth=('', self._api_key), json=request)
-        test = url + ' ' + request + ' ' + self._api_key
-        print test
-        return test
+        return response
 
     # Helper methods
     def _get(self, url):
