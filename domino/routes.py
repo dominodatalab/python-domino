@@ -73,4 +73,4 @@ class _Routes:
     
     # App URLs
     def app_publish(self):
-        return self.host + '/nb/startSession'
+        return self._build_project_url() + '/nb/startSession'
