@@ -70,3 +70,7 @@ class _Routes:
 
     def project_create(self):
         return self.host + '/new'
+    
+    # App URLs
+    def app_publish(self):
+        return self._build_project_url_private_api() + '/nb/startSession'

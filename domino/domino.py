@@ -244,6 +244,12 @@ class Domino:
             raise Exception(disposition.get("message"))
         else:
             return disposition
+        
+    def app_publish(self):
+        url = self._routes.app_publish()
+        request = {"language": "App"}
+        response = requests.post(url, auth=('', self._api_key), json=request)
+        return response
 
     # Helper methods
     def _get(self, url):
