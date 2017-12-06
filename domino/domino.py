@@ -263,12 +263,22 @@ class Domino:
             raise Exception(disposition.get("message"))
         else:
             return disposition
+
         
-    def app_publish(self):
+    # App functions
+    def app_publish(self, unpublishRunningApps=True):
+        if unpublishRunningApps == True:
+            self.app_unpublish()
         url = self._routes.app_publish()
         request = {"language": "App"}
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
+    
+    def app_unpublish(self):
+        apps = [r for r in self.runs_list()['data'] if r['notebookName'] == 'App' and r['isCompleted'] == False]
+        for app in apps:
+            domino.run_stop(app['id'])
+    
 
     # Helper methods
     def _get(self, url):
