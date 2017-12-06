@@ -277,7 +277,7 @@ class Domino:
     def app_unpublish(self):
         apps = [r for r in self.runs_list()['data'] if r['notebookName'] == 'App' and r['isCompleted'] == False]
         for app in apps:
-            domino.run_stop(app['id'])
+            self.run_stop(app['id'])
     
 
     # Helper methods
