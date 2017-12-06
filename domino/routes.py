@@ -18,7 +18,7 @@ class _Routes:
     def runs_start(self):
         return self._build_project_url() + '/runs'
     
-     def run_stop(self, runId):
+    def run_stop(self, runId):
         return self._build_project_url_private_api() + '/run/stop/' + runId
 
     def runs_status(self, runId):
