@@ -156,7 +156,7 @@ class Domino:
             "ignoreRepoState": False
         }
         response = requests.post(url, auth=('', self._api_key), json=request)
-        return response.json()
+        return response
     
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
