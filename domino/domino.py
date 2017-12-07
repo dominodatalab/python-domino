@@ -157,10 +157,10 @@ class Domino:
         }
         response = requests.post(url, auth=('', self._api_key), json=request)
         
-        if response.status_code != 400:
-            return response
-        else:
+        if response.status_code == 400:
             raise Warning("Run ID:" + runId + " not found.")
+        else:
+            return response            
     
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
