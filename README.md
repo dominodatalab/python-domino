@@ -86,6 +86,12 @@ Retrieve a file from the Domino server by blob key. The parameters are:
 
 * **key:** The key of the file to fetch from the blob server.
 
+> ### app_publish(*unpublishRunningApps=True*)
+
+Publishes an app in the Domino project.  
+
+* *unpublishRunningApps:* (Defaults to True) Will unpublish any active app instances in the current project.
+
 ---
 
 ## License
