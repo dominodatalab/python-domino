@@ -142,7 +142,26 @@ class Domino:
                 break
 
         return run_response
-
+   
+    def run_stop(self, runId, saveChanges=True, commitMessage=None):
+        """
+        :param runId: string
+        :param saveChanges: boolean (Optional) Save or discard run results.
+        :param commitMessage: string (Optional)
+        """
+        url = self._routes.run_stop(runId)
+        request = {
+            "saveChanges": saveChanges,
+            "commitMessage": commitMessage,
+            "ignoreRepoState": False
+        }
+        response = requests.post(url, auth=('', self._api_key), json=request)
+        
+        if response.status_code == 400:
+            raise Warning("Run ID:" + runId + " not found.")
+        else:
+            return response            
+    
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
         return self._get(url)
@@ -244,12 +263,22 @@ class Domino:
             raise Exception(disposition.get("message"))
         else:
             return disposition
+
         
-    def app_publish(self):
+    # App functions
+    def app_publish(self, unpublishRunningApps=True):
+        if unpublishRunningApps == True:
+            self.app_unpublish()
         url = self._routes.app_publish()
         request = {"language": "App"}
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
+    
+    def app_unpublish(self):
+        apps = [r for r in self.runs_list()['data'] if r['notebookName'] == 'App' and r['isCompleted'] == False]
+        for app in apps:
+            self.run_stop(app['id'])
+    
 
     # Helper methods
     def _get(self, url):

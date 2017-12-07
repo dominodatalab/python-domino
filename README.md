@@ -57,6 +57,16 @@ Same as method `run_start` except make a blocking request that waits until job i
 * *poll_freq:* (Optional) Number of seconds in between polling of the Domino server for status of the task that is running.
 * *max_poll_time:* (Optional) Maximum number of seconds to wait for a task to complete.  If this threshold is exceeded, an exception is raised.
 
+
+> ### run_stop(*runId, saveChanges=True, commitMessage=None*):
+
+Stop an existing run in the selected project. The parameters are:
+
+* *runId:* string that identifies the run
+* *saveChanges:* (Defaults to True) If false, run results will be discarded.
+* *commitMessage:* (Optional) Adds a Domino commit message to the run commit. 
+
+
 > ### runs_stdout(*runId*)
 
 Get stdout emitted by a particular run.  The parameters are:
@@ -85,6 +95,17 @@ Upload a Python file object into the specified path inside the project. See `exa
 Retrieve a file from the Domino server by blob key. The parameters are:
 
 * **key:** The key of the file to fetch from the blob server.
+
+> ### app_publish(*unpublishRunningApps=True*)
+
+Publishes an app in the Domino project, or republish an existing app. The parameters are:
+
+* *unpublishRunningApps:* (Defaults to True) Will check for any active app instances in the current project and unpublish them before publishing. 
+
+> ### app_unpublish()
+
+Stops all running apps in the Domino project.  
+
 
 ---
 
