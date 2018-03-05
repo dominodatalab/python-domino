@@ -1,7 +1,15 @@
 # python-domino
 
-Python bindings for the Domino Data Lab API. Permits interaction with a Domino server from Python
-using the API.
+Python bindings for the Domino Data Lab API. Permits interaction with a Domino deployment from Python
+using the [Domino APIs](https://dominodatalab.github.io/api-docs/).
+
+## Install
+
+At this time, these Domino Data Lab Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with
+
+```
+pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+```
 
 ## Overview
 
