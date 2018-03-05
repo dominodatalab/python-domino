@@ -3,13 +3,19 @@
 Python bindings for the Domino Data Lab API. Permits interaction with a Domino deployment from Python
 using the [Domino APIs](https://dominodatalab.github.io/api-docs/).
 
-## Install
+## Installation 
 
-At this time, these Domino Data Lab Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with
+At this time, these Domino Data Lab Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
 
-```
-pip install https://github.com/dominodatalab/python-domino/archive/master.zip
-```
+    pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+
+If adding to your [Domino Compute Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) `Dockerfile Instructions` field, you would add `RUN` to the beginning:
+
+    RUN pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+
+You can also add python-domino to your `requirements.txt` file with the following syntax:
+
+    -f git+git://github.com/dominodatalab/python-domino.git
 
 ## Overview
 
