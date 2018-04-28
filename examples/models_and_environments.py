@@ -17,3 +17,10 @@ print("Environment chosen is {}".format(chosen_environment_id))
 # From all the models, choose one
 all_available_models = domino.models_list()
 print("This project has {} models".format(len(all_available_models.get('data',[]))))
+
+# Publish a brand new model
+published_model = domino.model_publish(file="main.R", function="api_endpoint",
+                                       environment_id=chosen_environment_id,
+                                       name="Model published from API!",
+                                       description="A great model")
+print(published_model)

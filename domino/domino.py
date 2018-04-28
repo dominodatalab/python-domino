@@ -10,6 +10,7 @@ import logging
 import requests
 import time
 import pprint
+import re
 
 
 class Domino:
@@ -43,6 +44,8 @@ class Domino:
         # Get version
         self._version = self.deployment_version().get("version")
         print("Your Domino deployment is running version {}".format(self._version))
+
+        # set project ID to blank, we may or may not need it later
 
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
@@ -298,7 +301,7 @@ class Domino:
         request = {
             "name": name,
             "description": description,
-            "projectId": TBD,
+            "projectId": self._project_id,
             "file": file,
             "function": function,
             "excludeFiles": files_to_exclude,
@@ -306,7 +309,7 @@ class Domino:
         }
 
         response = requests.post(url, auth=('', self._api_key), json=request)
-        return response
+        return response.json()
 
     # Helper methods
     def _get(self, url):
@@ -327,6 +330,18 @@ class Domino:
             raise Exception("You need at least version {} but your deployment \
                             seems to be running {}".format(
                             at_least_version, self._version))
+
+    # Workaround to get project ID which is needed for some model functions
+    @property
+    def _project_id(self):
+        url = self._routes.publish_ui()
+        response = requests.get(url, auth=('', self._api_key))
+        regex = re.compile("/models/create\\?projectId=(.{24,24})")
+        matches = regex.findall(response.content)
+        if len(matches) > 0:
+            return matches[0]
+        else:
+            return None
 
 
 def parse_play_flash_cookie(response):
