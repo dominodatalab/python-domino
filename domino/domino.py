@@ -290,6 +290,24 @@ class Domino:
         url = self._routes.models_list()
         return self._get(url)
 
+    def model_publish(self, file, function, environment_id, name,
+                      description="A great model", files_to_exclude=[]):
+
+        url = self._routes.model_publish()
+
+        request = {
+            "name": name,
+            "description": description,
+            "projectId": TBD,
+            "file": file,
+            "function": function,
+            "excludeFiles": files_to_exclude,
+            "environmentId": environment_id
+        }
+
+        response = requests.post(url, auth=('', self._api_key), json=request)
+        return response
+
     # Helper methods
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()
