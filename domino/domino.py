@@ -279,6 +279,12 @@ class Domino:
         for app in apps:
             self.run_stop(app['id'])
     
+    # Environment functions
+    def environments_list(self):
+        self.requires_at_least("2.5.0")
+        url = self._routes.environments_list()
+        return self._get(url)
+
 
     # Helper methods
     def _get(self, url):
