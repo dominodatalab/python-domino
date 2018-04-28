@@ -156,12 +156,12 @@ class Domino:
             "ignoreRepoState": False
         }
         response = requests.post(url, auth=('', self._api_key), json=request)
-        
+
         if response.status_code == 400:
             raise Warning("Run ID:" + runId + " not found.")
         else:
-            return response            
-    
+            return response
+
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
         return self._get(url)
@@ -198,7 +198,7 @@ class Domino:
 
     def fork_project(self, target_name):
         url = self._routes.fork_project()
-        request = { "overrideProjectName" : target_name}
+        request = {"overrideProjectName": target_name}
         response = requests.post(url, auth=('', self._api_key), data=request)
         return response.status_code
 
@@ -264,27 +264,25 @@ class Domino:
         else:
             return disposition
 
-        
     # App functions
     def app_publish(self, unpublishRunningApps=True):
-        if unpublishRunningApps == True:
+        if unpublishRunningApps is True:
             self.app_unpublish()
         url = self._routes.app_publish()
         request = {"language": "App"}
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
-    
+
     def app_unpublish(self):
         apps = [r for r in self.runs_list()['data'] if r['notebookName'] == 'App' and r['isCompleted'] == False]
         for app in apps:
             self.run_stop(app['id'])
-    
+
     # Environment functions
     def environments_list(self):
         self.requires_at_least("2.5.0")
         url = self._routes.environments_list()
         return self._get(url)
-
 
     # Helper methods
     def _get(self, url):
