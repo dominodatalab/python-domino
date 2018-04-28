@@ -284,6 +284,12 @@ class Domino:
         url = self._routes.environments_list()
         return self._get(url)
 
+    # Model Manager functions
+    def models_list(self):
+        self.requires_at_least("2.5.0")
+        url = self._routes.models_list()
+        return self._get(url)
+
     # Helper methods
     def _get(self, url):
         return requests.get(url, auth=('', self._api_key)).json()

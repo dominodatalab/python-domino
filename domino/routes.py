@@ -18,7 +18,7 @@ class _Routes:
         return self.host + '/' \
             + self._owner_username + '/' + self._project_name
 
-    def _build_models_url():
+    def _build_models_url(self):
         return self.host + '/v1/models'
 
     # Project URLs
@@ -74,16 +74,16 @@ class _Routes:
 
     # Model Manager URLs
     def models_list(self):
-        return self._build_project_url
+        return self._build_project_url() + '/models'
 
     def model_publish(self):
-        return self._build_models_url
+        return self._build_models_url()
 
     def model_version_get(self, model_id):
-        return self._build_models_url + '/' + model_id + '/versions'
+        return self._build_models_url() + '/' + model_id + '/versions'
 
     def model_version_publish(self, model_id):
-        return self._build_models_url + '/' + model_id + '/versions'
+        return self._build_models_url() + '/' + model_id + '/versions'
 
     # Environment URLs
     def environments_list(self):
