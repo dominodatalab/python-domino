@@ -79,7 +79,7 @@ class _Routes:
     def model_publish(self):
         return self._build_models_url()
 
-    def model_version_get(self, model_id):
+    def model_versions_get(self, model_id):
         return self._build_models_url() + '/' + model_id + '/versions'
 
     def model_version_publish(self, model_id):

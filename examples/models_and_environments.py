@@ -23,4 +23,24 @@ published_model = domino.model_publish(file="main.R", function="api_endpoint",
                                        environment_id=chosen_environment_id,
                                        name="Model published from API!",
                                        description="A great model")
+published_model_id = published_model.get('data',{}).get('_id')
+print("Model {} published, details below:".format(published_model_id))
 print(published_model)
+
+# Get model versions
+def describe_model_versions(model_id):
+    model_versions = domino.model_versions_get(model_id)
+    print("Model {} has {} versions:".format(model_id, len(model_versions.get('data', []))))
+    print(model_versions)
+
+describe_model_versions(published_model_id)
+
+# Publlish another version for this model
+another_model_version = domino.model_version_publish(model_id=published_model_id,
+                                                     file="main.R",
+                                                     function="api_endpoint",
+                                                     environment_id=chosen_environment_id,
+                                                     name="Model published from API! -- second version",
+                                                     description="A great model -- second version")
+
+describe_model_versions(published_model_id)

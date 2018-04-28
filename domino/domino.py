@@ -43,7 +43,8 @@ class Domino:
 
         # Get version
         self._version = self.deployment_version().get("version")
-        print("Your Domino deployment is running version {}".format(self._version))
+        print("Your Domino deployment is running \
+              version {}".format(self._version))
 
         # set project ID to blank, we may or may not need it later
 
@@ -82,34 +83,38 @@ class Domino:
         parameters
         ----------
         command : list of strings
-                  list that containst the name of the file to run in index 0 and
-                  args in subsequent positions.
+                  list that containst the name of the file to run in index 0
+                  and args in subsequent positions.
                   example:
                   >> domino.runs_start(["main.py", "arg1", "arg2"])
 
         isDirect : boolean (Optional)
-                   Whether or not this command should be passed directly to a shell.
+                   Whether or not this command should be passed directly to
+                   a shell.
 
         commitId : string (Optional)
-                   The commitId to launch from. If not provided, will launch from latest commit.
+                   The commitId to launch from. If not provided, will launch
+                   from latest commit.
 
         title    : string (Optional)
                    A title for the run
 
         tier     : string (Optional)
-                   The hardware tier to use for the run. Will use project default
-                   tier if not provided.
+                   The hardware tier to use for the run. Will use project
+                   default tier if not provided.
 
         publishApiEndpoint : boolean (Optional)
-                            Whether or not to publish an API endpoint from the resulting output.
+                            Whether or not to publish an API endpoint from the
+                            resulting output.
 
         poll_freq : int (Optional)
-                    Number of seconds in between polling of the Domino server for
-                    status of the task that is running.
+                    Number of seconds in between polling of the Domino server
+                    for status of the task that is running.
 
         max_poll_time : int (Optional)
-                        Maximum number of seconds to wait for a task to complete.
-                        If this threshold is exceeded, an exception is raised.
+                        Maximum number of seconds to wait for a task to
+                        complete. If this threshold is exceeded, an exception
+                        is raised.
         """
         run_response = self.runs_start(command, isDirect, commitId, title,
                                        tier, publishApiEndpoint)
@@ -283,20 +288,46 @@ class Domino:
 
     # Environment functions
     def environments_list(self):
-        self.requires_at_least("2.5.0")
+        self.requires_at_least("2.4.0")
         url = self._routes.environments_list()
         return self._get(url)
 
     # Model Manager functions
     def models_list(self):
-        self.requires_at_least("2.5.0")
+        self.requires_at_least("2.4.0")
         url = self._routes.models_list()
         return self._get(url)
 
     def model_publish(self, file, function, environment_id, name,
                       description="A great model", files_to_exclude=[]):
+        self.requires_at_least("2.4.0")
 
         url = self._routes.model_publish()
+
+        request = {
+            "name": name,
+            "description": description,
+            "projectId": self._project_id,
+            "file": file,
+            "function": function,
+            "excludeFiles": files_to_exclude,
+            "environmentId": environment_id
+        }
+
+        response = requests.post(url, auth=('', self._api_key), json=request)
+        return response.json()
+
+    def model_versions_get(self, model_id):
+        self.requires_at_least("2.4.0")
+        url = self._routes.model_versions_get(model_id)
+        return self._get(url)
+
+    def model_version_publish(self, model_id, file, function, environment_id,
+                              name, description="A great model",
+                              files_to_exclude=[]):
+        self.requires_at_least("2.4.0")
+
+        url = self._routes.model_version_publish(model_id)
 
         request = {
             "name": name,
