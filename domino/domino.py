@@ -126,7 +126,9 @@ class Domino:
             elapsed_time = time.time() - poll_start
 
             if elapsed_time >= max_poll_time:
-                raise Exception('Run exceeded maximum time of {} seconds'.format(max_poll_time))
+                raise Exception('Run \
+                                exceeded maximum time of \
+                                {} seconds'.format(max_poll_time))
 
             if run_info is None:
                 raise Exception("Tried to access nonexistent run id {}.".
@@ -142,7 +144,8 @@ class Domino:
                 stdout_msg = self.runs_stdout(run_id)
 
                 if run_info['status'] != 'Succeeded':
-                    header_msg = ("Remote run {0} finished but did not succeed.\n"
+                    header_msg = ("Remote run {0} \
+                                  finished but did not succeed.\n"
                                   .format(run_id))
                     raise Exception(header_msg + stdout_msg)
 
@@ -150,7 +153,7 @@ class Domino:
                 break
 
         return run_response
-   
+
     def run_stop(self, runId, saveChanges=True, commitMessage=None):
         """
         :param runId: string
