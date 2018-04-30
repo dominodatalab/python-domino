@@ -291,19 +291,19 @@ class Domino:
 
     # Environment functions
     def environments_list(self):
-        self.requires_at_least("2.4.0")
+        self.requires_at_least("2.5.0")
         url = self._routes.environments_list()
         return self._get(url)
 
     # Model Manager functions
     def models_list(self):
-        self.requires_at_least("2.4.0")
+        self.requires_at_least("2.5.0")
         url = self._routes.models_list()
         return self._get(url)
 
     def model_publish(self, file, function, environment_id, name,
                       description="A great model", files_to_exclude=[]):
-        self.requires_at_least("2.4.0")
+        self.requires_at_least("2.5.0")
 
         url = self._routes.model_publish()
 
@@ -321,14 +321,14 @@ class Domino:
         return response.json()
 
     def model_versions_get(self, model_id):
-        self.requires_at_least("2.4.0")
+        self.requires_at_least("2.5.0")
         url = self._routes.model_versions_get(model_id)
         return self._get(url)
 
     def model_version_publish(self, model_id, file, function, environment_id,
                               name, description="A great model",
                               files_to_exclude=[]):
-        self.requires_at_least("2.4.0")
+        self.requires_at_least("2.5.0")
 
         url = self._routes.model_version_publish(model_id)
 
