@@ -204,6 +204,7 @@ class Domino:
         return self._put_file(url, file)
 
     def blobs_get(self, key):
+        self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
         return self._open_url(url)
 
@@ -357,6 +358,14 @@ class Domino:
         handler = urllib2.HTTPBasicAuthHandler(password_mgr)
         opener = urllib2.build_opener(handler)
         return opener.open(url)
+
+    def _validate_blob_key(self, key):
+        regex = re.compile("^\\w{40,40}$")
+        if not regex.match(key):
+            raise Exception(("Blob key should be 40 alphanumeric charachters. "
+                             "Perhaps you passed a file path on accident? "
+                             "If you have a file path and want to get the "
+                             "file, use files_list to get the blob key."))
 
     def requires_at_least(self, at_least_version):
         if at_least_version > self._version:
