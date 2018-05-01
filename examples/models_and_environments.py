@@ -24,7 +24,7 @@ print("This project \
 published_model = domino.model_publish(file="main.R", function="api_endpoint",
                                        environment_id=chosen_environment_id,
                                        name="Model published from API!",
-                                       description="A great model")
+                                       description="v1")
 published_model_id = published_model.get('data', {}).get('_id')
 print("Model {} published, details below:".format(published_model_id))
 print(published_model)
@@ -45,6 +45,6 @@ another_model_version = domino.model_version_publish(model_id=published_model_id
                                                      function="api_endpoint",
                                                      environment_id=chosen_environment_id,
                                                      name="Model published from API! -- second version",
-                                                     description="A great model -- second version")
+                                                     description="v2")
 
 describe_model_versions(published_model_id)

@@ -302,7 +302,7 @@ class Domino:
         return self._get(url)
 
     def model_publish(self, file, function, environment_id, name,
-                      description="A great model", files_to_exclude=[]):
+                      description, files_to_exclude=[]):
         self.requires_at_least("2.5.0")
 
         url = self._routes.model_publish()
@@ -326,8 +326,7 @@ class Domino:
         return self._get(url)
 
     def model_version_publish(self, model_id, file, function, environment_id,
-                              name, description="A great model",
-                              files_to_exclude=[]):
+                              name, description, files_to_exclude=[]):
         self.requires_at_least("2.5.0")
 
         url = self._routes.model_version_publish(model_id)
