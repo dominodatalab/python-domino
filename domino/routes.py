@@ -43,6 +43,9 @@ class _Routes:
     def files_upload(self, path):
         return self._build_project_url() + path
 
+    def commits_list(self):
+        return self._build_project_url() + '/commits'
+
     def blobs_get(self, key):
         return self._build_project_url() + '/blobs/' + key
 
