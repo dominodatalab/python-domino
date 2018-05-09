@@ -52,6 +52,10 @@ class Domino:
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
 
+    def commits_list(self):
+        url = self._routes.commits_list()
+        return self._get(url)
+
     def runs_list(self):
         url = self._routes.runs_list()
         return self._get(url)
