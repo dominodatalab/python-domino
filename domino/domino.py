@@ -5,6 +5,7 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
+from future.utils import raise_from
 import os
 import logging
 import requests
@@ -75,6 +76,7 @@ class Domino:
         }
 
         response = requests.post(url, auth=('', self._api_key), json=request)
+        raise_status_with_body(response)
         return response.json()
 
     def runs_start_blocking(self, command, isDirect=False, commitId=None,
@@ -274,6 +276,7 @@ class Domino:
         }
         response = requests.post(url, auth=('', self._api_key), data=request,
                                  allow_redirects=False)
+        raise_status_with_body(response)
         disposition = parse_play_flash_cookie(response)
         if disposition.get("error"):
             raise Exception(disposition.get("message"))
@@ -323,6 +326,7 @@ class Domino:
         }
 
         response = requests.post(url, auth=('', self._api_key), json=request)
+        raise_status_with_body(response)
         return response.json()
 
     def model_versions_get(self, model_id):
@@ -347,11 +351,14 @@ class Domino:
         }
 
         response = requests.post(url, auth=('', self._api_key), json=request)
+        raise_status_with_body(response)
         return response.json()
 
     # Helper methods
     def _get(self, url):
-        return requests.get(url, auth=('', self._api_key)).json()
+        response = requests.get(url, auth=('', self._api_key))
+        raise_status_with_body(response)
+        return response.json()
 
     def _put_file(self, url, file):
         return requests.put(url, data=file, auth=('', self._api_key))
@@ -383,12 +390,22 @@ class Domino:
         url = self._routes.publish_ui()
         response = requests.get(url, auth=('', self._api_key))
         regex = re.compile("/models/create\\?projectId=(.{24,24})")
+        raise_status_with_body(response)
         matches = regex.findall(response.content)
         if len(matches) > 0:
             return matches[0]
         else:
             return None
 
+def raise_status_with_body(response):
+    try:
+        response.raise_for_status()
+    except Exception as e:
+        response_text = response.text
+        if response_text and '<html' not in response_text:
+            raise_from(e.__class__(str(e) + '\n' + response_text), e)
+        else:
+            raise
 
 def parse_play_flash_cookie(response):
     flash_cookie = response.cookies['PLAY_FLASH']
