@@ -383,7 +383,7 @@ class Domino:
         url = self._routes.publish_ui()
         response = requests.get(url, auth=('', self._api_key))
         regex = re.compile("/models/create\\?projectId=(.{24,24})")
-        matches = regex.findall(response.content)
+        matches = regex.findall(response.text)
         if len(matches) > 0:
             return matches[0]
         else:
