@@ -7,9 +7,9 @@ domino = Domino("marks/quick-start-fork",
 
 # From all the environments, choose the first globally visible one
 all_available_environments = domino.environments_list()
-global_environments = filter(
+global_environments = list(filter(
     lambda x: x.get('visibility') == 'Global',
-    all_available_environments['data'])
+    all_available_environments['data']))
 print("This Domino deployment has \
       {} gloabl environments".format(len(global_environments)))
 chosen_environment_id = global_environments[0].get('id')
