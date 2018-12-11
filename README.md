@@ -53,7 +53,7 @@ Start a new run on the selected project. The parameters are:
 * *isDirect:* (Optional) Whether or not this command should be passed directly to a shell.
 * *commitId:* (Optional) The commitId to launch from. If not provided, will launch from latest commit.
 * *title:* (Optional) A title for the run.
-* *tier:* (Optional) The hardware tier to use for the run. Will use project default tier if not provided.
+* *tier:* (Optional) The hardware tier to use for the run. This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium".  Will use project default tier if not provided. 
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 
 
