@@ -39,15 +39,16 @@ The parameters are:
   
 <hr>
 
----
-
 ## Methods
 
+
+<hr>
 
 ### runs_list()
 
 List the runs on the selected project.
 
+<hr>
 
 ### runs_start(*command, isDirect, commitId, title, tier, publishApiEndpoint*)
 
@@ -61,6 +62,7 @@ Start a new run on the selected project. The parameters are:
 * *tier:* (Optional) The hardware tier to use for the run. This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium".  Will use project default tier if not provided. 
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 
+<hr>
 
 ### runs_start_blocking(*command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
 
@@ -76,6 +78,7 @@ Same as method `run_start` except make a blocking request that waits until job i
 * *poll_freq:* (Optional) Number of seconds in between polling of the Domino server for status of the task that is running.
 * *max_poll_time:* (Optional) Maximum number of seconds to wait for a task to complete.  If this threshold is exceeded, an exception is raised.
 
+<hr>
 
 ### run_stop(*runId, saveChanges=True, commitMessage=None*):
 
@@ -85,6 +88,7 @@ Stop an existing run in the selected project. The parameters are:
 * *saveChanges:* (Defaults to True) If false, run results will be discarded.
 * *commitMessage:* (Optional) Adds a Domino commit message to the run commit. 
 
+<hr>
 
 ### runs_stdout(*runId*)
 
@@ -92,6 +96,7 @@ Get stdout emitted by a particular run.  The parameters are:
 
 * *runId:* string that identifies the run
 
+<hr>
 
 ### files_list(*commitId, path*)
 
@@ -100,6 +105,7 @@ List the files in a folder in the Domino project. The parameters are:
 * *commitId:* The commitId to list files from.
 * *path:* (Defaults to "/") The path to list from.
 
+<hr>
 
 ### files_upload(*path, file*)
 
@@ -108,6 +114,7 @@ Upload a Python file object into the specified path inside the project. See `exa
 * *path:* The path to save the file to. For example, `/README.md` will write to the root directory of the project while `/data/numbers.csv` will save the file to a subfolder named `data` (if the `data` folder does not yet exist, it will be created)
 * *file:* A Python file object. For example, `f = open("authors.txt","rb")`
 
+<hr>
 
 ### blobs_get(*key*)
 
@@ -115,18 +122,21 @@ Retrieve a file from the Domino server by blob key. The parameters are:
 
 * **key:** The key of the file to fetch from the blob server.
 
+<hr>
+
 ### app_publish(*unpublishRunningApps=True*)
 
 Publishes an app in the Domino project, or republish an existing app. The parameters are:
 
 * *unpublishRunningApps:* (Defaults to True) Will check for any active app instances in the current project and unpublish them before publishing. 
 
+<hr>
+
 ### app_unpublish()
 
 Stops all running apps in the Domino project.  
 
-
----
+<hr>
 
 ## License
 
