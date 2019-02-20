@@ -1,21 +1,23 @@
 # python-domino
 
-Python bindings for the Domino Data Lab API. Permits interaction with a Domino deployment from Python
-using the [Domino APIs](https://dominodatalab.github.io/api-docs/).
+Python bindings for the Domino API.
+
+Permits interaction with a Domino deployment from Python using the [Domino API](https://dominodatalab.github.io/api-docs/).
 
 ## Installation 
 
-At this time, these Domino Data Lab Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
+At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
 
     pip install https://github.com/dominodatalab/python-domino/archive/master.zip
 
-If adding to your [Domino Compute Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) `Dockerfile Instructions` field, you would add `RUN` to the beginning:
+If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) `Dockerfile Instructions` field, you must add `RUN` to the beginning:
 
     RUN pip install https://github.com/dominodatalab/python-domino/archive/master.zip
 
-You can also add python-domino to your `requirements.txt` file with the following syntax:
+You can also add `python-domino` to your `requirements.txt` file with the following syntax:
 
     -f git+git://github.com/dominodatalab/python-domino.git
+
 
 ## Overview
 
@@ -23,8 +25,9 @@ You can also add python-domino to your `requirements.txt` file with the followin
 
 You can set up the connection by creating new instance of `Domino`.
 
+<hr>
 
-> ### *class* Domino(project, api_key=None, host=None)
+### *class* Domino(project, api_key=None, host=None)
 
 The parameters are:
 
@@ -33,18 +36,20 @@ The parameters are:
   in the DOMINO_USER_API_KEY environment variable.
 * *host:* (Optional) A host URL. If not provided the library will expect to find one in the DOMINO_API_HOST
   environment variable.
+  
+<hr>
 
 ---
 
 ## Methods
 
 
-> ### runs_list()
+### runs_list()
 
 List the runs on the selected project.
 
 
-> ### runs_start(*command, isDirect, commitId, title, tier, publishApiEndpoint*)
+### runs_start(*command, isDirect, commitId, title, tier, publishApiEndpoint*)
 
 Start a new run on the selected project. The parameters are:
 
@@ -57,7 +62,7 @@ Start a new run on the selected project. The parameters are:
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 
 
-> ### runs_start_blocking(*command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
+### runs_start_blocking(*command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
 
 Same as method `run_start` except make a blocking request that waits until job is finished.
 
@@ -72,7 +77,7 @@ Same as method `run_start` except make a blocking request that waits until job i
 * *max_poll_time:* (Optional) Maximum number of seconds to wait for a task to complete.  If this threshold is exceeded, an exception is raised.
 
 
-> ### run_stop(*runId, saveChanges=True, commitMessage=None*):
+### run_stop(*runId, saveChanges=True, commitMessage=None*):
 
 Stop an existing run in the selected project. The parameters are:
 
@@ -81,14 +86,14 @@ Stop an existing run in the selected project. The parameters are:
 * *commitMessage:* (Optional) Adds a Domino commit message to the run commit. 
 
 
-> ### runs_stdout(*runId*)
+### runs_stdout(*runId*)
 
 Get stdout emitted by a particular run.  The parameters are:
 
 * *runId:* string that identifies the run
 
 
-> ### files_list(*commitId, path*)
+### files_list(*commitId, path*)
 
 List the files in a folder in the Domino project. The parameters are:
 
@@ -96,7 +101,7 @@ List the files in a folder in the Domino project. The parameters are:
 * *path:* (Defaults to "/") The path to list from.
 
 
-> ### files_upload(*path, file*)
+### files_upload(*path, file*)
 
 Upload a Python file object into the specified path inside the project. See `examples/upload_file.py` for an example. The parameters, both of which are required, are:
 
@@ -104,19 +109,19 @@ Upload a Python file object into the specified path inside the project. See `exa
 * *file:* A Python file object. For example, `f = open("authors.txt","rb")`
 
 
-> ### blobs_get(*key*)
+### blobs_get(*key*)
 
 Retrieve a file from the Domino server by blob key. The parameters are:
 
 * **key:** The key of the file to fetch from the blob server.
 
-> ### app_publish(*unpublishRunningApps=True*)
+### app_publish(*unpublishRunningApps=True*)
 
 Publishes an app in the Domino project, or republish an existing app. The parameters are:
 
 * *unpublishRunningApps:* (Defaults to True) Will check for any active app instances in the current project and unpublish them before publishing. 
 
-> ### app_unpublish()
+### app_unpublish()
 
 Stops all running apps in the Domino project.  
 
@@ -125,5 +130,5 @@ Stops all running apps in the Domino project.
 
 ## License
 
-This library is made available under the Apache 2.0 License. This is an open-source project of
-[Domino Data Lab](https://www.dominodatalab.com).
+This library is made available under the Apache 2.0 License.
+This is an open-source project of [Domino Data Lab](https://www.dominodatalab.com).
