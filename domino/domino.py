@@ -281,11 +281,14 @@ class Domino:
             return disposition
 
     # App functions
-    def app_publish(self, unpublishRunningApps=True):
+    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
         if unpublishRunningApps is True:
             self.app_unpublish()
         url = self._routes.app_publish()
-        request = {"language": "App"}
+        if hardwareTierId is None:
+            request = {"language": "App"}
+        else:
+            request = {"language": "App", "hardwareTierId": hardwareTierId}
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
