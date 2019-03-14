@@ -285,10 +285,7 @@ class Domino:
         if unpublishRunningApps is True:
             self.app_unpublish()
         url = self._routes.app_publish()
-        if hardwareTierId is None:
-            request = {"language": "App"}
-        else:
-            request = {"language": "App", "hardwareTierId": hardwareTierId}
+        request = {"language": "App", "hardwareTierId": hardwareTierId}
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
