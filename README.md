@@ -124,11 +124,12 @@ Retrieve a file from the Domino server by blob key. The parameters are:
 
 <hr>
 
-### app_publish(*unpublishRunningApps=True*)
+### app_publish(*unpublishRunningApps=True*, *hardwareTierId=None*)
 
 Publishes an app in the Domino project, or republish an existing app. The parameters are:
 
-* *unpublishRunningApps:* (Defaults to True) Will check for any active app instances in the current project and unpublish them before publishing. 
+* *unpublishRunningApps:* (Defaults to True) Will check for any active app instances in the current project and unpublish them before publishing.
+* *hardwareTierId:* (Optional) Will launch the app on the specified hardware tier. Only applies for Domino 3.4+.
 
 <hr>
 
