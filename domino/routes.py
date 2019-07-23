@@ -88,8 +88,11 @@ class _Routes:
     def model_version_publish(self, model_id):
         return self._build_models_url() + '/' + model_id + '/versions'
 
-    def publish_ui(self):
+    def publish_ui_legacy(self):
         return self._build_project_url_private_api() + '/endpoints'
+
+    def publish_ui(self):
+        return self._build_project_url_private_api() + '/endpoints/modelManager'
 
     # Environment URLs
     def environments_list(self):
