@@ -281,11 +281,11 @@ class Domino:
             return disposition
 
     # App functions
-    def app_publish(self, unpublishRunningApps=True):
+    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
         if unpublishRunningApps is True:
             self.app_unpublish()
         url = self._routes.app_publish()
-        request = {"language": "App"}
+        request = {"language": "App", "hardwareTierId": hardwareTierId}
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
@@ -381,6 +381,9 @@ class Domino:
     @property
     def _project_id(self):
         url = self._routes.publish_ui()
+        if self._version < "3.2.0":
+            url = self._routes.publish_ui_legacy()
+
         response = requests.get(url, auth=('', self._api_key))
         regex = re.compile("/models/create\\?projectId=(.{24,24})")
         matches = regex.findall(response.text)
