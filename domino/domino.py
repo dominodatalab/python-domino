@@ -352,8 +352,6 @@ class Domino:
 
     # Datasets Functions
     def datasets_list(self):
-        # url = self._routes.runs_list()
-        # return self._get(url)
         url = self._routes.datasets_list()
         return self._get(url)
 
