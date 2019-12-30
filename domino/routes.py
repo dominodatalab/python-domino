@@ -105,3 +105,7 @@ class _Routes:
     # App URLs
     def app_publish(self):
         return self._build_project_url_private_api() + '/nb/startSession'
+
+    # Datasets URLs
+    def datasets_list(self, project_id=None):
+        return self._build_project_url() + '/dataset?projectId=' + project_id

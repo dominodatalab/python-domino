@@ -245,20 +245,20 @@ class Domino:
         url = self._routes.deployment_version()
         return self._get(url)
 
-    def project_create(self, owner_username, project_name):
-        self.requires_at_least("1.53.0.0")
-        url = self._routes.project_create()
-        request = {
-            'owner': owner_username,
-            'name': project_name
-        }
-        response = requests.post(url, auth=('', self._api_key), data=request,
-                                 allow_redirects=False)
-        disposition = parse_play_flash_cookie(response)
-        if disposition.get("error"):
-            raise Exception(disposition.get("message"))
-        else:
-            return disposition
+    # def project_create(self, owner_username, project_name):
+    #     self.requires_at_least("1.53.0.0")
+    #     url = self._routes.project_create()
+    #     request = {
+    #         'owner': owner_username,
+    #         'name': project_name
+    #     }
+    #     response = requests.post(url, auth=('', self._api_key), data=request,
+    #                              allow_redirects=False)
+    #     disposition = parse_play_flash_cookie(response)
+    #     if disposition.get("error"):
+    #         raise Exception(disposition.get("message"))
+    #     else:
+    #         return disposition
 
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
@@ -325,6 +325,7 @@ class Domino:
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response.json()
 
+
     def model_versions_get(self, model_id):
         self.requires_at_least("2.5.0")
         url = self._routes.model_versions_get(model_id)
@@ -348,6 +349,13 @@ class Domino:
 
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response.json()
+
+    # Datasets Functions
+    def datasets_list(self):
+        # url = self._routes.runs_list()
+        # return self._get(url)
+        url = self._routes.datasets_list()
+        return self._get(url)
 
     # Helper methods
     def _get(self, url):
