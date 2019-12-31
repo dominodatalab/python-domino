@@ -34,8 +34,10 @@ class Domino:
 
         if api_key is not None:
             self._api_key = api_key
+            print('Using the supplied API key.')
         elif 'DOMINO_USER_API_KEY' in os.environ:
             self._api_key = os.environ['DOMINO_USER_API_KEY']
+            print('Using the API key found in the environment variable DOMINO_USER_API_KEY.')
         else:
             raise Exception("API key must be provided, either via the \
                 constructor value or through DOMINO_USER_API_KEY environment \
@@ -245,20 +247,20 @@ class Domino:
         url = self._routes.deployment_version()
         return self._get(url)
 
-    # def project_create(self, owner_username, project_name):
-    #     self.requires_at_least("1.53.0.0")
-    #     url = self._routes.project_create()
-    #     request = {
-    #         'owner': owner_username,
-    #         'name': project_name
-    #     }
-    #     response = requests.post(url, auth=('', self._api_key), data=request,
-    #                              allow_redirects=False)
-    #     disposition = parse_play_flash_cookie(response)
-    #     if disposition.get("error"):
-    #         raise Exception(disposition.get("message"))
-    #     else:
-    #         return disposition
+    def project_create(self, owner_username, project_name):
+        self.requires_at_least("1.53.0.0")
+        url = self._routes.project_create()
+        request = {
+            'owner': owner_username,
+            'name': project_name
+        }
+        response = requests.post(url, auth=('', self._api_key), data=request,
+                                 allow_redirects=False)
+        disposition = parse_play_flash_cookie(response)
+        if disposition.get("error"):
+            raise Exception(disposition.get("message"))
+        else:
+            return disposition
 
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
@@ -351,8 +353,9 @@ class Domino:
         return response.json()
 
     # Datasets Functions
-    def datasets_list(self):
-        url = self._routes.datasets_list()
+    def datasets_list(self,projectId=None):
+        self.requires_at_least("3.6.0")
+        url = self._routes.datasets_list(projectId)
         return self._get(url)
 
     # Helper methods

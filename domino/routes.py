@@ -107,5 +107,8 @@ class _Routes:
         return self._build_project_url_private_api() + '/nb/startSession'
 
     # Datasets URLs
-    def datasets_list(self, project_id=None):
-        return self._build_project_url() + '/dataset?projectId=' + project_id
+    def datasets_list(self, project_id):
+        if project_id is None:
+            return self.host + '/dataset'
+        else: 
+            return self.host + '/dataset?projectId=' + str(project_id)
