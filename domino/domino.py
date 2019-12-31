@@ -34,10 +34,8 @@ class Domino:
 
         if api_key is not None:
             self._api_key = api_key
-            print('Using the supplied API key.')
         elif 'DOMINO_USER_API_KEY' in os.environ:
             self._api_key = os.environ['DOMINO_USER_API_KEY']
-            print('Using the API key found in the environment variable DOMINO_USER_API_KEY.')
         else:
             raise Exception("API key must be provided, either via the \
                 constructor value or through DOMINO_USER_API_KEY environment \
