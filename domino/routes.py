@@ -112,3 +112,10 @@ class _Routes:
             return self.host + '/dataset'
         else: 
             return self.host + '/dataset?projectId=' + str(project_id)
+
+    def datasets_create(self): 
+        return self.host + '/dataset'
+
+    def datasets_details(self, dataset_id, dataset_name=None, dataset_description=None): 
+        return self.host + '/dataset' + '/' + str(dataset_id)
+    

@@ -351,10 +351,39 @@ class Domino:
         return response.json()
 
     # Datasets Functions
-    def datasets_list(self,projectId=None):
+    def datasets_list(self, projectId=None):
         self.requires_at_least("3.6.0")
         url = self._routes.datasets_list(projectId)
         return self._get(url)
+
+    def datasets_create(self, projectId, datasetName, datasetDescription): 
+        self.requires_at_least("3.6.0")
+        url = self._routes.datasets_create()
+        request = {
+            "datasetName": datasetName,
+            "description": datasetDescription,
+            "projectId": self._project_id
+        }
+        response = requests.post(url, auth=('', self._api_key), json=request)
+        return response.json()
+
+    def datasets_details(self, datasetId): 
+        self.requires_at_least("3.6.0")
+        url = self._routes.datasets_details(datasetId)
+        return self._get(url)
+
+    def datasets_update_details(self, datasetId, datasetName, datasetDescription):
+        self.requires_at_least("3.6.0")
+        url = self._routes.datasets_details(datasetId, datasetName, datasetDescription)
+        request = {
+            "datasetName": datasetName,
+            "description": datasetDescription
+        }
+        print(url)
+        response = requests.patch(url, data=request, auth=('', self._api_key))
+        print(response.request)
+        print(response.reason)
+        return response
 
     # Helper methods
     def _get(self, url):
