@@ -4,7 +4,7 @@ import os
 domino = Domino("system-test/quick-start",
                 host=os.environ['DOMINO_API_HOST'])
 
-raw_datasets = domino.datasets_list()#['data']
+raw_datasets = domino.datasets_list()
 print('Datasets:'+str(raw_datasets))
 
 # Example using the current project's projectId to narrow down the datasets results to a specific project.  
