@@ -165,6 +165,30 @@ Stops all running apps in the Domino project.
 
 <hr>
 
+## Airflow
+
+The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
+
+To install it, add the `airflow` flag to extras with pip.
+
+```
+pip install -e git+git://github.com/dominodatalab/python-domino.git#egg=python-domino[airflow]
+```
+
+
+### DominoOperator
+
+```
+from domino.airflow import DominoOperator
+```
+
+**Note:** This is a `python>=3.5` feature due to `typing` support.
+
+Allows a user to schedule domino runs via airflow. Follows the same function signature as `runs_start` with two extra arguments:
+
+* `startup_delay: Optional[int] = 10` |  Add a startup delay to your job, useful if you want to delay execution until after other work finishes.
+* `include_setup_log: Optional[bool] = True` | Determine whether or not to publish the setup log of the job as the log prefix before `stdout`.
+
 ## License
 
 This library is made available under the Apache 2.0 License.
