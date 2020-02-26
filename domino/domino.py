@@ -61,7 +61,7 @@ class Domino:
         return self._get(url)
 
     def runs_start(self, command, isDirect=False, commitId=None, title=None,
-                   tier=None, publishApiEndpoint=None):
+                   tier=None, publishApiEndpoint=None, datasetConfig=None):
 
         url = self._routes.runs_start()
 
@@ -71,6 +71,7 @@ class Domino:
             "commitId": commitId,
             "title": title,
             "tier": tier,
+            "datasetConfig": datasetConfig,
             "publishApiEndpoint": publishApiEndpoint
         }
 
@@ -79,7 +80,7 @@ class Domino:
 
     def runs_start_blocking(self, command, isDirect=False, commitId=None,
                             title=None, tier=None, publishApiEndpoint=None,
-                            poll_freq=5, max_poll_time=6000):
+                            poll_freq=5, max_poll_time=6000, datasetConfig=None):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
         see if the task is done.  If the task errors an exception is raised.
@@ -107,6 +108,11 @@ class Domino:
                    The hardware tier to use for the run. Will use project
                    default tier if not provided.
 
+        datasetConfig : string (Optional)
+                        Name of Dataset configuration from domino.yaml file;
+                        used to start a run with a specific dataset
+                        configuration mounted.
+
         publishApiEndpoint : boolean (Optional)
                             Whether or not to publish an API endpoint from the
                             resulting output.
@@ -121,7 +127,7 @@ class Domino:
                         is raised.
         """
         run_response = self.runs_start(command, isDirect, commitId, title,
-                                       tier, publishApiEndpoint)
+                                       tier, publishApiEndpoint, datasetConfig)
         run_id = run_response['runId']
 
         poll_start = time.time()
