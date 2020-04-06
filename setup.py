@@ -1,8 +1,9 @@
-from distutils.core import setup
+from setuptools import setup
+from version import PYTHON_DOMINO_VERSION
 
 setup(
     name='python-domino',
-    version='0.3.5',
+    version=PYTHON_DOMINO_VERSION,
     author='Domino Data Lab',
     author_email='support@dominodatalab.com',
     packages=['domino'],

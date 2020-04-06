@@ -1,3 +1,5 @@
 from .domino import Domino
 
-__version__ = "0.3.5"
+from version import PYTHON_DOMINO_VERSION
+
+__version__ = PYTHON_DOMINO_VERSION

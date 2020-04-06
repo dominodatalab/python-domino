@@ -1,4 +1,5 @@
 from .routes import _Routes
+from .helpers import is_version_compatible
 
 try:
     import urllib2
@@ -26,12 +27,6 @@ class Domino:
                 constructor value or through DOMINO_API_HOST environment \
                 variable.")
 
-        self._logger.info('Initializing Domino API with host ' + host)
-
-        owner_username = project.split("/")[0]
-        project_name = project.split("/")[1]
-        self._routes = _Routes(host, owner_username, project_name)
-
         if api_key is not None:
             self._api_key = api_key
         elif 'DOMINO_USER_API_KEY' in os.environ:
@@ -41,13 +36,19 @@ class Domino:
                 constructor value or through DOMINO_USER_API_KEY environment \
                 variable.")
 
+        self._logger.info('Initializing Domino API with host ' + host)
+
+        owner_username = project.split("/")[0]
+        project_name = project.split("/")[1]
+        self._routes = _Routes(host, owner_username, project_name)
+
         # Get version
         self._version = self.deployment_version().get("version")
         print("Your Domino deployment is running \
               version {}".format(self._version))
-        self.requires_at_least("4.2")
 
-        # set project ID to blank, we may or may not need it later
+        # Check version compatibility
+        is_version_compatible(self._version)
 
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
