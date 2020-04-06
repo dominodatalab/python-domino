@@ -38,8 +38,7 @@ class Domino:
 
         self._logger.info('Initializing Domino API with host ' + host)
 
-        owner_username = project.split("/")[0]
-        project_name = project.split("/")[1]
+        owner_username, project_name = project.split("/")
         self._routes = _Routes(host, owner_username, project_name)
 
         # Get version
