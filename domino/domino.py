@@ -45,6 +45,7 @@ class Domino:
         self._version = self.deployment_version().get("version")
         print("Your Domino deployment is running \
               version {}".format(self._version))
+        self.requires_at_least("4.2")
 
         # set project ID to blank, we may or may not need it later
 
@@ -380,17 +381,9 @@ class Domino:
     # Workaround to get project ID which is needed for some model functions
     @property
     def _project_id(self):
-        url = self._routes.publish_ui()
-        if self._version < "3.2.0":
-            url = self._routes.publish_ui_legacy()
-
-        response = requests.get(url, auth=('', self._api_key))
-        regex = re.compile("/models/create\\?projectId=(.{24,24})")
-        matches = regex.findall(response.text)
-        if len(matches) > 0:
-            return matches[0]
-        else:
-            return None
+        url = self._routes.find_project_by_owner_name_and_project_name()
+        project_id = self._get(url)['id']
+        return project_id
 
 
 def parse_play_flash_cookie(response):
