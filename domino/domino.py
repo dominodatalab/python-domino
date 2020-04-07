@@ -288,18 +288,67 @@ class Domino:
         if unpublishRunningApps is True:
             self.app_unpublish()
         app_id = self._app_id
-        url = self._routes.app_publish(app_id)
+        if app_id is None:
+            # No App Exists creating one
+            app_id = self.__app_create(hardware_tier_id=hardwareTierId)
+        url = self._routes.app_start(app_id)
         request = {
-            "hardwareTierId": hardwareTierId
+            'hardwareTierId': hardwareTierId
         }
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
     def app_unpublish(self):
         app_id = self._app_id
-        url = self._routes.app_unpublish(app_id)
+        if app_id is None:
+            return
+        url = self._routes.app_stop(app_id)
         response = requests.post(url, auth=('', self._api_key))
         return response
+
+    def __app_create(self, name: str = "", hardware_tier_id: str = None) -> str:
+        """
+        Private method to create app
+
+        :param name: Optional field to set title of app
+        :param hardware_tier_id: Optional field to override hardware tier
+        :return: Id of newly created App (Un-Published)
+        """
+        url = self._routes.app_create()
+        request_payload = {
+            'modelProductType': 'APP',
+            'projectId': self._project_id,
+            'name': name,
+            'owner': '',
+            'created': time.time(),
+            'lastUpdated': time.time(),
+            'status': '',
+            'media': [],
+            'openUrl': '',
+            'tags': [],
+            'stats': {
+              'usageCount': 0
+            },
+            'appExtension': {
+              'appType': ''
+            },
+            'id': '000000000000000000000000',
+            'permissionsData': {
+              'visibility': 'GRANT_BASED',
+              'accessRequestStatuses': {},
+              'pendingInvitations': [],
+              'discoverable': True,
+              'appAccessStatus': 'ALLOWED'
+            }
+        }
+        r = requests.post(url, auth=('', self._api_key), json=request_payload)
+        response = r.json()
+        key = "id"
+        if key in response.keys():
+            app_id = response[key]
+        else:
+            raise Exception("Cannot create app")
+        return app_id
 
     # Environment functions
     def environments_list(self):
@@ -393,6 +442,7 @@ class Domino:
         if key in response.keys():
             return response[key]
 
+    # This will fetch app_id of app in current project
     @property
     def _app_id(self):
         url = self._routes.app_list(self._project_id)
@@ -400,7 +450,7 @@ class Domino:
         if len(response) != 0:
             app = response[0]
         else:
-            raise Exception(f"No App found in project")
+            return None
         key = "id"
         if key in app.keys():
             app_id = app[key]

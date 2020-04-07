@@ -100,10 +100,13 @@ class _Routes:
     def app_list(self, project_id):
         return self.host + f'/v4/modelProducts?projectId={project_id}'
 
-    def app_publish(self, app_id):
+    def app_create(self):
+        return self.host + '/v4/modelProducts'
+
+    def app_start(self, app_id):
         return self.host + f'/v4/modelProducts/{app_id}/start'
 
-    def app_unpublish(self, app_id):
+    def app_stop(self, app_id):
         return self.host + f'/v4/modelProducts/{app_id}/stop'
 
     # Find Project By OwnerName and project name Url
