@@ -287,15 +287,19 @@ class Domino:
     def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
         if unpublishRunningApps is True:
             self.app_unpublish()
-        url = self._routes.app_publish()
-        request = {"language": "App", "hardwareTierId": hardwareTierId}
+        app_id = self._app_id
+        url = self._routes.app_publish(app_id)
+        request = {
+            "hardwareTierId": hardwareTierId
+        }
         response = requests.post(url, auth=('', self._api_key), json=request)
         return response
 
     def app_unpublish(self):
-        apps = [r for r in self.runs_list()['data'] if r['notebookName'] == 'App' and r['isCompleted'] == False]
-        for app in apps:
-            self.run_stop(app['id'])
+        app_id = self._app_id
+        url = self._routes.app_unpublish(app_id)
+        response = requests.post(url, auth=('', self._api_key))
+        return response
 
     # Environment functions
     def environments_list(self):
@@ -388,6 +392,21 @@ class Domino:
         response = self._get(url)
         if key in response.keys():
             return response[key]
+
+    @property
+    def _app_id(self):
+        url = self._routes.app_list(self._project_id)
+        response = self._get(url)
+        if len(response) != 0:
+            app = response[0]
+        else:
+            raise Exception(f"No App found in project")
+        key = "id"
+        if key in app.keys():
+            app_id = app[key]
+        else:
+            app_id = None
+        return app_id
 
 
 def parse_play_flash_cookie(response):
