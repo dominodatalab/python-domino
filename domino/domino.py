@@ -383,8 +383,9 @@ class Domino:
     def _project_id(self):
         url = self._routes.find_project_by_owner_name_and_project_name()
         key = "id"
-        if key in self._get(url).keys():
-            project_id = self._get(url)[key]
+        response = self._get(url)
+        if key in response.keys():
+            project_id = response[key]
         else:
             project_id = None
         return project_id
