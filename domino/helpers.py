@@ -3,7 +3,7 @@ from .constants import MINIMUM_SUPPORTED_DOMINO_VERSION
 from version import PYTHON_DOMINO_VERSION
 
 
-def is_version_compatible(version: str) -> None:
+def enforce_version_compatibility(version: str) -> None:
     """
     Helper function to check for version compatibility
 

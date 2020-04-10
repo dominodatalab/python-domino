@@ -1,5 +1,5 @@
 from .routes import _Routes
-from .helpers import is_version_compatible
+from .helpers import enforce_version_compatibility
 
 try:
     import urllib2
@@ -47,7 +47,7 @@ class Domino:
               version {}".format(self._version))
 
         # Check version compatibility
-        is_version_compatible(self._version)
+        enforce_version_compatibility(self._version)
 
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
