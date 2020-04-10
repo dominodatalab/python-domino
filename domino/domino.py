@@ -1,5 +1,6 @@
 from .routes import _Routes
-from .helpers import enforce_version_compatibility
+from .helpers import is_version_compatible
+from version import PYTHON_DOMINO_VERSION
 
 try:
     import urllib2
@@ -36,18 +37,21 @@ class Domino:
                 constructor value or through DOMINO_USER_API_KEY environment \
                 variable.")
 
-        self._logger.info('Initializing Domino API with host ' + host)
+        self._logger.info(f'Initializing Domino API with host {host}')
 
         owner_username, project_name = project.split("/")
         self._routes = _Routes(host, owner_username, project_name)
 
         # Get version
         self._version = self.deployment_version().get("version")
-        print("Your Domino deployment is running \
-              version {}".format(self._version))
+        self._logger.info(f"Domino deployment {host} is running version {self._version}")
 
         # Check version compatibility
-        enforce_version_compatibility(self._version)
+        if not is_version_compatible(self._version):
+            error_message = f"Domino version: {self._version} is not compatible with " \
+                            f"python-domino version: {PYTHON_DOMINO_VERSION}"
+            self._logger.error(error_message)
+            raise Exception(error_message)
 
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
@@ -381,14 +385,11 @@ class Domino:
     # Workaround to get project ID which is needed for some model functions
     @property
     def _project_id(self):
-        url = self._routes.find_project_by_owner_name_and_project_name()
+        url = self._routes.find_project_by_owner_name_and_project_name_url()
         key = "id"
         response = self._get(url)
         if key in response.keys():
-            project_id = response[key]
-        else:
-            project_id = None
-        return project_id
+            return response[key]
 
 
 def parse_play_flash_cookie(response):

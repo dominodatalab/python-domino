@@ -6,7 +6,7 @@ Permits interaction with a Domino deployment from Python using the [Domino API](
 
 ## Version Compatibility Matrix
 
-Several versions of the `python-domino` library are available for the different versions of the `Domino`:
+`python-domino` library is compatible with different versions of the `Domino`:
 
 | Domino Versions | Python-Domino |
 | --------------- |:-------------:|

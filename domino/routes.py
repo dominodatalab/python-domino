@@ -100,7 +100,7 @@ class _Routes:
     def app_publish(self):
         return self._build_project_url_private_api() + '/nb/startSession'
 
-    # Find Project By OwnerName and project name
-    def find_project_by_owner_name_and_project_name(self):
-        return self.host + '/v4/gateway/projects/findProjectByOwnerAndName' + \
-            f'?ownerName={self._owner_username}&projectName={self._project_name}'
+    # Find Project By OwnerName and project name Url
+    def find_project_by_owner_name_and_project_name_url(self):
+        return f'{self.host}/v4/gateway/projects/findProjectByOwnerAndName' \
+               f'?ownerName={self._owner_username}&projectName={self._project_name}'
