@@ -37,8 +37,6 @@ class Domino:
                 constructor value or through DOMINO_USER_API_KEY environment \
                 variable.")
 
-        self._logger.info(f'Initializing Domino API with host {host}')
-
         owner_username, project_name = project.split("/")
         self._routes = _Routes(host, owner_username, project_name)
 

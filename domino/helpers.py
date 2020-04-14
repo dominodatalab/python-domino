@@ -10,4 +10,4 @@ def is_version_compatible(version: str) -> bool:
 
     @:return bool   Boolean representing if version is compatible or not
     """
-    return parse_version(version) > parse_version(MINIMUM_SUPPORTED_DOMINO_VERSION)
+    return parse_version(version) >= parse_version(MINIMUM_SUPPORTED_DOMINO_VERSION)

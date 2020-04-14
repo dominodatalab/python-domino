@@ -10,8 +10,8 @@ Permits interaction with a Domino deployment from Python using the [Domino API](
 
 | Domino Versions | Python-Domino |
 | --------------- |:-------------:|
-| 3.6.x or Lower  | 0.3.5         |
-| 4.0.x or Higher | 1.0.0         |
+| 4.1.x or Lower  | 0.3.5         |
+| 4.2.0 or Higher | 1.0.0         |
 
 ## Installation 
 
