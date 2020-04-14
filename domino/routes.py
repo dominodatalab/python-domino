@@ -97,8 +97,17 @@ class _Routes:
         return self.host + '/version'
 
     # App URLs
-    def app_publish(self):
-        return self._build_project_url_private_api() + '/nb/startSession'
+    def app_list(self, project_id):
+        return self.host + f'/v4/modelProducts?projectId={project_id}'
+
+    def app_create(self):
+        return self.host + '/v4/modelProducts'
+
+    def app_start(self, app_id):
+        return self.host + f'/v4/modelProducts/{app_id}/start'
+
+    def app_stop(self, app_id):
+        return self.host + f'/v4/modelProducts/{app_id}/stop'
 
     # Find Project By OwnerName and project name Url
     def find_project_by_owner_name_and_project_name_url(self):
