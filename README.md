@@ -4,6 +4,15 @@ Python bindings for the Domino API.
 
 Permits interaction with a Domino deployment from Python using the [Domino API](https://dominodatalab.github.io/api-docs/).
 
+## Version Compatibility Matrix
+
+`python-domino` library is compatible with different versions of the `Domino`:
+
+| Domino Versions | Python-Domino |
+| --------------- |:-------------:|
+| 4.1.x or Lower  | 0.3.5         |
+| 4.2.0 or Higher | 1.0.0         |
+
 ## Installation 
 
 At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:

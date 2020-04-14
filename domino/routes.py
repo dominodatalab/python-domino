@@ -88,12 +88,6 @@ class _Routes:
     def model_version_publish(self, model_id):
         return self._build_models_url() + '/' + model_id + '/versions'
 
-    def publish_ui_legacy(self):
-        return self._build_project_url_private_api() + '/endpoints'
-
-    def publish_ui(self):
-        return self._build_project_url_private_api() + '/endpoints/modelManager'
-
     # Environment URLs
     def environments_list(self):
         return self.host + '/v1/environments'
@@ -105,3 +99,8 @@ class _Routes:
     # App URLs
     def app_publish(self):
         return self._build_project_url_private_api() + '/nb/startSession'
+
+    # Find Project By OwnerName and project name Url
+    def find_project_by_owner_name_and_project_name_url(self):
+        return f'{self.host}/v4/gateway/projects/findProjectByOwnerAndName' \
+               f'?ownerName={self._owner_username}&projectName={self._project_name}'
