@@ -10,8 +10,8 @@ Permits interaction with a Domino deployment from Python using the [Domino API](
 
 | Domino Versions | Python-Domino |
 | --------------- |:-------------:|
-| 4.1.x or Lower  | 0.3.5         |
-| 4.2.0 or Higher | 1.0.0         |
+| 4.1.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)         |
+| 4.2.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/master.zip)         |
 
 ## Installation 
 
@@ -27,6 +27,9 @@ You can also add `python-domino` to your `requirements.txt` file with the follow
 
     -f git+git://github.com/dominodatalab/python-domino.git
 
+Note: To install lower version of library, for example `0.3.5` use the following command:
+    
+    pip install https://github.com/dominodatalab/python-domino/archive/0.3.5.zip
 
 ## Overview
 
