@@ -1,12 +1,28 @@
 from setuptools import setup
-from version import PYTHON_DOMINO_VERSION
+import re
+
+PACKAGE_NAME = 'domino'
+
+
+def get_version():
+    try:
+        f = open(f"{PACKAGE_NAME}/_version.py")
+    except EnvironmentError:
+        return None
+    for line in f.readlines():
+        mo = re.match("__version__ = '([^']+)'", line)
+        if mo:
+            ver = mo.group(1)
+            return ver
+    return None
+
 
 setup(
     name='python-domino',
-    version=PYTHON_DOMINO_VERSION,
+    version=get_version(),
     author='Domino Data Lab',
     author_email='support@dominodatalab.com',
-    packages=['domino'],
+    packages=[PACKAGE_NAME],
     scripts=[],
     url='http://www.dominodatalab.com',
     license='LICENSE.txt',

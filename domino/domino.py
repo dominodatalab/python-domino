@@ -1,6 +1,6 @@
 from .routes import _Routes
 from .helpers import is_version_compatible
-from version import PYTHON_DOMINO_VERSION
+from domino._version import __version__
 
 try:
     import urllib2
@@ -47,7 +47,7 @@ class Domino:
         # Check version compatibility
         if not is_version_compatible(self._version):
             error_message = f"Domino version: {self._version} is not compatible with " \
-                            f"python-domino version: {PYTHON_DOMINO_VERSION}"
+                            f"python-domino version: {__version__}"
             self._logger.error(error_message)
             raise Exception(error_message)
 
