@@ -10,8 +10,8 @@ Permits interaction with a Domino deployment from Python using the [Domino API](
 
 | Domino Versions | Python-Domino |
 | --------------- |:-------------:|
-| 4.1.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)         |
-| 4.2.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/master.zip)         |
+| 3.6.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)         |
+| 4.1.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/master.zip)         |
 
 ## Installation 
 
