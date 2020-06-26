@@ -137,6 +137,7 @@ class Domino:
         while True:
             try:
                 run_info = self.get_run_info(run_id)
+                current_retry_count = 0
             except requests.exceptions.RequestException as e:
                 current_retry_count += 1
                 self._logger.warn(f'Failed to get run info for runId: {run_id} : {e}')
@@ -144,6 +145,7 @@ class Domino:
                     raise Exception(f'Cannot get run info, max retry {retry_count} exceeded') from None
                 else:
                     self._logger.info(f'Retrying ({current_retry_count}/{retry_count}) getting run info ...')
+                    time.sleep(poll_freq)
                     continue
 
             elapsed_time = time.time() - poll_start
