@@ -125,7 +125,7 @@ class Domino:
 
         retry_count : int (Optional)
                         Maximum number of retry to do while polling
-                        (in-case of transient httpd errors). If this
+                        (in-case of transient http errors). If this
                         threshold exceeds, an exception is raised.
         """
         run_response = self.runs_start(command, isDirect, commitId, title,
