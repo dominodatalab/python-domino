@@ -1,8 +1,8 @@
-import requests
+from requests.auth import AuthBase
 import os
 
 
-class BearerAuth(requests.auth.AuthBase):
+class BearerAuth(AuthBase):
     """
     This class is responsible for authenticating
     request using bearer token
@@ -14,8 +14,8 @@ class BearerAuth(requests.auth.AuthBase):
     def __call__(self, r):
         self._assert_token_file_valid()
         with open(self.path_to_token_file, 'r') as token_file:
-            token = token_file.read()
-        r.headers["authorization"] = "Bearer " + token
+            token = token_file.readline().rstrip()
+        r.headers["Authorization"] = "Bearer " + token
         return r
 
     def _assert_token_file_valid(self):

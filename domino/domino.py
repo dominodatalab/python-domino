@@ -25,10 +25,10 @@ class Domino:
         api_key = get_api_key(api_key)
 
         # Initialize request manager
-        if api_key is None and path_to_domino_token_file is None:
-            raise Exception("Either api_key or path_to_domino_token_file \
-                            must be provided via class constructor or \
-                            environment variable")
+        if api_key is None and domino_token_file is None:
+            raise Exception("Either api_key or path_to_domino_token_file "
+                            f"must be provided via class constructor or "
+                            f"environment variable")
         elif api_key is not None:
             self._logger.info(f"Initializing python-domino with basic auth")
             auth = HTTPBasicAuth('', api_key)
@@ -344,18 +344,18 @@ class Domino:
             'openUrl': '',
             'tags': [],
             'stats': {
-              'usageCount': 0
+                'usageCount': 0
             },
             'appExtension': {
-              'appType': ''
+                'appType': ''
             },
             'id': '000000000000000000000000',
             'permissionsData': {
-              'visibility': 'GRANT_BASED',
-              'accessRequestStatuses': {},
-              'pendingInvitations': [],
-              'discoverable': True,
-              'appAccessStatus': 'ALLOWED'
+                'visibility': 'GRANT_BASED',
+                'accessRequestStatuses': {},
+                'pendingInvitations': [],
+                'discoverable': True,
+                'appAccessStatus': 'ALLOWED'
             }
         }
         r = self.request_manager.post(url, json=request_payload)
@@ -448,7 +448,7 @@ class Domino:
         if at_least_version > self._version:
             raise Exception("You need at least version {} but your deployment \
                             seems to be running {}".format(
-                            at_least_version, self._version))
+                at_least_version, self._version))
 
     # Workaround to get project ID which is needed for some model functions
     @property
@@ -482,7 +482,7 @@ def parse_play_flash_cookie(response):
     # Format message into user friendly string
     message = urllib2.unquote(message).replace("+", " ")
     # Discern error disposition
-    if(messageType == "dominoFlashError"):
+    if (messageType == "dominoFlashError"):
         error = True
     else:
         error = False

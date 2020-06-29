@@ -22,9 +22,9 @@ def get_host_or_throw_exception(host):
     elif DOMINO_HOST_KEY_NAME in os.environ:
         _host = os.environ[DOMINO_HOST_KEY_NAME]
     else:
-        raise Exception(f"Host must be provided, either via the \
-            constructor value or through {DOMINO_HOST_KEY_NAME} environment \
-            variable.")
+        raise Exception(f"Host must be provided, either via the "
+                        f"constructor value or through {DOMINO_HOST_KEY_NAME} "
+                        f"environment variable.")
     return _host
 
 
@@ -44,7 +44,7 @@ def get_api_key(api_key):
 def get_path_to_domino_token_file(path_to_domino_token_file):
     """
     Helper function to get `path_to_domino_token_file` either
-    from passed `path_to_domino_token_file` or environment variable
+    from passed variable or environment variable
     """
     if path_to_domino_token_file is not None:
         _path_to_domino_token_file = path_to_domino_token_file
