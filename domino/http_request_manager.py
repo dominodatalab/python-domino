@@ -10,6 +10,9 @@ class _HttpRequestManager:
     def __init__(self, auth: AuthBase):
         self.auth = auth
 
+    def set_auth(self, auth: AuthBase):
+        self.auth = auth
+
     def post(self, url, data=None, json=None, **kwargs):
         requests.post(url, auth=self.auth, data=data, json=json, **kwargs)
 
