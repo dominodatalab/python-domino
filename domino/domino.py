@@ -82,7 +82,7 @@ class Domino:
 
     def runs_start_blocking(self, command, isDirect=False, commitId=None,
                             title=None, tier=None, publishApiEndpoint=None,
-                            poll_freq=5, max_poll_time=6000):
+                            poll_freq=5, max_poll_time=6000, retry_count=5):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
         see if the task is done.  If the task errors an exception is raised.
@@ -122,14 +122,32 @@ class Domino:
                         Maximum number of seconds to wait for a task to
                         complete. If this threshold is exceeded, an exception
                         is raised.
+
+        retry_count : int (Optional)
+                        Maximum number of retry to do while polling
+                        (in-case of transient http errors). If this
+                        threshold exceeds, an exception is raised.
         """
         run_response = self.runs_start(command, isDirect, commitId, title,
                                        tier, publishApiEndpoint)
         run_id = run_response['runId']
 
         poll_start = time.time()
+        current_retry_count = 0
         while True:
-            run_info = self.get_run_info(run_id)
+            try:
+                run_info = self.get_run_info(run_id)
+                current_retry_count = 0
+            except requests.exceptions.RequestException as e:
+                current_retry_count += 1
+                self._logger.warn(f'Failed to get run info for runId: {run_id} : {e}')
+                if current_retry_count > retry_count:
+                    raise Exception(f'Cannot get run info, max retry {retry_count} exceeded') from None
+                else:
+                    self._logger.info(f'Retrying ({current_retry_count}/{retry_count}) getting run info ...')
+                    time.sleep(poll_freq)
+                    continue
+
             elapsed_time = time.time() - poll_start
 
             if elapsed_time >= max_poll_time:

@@ -89,6 +89,7 @@ Same as method `run_start` except make a blocking request that waits until job i
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 * *poll_freq:* (Optional) Number of seconds in between polling of the Domino server for status of the task that is running.
 * *max_poll_time:* (Optional) Maximum number of seconds to wait for a task to complete.  If this threshold is exceeded, an exception is raised.
+* *retry_count:* (Optional) Maximum number of retry to do while polling (in-case of transient http errors). If this threshold is exceeded, an exception is raised.
 
 <hr>
 
