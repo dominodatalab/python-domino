@@ -1,7 +1,7 @@
 from .routes import _Routes
 from .helpers import *
 from .http_request_manager import _HttpRequestManager
-from .auth.bearer_auth import BearerAuth
+from .bearer_auth import BearerAuth
 from domino._version import __version__
 
 try:
