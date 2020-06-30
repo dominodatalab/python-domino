@@ -232,7 +232,7 @@ class Domino:
     def blobs_get(self, key):
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
-        return self._open_url(url)
+        return self.request_manager.get_raw(url)
 
     def fork_project(self, target_name):
         url = self._routes.fork_project()
@@ -429,17 +429,10 @@ class Domino:
     def _put_file(self, url, file):
         return self.request_manager.put(url, data=file)
 
-    def _open_url(self, url):
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        password_mgr.add_password(None, self._routes.host, '', self._api_key)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib2.build_opener(handler)
-        return opener.open(url)
-
     def _validate_blob_key(self, key):
         regex = re.compile("^\\w{40,40}$")
         if not regex.match(key):
-            raise Exception(("Blob key should be 40 alphanumeric charachters. "
+            raise Exception(("Blob key should be 40 alphanumeric characters. "
                              "Perhaps you passed a file path on accident? "
                              "If you have a file path and want to get the "
                              "file, use files_list to get the blob key."))

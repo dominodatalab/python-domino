@@ -21,3 +21,6 @@ class _HttpRequestManager:
 
     def delete(self, url, **kwargs):
         return requests.delete(url, auth=self.auth, **kwargs)
+
+    def get_raw(self, url):
+        return self.get(url, stream=True).raw
