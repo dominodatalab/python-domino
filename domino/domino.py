@@ -18,19 +18,14 @@ import re
 
 
 class Domino:
-    def __init__(self, project, api_key=None, host=None, domino_token_file=None, prefer_domino_token_file=True):
+    def __init__(self, project, api_key=None, host=None, domino_token_file=None):
         self._configure_logging()
         host = get_host_or_throw_exception(host)
         domino_token_file = get_path_to_domino_token_file(domino_token_file)
         api_key = get_api_key(api_key)
 
-        if api_key is None and domino_token_file is None:
-            raise Exception("Either api_key or path_to_domino_token_file "
-                            f"must be provided via class constructor or "
-                            f"environment variable")
-
         # Initialise request manager
-        self.request_manager = self._initialise_request_manager(api_key, domino_token_file, prefer_domino_token_file)
+        self.request_manager = self._initialise_request_manager(api_key, domino_token_file)
 
         owner_username, project_name = project.split("/")
         self._routes = _Routes(host, owner_username, project_name)
@@ -50,28 +45,17 @@ class Domino:
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
 
-    def _initialise_request_manager(self, api_key, domino_token_file, prefer_domino_token_file):
-        def initialise_with_basic_auth():
-            return _HttpRequestManager(HTTPBasicAuth('', api_key))
-
-        def initialise_with_bearer_auth():
+    def _initialise_request_manager(self, api_key, domino_token_file):
+        if api_key is None and domino_token_file is None:
+            raise Exception("Either api_key or path_to_domino_token_file "
+                            f"must be provided via class constructor or "
+                            f"environment variable")
+        elif domino_token_file is not None:
+            self._logger.info("Initializing python-domino with bearer token auth")
             return _HttpRequestManager(BearerAuth(domino_token_file))
-
-        if prefer_domino_token_file:
-            if domino_token_file is not None:
-                self._logger.info("Initializing python-domino with bearer token auth")
-                request_manager = initialise_with_bearer_auth()
-            else:
-                self._logger.info("Fallback: Initializing python-domino with basic auth")
-                request_manager = initialise_with_basic_auth()
         else:
-            if api_key is not None:
-                self._logger.info("Initializing python-domino with basic auth")
-                request_manager = initialise_with_basic_auth()
-            else:
-                self._logger.info("Fallback: Initializing python-domino with bearer token auth")
-                request_manager = initialise_with_bearer_auth()
-        return request_manager
+            self._logger.info("Fallback: Initializing python-domino with basic auth")
+            return _HttpRequestManager(HTTPBasicAuth('', api_key))
 
     def commits_list(self):
         url = self._routes.commits_list()
