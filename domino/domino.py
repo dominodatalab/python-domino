@@ -1,5 +1,7 @@
 from .routes import _Routes
-from .helpers import is_version_compatible
+from .helpers import *
+from .http_request_manager import _HttpRequestManager
+from .bearer_auth import BearerAuth
 from domino._version import __version__
 
 try:
@@ -7,35 +9,23 @@ try:
 except ImportError:
     import urllib.request as urllib2
 
-import os
 import logging
 import requests
+from requests.auth import HTTPBasicAuth
 import time
 import pprint
 import re
 
 
 class Domino:
-    def __init__(self, project, api_key=None, host=None):
+    def __init__(self, project, api_key=None, host=None, domino_token_file=None):
         self._configure_logging()
+        host = get_host_or_throw_exception(host)
+        domino_token_file = get_path_to_domino_token_file(domino_token_file)
+        api_key = get_api_key(api_key)
 
-        if host is not None:
-            host = host
-        elif 'DOMINO_API_HOST' in os.environ:
-            host = os.environ['DOMINO_API_HOST']
-        else:
-            raise Exception("Host must be provided, either via the \
-                constructor value or through DOMINO_API_HOST environment \
-                variable.")
-
-        if api_key is not None:
-            self._api_key = api_key
-        elif 'DOMINO_USER_API_KEY' in os.environ:
-            self._api_key = os.environ['DOMINO_USER_API_KEY']
-        else:
-            raise Exception("API key must be provided, either via the \
-                constructor value or through DOMINO_USER_API_KEY environment \
-                variable.")
+        # Initialise request manager
+        self.request_manager = self._initialise_request_manager(api_key, domino_token_file)
 
         owner_username, project_name = project.split("/")
         self._routes = _Routes(host, owner_username, project_name)
@@ -54,6 +44,18 @@ class Domino:
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
+
+    def _initialise_request_manager(self, api_key, domino_token_file):
+        if api_key is None and domino_token_file is None:
+            raise Exception("Either api_key or path_to_domino_token_file "
+                            f"must be provided via class constructor or "
+                            f"environment variable")
+        elif domino_token_file is not None:
+            self._logger.info("Initializing python-domino with bearer token auth")
+            return _HttpRequestManager(BearerAuth(domino_token_file))
+        else:
+            self._logger.info("Fallback: Initializing python-domino with basic auth")
+            return _HttpRequestManager(HTTPBasicAuth('', api_key))
 
     def commits_list(self):
         url = self._routes.commits_list()
@@ -77,7 +79,7 @@ class Domino:
             "publishApiEndpoint": publishApiEndpoint
         }
 
-        response = requests.post(url, auth=('', self._api_key), json=request)
+        response = self.request_manager.post(url, json=request)
         return response.json()
 
     def runs_start_blocking(self, command, isDirect=False, commitId=None,
@@ -191,7 +193,7 @@ class Domino:
             "commitMessage": commitMessage,
             "ignoreRepoState": False
         }
-        response = requests.post(url, auth=('', self._api_key), json=request)
+        response = self.request_manager.post(url, json=request)
 
         if response.status_code == 400:
             raise Warning("Run ID:" + runId + " not found.")
@@ -231,12 +233,12 @@ class Domino:
     def blobs_get(self, key):
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
-        return self._open_url(url)
+        return self.request_manager.get_raw(url)
 
     def fork_project(self, target_name):
         url = self._routes.fork_project()
         request = {"overrideProjectName": target_name}
-        response = requests.post(url, auth=('', self._api_key), data=request)
+        response = self.request_manager.post(url, data=request)
         return response.status_code
 
     def endpoint_state(self):
@@ -245,7 +247,7 @@ class Domino:
 
     def endpoint_unpublish(self):
         url = self._routes.endpoint()
-        response = requests.delete(url, auth=('', self._api_key))
+        response = self.request_manager.delete(url)
         return response
 
     def endpoint_publish(self, file, function, commitId):
@@ -259,7 +261,7 @@ class Domino:
             }
         }
 
-        response = requests.post(url, auth=('', self._api_key), json=request)
+        response = self.request_manager.post(url, json=request)
         return response
 
     def deployment_version(self):
@@ -273,8 +275,7 @@ class Domino:
             'owner': owner_username,
             'name': project_name
         }
-        response = requests.post(url, auth=('', self._api_key), data=request,
-                                 allow_redirects=False)
+        response = self.request_manager.post(url, data=request, allow_redirects=False)
         disposition = parse_play_flash_cookie(response)
         if disposition.get("error"):
             raise Exception(disposition.get("message"))
@@ -293,8 +294,7 @@ class Domino:
             'collaboratorUsernameOrEmail': usernameOrEmail,
             'welcomeMessage': message
         }
-        response = requests.post(url, auth=('', self._api_key), data=request,
-                                 allow_redirects=False)
+        response = self.request_manager.post(url, data=request, allow_redirects=False)
         disposition = parse_play_flash_cookie(response)
         if disposition.get("error"):
             raise Exception(disposition.get("message"))
@@ -313,7 +313,7 @@ class Domino:
         request = {
             'hardwareTierId': hardwareTierId
         }
-        response = requests.post(url, auth=('', self._api_key), json=request)
+        response = self.request_manager.post(url, json=request)
         return response
 
     def app_unpublish(self):
@@ -321,7 +321,7 @@ class Domino:
         if app_id is None:
             return
         url = self._routes.app_stop(app_id)
-        response = requests.post(url, auth=('', self._api_key))
+        response = self.request_manager.post(url)
         return response
 
     def __app_create(self, name: str = "", hardware_tier_id: str = None) -> str:
@@ -345,21 +345,21 @@ class Domino:
             'openUrl': '',
             'tags': [],
             'stats': {
-              'usageCount': 0
+                'usageCount': 0
             },
             'appExtension': {
-              'appType': ''
+                'appType': ''
             },
             'id': '000000000000000000000000',
             'permissionsData': {
-              'visibility': 'GRANT_BASED',
-              'accessRequestStatuses': {},
-              'pendingInvitations': [],
-              'discoverable': True,
-              'appAccessStatus': 'ALLOWED'
+                'visibility': 'GRANT_BASED',
+                'accessRequestStatuses': {},
+                'pendingInvitations': [],
+                'discoverable': True,
+                'appAccessStatus': 'ALLOWED'
             }
         }
-        r = requests.post(url, auth=('', self._api_key), json=request_payload)
+        r = self.request_manager.post(url, json=request_payload)
         response = r.json()
         key = "id"
         if key in response.keys():
@@ -396,7 +396,7 @@ class Domino:
             "environmentId": environment_id
         }
 
-        response = requests.post(url, auth=('', self._api_key), json=request)
+        response = self.request_manager.post(url, json=request)
         return response.json()
 
     def model_versions_get(self, model_id):
@@ -420,27 +420,20 @@ class Domino:
             "environmentId": environment_id
         }
 
-        response = requests.post(url, auth=('', self._api_key), json=request)
+        response = self.request_manager.post(url, json=request)
         return response.json()
 
     # Helper methods
     def _get(self, url):
-        return requests.get(url, auth=('', self._api_key)).json()
+        return self.request_manager.get(url).json()
 
     def _put_file(self, url, file):
-        return requests.put(url, data=file, auth=('', self._api_key))
-
-    def _open_url(self, url):
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        password_mgr.add_password(None, self._routes.host, '', self._api_key)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib2.build_opener(handler)
-        return opener.open(url)
+        return self.request_manager.put(url, data=file)
 
     def _validate_blob_key(self, key):
         regex = re.compile("^\\w{40,40}$")
         if not regex.match(key):
-            raise Exception(("Blob key should be 40 alphanumeric charachters. "
+            raise Exception(("Blob key should be 40 alphanumeric characters. "
                              "Perhaps you passed a file path on accident? "
                              "If you have a file path and want to get the "
                              "file, use files_list to get the blob key."))
@@ -449,7 +442,7 @@ class Domino:
         if at_least_version > self._version:
             raise Exception("You need at least version {} but your deployment \
                             seems to be running {}".format(
-                            at_least_version, self._version))
+                at_least_version, self._version))
 
     # Workaround to get project ID which is needed for some model functions
     @property
@@ -483,7 +476,7 @@ def parse_play_flash_cookie(response):
     # Format message into user friendly string
     message = urllib2.unquote(message).replace("+", " ")
     # Discern error disposition
-    if(messageType == "dominoFlashError"):
+    if (messageType == "dominoFlashError"):
         error = True
     else:
         error = False

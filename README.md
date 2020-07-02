@@ -39,7 +39,7 @@ You can set up the connection by creating new instance of `Domino`.
 
 <hr>
 
-### *class* Domino(project, api_key=None, host=None)
+### *class* Domino(project, api_key=None, host=None, domino_token_file=None)
 
 The parameters are:
 
@@ -48,6 +48,10 @@ The parameters are:
   in the DOMINO_USER_API_KEY environment variable.
 * *host:* (Optional) A host URL. If not provided the library will expect to find one in the DOMINO_API_HOST
   environment variable.
+* *domino_token_file:* (Optional) Path to domino token file containing auth token. If not provided the library will expect to find one
+in the DOMINO_TOKEN_FILE environment variable.
+
+Note: In case both api_key and domino_token_file are available, then preference will be given to domino_token_file.
   
 <hr>
 
