@@ -22,6 +22,9 @@ class _Routes:
         return self.host + '/v1/models'
 
     # Project URLs
+    def project_create(self):
+        return self.host + '/project'
+
     def runs_list(self):
         return self._build_project_url() + '/runs'
 

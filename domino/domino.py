@@ -268,19 +268,17 @@ class Domino:
         url = self._routes.deployment_version()
         return self._get(url)
 
-    def project_create(self, owner_username, project_name):
-        self.requires_at_least("1.53.0.0")
+    def project_create(self, project_name, owner_username=None):
         url = self._routes.project_create()
-        request = {
-            'owner': owner_username,
-            'name': project_name
+        data = {
+            'projectName': project_name,
+            'ownerOverrideUsername': owner_username
         }
-        response = self.request_manager.post(url, data=request, allow_redirects=False)
-        disposition = parse_play_flash_cookie(response)
-        if disposition.get("error"):
-            raise Exception(disposition.get("message"))
-        else:
-            return disposition
+        headers = {
+            'Csrf-Token': 'nocheck'
+        }
+        response = self.request_manager.post(url, data=data, headers=headers)
+        return response
 
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
