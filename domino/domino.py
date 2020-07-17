@@ -4,11 +4,6 @@ from .http_request_manager import _HttpRequestManager
 from .bearer_auth import BearerAuth
 from domino._version import __version__
 
-try:
-    import urllib2
-except ImportError:
-    import urllib.request as urllib2
-
 import logging
 import requests
 from requests.auth import HTTPBasicAuth
@@ -236,10 +231,10 @@ class Domino:
         return self.request_manager.get_raw(url)
 
     def fork_project(self, target_name):
-        url = self._routes.fork_project()
-        request = {"overrideProjectName": target_name}
-        response = self.request_manager.post(url, data=request)
-        return response.status_code
+        url = self._routes.fork_project(self._project_id)
+        request = {"name": target_name}
+        response = self.request_manager.post(url, json=request)
+        return response
 
     def endpoint_state(self):
         url = self._routes.endpoint_state()
@@ -274,10 +269,7 @@ class Domino:
             'projectName': project_name,
             'ownerOverrideUsername': owner_username
         }
-        headers = {
-            'Csrf-Token': 'nocheck'
-        }
-        response = self.request_manager.post(url, data=data, headers=headers)
+        response = self.request_manager.post(url, data=data, headers=self._csrf_no_check_header)
         return response
 
     def collaborators_get(self):
@@ -288,16 +280,13 @@ class Domino:
     def collaborators_add(self, usernameOrEmail, message=""):
         self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_add()
-        request = {
+        data = {
             'collaboratorUsernameOrEmail': usernameOrEmail,
             'welcomeMessage': message
         }
-        response = self.request_manager.post(url, data=request, allow_redirects=False)
-        disposition = parse_play_flash_cookie(response)
-        if disposition.get("error"):
-            raise Exception(disposition.get("message"))
-        else:
-            return disposition
+        response = self.request_manager.post(url, data=data, allow_redirects=False,
+                                             headers=self._csrf_no_check_header)
+        return response
 
     # App functions
     def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
@@ -428,7 +417,8 @@ class Domino:
     def _put_file(self, url, file):
         return self.request_manager.put(url, data=file)
 
-    def _validate_blob_key(self, key):
+    @staticmethod
+    def _validate_blob_key(key):
         regex = re.compile("^\\w{40,40}$")
         if not regex.match(key):
             raise Exception(("Blob key should be 40 alphanumeric characters. "
@@ -467,15 +457,4 @@ class Domino:
             app_id = None
         return app_id
 
-
-def parse_play_flash_cookie(response):
-    flash_cookie = response.cookies['PLAY_FLASH']
-    messageType, message = flash_cookie.split("=")
-    # Format message into user friendly string
-    message = urllib2.unquote(message).replace("+", " ")
-    # Discern error disposition
-    if (messageType == "dominoFlashError"):
-        error = True
-    else:
-        error = False
-    return dict(messageType=messageType, message=message, error=error)
+    _csrf_no_check_header = {'Csrf-Token': 'nocheck'}

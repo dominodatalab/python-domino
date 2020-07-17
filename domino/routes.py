@@ -52,14 +52,14 @@ class _Routes:
     def blobs_get(self, key):
         return self._build_project_url() + '/blobs/' + key
 
-    def fork_project(self):
-        return self._build_project_url_private_api() + '/fork'
+    def fork_project(self, project_id):
+        return self.host + f'/v4/projects/{project_id}/fork'
 
     def collaborators_get(self):
         return self._build_old_project_url() + '/collaborators'
 
     def collaborators_add(self):
-        return self._build_old_project_url() + '/addCollaborator'
+        return self._build_project_url_private_api() + '/addCollaborator'
 
     def collaborators_remove(self):
         return self._build_old_project_url() + '/removeCollaborator'
