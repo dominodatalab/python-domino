@@ -8,7 +8,7 @@ domino = Domino("marks/quick-start",
 new_project_name = "fromapi3"
 
 try:
-    new_project = domino.project_create("marks", new_project_name)
+    new_project = domino.project_create(new_project_name)
     print(new_project)
 except:
     print("Could not create new project; it probably already exists")

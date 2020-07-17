@@ -60,6 +60,15 @@ Note: In case both api_key and domino_token_file are available, then preference 
 
 <hr>
 
+### project_create(project_name, owner_username=None):
+
+Create a new project with given project name. The parameters are:
+
+* *project_name:* The name of the project
+* *owner_username:* (Optional) The owner username for the project. This parameter is useful in-case project needs to be created under some organization.
+
+<hr>
+
 ### runs_list()
 
 List the runs on the selected project.
