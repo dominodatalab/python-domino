@@ -169,10 +169,10 @@ Stops all running apps in the Domino project.
 
 The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
 
-To install it, add the `airflow` flag to extras with pip.
+To install its dependencies, when installing the package from github add the `airflow` flag to extras with pip.
 
 ```
-pip install -e git+git://github.com/dominodatalab/python-domino.git#egg=python-domino[airflow]
+pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=domino[airflow]
 ```
 
 
