@@ -4,7 +4,7 @@ from airflow.models import Variable
 
 from domino.airflow import DominoOperator
 
-api_key = Variable.get("DOMINO_API_KEY")
+api_key = Variable.get("DOMINO_USER_API_KEY")
 host = Variable.get("DOMINO_API_HOST")
 
 default_args = {
