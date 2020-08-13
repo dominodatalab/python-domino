@@ -2,6 +2,12 @@
 
 All notable changes to the `python-domino` library will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+* Airflow DominoOperator support.
+
 ## 1.0.0
 
 ### Added
