@@ -199,6 +199,29 @@ class Domino:
         url = self._routes.runs_status(runId)
         return self._get(url)
 
+    def get_run_log(self, runId, includeSetupLog=True):
+        """
+        Get the unified log for a run (setup + stdout).
+
+        parameters
+        ----------
+        runId : string
+                the id associated with the run.
+        includeSetupLog : bool
+                whether or not to include the setup log in the output.
+        """
+
+        url = self._routes.runs_stdout(runId)
+
+        logs = list()
+
+        if includeSetupLog:
+            logs.append(self._get(url)["setup"])
+
+        logs.append(self._get(url)["stdout"])
+
+        return "\n".join(logs)
+        
     def get_run_info(self, run_id):
         for run_info in self.runs_list()['data']:
             if run_info['id'] == run_id:

@@ -30,5 +30,8 @@ setup(
     long_description='',
     install_requires=[
         'requests>=2.4.2'
-    ]
+    ],
+    extras_require={
+        "airflow":  ['apache-airflow==1.*,>=1.10', 'bs4==0.*,>=0.0.1'],
+    }
 )
