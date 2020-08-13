@@ -4,3 +4,5 @@ MANIFEST
 examples/results/
 *.pyc
 build/
+.venv
+.vscode
