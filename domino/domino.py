@@ -36,6 +36,14 @@ class Domino:
             self._logger.error(error_message)
             raise Exception(error_message)
 
+    @property
+    def log(self):
+        try:
+            return self._logger
+        except AttributeError:
+            self._configure_logging()
+            return self._logger
+
     def _configure_logging(self):
         logging.basicConfig(level=logging.INFO)
         self._logger = logging.getLogger(__name__)
