@@ -171,7 +171,7 @@ class Domino:
                                   .format(run_id))
                     raise Exception(header_msg + stdout_msg)
 
-                logging.info(stdout_msg)
+                self._logger.info(stdout_msg)
                 break
 
         return run_response

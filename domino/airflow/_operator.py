@@ -1,4 +1,5 @@
 import time
+import logging
 from typing import List, Optional, Any
 
 from bs4 import BeautifulSoup
@@ -89,6 +90,8 @@ class DominoOperator(BaseOperator):
                     "multipart command string this long if is_direct=True"
                 )
 
+        
+        self.client._logger.setLevel(logging.ERROR)
         run_response = self.client.runs_start_blocking(
             command=self.command,
             isDirect=self.is_direct,
@@ -99,15 +102,18 @@ class DominoOperator(BaseOperator):
             poll_freq=self.poll_freq,
             max_poll_time=self.max_poll_time
         )
+        self.client._logger.setLevel(logging.INFO)
+
         self.run_id = run_response["runId"]
 
         log = self.client.get_run_log(self.run_id, self.include_setup_log)
 
         # spool out and replay entire log
         for line in log.splitlines():
-            if line:
+            if line and line != '.':
                 # using bs4 to strip the HTML tags
-                text = BeautifulSoup(line).text
+                # html.parser since it's batteries included
+                text = BeautifulSoup(line, "html.parser").text
                 if "text-danger" in line:
                     self.log.warning(text)
                 else:
