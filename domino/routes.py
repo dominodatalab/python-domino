@@ -111,6 +111,10 @@ class _Routes:
 
     def app_stop(self, app_id):
         return self.host + f'/v4/modelProducts/{app_id}/stop'
+    
+    # Hardware Tier URLs
+    def hardware_tiers_list(self, project_id):
+        return self.host + f'/v4/projects/{project_id}/hardwareTiers'
 
     # Find Project By OwnerName and project name Url
     def find_project_by_owner_name_and_project_name_url(self):
