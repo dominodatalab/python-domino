@@ -440,6 +440,11 @@ class Domino:
 
         response = self.request_manager.post(url, json=request)
         return response.json()
+       
+    # Hardware Tier Functions
+    def hardware_tiers_list(self):
+        url = self._routes.hardware_tiers_list(self._project_id)
+        return self._get(url)
 
     # Helper methods
     def _get(self, url):
