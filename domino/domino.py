@@ -144,8 +144,8 @@ class Domino:
         while True:
             try:
                 run_info = self.get_run_info(run_id)
-                    if run_info is None:
-                        raise Exception(run_id)
+                if run_info is None:
+                    raise Exception(run_id)
             except (requests.exceptions.RequestException, Exception) as e:
                 current_retry_count += 1
                 self._logger.warn(f'Failed to get run info for runId: {run_id} : {e}')
