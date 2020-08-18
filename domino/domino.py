@@ -137,13 +137,16 @@ class Domino:
                                        tier, publishApiEndpoint)
         run_id = run_response['runId']
 
+        time.sleep(5)
+        
         poll_start = time.time()
         current_retry_count = 0
         while True:
             try:
                 run_info = self.get_run_info(run_id)
-                current_retry_count = 0
-            except requests.exceptions.RequestException as e:
+                    if run_info is None:
+                        raise Exception(run_id)
+            except (requests.exceptions.RequestException, Exception) as e:
                 current_retry_count += 1
                 self._logger.warn(f'Failed to get run info for runId: {run_id} : {e}')
                 if current_retry_count > retry_count:
@@ -159,10 +162,6 @@ class Domino:
                 raise Exception('Run \
                                 exceeded maximum time of \
                                 {} seconds'.format(max_poll_time))
-
-            if run_info is None:
-                raise Exception("Tried to access nonexistent run id {}.".
-                                format(run_id))
 
             output_commit_id = run_info.get('outputCommitId')
             if not output_commit_id:
