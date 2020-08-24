@@ -5,3 +5,7 @@ class DominoException(Exception):
 class RunNotFoundException(DominoException):
     """Run Not Found Exception"""
     pass
+
+class RunFailedException(DominoException):
+    """Run Failed Exception"""
+    pass
