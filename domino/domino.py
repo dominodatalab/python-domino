@@ -2,6 +2,8 @@ from .routes import _Routes
 from .helpers import *
 from .http_request_manager import _HttpRequestManager
 from .bearer_auth import BearerAuth
+from .exceptions import RunNotFoundException
+
 from domino._version import __version__
 
 import logging
@@ -145,7 +147,7 @@ class Domino:
                 if run_info is None:
                     raise RunNotFoundException(f"Tried to access nonexistent run id {run_id}")           
                 current_retry_count = 0
-            except (Exception) as e:
+            except (requests.exceptions.RequestException, RunNotFoundException) as e:
                 current_retry_count += 1
                 self._logger.warning(f'Failed to get run info for runId: {run_id} : {e}')
                 if current_retry_count > retry_count:
