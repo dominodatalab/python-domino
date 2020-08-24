@@ -143,10 +143,11 @@ class Domino:
             try:
                 run_info = self.get_run_info(run_id)
                 if run_info is None:
-                    raise Exception(run_id)
-            except (requests.exceptions.RequestException, Exception) as e:
+                    raise RunNotFoundException(f"Tried to access nonexistent run id {run_id}")           
+                current_retry_count = 0
+            except (Exception) as e:
                 current_retry_count += 1
-                self._logger.warn(f'Failed to get run info for runId: {run_id} : {e}')
+                self._logger.warning(f'Failed to get run info for runId: {run_id} : {e}')
                 if current_retry_count > retry_count:
                     raise Exception(f'Cannot get run info, max retry {retry_count} exceeded') from None
                 else:
