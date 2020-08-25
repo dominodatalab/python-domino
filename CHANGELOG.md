@@ -4,9 +4,16 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ## [Unreleased]
 
+## 1.0.1
+
 ### Added
 
+* HW tier functions.
 * Airflow DominoOperator support.
+
+### Changed
+
+* Better error handling in `runs_start_blocking`.
 
 ## 1.0.0
 
