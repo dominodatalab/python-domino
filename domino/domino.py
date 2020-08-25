@@ -138,7 +138,7 @@ class Domino:
         run_response = self.runs_start(command, isDirect, commitId, title,
                                        tier, publishApiEndpoint)
         run_id = run_response['runId']
-        
+
         poll_start = time.time()
         current_retry_count = 0
         while True:
