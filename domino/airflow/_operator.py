@@ -2,11 +2,10 @@ import time
 import logging
 from typing import List, Optional, Any
 
-from bs4 import BeautifulSoup
-
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from domino import Domino
+from domino.exceptions import RunFailedException
 
 
 class DominoOperator(BaseOperator):
@@ -38,7 +37,7 @@ class DominoOperator(BaseOperator):
         command: List[str],
         host: Optional[str] = None,
         api_key: Optional[str] = None,
-        domino_token_file: Optional[str] = None, 
+        domino_token_file: Optional[str] = None,
         isDirect: bool = None,
         commitId: Optional[str] = None,
         title: Optional[str] = None,
@@ -54,7 +53,7 @@ class DominoOperator(BaseOperator):
         super(DominoOperator, self).__init__(*args, **kwargs)
 
         self.log.info("Initializing Client...")
-        
+
         self.project = project
         self._api_key = api_key
         self._host = host
@@ -70,13 +69,24 @@ class DominoOperator(BaseOperator):
         self.startup_delay = startup_delay
         self.include_setup_log = include_setup_log
 
-        self.client = None
-        self.run_id = None
+        self.client: Optional[Domino] = None
+        self.run_id: Optional[str] = None
 
     def execute(self, context: Any) -> dict:
 
-        self.client = Domino(self.project, self._api_key, self._host, self._domino_token_file)
+        self.client = Domino(
+            self.project, self._api_key, self._host, self._domino_token_file
+        )
         self.log.info("Client Initialized for project: %s", self.project)
+
+        if self.tier:
+            self.log.info("Validating Hardware Tier")
+            tier_metadata = self.client.hardware_tiers_list()
+
+            if self.tier not in [x["hardwareTier"]["name"] for x in tier_metadata]:
+                raise ValueError(
+                    "Provided tier not in the list of available tiers for project."
+                )
 
         self.log.info("Starting run.")
         if self.startup_delay:
@@ -89,7 +99,6 @@ class DominoOperator(BaseOperator):
                     "multipart command string this long if is_direct=True"
                 )
 
-        self.client.log.setLevel(logging.ERROR)
         run_response = self.client.runs_start_blocking(
             command=self.command,
             isDirect=self.is_direct,
@@ -98,28 +107,11 @@ class DominoOperator(BaseOperator):
             tier=self.tier,
             publishApiEndpoint=self.publish_api_endpoint,
             poll_freq=self.poll_freq,
-            max_poll_time=self.max_poll_time
+            max_poll_time=self.max_poll_time,
         )
-        self.client.log.setLevel(logging.INFO)
 
         self.run_id = run_response["runId"]
-
         log = self.client.get_run_log(self.run_id, self.include_setup_log)
-
-        # spool out and replay entire log
-        for line in log.splitlines():
-            if line and line != '.':
-                # using bs4 to strip the HTML tags
-                # html.parser since it's batteries included
-                text = BeautifulSoup(line, "html.parser").text
-                if "text-danger" in line:
-                    self.log.warning(text)
-                else:
-                    self.log.info(text)
+        self.client.process_log(log)
 
         return run_response
-
-    def on_kill(self) -> None:
-        if self.client is not None:
-            self.log.info('Stopping Domino Run')
-            self.client.run_stop(runId=self.run_id)
