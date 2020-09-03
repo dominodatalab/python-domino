@@ -31,6 +31,7 @@ def test_operator():
     ti = TaskInstance(task=task, execution_date=datetime.now())
     task.execute(ti.get_template_context())
 
+
 def test_operator_fail(caplog):
     airflow = pytest.importorskip("airflow")
 
@@ -49,6 +50,7 @@ def test_operator_fail(caplog):
     
     with pytest.raises(Exception):
         task.execute(ti.get_template_context())
+
 
 def test_operator_fail_invalid_tier(caplog):
     airflow = pytest.importorskip("airflow")

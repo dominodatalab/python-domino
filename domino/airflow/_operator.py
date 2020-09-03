@@ -1,21 +1,19 @@
 import time
-import logging
 from typing import List, Optional, Any
 
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from domino import Domino
-from domino.exceptions import RunFailedException
 
 
 class DominoOperator(BaseOperator):
     """
     Operator for interacting with Domino Data Lab
     via the python-domino client library w/ some
-    additional functionality baked in. Follows the 
+    additional functionality baked in. Follows the
     same run signature as domino.runs_start with
     some extra arguments.
-    
+
     Host and API key arguments are optional and can be
     discovered via environment variable, as per the domino
     python client.
@@ -24,7 +22,7 @@ class DominoOperator(BaseOperator):
     ------
     When combining `isDirect=True` with a command, you
     need to pass in the entire command as a single string
-    in the command array. 
+    in the command array.
     """
 
     template_fields = ("command", "title")
