@@ -12,6 +12,7 @@ from requests.auth import HTTPBasicAuth
 import time
 import pprint
 import re
+from bs4 import BeautifulSoup
 
 
 class Domino:
@@ -149,11 +150,11 @@ class Domino:
                 current_retry_count = 0
             except (requests.exceptions.RequestException, RunNotFoundException) as e:
                 current_retry_count += 1
-                self._logger.warning(f'Failed to get run info for runId: {run_id} : {e}')
+                self.log.warning(f'Failed to get run info for runId: {run_id} : {e}')
                 if current_retry_count > retry_count:
                     raise Exception(f'Cannot get run info, max retry {retry_count} exceeded') from None
                 else:
-                    self._logger.info(f'Retrying ({current_retry_count}/{retry_count}) getting run info ...')
+                    self.log.info(f'Retrying ({current_retry_count}/{retry_count}) getting run info ...')
                     time.sleep(poll_freq)
                     continue
 
@@ -171,15 +172,12 @@ class Domino:
 
             # once task has finished running check to see if it was successfull
             else:
-                stdout_msg = self.runs_stdout(run_id)
+                stdout_msg = self.get_run_log(runId=run_id, includeSetupLog=False)
 
                 if run_info['status'] != 'Succeeded':
-                    header_msg = ("Remote run {0} \
-                                  finished but did not succeed.\n"
-                                  .format(run_id))
-                    raise RunFailedException(header_msg + stdout_msg)
+                    self.process_log(stdout_msg)
+                    raise RunFailedException(f"Remote run {run_id} finished but did not succeed.")
 
-                self._logger.info(stdout_msg)
                 break
 
         return run_response
@@ -445,6 +443,20 @@ class Domino:
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
+
+    def process_log(self, log):
+        """
+        spool out and replay entire log using bs4 to strip the HTML tags
+            - html.parser since it's batteries included
+        """
+        for line in log.splitlines():
+            if line and line != ".":
+                text = BeautifulSoup(line, "html.parser").text
+
+                if "text-danger" in line:
+                    self.log.warning(text)
+                else:
+                    self.log.info(text)
 
     # Helper methods
     def _get(self, url):
