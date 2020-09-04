@@ -182,24 +182,20 @@ class Domino:
 
         return run_response
 
-    def run_stop(self, runId, saveChanges=True, commitMessage=None):
+    def run_stop(self, runId, saveChanges=True):
         """
         :param runId: string
         :param saveChanges: boolean (Optional) Save or discard run results.
-        :param commitMessage: string (Optional)
         """
-        url = self._routes.run_stop(runId)
+        url = self._routes.job_stop()
+        project_id = self._project_id
         request = {
-            "saveChanges": saveChanges,
-            "commitMessage": commitMessage,
-            "ignoreRepoState": False
+            "projectId": project_id,
+            "jobId": runId,
+            "commitResults": saveChanges
         }
         response = self.request_manager.post(url, json=request)
-
-        if response.status_code == 400:
-            raise Warning("Run ID:" + runId + " not found.")
-        else:
-            return response
+        return response
 
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)

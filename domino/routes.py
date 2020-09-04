@@ -31,9 +31,6 @@ class _Routes:
     def runs_start(self):
         return self._build_project_url() + '/runs'
 
-    def run_stop(self, runId):
-        return self._build_project_url_private_api() + '/run/stop/' + runId
-
     def runs_status(self, runId):
         return self._build_project_url() + '/runs/' + runId
 
@@ -98,6 +95,10 @@ class _Routes:
     # Deployment URLs
     def deployment_version(self):
         return self.host + '/version'
+
+    # Job URLs
+    def job_stop(self):
+        return f'{self.host}/v4/jobs/stop'
 
     # App URLs
     def app_list(self, project_id):
