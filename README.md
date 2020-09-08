@@ -108,13 +108,12 @@ Same as method `run_start` except make a blocking request that waits until job i
 
 <hr>
 
-### run_stop(*runId, saveChanges=True, commitMessage=None*):
+### run_stop(*runId, saveChanges=True):
 
 Stop an existing run in the selected project. The parameters are:
 
 * *runId:* string that identifies the run
 * *saveChanges:* (Defaults to True) If false, run results will be discarded.
-* *commitMessage:* (Optional) Adds a Domino commit message to the run commit. 
 
 <hr>
 

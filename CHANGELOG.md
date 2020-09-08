@@ -4,6 +4,15 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ## [Unreleased]
 
+### Added
+
+* Added HW tier validation in DominoOperator
+
+### Changed
+
+* Fixed issue in `run_stop` method
+* Better logging in `runs_start_blocking` method
+
 ## 1.0.1
 
 ### Added
