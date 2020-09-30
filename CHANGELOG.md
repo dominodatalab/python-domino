@@ -12,6 +12,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 * Fixed issue in `run_stop` method
 * Better logging in `runs_start_blocking` method
+* Added raise for error code (4xx & 5xx)
 
 ## 1.0.1
 
