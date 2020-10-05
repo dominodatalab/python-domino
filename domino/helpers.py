@@ -1,4 +1,5 @@
 from distutils.version import LooseVersion as parse_version
+from urllib import parse as url_parse
 from .constants import *
 import os
 
@@ -53,3 +54,12 @@ def get_path_to_domino_token_file(path_to_domino_token_file):
     else:
         _path_to_domino_token_file = None
     return _path_to_domino_token_file
+
+
+def clean_host_url(host_url):
+    """
+    Helper function to clean 'host_url'. This will extract
+    hostname (with scheme) from the url
+    """
+    url_split = url_parse.urlsplit(host_url)
+    return f"{url_split.scheme}://{url_split.netloc}"

@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 class Domino:
     def __init__(self, project, api_key=None, host=None, domino_token_file=None):
         self._configure_logging()
-        host = get_host_or_throw_exception(host)
+        host = clean_host_url(get_host_or_throw_exception(host))
         domino_token_file = get_path_to_domino_token_file(domino_token_file)
         api_key = get_api_key(api_key)
 
