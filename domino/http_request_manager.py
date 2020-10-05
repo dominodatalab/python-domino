@@ -1,4 +1,5 @@
 from requests.auth import AuthBase
+from bs4 import BeautifulSoup
 import logging
 import requests
 
@@ -31,6 +32,7 @@ class _HttpRequestManager:
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self._logger.error(e.response.text)
+            if not bool(BeautifulSoup(e.response.text, "html.parser").find()):
+                self._logger.error(e.response.text)
             raise
         return response
