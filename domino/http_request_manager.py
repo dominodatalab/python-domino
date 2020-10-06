@@ -1,4 +1,5 @@
 from requests.auth import AuthBase
+from bs4 import BeautifulSoup
 import logging
 import requests
 
@@ -31,6 +32,11 @@ class _HttpRequestManager:
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self._logger.error(e.response.text)
+            # Sometimes, the error response is a long HTML page.
+            # We don't want to log error the whole response html in those cases.
+            if not bool(BeautifulSoup(e.response.text, "html.parser").find()):
+                self._logger.error(e.response.text)
+            else:
+                self._logger.debug(e.response.text)
             raise
         return response

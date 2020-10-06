@@ -7,12 +7,14 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 * Added HW tier validation in DominoOperator
+* Added ENV Variable `DOMINO_LOG_LEVEL` to set log level
 
 ### Changed
 
 * Fixed issue in `run_stop` method
 * Better logging in `runs_start_blocking` method
 * Added raise for error code (4xx & 5xx)
+* Fixed library initialization error in case host url had trailing slash
 
 ## 1.0.1
 

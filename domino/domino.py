@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 class Domino:
     def __init__(self, project, api_key=None, host=None, domino_token_file=None):
         self._configure_logging()
-        host = get_host_or_throw_exception(host)
+        host = clean_host_url(get_host_or_throw_exception(host))
         domino_token_file = get_path_to_domino_token_file(domino_token_file)
         api_key = get_api_key(api_key)
 
@@ -48,7 +48,8 @@ class Domino:
             return self._logger
 
     def _configure_logging(self):
-        logging.basicConfig(level=logging.INFO)
+        logging_level = logging.getLevelName(os.getenv(DOMINO_LOG_LEVEL_KEY_NAME, "INFO").upper())
+        logging.basicConfig(level=logging_level)
         self._logger = logging.getLogger(__name__)
 
     def _initialise_request_manager(self, api_key, domino_token_file):
