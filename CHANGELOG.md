@@ -7,6 +7,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 * Added HW tier validation in DominoOperator
+* Added ENV Variable `DOMINO_LOG_LEVEL` to set log level
 
 ### Changed
 

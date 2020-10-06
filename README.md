@@ -53,8 +53,9 @@ The parameters are:
 * *domino_token_file:* (Optional) Path to domino token file containing auth token. If not provided the library will expect to find one
 in the DOMINO_TOKEN_FILE environment variable.
 
-Note: In case both api_key and domino_token_file are available, then preference will be given to domino_token_file.
-  
+Note: 
+1. In case both api_key and domino_token_file are available, then preference will be given to domino_token_file.
+2. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` to `DEBUG`  
 <hr>
 
 ## Methods

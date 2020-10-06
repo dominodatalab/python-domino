@@ -48,7 +48,8 @@ class Domino:
             return self._logger
 
     def _configure_logging(self):
-        logging.basicConfig(level=logging.INFO)
+        logging_level = logging.getLevelName(os.getenv(DOMINO_LOG_LEVEL_KEY_NAME, "INFO").upper())
+        logging.basicConfig(level=logging_level)
         self._logger = logging.getLogger(__name__)
 
     def _initialise_request_manager(self, api_key, domino_token_file):
