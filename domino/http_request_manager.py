@@ -12,18 +12,19 @@ class _HttpRequestManager:
     def __init__(self, auth: AuthBase):
         self.auth = auth
         self._logger = logging.getLogger(__name__)
+        self.request_session = requests.Session()
 
     def post(self, url, data=None, json=None, **kwargs):
-        return self._raise_for_status(requests.post(url, auth=self.auth, data=data, json=json, **kwargs))
+        return self._raise_for_status(self.request_session.post(url, auth=self.auth, data=data, json=json, **kwargs))
 
     def get(self, url, **kwargs):
-        return self._raise_for_status(requests.get(url, auth=self.auth, **kwargs))
+        return self._raise_for_status(self.request_session.get(url, auth=self.auth, **kwargs))
 
     def put(self, url, data=None, **kwargs):
-        return self._raise_for_status(requests.put(url, auth=self.auth, data=data, **kwargs))
+        return self._raise_for_status(self.request_session.put(url, auth=self.auth, data=data, **kwargs))
 
     def delete(self, url, **kwargs):
-        return self._raise_for_status(requests.delete(url, auth=self.auth, **kwargs))
+        return self._raise_for_status(self.request_session.delete(url, auth=self.auth, **kwargs))
 
     def get_raw(self, url):
         return self.get(url, stream=True).raw
