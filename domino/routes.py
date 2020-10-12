@@ -103,6 +103,9 @@ class _Routes:
     def job_stop(self):
         return f'{self.host}/v4/jobs/stop'
 
+    def job_status(self, job_id):
+        return f'{self.host}/v4/jobs/{job_id}'
+
     def default_spark_setting(self, project_id):
         return f'{self.host}/v4/jobs/project/{project_id}/defaultSparkSettings'
 

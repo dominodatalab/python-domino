@@ -13,6 +13,7 @@ from requests.auth import HTTPBasicAuth
 import time
 import pprint
 import re
+import polling2
 from bs4 import BeautifulSoup
 
 
@@ -185,19 +186,8 @@ class Domino:
         return run_response
 
     def run_stop(self, runId, saveChanges=True):
-        """
-        :param runId: string
-        :param saveChanges: boolean (Optional) Save or discard run results.
-        """
-        url = self._routes.job_stop()
-        project_id = self._project_id
-        request = {
-            "projectId": project_id,
-            "jobId": runId,
-            "commitResults": saveChanges
-        }
-        response = self.request_manager.post(url, json=request)
-        return response
+        self.log.warning("Use job_stop method instead")
+        return self.job_stop(job_id=runId, commit_results=saveChanges)
 
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
@@ -244,39 +234,6 @@ class Domino:
         # pprint.pformat outputs a string that is ready to be printed
         return pprint.pformat(self._get(url)['stdout'])
 
-    def useable_environments_list(self):
-        self.log.debug(f"Getting list of useable environment")
-        useable_environment_list_url = self._routes.useable_environments_list(self._project_id)
-        return self.request_manager.get(useable_environment_list_url).json()['environments']
-
-    def validate_environment_id(self, environment_id):
-        self.log.debug(f"Validating environment id: {environment_id}")
-        for environment in self.useable_environments_list():
-            if environment_id == environment['id']:
-                return True
-        raise EnvironmentNotFoundException(f"{environment_id} environment not found")
-
-    def validate_hardware_tier_id(self, hardware_tier_id):
-        self.log.debug(f"Validating hardware tier id: {hardware_tier_id}")
-        for hardware_tier in self.hardware_tiers_list():
-            if hardware_tier_id == hardware_tier['hardwareTier']['id']:
-                return True
-        raise HardwareTierNotFoundException(f"{hardware_tier_id} hardware tier Id not found")
-
-    def validate_hardware_tier_name(self, hardware_tier_name):
-        self.log.debug(f"Validating hardware tier id: {hardware_tier_name}")
-        for hardware_tier in self.hardware_tiers_list():
-            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
-                return True
-        raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
-
-    def validate_commit_id(self, commit_id):
-        self.log.debug(f"Validating commit id: {commit_id}")
-        for commit in self.commits_list():
-            if commit_id == commit:
-                return True
-        raise CommitNotFoundException(f"{commit_id} commit Id not found")
-
     def job_start(self, command, commit_id=None, hardware_tier_name=None,
                   environment_id=None, on_demand_spark_cluster_properties=None):
         """
@@ -299,16 +256,23 @@ class Domino:
                                                     {
                                                         "computeEnvironmentId": "<Environment configured with spark>"
                                                         "executorCount": "<Number of Executors in cluster>"
+                                                         (optional defaults to 1)
+                                                        "executorHardwareTierId": "<Hardware tier ID for Spark Executors>"
+                                                         (optional defaults to last used historically if available)
+                                                        "masterHardwareTierId":  "<Hardware tier ID for Spark master"
+                                                         (optional defaults to last used historically if available)
+                                                        "executorStorageMB": "<Executor's storage in MB>"
+                                                         (optional defaults to 0; 1GB is 1000MB Here)
                                                     }
-        :return:
+        :return: Returns created Job details (number, id etc)
         """
         def validate_on_demand_spark_cluster_properties(max_execution_slot_per_user):
             self.log.debug(f"Validating spark cluster properties: {on_demand_spark_cluster_properties}")
             validations = {
                 'executorCount': lambda ec: validate_spark_executor_count(int(ec), max_execution_slot_per_user),
-                'computeEnvironmentId': lambda com_env_id: self.validate_environment_id(com_env_id),
-                'executorHardwareTierId': lambda exec_hwd_tier_id: self.validate_hardware_tier_id(exec_hwd_tier_id),
-                'masterHardwareTierId': lambda master_hwd_tier_id: self.validate_hardware_tier_id(master_hwd_tier_id),
+                'computeEnvironmentId': lambda com_env_id: self._validate_environment_id(com_env_id),
+                'executorHardwareTierId': lambda exec_hwd_tier_id: self._validate_hardware_tier_id(exec_hwd_tier_id),
+                'masterHardwareTierId': lambda master_hwd_tier_id: self._validate_hardware_tier_id(master_hwd_tier_id),
                 'executorStorageMB': lambda exec_storage_mb: True
             }
             if 'computeEnvironmentId' not in on_demand_spark_cluster_properties:
@@ -337,11 +301,11 @@ class Domino:
         spark_cluster_properties = None
 
         if commit_id is not None:
-            self.validate_commit_id(commit_id)
+            self._validate_commit_id(commit_id)
         if hardware_tier_name is not None:
-            self.validate_hardware_tier_name(hardware_tier_name)
+            self._validate_hardware_tier_name(hardware_tier_name)
         if environment_id is not None:
-            self.validate_environment_id(environment_id)
+            self._validate_environment_id(environment_id)
         if on_demand_spark_cluster_properties is not None:
             validate_is_on_demand_spark_supported()
             default_spark_setting = get_default_spark_settings()
@@ -375,6 +339,46 @@ class Domino:
         }
         response = self.request_manager.post(url, json=payload)
         return response.json()
+
+    def job_stop(self, job_id, commit_results=True):
+        """
+        Stops the Job with given job_id
+        :param job_id: The job identifier
+        :param commit_results: Boolean representing to commit results to file
+        """
+        url = self._routes.job_stop()
+        request = {
+            "projectId": self._project_id,
+            "jobId": job_id,
+            "commitResults": commit_results
+        }
+        response = self.request_manager.post(url, json=request)
+        return response
+
+    def job_status(self, job_id):
+        """
+        Gets the status of job with given job_id
+        :param job_id: The job identifier
+        :return: The details
+        """
+        return self.request_manager.get(
+            self._routes.job_status(job_id)
+        ).json()
+
+    def job_start_blocking(self, poll_freq=5, max_poll_time=6000, **kwargs):
+        job = self.job_start(**kwargs)
+        job_id = job['id']
+        job_status = polling2.poll(
+            target=lambda: self.job_status(job_id),
+            check_success=lambda status: status['statuses']['isCompleted'],
+            ignore_exceptions=(requests.exceptions.RequestException,),
+            timeout=max_poll_time,
+            step=poll_freq,
+            log_error=self.log.level
+        )
+        stdout_msg = self.get_run_log(runId=job_id, includeSetupLog=False)
+        self.process_log(stdout_msg)
+        return job_status
 
     def files_list(self, commitId, path='/'):
         url = self._routes.files_list(commitId, path)
@@ -587,6 +591,40 @@ class Domino:
                     self.log.warning(text)
                 else:
                     self.log.info(text)
+
+    # Validation methods
+    def _useable_environments_list(self):
+        self.log.debug(f"Getting list of useable environment")
+        useable_environment_list_url = self._routes.useable_environments_list(self._project_id)
+        return self.request_manager.get(useable_environment_list_url).json()['environments']
+
+    def _validate_environment_id(self, environment_id):
+        self.log.debug(f"Validating environment id: {environment_id}")
+        for environment in self._useable_environments_list():
+            if environment_id == environment['id']:
+                return True
+        raise EnvironmentNotFoundException(f"{environment_id} environment not found")
+
+    def _validate_hardware_tier_id(self, hardware_tier_id):
+        self.log.debug(f"Validating hardware tier id: {hardware_tier_id}")
+        for hardware_tier in self.hardware_tiers_list():
+            if hardware_tier_id == hardware_tier['hardwareTier']['id']:
+                return True
+        raise HardwareTierNotFoundException(f"{hardware_tier_id} hardware tier Id not found")
+
+    def _validate_hardware_tier_name(self, hardware_tier_name):
+        self.log.debug(f"Validating hardware tier id: {hardware_tier_name}")
+        for hardware_tier in self.hardware_tiers_list():
+            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
+                return True
+        raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
+
+    def _validate_commit_id(self, commit_id):
+        self.log.debug(f"Validating commit id: {commit_id}")
+        for commit in self.commits_list():
+            if commit_id == commit:
+                return True
+        raise CommitNotFoundException(f"{commit_id} commit Id not found")
 
     # Helper methods
     def _get(self, url):
