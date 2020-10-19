@@ -254,7 +254,7 @@ class Domino:
                                                     On demand spark cluster properties. Following properties
                                                     can be provided in spark cluster
                                                     {
-                                                        "computeEnvironmentId": "<Environment configured with spark>"
+                                                        "computeEnvironmentId": "<Environment ID configured with spark>"
                                                         "executorCount": "<Number of Executors in cluster>"
                                                          (optional defaults to 1)
                                                         "executorHardwareTierId": "<Hardware tier ID for Spark Executors>"
