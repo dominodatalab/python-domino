@@ -366,10 +366,22 @@ class Domino:
         ).json()
 
     def job_start_blocking(self, poll_freq=5, max_poll_time=6000, **kwargs):
+        """
+        Starts a job in a blocking loop, periodically polling for status of job
+        is complete. Will ignore intermediate request exception.
+        :param poll_freq: int (Optional) polling frequency interval in seconds
+        :param max_poll_time: int (Optional) max poll time in seconds
+        :param kwargs: Additional arguments to be passed to job_start
+        :return:
+        """
+        def get_job_status(job_identifier):
+            status = self.job_status(job_identifier)
+            self.log.info(f"Polling Job: {job_identifier} status is completed: ${status['statuses']['isCompleted']}")
+            return status
         job = self.job_start(**kwargs)
         job_id = job['id']
         job_status = polling2.poll(
-            target=lambda: self.job_status(job_id),
+            target=lambda: get_job_status(job_id),
             check_success=lambda status: status['statuses']['isCompleted'],
             ignore_exceptions=(requests.exceptions.RequestException,),
             timeout=max_poll_time,
