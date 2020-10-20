@@ -234,8 +234,8 @@ class Domino:
         # pprint.pformat outputs a string that is ready to be printed
         return pprint.pformat(self._get(url)['stdout'])
 
-    def job_start(self, command, commit_id=None, hardware_tier_name=None,
-                  environment_id=None, on_demand_spark_cluster_properties=None):
+    def job_start(self, command: str, commit_id: str = None, hardware_tier_name: str = None,
+                  environment_id: str = None, on_demand_spark_cluster_properties: dict = None) -> dict:
         """
         Starts a Domino Job via V4 API
         :param command:                             string
@@ -340,7 +340,7 @@ class Domino:
         response = self.request_manager.post(url, json=payload)
         return response.json()
 
-    def job_stop(self, job_id, commit_results=True):
+    def job_stop(self, job_id: str, commit_results: bool = True):
         """
         Stops the Job with given job_id
         :param job_id: The job identifier
@@ -355,7 +355,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
-    def job_status(self, job_id):
+    def job_status(self, job_id: str) -> dict:
         """
         Gets the status of job with given job_id
         :param job_id: The job identifier
@@ -365,7 +365,7 @@ class Domino:
             self._routes.job_status(job_id)
         ).json()
 
-    def job_start_blocking(self, poll_freq=5, max_poll_time=6000, **kwargs):
+    def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000, **kwargs) -> dict:
         """
         Starts a job in a blocking loop, periodically polling for status of job
         is complete. Will ignore intermediate request exception.
@@ -376,7 +376,7 @@ class Domino:
         """
         def get_job_status(job_identifier):
             status = self.job_status(job_identifier)
-            self.log.info(f"Polling Job: {job_identifier} status is completed: ${status['statuses']['isCompleted']}")
+            self.log.info(f"Polling Job: {job_identifier} status is completed: {status['statuses']['isCompleted']}")
             return status
         job = self.job_start(**kwargs)
         job_id = job['id']
