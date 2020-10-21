@@ -11,6 +11,9 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+* Started caching project_id
+* Started using request session instead of creating new session every time
+
 ## 1.0.2
 
 ### Added
