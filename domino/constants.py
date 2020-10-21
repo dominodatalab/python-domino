@@ -1,8 +1,12 @@
 """
 Minimum Domino version supported by this python-domino library
 """
-
 MINIMUM_SUPPORTED_DOMINO_VERSION = '4.1.0'
+
+"""
+Minimum Domino version supporting on demand spark cluster
+"""
+MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION = '4.2.0'
 
 """
 Environment variable names used by this python-domino library

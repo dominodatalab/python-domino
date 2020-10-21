@@ -167,6 +167,60 @@ Stops all running apps in the Domino project.
 
 <hr>
 
+### job_start(*command*, *commit_id=None*, *hardware_tier_name=None*, *environment_id=None*, *on_demand_spark_cluster_properties=None*):
+
+Starts a new Job (run) in the project
+
+* *command (string):* Command to execute in Job. Ex `domino.job_start(command="main.py arg1 arg2")`
+* *commit_id (string):* (Optional) The commitId to launch from. If not provided, will launch from latest commit.
+* *hardware_tier_name (string):* (Optional) The hardware tier NAME to launch job in. If not provided it will use the default hardware tier for the project
+* *environment_id (string):* (Optional) The environment id to launch job with. If not provided it will use the default environment for the project
+* *on_demand_spark_cluster_properties (dict):* (Optional) On demand spark cluster properties. Following properties
+                                                    can be provided in spark cluster
+                                                    
+    ```
+    {
+        "computeEnvironmentId": "<Environment ID configured with spark>"
+        "executorCount": "<Number of Executors in cluster>"
+         (optional defaults to 1)
+        "executorHardwareTierId": "<Hardware tier ID for Spark Executors>"
+         (optional defaults to last used historically if available)
+        "masterHardwareTierId":  "<Hardware tier ID for Spark master"
+         (optional defaults to last used historically if available)
+        "executorStorageMB": "<Executor's storage in MB>"
+         (optional defaults to 0; 1GB is 1000MB Here)
+    }
+    ```
+
+<hr>
+
+### job_stop(*job_id*, *commit_results=True*):
+
+Stops the Job (run) in the project
+
+* *job_id (string):* Job identifier
+* *commit_results (boolean):* Defaults to `True`, if `false` job results will not be committed 
+
+<hr>
+
+### job_status(*job_id*):
+
+Gets the status of a Job
+
+* *job_id (string):* Job identifier
+
+<hr>
+
+### job_start_blocking(*poll_freq=5*, *max_poll_time=6000*, **kwargs):
+
+Starts a job and polls until the job is finished. Additionally this method supports all the
+parameter in `job_start` method
+
+* *poll_freq:* Poll frequency interval in seconds
+* *max_poll_time:* Max poll time in seconds
+
+<hr>
+
 ## Airflow
 
 The `python-domino` client comes bundled with an Operator for use with airflow as an extra.

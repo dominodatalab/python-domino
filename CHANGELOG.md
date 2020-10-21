@@ -6,7 +6,13 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Added
 
+* Add v4 API endpoint `job_start` to start job with `onDemandSparkCluster` option
+* Add v4 API endpoint `job_stop`, `job_status` & `job_start_blocking`
+
 ### Changed
+
+* Started caching project_id
+* Started using request session instead of creating new session every time
 
 ## 1.0.2
 

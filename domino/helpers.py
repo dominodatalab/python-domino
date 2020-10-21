@@ -14,6 +14,10 @@ def is_version_compatible(version: str) -> bool:
     return parse_version(version) >= parse_version(MINIMUM_SUPPORTED_DOMINO_VERSION)
 
 
+def is_on_demand_spark_cluster_supported(version: str) -> bool:
+    return parse_version(version) >= parse_version(MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION)
+
+
 def get_host_or_throw_exception(host):
     """
     Helper function to get `host` from passed variable or environment variable

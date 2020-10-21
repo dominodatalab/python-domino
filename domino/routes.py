@@ -97,8 +97,20 @@ class _Routes:
         return self.host + '/version'
 
     # Job URLs
+    def job_start(self):
+        return f'{self.host}/v4/jobs/start'
+
     def job_stop(self):
         return f'{self.host}/v4/jobs/stop'
+
+    def job_status(self, job_id):
+        return f'{self.host}/v4/jobs/{job_id}'
+
+    def default_spark_setting(self, project_id):
+        return f'{self.host}/v4/jobs/project/{project_id}/defaultSparkSettings'
+
+    def useable_environments_list(self, project_id):
+        return f'{self.host}/v4/projects/{project_id}/useableEnvironments'
 
     # App URLs
     def app_list(self, project_id):
