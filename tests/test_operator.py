@@ -10,6 +10,7 @@ from datetime import datetime
 import pytest
 import logging
 from domino.airflow import DominoOperator
+from domino.exceptions import RunFailedException
 
 TEST_PROJECT = os.environ.get("DOMINO_TEST_PROJECT")
 
@@ -48,7 +49,7 @@ def test_operator_fail(caplog):
     )
     ti = TaskInstance(task=task, execution_date=datetime.now())
     
-    with pytest.raises(Exception):
+    with pytest.raises(RunFailedException):
         task.execute(ti.get_template_context())
 
 
