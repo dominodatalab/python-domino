@@ -52,3 +52,22 @@ def test_spark_operator_with_cluster():
     )
     ti = TaskInstance(task=task, execution_date=datetime.now())
     task.execute(ti.get_template_context())
+
+    
+def test_spark_operator_no_cluster_failed():
+    airflow = pytest.importorskip("airflow")
+
+    from airflow import DAG
+    from airflow.models import TaskInstance
+
+    dag = DAG(dag_id="foo", start_date=datetime.now())
+    task = DominoSparkOperator(
+        dag=dag,
+        task_id="foo",
+        project=TEST_PROJECT,
+        command="test_spark_fail.sh",
+    )
+    ti = TaskInstance(task=task, execution_date=datetime.now())
+    
+    with pytest.raises(RunFailedException):
+        task.execute(ti.get_template_context())
