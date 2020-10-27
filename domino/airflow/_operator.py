@@ -150,7 +150,7 @@ class DominoSparkOperator(BaseOperator):
     :param startup_delay: int (Optional) number of seconds to wait before starting the job
     """
 
-    template_fields = "command"
+    template_fields = ("command",)
     ui_color = "#6C50AD"
 
     @apply_defaults
