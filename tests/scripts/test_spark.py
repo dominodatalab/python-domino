@@ -1,9 +1,6 @@
 """
 Test the creation and utilization of a SparkContext.
 """
-import pytest
-
-pytestmark = pytest.mark.skip
 
 import pandas as pd
 from pyspark import SparkConf, SparkContext
