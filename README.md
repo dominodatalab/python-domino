@@ -231,19 +231,25 @@ To install its dependencies, when installing the package from github add the `ai
 pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=domino[airflow]
 ```
 
-
 ### DominoOperator
 
 ```
 from domino.airflow import DominoOperator
 ```
 
-**Note:** This is a `python>=3.5` feature due to `typing` support.
-
-Allows a user to schedule domino runs via airflow. Follows the same function signature as `runs_start` with two extra arguments:
+Allows a user to schedule domino runs via airflow. Follows the same function signature as `domino.runs_start` with two extra arguments:
 
 * `startup_delay: Optional[int] = 10` |  Add a startup delay to your job, useful if you want to delay execution until after other work finishes.
 * `include_setup_log: Optional[bool] = True` | Determine whether or not to publish the setup log of the job as the log prefix before `stdout`.
+
+### DominoSparkOperator
+
+```
+from domino.airflow import DominoSparkOperator
+```
+
+Allows a user to schedule domino runs via the v4 api, which supports `onDemandSparkClusters`. Follows the same function signature as `domino.job_start`, with the addition of `startup_delay` from above.
+
 
 ## License
 

@@ -377,6 +377,8 @@ class Domino:
         def get_job_status(job_identifier):
             status = self.job_status(job_identifier)
             self.log.info(f"Polling Job: {job_identifier} status is completed: {status['statuses']['isCompleted']}")
+            if status['statuses']['executionStatus'] == "Failed":
+                raise RunFailedException(f"Run Status Failed for run: {job_identifier}")
             return status
         job = self.job_start(**kwargs)
         job_id = job['id']
