@@ -1,3 +1,7 @@
+from typing import Optional
+
+from requests import HTTPError
+
 from .routes import _Routes
 from .helpers import *
 from .http_request_manager import _HttpRequestManager
@@ -467,7 +471,7 @@ class Domino:
 
     # App functions
     def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
-        if unpublishRunningApps is True:
+        if unpublishRunningApps:
             self.app_unpublish()
         app_id = self._app_id
         if app_id is None:
@@ -484,9 +488,20 @@ class Domino:
         app_id = self._app_id
         if app_id is None:
             return
-        url = self._routes.app_stop(app_id)
-        response = self.request_manager.post(url)
-        return response
+        status = self.__app_get_status(app_id)
+        self.log.debug(f"App {app_id} status={status}")
+        if status and status != 'Stopped' and status != 'Failed':
+            url = self._routes.app_stop(app_id)
+            response = self.request_manager.post(url)
+            return response
+
+    def __app_get_status(self, id) -> Optional[str]:
+        app_id = self._app_id
+        if app_id is None:
+            return None
+        url = self._routes.app_get(app_id)
+        response = self.request_manager.get(url).json()
+        return response.get('status', None)
 
     def __app_create(self, name: str = "", hardware_tier_id: str = None) -> str:
         """

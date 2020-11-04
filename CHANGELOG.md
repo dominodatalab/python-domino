@@ -13,6 +13,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 * Started caching project_id
 * Started using request session instead of creating new session every time
+* Check if an App is running before attempting to stop it (in `app_unpublish`)
 
 ## 1.0.2
 
