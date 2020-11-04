@@ -124,6 +124,9 @@ class _Routes:
 
     def app_stop(self, app_id):
         return self.host + f'/v4/modelProducts/{app_id}/stop'
+
+    def app_get(self, app_id):
+        return f'{self.host}/v4/modelProducts/{app_id}'
     
     # Hardware Tier URLs
     def hardware_tiers_list(self, project_id):
