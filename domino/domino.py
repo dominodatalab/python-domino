@@ -584,13 +584,12 @@ class Domino:
         return self._get(url)
 
     def model_version_publish(self, model_id, file, function, environment_id,
-                              name, description, files_to_exclude=[]):
+                              description, files_to_exclude=[]):
         self.requires_at_least("2.5.0")
 
         url = self._routes.model_version_publish(model_id)
 
         request = {
-            "name": name,
             "description": description,
             "projectId": self._project_id,
             "file": file,

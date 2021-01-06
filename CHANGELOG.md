@@ -7,6 +7,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Model version publish method (model_version_publish) doesn't take name anymore
 
 ## 1.0.3
 

@@ -44,7 +44,6 @@ another_model_version = domino.model_version_publish(model_id=published_model_id
                                                      file="main.R",
                                                      function="api_endpoint",
                                                      environment_id=chosen_environment_id,
-                                                     name="Model published from API! -- second version",
                                                      description="v2")
 
 describe_model_versions(published_model_id)
