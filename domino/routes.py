@@ -21,6 +21,9 @@ class _Routes:
     def _build_models_url(self):
         return self.host + '/v1/models'
 
+    def _build_models_v4_url(self):
+        return self.host + '/v4/models'
+
     # Project URLs
     def project_create(self):
         return self.host + '/project'
@@ -87,6 +90,18 @@ class _Routes:
 
     def model_version_publish(self, model_id):
         return self._build_models_url() + '/' + model_id + '/versions'
+
+    def model_version_export(self, model_id, model_version_id):
+        return self._build_models_v4_url() + '/' + model_id + '/' + model_version_id + '/exportImageToRegistry'
+
+    def model_version_sagemaker_export(self, model_id, model_version_id):
+        return self._build_models_v4_url() + '/' + model_id + '/' + model_version_id + '/exportImageForSagemaker'
+
+    def model_version_export_status(self, model_export_id):
+        return self._build_models_v4_url() + '/' + model_export_id + '/getExportImageStatus'
+
+    def model_version_export_logs(self, model_export_id):
+        return self._build_models_v4_url() + '/' + model_export_id + '/getExportLogs'
 
     # Environment URLs
     def environments_list(self):
