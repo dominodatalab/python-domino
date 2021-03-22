@@ -99,7 +99,6 @@ while model_export_status not in ["complete", "failed"]:
     model_export = domino.model_version_export_status(model_export["exportId"])
     model_export_status = model_export.get("status", None)
 
-
 # Lastly, print the logs of the Docker image build and export
 model_export_logs = domino.model_version_export_logs(model_export["exportId"])
 pprint.pprint(model_export_logs)
