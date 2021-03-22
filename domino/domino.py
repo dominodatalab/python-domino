@@ -600,7 +600,56 @@ class Domino:
 
         response = self.request_manager.post(url, json=request)
         return response.json()
-       
+
+    def model_version_export(self, model_id, model_version_id, registry_host,
+                             registry_username, registry_password,
+                             repository_name, image_tag):
+        self.requires_at_least("4.1.0")
+
+        url = self._routes.model_version_export(model_id, model_version_id)
+
+        request = {
+            "registryUrl": registry_host,
+            "username": registry_username,
+            "password": registry_password,
+            "repository": repository_name,
+            "tag": image_tag
+        }
+
+        response = self.request_manager.post(url, json=request)
+        return response.json()
+
+
+    def model_version_sagemaker_export(self, model_id, model_version_id, registry_host,
+                             registry_username, registry_password,
+                             repository_name, image_tag):
+        self.requires_at_least("4.2.0")
+
+        url = self._routes.model_version_sagemaker_export(model_id, model_version_id)
+
+        request = {
+            "registryUrl": registry_host,
+            "username": registry_username,
+            "password": registry_password,
+            "repository": repository_name,
+            "tag": image_tag
+        }
+
+        response = self.request_manager.post(url, json=request)
+        return response.json()
+
+    def model_version_export_status(self, model_export_id):
+        self.requires_at_least("4.1.0")
+
+        url =  self._routes.model_version_export_status(model_export_id)
+        return self._get(url)
+
+    def model_version_export_logs(self, model_export_id):
+        self.requires_at_least("4.1.0")
+
+        url =  self._routes.model_version_export_logs(model_export_id)
+        return self._get(url)
+
     # Hardware Tier Functions
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
