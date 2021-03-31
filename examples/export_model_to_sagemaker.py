@@ -60,7 +60,9 @@ model_versions = sorted(
 model_version_id = model_versions[0]["_id"]
 
 # Initiate export of model as SageMaker-compatible Docker image
-#  Be sure 
+# Be sure to have the environment variables DOMINO_PROJECT_OWNER and
+#  DOMINO_PROJECT_NAME set
+#  (runs inside a Domino executor automatically set these for you)
 model_export_image_tag = "domino-{PROJECT_OWNER}-{PROJECT_NAME}-{MODEL_ID}-{MODEL_VERSION_ID}".format(
                               PROJECT_OWNER = os.environ['DOMINO_PROJECT_OWNER'],
                               PROJECT_NAME = os.environ['DOMINO_PROJECT_NAME'],
