@@ -7,6 +7,16 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+
+## 1.0.4
+
+### Added
+
+* Add v4 API endpoint `model_version_sagemaker_export` to support AWS SageMaker-compatible model exports to external Docker registries in Domino v4.2+
+* Add v4 API endpoint `model_version_export` to support model exports to external Docker registries in Domino v4.1+
+
+### Changed
+
 * Model version publish method (model_version_publish) doesn't take name anymore
 
 ## 1.0.3
