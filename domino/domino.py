@@ -284,7 +284,7 @@ class Domino:
 
                                                     compute_cluster_properties contains the following fields:
                                                     {
-                                                        "clusterType": <one of the following: "Ray", "Spark">,
+                                                        "clusterType": <string, one of "Ray", "Spark">,
                                                         "computeEnvironmentId": <The environment ID for the cluster executions>,
                                                         "computeEnvironmentRevisionSpec": <string, one of "ActiveRevision", "LatestRevision", {"revisionId":"<environment_revision_id>"} (optional)>,
                                                         "masterHardwareTierId": <The Hardware tier ID for the cluster's master node>,
