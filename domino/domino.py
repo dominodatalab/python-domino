@@ -285,17 +285,16 @@ class Domino:
                                                     compute_cluster_properties contains the following fields:
                                                     {
                                                         "clusterType": <string, one of "Ray", "Spark">,
-                                                        "computeEnvironmentId": <The environment ID for the cluster executions>,
-                                                        "computeEnvironmentRevisionSpec": <string, one of "ActiveRevision", "LatestRevision", {"revisionId":"<environment_revision_id>"} (optional)>,
-                                                        "masterHardwareTierId": <The Hardware tier ID for the cluster's master node>,
-                                                        "masterStorage": <The disk storage size for the cluster master node,
-                                                        formatted like { "value": <number>, "unit": <one of "GiB", "MB"> }
-                                                        (optional)>,
+                                                        "computeEnvironmentId": <string, The environment ID for the cluster's nodes>,
+                                                        "computeEnvironmentRevisionSpec": <one of "ActiveRevision", "LatestRevision",
+                                                        {"revisionId":"<environment_revision_id>"} (optional)>,
+                                                        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node>,
+                                                        "masterStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
+                                                        The disk storage size for the cluster's master node (optional)>,
                                                         "workerCount": <number, the total workers to spawn for the cluster>,
-                                                        "workerHardwareTierId": <The Hardware tier ID for the cluster workers>,
-                                                        "workerStorage": <The disk storage size for the cluster worker nodes,
-                                                        formatted like { "value": <number>, "unit": <one of "GiB", "MB"> }
-                                                        (optional)>
+                                                        "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
+                                                        "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
+                                                        The disk storage size for the cluster's worker nodes (optional)>
                                                     }
         :return: Returns created Job details (number, id etc)
         """
