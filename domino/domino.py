@@ -241,11 +241,11 @@ class Domino:
     def job_start(
             self,
             command: str,
-            commit_id: str = None,
-            hardware_tier_name: str = None,
-            environment_id: str = None,
-            on_demand_spark_cluster_properties: dict = None,
-            compute_cluster_properties: dict = None) -> dict:
+            commit_id: Optional[str] = None,
+            hardware_tier_name: Optional[str] = None,
+            environment_id: Optional[str] = None,
+            on_demand_spark_cluster_properties: Optional[dict] = None,
+            compute_cluster_properties: Optional[dict] = None) -> dict:
         """
         Starts a Domino Job via V4 API
         :param command:                             string
@@ -261,9 +261,8 @@ class Domino:
                                                     The environment id to launch job with. If not provided
                                                     it will use the default environment for the project
         :param on_demand_spark_cluster_properties:  dict (Optional)
-                                                    On demand spark cluster properties. Deprecated by
-                                                    compute_cluster_properties. Please use compute_cluster_properties
-                                                    instead. The following properties can be provided in spark cluster
+                                                    This field is deprecated. Please use compute_cluster_properties.
+                                                    The following properties can be provided in spark cluster
                                                     {
                                                         "computeEnvironmentId": "<Environment ID configured with spark>"
                                                         "executorCount": "<Number of Executors in cluster>"
@@ -287,6 +286,7 @@ class Domino:
                                                     {
                                                         "clusterType": <one of the following: "Ray", "Spark">,
                                                         "computeEnvironmentId": <The environment ID for the cluster executions>,
+                                                        "computeEnvironmentRevisionSpec": <string, one of "ActiveRevision", "LatestRevision", "SomeRevision(<environment_revision_id>)" (optional)>,
                                                         "masterHardwareTierId": <The Hardware tier ID for the cluster's master node>,
                                                         "masterStorage": <The disk storage size for the cluster master node,
                                                         formatted like { "value": <number>, "unit": <one of "GiB", "MB"> }
