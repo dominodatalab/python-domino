@@ -286,7 +286,7 @@ class Domino:
                                                     {
                                                         "clusterType": <one of the following: "Ray", "Spark">,
                                                         "computeEnvironmentId": <The environment ID for the cluster executions>,
-                                                        "computeEnvironmentRevisionSpec": <string, one of "ActiveRevision", "LatestRevision", "SomeRevision(<environment_revision_id>)" (optional)>,
+                                                        "computeEnvironmentRevisionSpec": <string, one of "ActiveRevision", "LatestRevision", {"revisionId":"<environment_revision_id>"} (optional)>,
                                                         "masterHardwareTierId": <The Hardware tier ID for the cluster's master node>,
                                                         "masterStorage": <The disk storage size for the cluster master node,
                                                         formatted like { "value": <number>, "unit": <one of "GiB", "MB"> }
