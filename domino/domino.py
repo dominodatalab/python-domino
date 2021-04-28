@@ -289,8 +289,6 @@ class Domino:
                                                         "computeEnvironmentRevisionSpec": <one of "ActiveRevision", "LatestRevision",
                                                         {"revisionId":"<environment_revision_id>"} (optional)>,
                                                         "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node>,
-                                                        "masterStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
-                                                        The disk storage size for the cluster's master node (optional)>,
                                                         "workerCount": <number, the total workers to spawn for the cluster>,
                                                         "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
                                                         "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
@@ -356,8 +354,6 @@ class Domino:
                 except Exception as e:
                     raise Exception(f"{key} in compute_cluster_properties failed validation: {e}")
 
-            if "masterStorage" in compute_cluster_properties:
-                throw_if_information_invalid("masterStorage", compute_cluster_properties["masterStorage"])
             if "workerStorage" in compute_cluster_properties:
                 throw_if_information_invalid("workerStorage", compute_cluster_properties["workerStorage"])
 
