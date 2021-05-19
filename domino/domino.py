@@ -20,6 +20,8 @@ import re
 import polling2
 from bs4 import BeautifulSoup
 
+import json 
+
 
 class Domino:
     def __init__(self, project, api_key=None, host=None, domino_token_file=None):
@@ -527,13 +529,24 @@ class Domino:
 
     def collaborators_add(self, usernameOrEmail, message=""):
         self.requires_at_least("1.53.0.0")
-        url = self._routes.collaborators_add()
-        data = {
-            'collaboratorUsernameOrEmail': usernameOrEmail,
-            'welcomeMessage': message
+
+        #get user id
+        url = self._routes.users_get()
+        response = self.request_manager.get(url)
+        users = json.loads(response.text)
+        userFromUserName = [x for x in users if ( ('userName' in x ) and ( x['userName'] == usernameOrEmail ) ) ]
+        userFromEmail = [x for x in users if ( ( 'email' in x ) and ( x['email'] == usernameOrEmail ) ) ]
+        user = (userFromUserName + userFromEmail)[0]
+        userId = user['id']
+
+        #add collaborator
+        url = self._routes.collaborators_add(self._project_id)
+        request = {
+            "collaboratorId": userId,
+            "projectRole": "Contributor"
         }
-        response = self.request_manager.post(url, data=data, allow_redirects=False,
-                                             headers=self._csrf_no_check_header)
+
+        response = self.request_manager.post(url, json=request)
         return response
 
     # App functions

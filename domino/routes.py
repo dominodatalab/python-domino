@@ -58,8 +58,8 @@ class _Routes:
     def collaborators_get(self):
         return self._build_old_project_url() + '/collaborators'
 
-    def collaborators_add(self):
-        return self._build_project_url_private_api() + '/addCollaborator'
+    def collaborators_add(self, project_id):
+        return self.host + f'/v4/projects/{project_id}/collaborators'
 
     def collaborators_remove(self):
         return self._build_old_project_url() + '/removeCollaborator'
@@ -151,3 +151,7 @@ class _Routes:
     def find_project_by_owner_name_and_project_name_url(self):
         return f'{self.host}/v4/gateway/projects/findProjectByOwnerAndName' \
                f'?ownerName={self._owner_username}&projectName={self._project_name}'
+
+    # User URLs
+    def users_get(self):
+        return self.host + f'/v4/users'
