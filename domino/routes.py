@@ -61,8 +61,8 @@ class _Routes:
     def collaborators_add(self, project_id):
         return self.host + f'/v4/projects/{project_id}/collaborators'
 
-    def collaborators_remove(self):
-        return self._build_old_project_url() + '/removeCollaborator'
+    def collaborators_remove(self, project_id, user_id):
+        return self.host + f'/v4/projects/{project_id}/collaborators/{user_id}'
 
     # API Endpoint URLs 
     def _build_endpoint_url(self):

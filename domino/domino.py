@@ -527,10 +527,7 @@ class Domino:
         url = self._routes.collaborators_get()
         return self._get(url)
 
-    def collaborators_add(self, usernameOrEmail, message=""):
-        self.requires_at_least("1.53.0.0")
-
-        #get user id
+    def get_userId(self, usernameOrEmail): 
         url = self._routes.users_get()
         response = self.request_manager.get(url)
         users = json.loads(response.text)
@@ -538,8 +535,13 @@ class Domino:
         userFromEmail = [x for x in users if ( ( 'email' in x ) and ( x['email'] == usernameOrEmail ) ) ]
         user = (userFromUserName + userFromEmail)[0]
         userId = user['id']
+        return userId
 
-        #add collaborator
+    def collaborators_add(self, usernameOrEmail, message=""):
+        self.requires_at_least("1.53.0.0")
+ 
+        userId = self.get_userId(usernameOrEmail)
+
         url = self._routes.collaborators_add(self._project_id)
         request = {
             "collaboratorId": userId,
@@ -547,6 +549,16 @@ class Domino:
         }
 
         response = self.request_manager.post(url, json=request)
+        return response
+
+    def collaborators_remove(self, usernameOrEmail):
+        self.requires_at_least("1.53.0.0")
+
+        userId = self.get_userId(usernameOrEmail)
+    
+        url = self._routes.collaborators_remove(self._project_id, userId)
+
+        response = self.request_manager.delete(url)
         return response
 
     # App functions
