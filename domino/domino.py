@@ -529,8 +529,8 @@ class Domino:
         url = self._routes.users_get()
         response = self.request_manager.get(url)
         users = response.json()
-        user_from_user_name = [x for x in users if ( ('userName' in x ) and ( x['userName'] == username_or_email ) ) ]
-        user_from_email = [x for x in users if ( ( 'email' in x ) and ( x['email'] == username_or_email ) ) ]
+        user_from_user_name = [x for x in users if ('userName' in x) and (x['userName'] == username_or_email)]
+        user_from_email = [x for x in users if ('email' in x) and (x['email'] == username_or_email)]
         user = (user_from_user_name + user_from_email)[0]
         userId = user['id']
         return userId
