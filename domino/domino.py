@@ -20,8 +20,6 @@ import re
 import polling2
 from bs4 import BeautifulSoup
 
-import json 
-
 
 class Domino:
     def __init__(self, project, api_key=None, host=None, domino_token_file=None):
@@ -527,34 +525,34 @@ class Domino:
         url = self._routes.collaborators_get()
         return self._get(url)
 
-    def get_userId(self, usernameOrEmail): 
+    def get_user_id(self, username_or_email): 
         url = self._routes.users_get()
         response = self.request_manager.get(url)
-        users = json.loads(response.text)
-        userFromUserName = [x for x in users if ( ('userName' in x ) and ( x['userName'] == usernameOrEmail ) ) ]
-        userFromEmail = [x for x in users if ( ( 'email' in x ) and ( x['email'] == usernameOrEmail ) ) ]
-        user = (userFromUserName + userFromEmail)[0]
+        users = response.json()
+        user_from_user_name = [x for x in users if ( ('userName' in x ) and ( x['userName'] == username_or_email ) ) ]
+        user_from_email = [x for x in users if ( ( 'email' in x ) and ( x['email'] == username_or_email ) ) ]
+        user = (user_from_user_name + user_from_email)[0]
         userId = user['id']
         return userId
 
-    def collaborators_add(self, usernameOrEmail, message=""):
+    def collaborators_add(self, username_or_email, message=""):
         self.requires_at_least("1.53.0.0")
  
-        userId = self.get_userId(usernameOrEmail)
+        user_id = self.get_user_id(username_or_email)
 
         url = self._routes.collaborators_add(self._project_id)
         request = {
-            "collaboratorId": userId,
+            "collaboratorId": user_id,
             "projectRole": "Contributor"
         }
 
         response = self.request_manager.post(url, json=request)
         return response
 
-    def collaborators_remove(self, usernameOrEmail):
+    def collaborators_remove(self, username_or_email):
         self.requires_at_least("1.53.0.0")
 
-        userId = self.get_userId(usernameOrEmail)
+        userId = self.get_user_id(username_or_email)
     
         url = self._routes.collaborators_remove(self._project_id, userId)
 
