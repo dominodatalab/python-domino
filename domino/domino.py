@@ -525,23 +525,34 @@ class Domino:
         url = self._routes.collaborators_get()
         return self._get(url)
 
-    def get_user_id(self, username_or_email): 
+    def get_user_id(self, username_or_email):
+        """
+        Return the user ID of the the user account matching the given search criteria.
+
+        Args:
+            username_or_email (str): the username or email account of a user
+
+        Return:
+           user_id (str): the matching user ID, or None if not found
+        """
         url = self._routes.users_get()
         response = self.request_manager.get(url)
         users = response.json()
-        user_from_user_name = [x for x in users if ('userName' in x) and (x['userName'] == username_or_email)]
-        user_from_email = [x for x in users if ('email' in x) and (x['email'] == username_or_email)]
-        user_list = user_from_user_name + user_from_email
-        if len(user_list) == 0:
-            raise Exception(f"Could not find user: {username_or_email}")
-        user = user_list[0]
-        userId = user['id']
-        return userId
+
+        user_id = None
+        for user in users:
+            if username_or_email in (user.get('userName'), user.get('email')):
+                user_id = user['id']
+                break
+        return user_id
 
     def collaborators_add(self, username_or_email, message=""):
         self.requires_at_least("1.53.0.0")
  
         user_id = self.get_user_id(username_or_email)
+
+        if user_id is None:
+            raise UserNotFoundException(f"Could not add collaborator matching {username_or_email}")
 
         url = self._routes.collaborators_add(self._project_id)
         request = {
@@ -555,9 +566,12 @@ class Domino:
     def collaborators_remove(self, username_or_email):
         self.requires_at_least("1.53.0.0")
 
-        userId = self.get_user_id(username_or_email)
+        user_id = self.get_user_id(username_or_email)
+
+        if user_id is None:
+            raise UserNotFoundException(f"Could not remove collaborator matching {username_or_email}")
     
-        url = self._routes.collaborators_remove(self._project_id, userId)
+        url = self._routes.collaborators_remove(self._project_id, user_id)
 
         response = self.request_manager.delete(url)
         return response
