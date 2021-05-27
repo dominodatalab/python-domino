@@ -32,6 +32,7 @@ class OnDemandSparkClusterNotSupportedException(DominoException):
     """On Demand Spark Cluster not supported"""
     pass
 
+
 class UserNotFoundException(DominoException):
     """User not found Exception"""
     pass
