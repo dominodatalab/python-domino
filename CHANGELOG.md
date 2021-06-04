@@ -12,7 +12,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Added
 
-* `collaborators_remove` method added
+* `collaborators_remove` method
+* Model export and AWS SageMaker API integration
 
 ### Changed
 
