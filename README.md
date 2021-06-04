@@ -4,7 +4,7 @@ Python bindings for the Domino API.
 
 Permits interaction with a Domino deployment from Python using the [Domino API](https://dominodatalab.github.io/api-docs/).
 
-The latest released version is [1.0.3](https://github.com/dominodatalab/python-domino/archive/1.0.3.zip).
+The latest released version is [1.0.4](https://github.com/dominodatalab/python-domino/archive/1.0.4.zip).
 
 ## Version Compatibility Matrix
 
