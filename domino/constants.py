@@ -16,7 +16,7 @@ MINIMUM_DISTRIBUTED_CLUSTER_SUPPORT_DOMINO_VERSION = '4.5.0'
 """
 Distributed compute cluster types and their minimum supported Domino version
 """
-CLUSTER_TYPE_MIN_SUPPORT = [("Spark", "4.5.0"), ("Ray", "4.5.0")]
+CLUSTER_TYPE_MIN_SUPPORT = [("Spark", "4.5.0"), ("Ray", "4.5.0"), ("Dask", "4.6.0")]
 
 """
 Environment variable names used by this python-domino library
