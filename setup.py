@@ -33,6 +33,10 @@ setup(
         'bs4==0.*,>=0.0.1',
         'polling2'
     ],
+    tests_require = [
+        'pytest==6.2.2',
+        'requests_mock~=1.9.*',
+    ],
     extras_require={
         "airflow":  ['apache-airflow==1.*,>=1.10'],
     }
