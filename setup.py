@@ -35,7 +35,7 @@ setup(
     ],
     tests_require = [
         'pytest==6.2.2',
-        'requests_mock~=1.9.*',
+        'requests_mock>=1.9.*',
     ],
     extras_require={
         "airflow":  ['apache-airflow==1.*,>=1.10'],
