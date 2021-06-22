@@ -1,7 +1,10 @@
-from distutils.version import LooseVersion as parse_version
-from urllib import parse as url_parse
-from .constants import *
 import os
+import socket
+import urllib
+
+from distutils.version import LooseVersion as parse_version
+
+from .constants import *
 
 
 def is_version_compatible(version: str) -> bool:
@@ -76,5 +79,28 @@ def clean_host_url(host_url):
     Helper function to clean 'host_url'. This will extract
     hostname (with scheme) from the url
     """
-    url_split = url_parse.urlsplit(host_url)
+    url_split = urllib.parse.urlsplit(host_url)
     return f"{url_split.scheme}://{url_split.netloc}"
+
+
+def domino_is_reachable(url=os.getenv(DOMINO_HOST_KEY_NAME), port="443"):
+    """
+    Confirm that a deployment is accessible.
+
+    Returns Boolean value.
+    """
+    if url is None:
+        return False
+
+    fqdn = urllib.parse.urlsplit(url).netloc
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.connect((fqdn, int(port)))
+        is_reachable = True
+    except OSError:
+        print(f"{fqdn}:{port} is not reachable")
+        is_reachable = False
+    finally:
+        s.close()
+
+    return is_reachable

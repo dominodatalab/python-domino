@@ -1,6 +1,4 @@
 import os
-import socket
-import urllib
 
 import requests
 import requests_mock
@@ -11,28 +9,8 @@ from domino.constants import (
     DOMINO_USER_API_KEY_KEY_NAME,
     DOMINO_TOKEN_FILE_KEY_NAME
 )
+from domino.helpers import domino_is_reachable
 from pytest import fixture, mark
-
-
-def domino_is_reachable(url=os.getenv(DOMINO_HOST_KEY_NAME), port="443"):
-    """
-    Confirm that a deployment is accessible for tests that require it.
-    """
-    if url is None:
-        return False
-
-    fqdn = urllib.parse.urlsplit(url).netloc
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.connect((fqdn, int(port)))
-        is_reachable = True
-    except OSError:
-        print(f"{fqdn}:{port} is not reachable")
-        is_reachable = False
-    finally:
-        s.close()
-
-    return is_reachable
 
 
 @fixture
@@ -132,7 +110,6 @@ def test_auth_against_real_deployment_with_api_key():
 def test_auth_against_real_deployment_with_token_file():
     """
     Confirm against a live system that validating by token file works.
-
     Assumes that ${DOMINO_API_HOST} contains a valid Domino URL
     Assumes that ${DOMINO_TOKEN_FILE} is a path to a file that contains a valid token
     """
