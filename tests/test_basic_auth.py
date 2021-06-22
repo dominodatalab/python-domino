@@ -1,7 +1,6 @@
 import os
 
 import requests
-import requests_mock
 
 from domino import Domino, bearer_auth
 from domino.constants import (
@@ -10,56 +9,7 @@ from domino.constants import (
     DOMINO_TOKEN_FILE_KEY_NAME
 )
 from domino.helpers import domino_is_reachable
-from pytest import fixture, mark
-
-
-@fixture
-def mock_domino_version_response():
-    """
-    Simulate a valid response to an authenticated /version GET request.
-
-    Assumes the target endpoint is domino.somefakecompany.com/version.
-    """
-    version_info = {
-        "buildId": "12345",
-        "buildUrl": "https://server.somefakecompany.com/domino/12345",
-        "commitId": "123deadbeef456",
-        "commitUrl": "https://repo.somefakecompany.com/domino/commit/123deadbeef456",
-        "timestamp": "2021-06-14T16:50:02Z",
-        "version": "9.9.9"
-    }
-
-    dummy_url = "http://domino.somefakecompany.com"
-    with requests_mock.Mocker() as mock_endpoint:
-        mock_endpoint.get(f"{dummy_url}/version", json=version_info, status_code=200)
-        yield
-
-
-@fixture
-def dummy_token_file(tmpdir):
-    """
-    Simulate a token file.
-    """
-    # Refer to https://docs.pytest.org/en/6.2.x/tmpdir.html#the-tmpdir-fixture for tmpdir usage
-    token_file = tmpdir.join("dummy_token_file.txt")
-    token_file.write("top_secret_auth_token")
-    return token_file
-
-
-@fixture
-def clear_env_for_api_key_test():
-    """
-    Unset any DOMINO_TOKEN_FILE var from the environment for API key tests.
-
-    If a token file is present in the environment, python-domino uses it preferentially,
-    which is mutually incompatible with testing the API key.
-    """
-    saved_environment = dict(os.environ)
-    os.environ.pop(DOMINO_TOKEN_FILE_KEY_NAME, default=None)
-    yield
-
-    # Restore original pre-test environment
-    os.environ.update(saved_environment)
+from pytest import mark
 
 
 @mark.usefixtures("mock_domino_version_response", "clear_env_for_api_key_test")
