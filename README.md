@@ -17,17 +17,17 @@ The latest released version is [1.0.4](https://github.com/dominodatalab/python-d
 
 ## Installation 
 
-At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
+At this time, these Domino Python bindings are not in PyPi. You can install the latest released version of this package with the following:
 
-    pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+    pip install https://github.com/dominodatalab/python-domino/archive/1.0.4.zip
 
 If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) `Dockerfile Instructions` field, you must add `RUN` to the beginning:
 
-    RUN pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+    RUN pip install https://github.com/dominodatalab/python-domino/archive/1.0.4.zip
 
 You can also add `python-domino` to your `requirements.txt` file with the following syntax:
 
-    -f git+git://github.com/dominodatalab/python-domino.git
+    -f git+git://github.com/dominodatalab/python-domino.git --branch 1.0.4
 
 Note: To install lower version of library, for example `0.3.5` use the following command:
     
@@ -228,7 +228,7 @@ The `python-domino` client comes bundled with an Operator for use with airflow a
 To install its dependencies, when installing the package from github add the `airflow` flag to extras with pip.
 
 ```
-pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=domino[airflow]
+pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=python-domino[airflow]
 ```
 
 ### DominoOperator
