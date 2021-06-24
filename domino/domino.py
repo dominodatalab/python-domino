@@ -576,6 +576,63 @@ class Domino:
         response = self.request_manager.get(url, params=query)
         return response.json()
 
+    def workspaces_list(self, offset=0, limit=2):
+        url = self._routes.workspace_list_or_create(self._project_id)
+        query = {"offset": str(offset), "limit": str(limit)}
+        return self.request_manager.get(url, params=query, headers={"accept": "application/json"})
+
+    def workspace_create(self, name, environment_id,
+                         hardware_tier_id=None, tools=None, external_volume_mounts=None):
+        """
+        Example of the bare minimum payload to start a workspace
+        {
+          "name": "whatever",
+          "environmentId": "60c79ede25b48d5ea48e4e02",
+          "hardwareTierId": {
+            "value": "small-k8s"
+          },
+          "tools": [
+            "Dynamic||jupyter"
+          ],
+          "externalVolumeMounts": []
+        }
+        """
+        workspace_settings = {
+          "name": name,
+          "environmentId": environment_id,
+          "hardwareTierId": {
+            "value": hardware_tier_id or "small-k8s"
+          },
+          "tools": tools or ["Dynamic||jupyter"],
+          "externalVolumeMounts": external_volume_mounts or []
+        }
+
+        url = self._routes.workspace_list_or_create(self._project_id)
+        hdrs = {'Content-type': 'application/json', 'Accept': 'application/json'}
+        return self.request_manager.post(url, json=workspace_settings, headers=hdrs)
+
+    def workspace_stop_session(self, workspace_id):
+        url = self._routes.workspace_stop_session(self._project_id, workspace_id)
+        return self.request_manager.post(url)
+
+    def workspace_start_session(self, workspace_id, external_volume_mounts=None):
+        """
+        Don't be fooled -- externalVolumeMounts are not fully working here.
+        """
+        data = {
+            "externalVolumeMounts": external_volume_mounts or []
+        }
+        hdrs = {'Accept': 'application/json'}
+        url = self._routes.workspace_start_session(self._project_id, workspace_id)
+
+        # This is hack -- I'm not sure why the url should require this for a POST
+        url += "?externalVolumeMounts="
+        return self.request_manager.post(url, json=data, headers=hdrs)
+
+    def workspace_delete(self, workspace_id):
+        url = self._routes.workspace_delete(self._project_id, workspace_id)
+        return self.request_manager.delete(url)
+
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()
