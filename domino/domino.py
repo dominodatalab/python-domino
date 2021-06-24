@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from requests import HTTPError
 
@@ -436,12 +436,15 @@ class Domino:
             self._routes.job_status(job_id)
         ).json()
 
-    def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000, **kwargs) -> dict:
+    def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000,
+                           ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
+                           **kwargs) -> dict:
         """
         Starts a job in a blocking loop, periodically polling for status of job
         is complete. Will ignore intermediate request exception.
         :param poll_freq: int (Optional) polling frequency interval in seconds
         :param max_poll_time: int (Optional) max poll time in seconds
+        :param ignore_exceptions: tuple (Optional) a tuple of exceptions that can be ignored
         :param kwargs: Additional arguments to be passed to job_start
         :return:
         """
@@ -456,7 +459,7 @@ class Domino:
         job_status = polling2.poll(
             target=lambda: get_job_status(job_id),
             check_success=lambda status: status['statuses']['isCompleted'],
-            ignore_exceptions=(requests.exceptions.RequestException,),
+            ignore_exceptions=ignore_exceptions,
             timeout=max_poll_time,
             step=poll_freq,
             log_error=self.log.level
