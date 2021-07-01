@@ -17,7 +17,7 @@ The latest released version is [1.0.4](https://github.com/dominodatalab/python-d
 
 ## Installation 
 
-At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following
+At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
 
     pip install https://github.com/dominodatalab/python-domino/archive/master.zip
 
