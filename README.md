@@ -27,7 +27,7 @@ If you are adding install instructions for `python-domino` to your [Domino Envir
 
 You can also add `python-domino` to your `requirements.txt` file with the following syntax:
 
-    -f git+git://github.com/dominodatalab/python-domino.git
+    git+git://github.com/dominodatalab/python-domino.git
 
 Note: To install lower version of library, for example `0.3.5` use the following command:
     
@@ -228,7 +228,7 @@ The `python-domino` client comes bundled with an Operator for use with airflow a
 To install its dependencies, when installing the package from github add the `airflow` flag to extras with pip.
 
 ```
-pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=domino[airflow]
+pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=python-domino[airflow]
 ```
 
 ### DominoOperator
