@@ -34,7 +34,7 @@ def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
     yield
 
 
-@pytest.mark.usefixtures("clear_env_for_api_key_test", "mock_job_start_blocking_setup")
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_status_completes_with_default_params(requests_mock, dummy_hostname):
     """
     Confirm that the happy path default case passes (no exceptions thrown)
@@ -50,7 +50,7 @@ def test_job_status_completes_with_default_params(requests_mock, dummy_hostname)
     assert job_status['statuses']['isCompleted'] is True
 
 
-@pytest.mark.usefixtures("clear_env_for_api_key_test", "mock_job_start_blocking_setup")
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_status_ignores_RequestException_and_times_out(requests_mock, dummy_hostname):
     """
     Test that the default behavior is to simply ignore RequestException being thrown.
@@ -66,7 +66,7 @@ def test_job_status_ignores_RequestException_and_times_out(requests_mock, dummy_
         d.job_start_blocking(command="foo.py", poll_freq=1, max_poll_time=1)
 
 
-@pytest.mark.usefixtures("clear_env_for_api_key_test", "mock_job_start_blocking_setup")
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_status_without_ignoring_exceptions(requests_mock, dummy_hostname):
     """
     Test that ignore_exceptions can be overridden by passing in an empty tuple.

@@ -3,7 +3,10 @@ import os
 import pytest
 import requests_mock
 
-from domino.constants import DOMINO_TOKEN_FILE_KEY_NAME
+from domino.constants import (
+    DOMINO_TOKEN_FILE_KEY_NAME,
+    DOMINO_USER_API_KEY_KEY_NAME
+)
 
 
 @pytest.fixture
@@ -40,7 +43,7 @@ def dummy_token_file(tmpdir):
 
 
 @pytest.fixture
-def clear_env_for_api_key_test():
+def clear_token_file_from_env():
     """
     Unset any DOMINO_TOKEN_FILE var from the environment for API key tests.
 
@@ -49,6 +52,22 @@ def clear_env_for_api_key_test():
     """
     saved_environment = dict(os.environ)
     os.environ.pop(DOMINO_TOKEN_FILE_KEY_NAME, default=None)
+    yield
+
+    # Restore original pre-test environment
+    os.environ.update(saved_environment)
+
+
+@pytest.fixture
+def clear_api_key_from_env():
+    """
+    Unset any DOMINO_USER_API_KEY var from the environment.
+
+    If the API key is present in the environment, python-domino uses it automatically,
+    which will affect some negative testing.
+    """
+    saved_environment = dict(os.environ)
+    os.environ.pop(DOMINO_USER_API_KEY_KEY_NAME, default=None)
     yield
 
     # Restore original pre-test environment

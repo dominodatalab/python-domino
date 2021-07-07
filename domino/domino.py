@@ -1,19 +1,17 @@
 from typing import Optional, Tuple
 
-from requests import HTTPError
-
 from .routes import _Routes
 from .helpers import *
 from .http_request_manager import _HttpRequestManager
-from .bearer_auth import BearerAuth
+from .authentication import get_auth_by_type
 from .exceptions import *
 
 from domino._version import __version__
 
+import os
 import logging
 import requests
 import functools
-from requests.auth import HTTPBasicAuth
 import time
 import pprint
 import re
@@ -22,17 +20,27 @@ from bs4 import BeautifulSoup
 
 
 class Domino:
-    def __init__(self, project, api_key=None, host=None, domino_token_file=None):
+    def __init__(self, project, api_key=None, host=None, domino_token_file=None, auth_token=None):
+
         self._configure_logging()
-        host = clean_host_url(get_host_or_throw_exception(host))
-        domino_token_file = get_path_to_domino_token_file(domino_token_file)
-        api_key = get_api_key(api_key)
 
-        # Initialise request manager
-        self.request_manager = self._initialise_request_manager(api_key, domino_token_file)
+        _host = host or os.getenv(DOMINO_HOST_KEY_NAME)
+        assert _host, ("Host must be supplied as a parameter or through the "
+                       f"{DOMINO_HOST_KEY_NAME} environment variable.")
+        host = clean_host_url(_host)
 
-        owner_username, project_name = project.split("/")
-        self._routes = _Routes(host, owner_username, project_name)
+        try:
+            owner_username, project_name = project.split("/")
+            self._routes = _Routes(host, owner_username, project_name)
+        except ValueError as e:
+            self._logger.error(f"Project {project} must be given in the form username/projectname")
+            raise
+
+        domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
+        api_key = api_key or os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
+
+        # This call sets self.request_manager
+        self.authenticate(api_key, auth_token, domino_token_file)
 
         # Get version
         self._version = self.deployment_version().get("version")
@@ -40,8 +48,8 @@ class Domino:
 
         # Check version compatibility
         if not is_version_compatible(self._version):
-            error_message = f"Domino version: {self._version} is not compatible with " \
-                            f"python-domino version: {__version__}"
+            error_message = (f"Domino version: {self._version} is not compatible with "
+                             f"python-domino version: {__version__}")
             self._logger.error(error_message)
             raise Exception(error_message)
 
@@ -58,17 +66,14 @@ class Domino:
         logging.basicConfig(level=logging_level)
         self._logger = logging.getLogger(__name__)
 
-    def _initialise_request_manager(self, api_key, domino_token_file):
-        if api_key is None and domino_token_file is None:
-            raise Exception("Either api_key or path_to_domino_token_file "
-                            f"must be provided via class constructor or "
-                            f"environment variable")
-        elif domino_token_file is not None:
-            self._logger.info("Initializing python-domino with bearer token auth")
-            return _HttpRequestManager(BearerAuth(domino_token_file))
-        else:
-            self._logger.info("Fallback: Initializing python-domino with basic auth")
-            return _HttpRequestManager(HTTPBasicAuth('', api_key))
+    def authenticate(self, api_key=None, auth_token=None, domino_token_file=None):
+        """
+        Method to authenticate the request manager. An existing domino client object can
+        use this with a new token if the existing credentials expire.
+        """
+        self.request_manager = _HttpRequestManager(get_auth_by_type(api_key=api_key,
+                                                                    auth_token=auth_token,
+                                                                    domino_token_file=domino_token_file))
 
     def commits_list(self):
         url = self._routes.commits_list()
