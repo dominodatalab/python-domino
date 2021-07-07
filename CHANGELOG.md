@@ -9,6 +9,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Added the ability to choose which exceptions to ignore (if any) while polling for `job_start_blocking`
 * Added several new unit tests in `test_basic_auth.py` and `test_jobs.py`
 * Added a public method to re-authenticate if a token expires (assuming a long-running process)
+* Allow `auth_token` to be passed as a string to the `__init__()` method
 
 ### Changed
 
