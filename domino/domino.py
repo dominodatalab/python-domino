@@ -577,13 +577,16 @@ class Domino:
         return response.json()
 
     def workspaces_list(self, offset=0, limit=2):
-        url = self._routes.workspace_list_or_create(self._project_id)
+        url = self._routes.workspace_list(self._project_id)
         query = {"offset": str(offset), "limit": str(limit)}
         return self.request_manager.get(url, params=query, headers={"accept": "application/json"})
 
     def workspace_create(self, name, environment_id,
-                         hardware_tier_id=None, tools=None, external_volume_mounts=None):
+                         hardware_tier_id=None, tools=None, external_volume_mounts=None,
+                         blocking=False, timeout=60, step=1):
         """
+        Non-blocking...
+
         Example of the bare minimum payload to start a workspace
         {
           "name": "whatever",
@@ -607,15 +610,39 @@ class Domino:
           "externalVolumeMounts": external_volume_mounts or []
         }
 
-        url = self._routes.workspace_list_or_create(self._project_id)
+        url = self._routes.workspace_create(self._project_id)
         hdrs = {'Content-type': 'application/json', 'Accept': 'application/json'}
-        return self.request_manager.post(url, json=workspace_settings, headers=hdrs)
+        response = self.request_manager.post(url, json=workspace_settings, headers=hdrs)
 
-    def workspace_stop_session(self, workspace_id):
+        if blocking:
+            # Raises a polling2.TimeoutException if timeout exceeded
+            workspace_id = response.json()['id']
+            workspace_state = polling2.poll(
+                lambda: self.workspace_get(workspace_id)["state"] == "Started",
+                timeout=timeout,
+                step=step,
+                log_error=logging.ERROR
+            )
+
+        return response
+
+    def workspace_stop_session(self, workspace_id, blocking=False, timeout=60, step=1):
         url = self._routes.workspace_stop_session(self._project_id, workspace_id)
-        return self.request_manager.post(url)
+        response = self.request_manager.post(url)
 
-    def workspace_start_session(self, workspace_id, external_volume_mounts=None):
+        if blocking:
+            # Raises a polling2.TimeoutException if timeout exceeded
+            workspace_state = polling2.poll(
+                lambda: self.workspace_get(workspace_id)["state"] == "Stopped",
+                timeout=timeout,
+                step=step,
+                log_error=logging.ERROR
+            )
+
+        return response
+
+    def workspace_start_session(self, workspace_id, external_volume_mounts=None, blocking=False,
+                                timeout=60, step=1):
         """
         Don't be fooled -- externalVolumeMounts are not fully working here.
         """
@@ -627,7 +654,22 @@ class Domino:
 
         # This is hack -- I'm not sure why the url should require this for a POST
         url += "?externalVolumeMounts="
-        return self.request_manager.post(url, json=data, headers=hdrs)
+        response = self.request_manager.post(url, json=data, headers=hdrs)
+
+        if blocking:
+            # Raises a polling2.TimeoutException if timeout exceeded
+            workspace_state = polling2.poll(
+                lambda: self.workspace_get(workspace_id)["state"] == "Started",
+                timeout=timeout,
+                step=step,
+                log_error=logging.ERROR
+            )
+
+        return response
+
+    def workspace_get(self, workspace_id):
+        url = self._routes.workspace_get(self._project_id, workspace_id)
+        return self._get(url)
 
     def workspace_delete(self, workspace_id):
         url = self._routes.workspace_delete(self._project_id, workspace_id)

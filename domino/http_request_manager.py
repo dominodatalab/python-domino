@@ -7,12 +7,16 @@ from .exceptions import ReloginRequiredException
 import logging
 import requests
 
+import polling2
+from contextlib import contextmanager
+
 
 class _HttpRequestManager:
     """
     This class is responsible for
     making Http request calls
     """
+
     def __init__(self, auth: AuthBase):
         self.auth = auth
         self._logger = logging.getLogger(__name__)
@@ -47,3 +51,15 @@ class _HttpRequestManager:
                 self._logger.debug(e.response.text)
             raise
         return response
+
+    @contextmanager
+    def blocking(self, target, timeout=30, step=1, ignore_exceptions=()):
+        # Raises a polling2.TimeoutException if timeout exceeded
+        workspace_state = polling2.poll(
+            target=target,
+            timeout=timeout,
+            step=step,
+            ignore_exceptions=ignore_exceptions,
+            log_error=logging.ERROR
+        )
+        yield workspace_state
