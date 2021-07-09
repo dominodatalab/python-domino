@@ -576,6 +576,12 @@ class Domino:
         response = self.request_manager.get(url, params=query)
         return response.json()
 
+    def jobs_list(self):
+        url = self._routes.jobs_list()
+        query = {"projectId": self._project_id}
+        response = self.request_manager.get(url, params=query)
+        return response.json()['jobs']
+
     def workspaces_list(self, offset=0, limit=2):
         url = self._routes.workspace_list(self._project_id)
         query = {"offset": str(offset), "limit": str(limit)}
