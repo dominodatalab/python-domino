@@ -298,6 +298,10 @@ class Domino:
                                                         "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
                                                         "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
                                                         The disk storage size for the cluster's worker nodes (optional)>
+                                                        "maxWorkerCount": <number, The max number of workers allowed. When
+                                                        this configuration exists, autoscaling is enabled for the cluster and
+                                                        'workerCount' is interpreted as the min number of workers allowed in the cluster
+                                                        (optional)>
                                                     }
         :return: Returns created Job details (number, id etc)
         """
@@ -326,6 +330,10 @@ class Domino:
             self.log.debug(f"Getting default spark settings")
             default_spark_setting_url = self._routes.default_spark_setting(self._project_id)
             return self.request_manager.get(default_spark_setting_url).json()
+
+        def validate_autoscaling_supported():
+            if not is_comute_cluster_autoscaling_supported(self._version):
+                raise Exception(f"Domino {self._version} does not support compute cluster autoscaling.")
 
         def validate_is_on_demand_spark_supported():
             if not is_on_demand_spark_cluster_supported:
@@ -364,6 +372,9 @@ class Domino:
 
             if compute_cluster_properties["workerCount"] < 1:
                 raise Exception("compute_cluster_properties workerCount must be greater than 0")
+
+            if "maxWorkerCount" in compute_cluster_properties:
+                validate_autoscaling_supported()
 
         spark_cluster_properties = None
         validated_compute_cluster_properties = None
@@ -556,7 +567,7 @@ class Domino:
 
     def collaborators_add(self, username_or_email, message=""):
         self.requires_at_least("1.53.0.0")
- 
+
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
@@ -578,7 +589,7 @@ class Domino:
 
         if user_id is None:
             raise UserNotFoundException(f"Could not remove collaborator matching {username_or_email}")
-    
+
         url = self._routes.collaborators_remove(self._project_id, user_id)
 
         response = self.request_manager.delete(url)
