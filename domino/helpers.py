@@ -17,8 +17,7 @@ def is_version_compatible(version: str) -> bool:
     return parse_version(version) >= parse_version(MINIMUM_SUPPORTED_DOMINO_VERSION)
 
 def is_comute_cluster_autoscaling_supported(version: str) -> bool:
-    curr_version = parse_version(version)
-    return curr_version >= parse_version("5.0.0")
+    return parse_version(version) >= parse_version(COMPUTE_CLUSTER_AUTOSCALING_MIN_SUPPORT)
 
 def is_cluster_type_supported(version: str, cluster_type: str) -> bool:
     curr_version = parse_version(version)

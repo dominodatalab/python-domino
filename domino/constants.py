@@ -19,6 +19,11 @@ Distributed compute cluster types and their minimum supported Domino version
 CLUSTER_TYPE_MIN_SUPPORT = [("Spark", "4.5.0"), ("Ray", "4.5.0"), ("Dask", "4.6.0")]
 
 """
+Minimum Domino version that supports compute cluster autoscaling
+"""
+COMPUTE_CLUSTER_AUTOSCALING_MIN_SUPPORT = "5.0.0"
+
+"""
 Environment variable names used by this python-domino library
 """
 DOMINO_TOKEN_FILE_KEY_NAME = 'DOMINO_TOKEN_FILE'
