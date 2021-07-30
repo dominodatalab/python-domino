@@ -40,3 +40,11 @@ class UserNotFoundException(DominoException):
 class UnsupportedFieldException(DominoException):
     """Unsupported field Exception"""
     pass
+
+class MalformedInputException(DominoException):
+    """Malformed input Exception"""
+    pass
+
+class MissingRequiredFieldException(DominoException):
+    """Missing required field Exception"""
+    pass
