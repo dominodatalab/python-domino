@@ -36,3 +36,7 @@ class OnDemandSparkClusterNotSupportedException(DominoException):
 class UserNotFoundException(DominoException):
     """User not found Exception"""
     pass
+
+class UnsupportedFieldException(DominoException):
+    """Unsupported field Exception"""
+    pass

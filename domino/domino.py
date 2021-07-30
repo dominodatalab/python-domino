@@ -331,10 +331,6 @@ class Domino:
             default_spark_setting_url = self._routes.default_spark_setting(self._project_id)
             return self.request_manager.get(default_spark_setting_url).json()
 
-        def validate_autoscaling_supported():
-            if not is_comute_cluster_autoscaling_supported(self._version):
-                raise Exception(f"Domino {self._version} does not support compute cluster autoscaling.")
-
         def validate_is_on_demand_spark_supported():
             if not is_on_demand_spark_cluster_supported:
                 raise OnDemandSparkClusterNotSupportedException(
@@ -373,8 +369,8 @@ class Domino:
             if compute_cluster_properties["workerCount"] < 1:
                 raise Exception("compute_cluster_properties workerCount must be greater than 0")
 
-            if "maxWorkerCount" in compute_cluster_properties:
-                validate_autoscaling_supported()
+            if "maxWorkerCount" in compute_cluster_properties and not is_comute_cluster_autoscaling_supported(self._version):
+                raise UnsupportedFieldException(f"'maxWorkerCount' is not supported in Domino {self._version}.")
 
         spark_cluster_properties = None
         validated_compute_cluster_properties = None
