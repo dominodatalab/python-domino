@@ -298,6 +298,10 @@ class Domino:
                                                         "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
                                                         "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
                                                         The disk storage size for the cluster's worker nodes (optional)>
+                                                        "maxWorkerCount": <number, The max number of workers allowed. When
+                                                        this configuration exists, autoscaling is enabled for the cluster and
+                                                        'workerCount' is interpreted as the min number of workers allowed in the cluster
+                                                        (optional)>
                                                     }
         :return: Returns created Job details (number, id etc)
         """
@@ -311,16 +315,16 @@ class Domino:
                 'executorStorageMB': lambda exec_storage_mb: True
             }
             if 'computeEnvironmentId' not in on_demand_spark_cluster_properties:
-                raise Exception(f"Mandatory field computeEnvironmentId not passed in spark properties")
+                raise MissingRequiredFieldException(f"Mandatory field computeEnvironmentId not passed in spark properties")
             for k, v in on_demand_spark_cluster_properties.items():
                 if not validations.get(k, lambda x: False)(v):
-                    raise Exception(f"Invalid spark property {k}:{v} found")
+                    raise MalformedInputException(f"Invalid spark property {k}:{v} found")
 
         def validate_spark_executor_count(executor_count, max_executor_count):
             if executor_count <= max_executor_count:
                 return True
             else:
-                raise Exception(f"executor count: {executor_count} exceeding max executor count: {max_executor_count}")
+                raise MalformedInputException(f"executor count: {executor_count} exceeding max executor count: {max_executor_count}")
 
         def get_default_spark_settings():
             self.log.debug(f"Getting default spark settings")
@@ -335,19 +339,19 @@ class Domino:
 
         def validate_distributed_compute_cluster_properties():
             if not is_compute_cluster_properties_supported(self._version):
-                raise Exception(f"Domino {self._version} does not support distributed compute cluster launching.")
+                raise UnsupportedFieldException(f"'compute_cluster_properties' is not supported in Domino {self._version}.")
 
             required_keys = ["clusterType", "computeEnvironmentId", "masterHardwareTierId", "workerHardwareTierId", "workerCount"]
             for key in required_keys:
                 try:
                     compute_cluster_properties[key]
                 except KeyError:
-                    raise Exception(f"{key} is required in compute_cluster_properties")
+                    raise MissingRequiredFieldException(f"{key} is required in compute_cluster_properties")
 
             if not is_cluster_type_supported(self._version, compute_cluster_properties["clusterType"]):
                 supported_types = [ct for ct,min_version in CLUSTER_TYPE_MIN_SUPPORT if is_cluster_type_supported(self._version, ct)]
                 supported_types_str = ", ".join(supported_types)
-                raise Exception(
+                raise MalformedInputException(
                     f"Domino {self._version} does not support cluster type {compute_cluster_properties['clusterType']}." +
                     f" This version of Domino supports the following cluster types: {supported_types_str}"
                 )
@@ -357,13 +361,16 @@ class Domino:
                 try:
                     self._validate_information_data_type(info)
                 except Exception as e:
-                    raise Exception(f"{key} in compute_cluster_properties failed validation: {e}")
+                    raise MalformedInputException(f"{key} in compute_cluster_properties failed validation: {e}")
 
             if "workerStorage" in compute_cluster_properties:
                 throw_if_information_invalid("workerStorage", compute_cluster_properties["workerStorage"])
 
             if compute_cluster_properties["workerCount"] < 1:
-                raise Exception("compute_cluster_properties workerCount must be greater than 0")
+                raise MalformedInputException("compute_cluster_properties.workerCount must be greater than 0")
+
+            if "maxWorkerCount" in compute_cluster_properties and not is_comute_cluster_autoscaling_supported(self._version):
+                raise UnsupportedFieldException(f"'maxWorkerCount' is not supported in Domino {self._version}.")
 
         spark_cluster_properties = None
         validated_compute_cluster_properties = None
@@ -556,7 +563,7 @@ class Domino:
 
     def collaborators_add(self, username_or_email, message=""):
         self.requires_at_least("1.53.0.0")
- 
+
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
@@ -578,7 +585,7 @@ class Domino:
 
         if user_id is None:
             raise UserNotFoundException(f"Could not remove collaborator matching {username_or_email}")
-    
+
         url = self._routes.collaborators_remove(self._project_id, user_id)
 
         response = self.request_manager.delete(url)
