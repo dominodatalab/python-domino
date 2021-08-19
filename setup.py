@@ -1,8 +1,14 @@
-from setuptools import setup
+import pathlib
+from setuptools import setup, find_packages
 import re
 
 PACKAGE_NAME = 'domino'
 
+# The directory containing this file
+HERE = pathlib.Path(__file__).parent
+
+# The text of the README file
+README = (HERE / "README.md").read_text()
 
 def get_version():
     try:
@@ -22,12 +28,15 @@ setup(
     version=get_version(),
     author='Domino Data Lab',
     author_email='support@dominodatalab.com',
-    packages=[PACKAGE_NAME],
+    packages=find_packages(),
     scripts=[],
-    url='http://www.dominodatalab.com',
-    license='LICENSE.txt',
+    url='https://github.com/dominodatalab/python-domino',
+    download_url='https://github.com/dominodatalab/python-domino/' + get_version() + '.zip',
+    license='Apache Software License (Apache 2.0)',
     description='Python bindings for the Domino API',
-    long_description='',
+    long_description=README,
+    long_description_content_type="text/markdown",
+    keywords=['Domino Data Lab', 'API'],
     install_requires=[
         'requests>=2.4.2',
         'bs4==0.*,>=0.0.1',

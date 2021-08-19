@@ -1,37 +1,35 @@
-# python-domino
+# Python-domino
 
-Python bindings for the Domino API.
+`python-domino` is a library providing bindings for the [Domino Data Lab API](https://dominodatalab.github.io/api-docs/).
 
-Permits interaction with a Domino deployment from Python using the [Domino API](https://dominodatalab.github.io/api-docs/).
+The latest released version is `1.0.5`.
 
-The latest released version is [1.0.4](https://github.com/dominodatalab/python-domino/archive/1.0.4.zip).
+## Version compatibility matrix
 
-## Version Compatibility Matrix
-
-`python-domino` library is compatible with different versions of the `Domino`:
+`python-domino` library is compatible with different versions of `Domino`:
 
 | Domino Versions | Python-Domino |
 | --------------- |:-------------:|
-| 3.6.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)         |
-| 4.1.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher         |
+| 3.6.x or Lower  | 0.3.5         |
+| 4.1.0 or Higher | 1.0.0 or Higher         |
 
 ## Installation 
 
-At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
+Starting from version `1.0.5`, `python-domino` is available on PyPI:
 
-    pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+    pip install python-domino
 
-If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) `Dockerfile Instructions` field, you must add `RUN` to the beginning:
+If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) Dockerfile Instructions field, you must add `RUN` to the beginning:
 
-    RUN pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+    RUN pip install python-domino
 
-You can also add `python-domino` to your `requirements.txt` file with the following syntax:
+To install specific version of the library from PyPI, for example, `1.0.5`, use the following command:
 
-    git+git://github.com/dominodatalab/python-domino.git
+    pip install python-domino==1.0.5
 
-Note: To install lower version of library, for example `0.3.5` use the following command:
-    
-    pip install https://github.com/dominodatalab/python-domino/archive/0.3.5.zip
+To install specific version of the library from GitHub, for example, `1.0.5`, use the following command:
+
+    pip install https://github.com/dominodatalab/python-domino/archive/1.0.5.zip
 
 ## Overview
 
@@ -191,7 +189,28 @@ Starts a new Job (run) in the project
          (optional defaults to 0; 1GB is 1000MB Here)
     }
     ```
+* *param compute_cluster_properties (dict):* (Optional) The compute cluster properties definition contains parameters for
+launching any Domino supported compute cluster for a job. Use this to launch a job that uses a compute cluster instead of
+the deprecated `on_demand_spark_cluster_properties` field. If `on_demand_spark_cluster_properties` and `compute_cluster_properties`
+are both present, `on_demand_spark_cluster_properties` will be ignored. `compute_cluster_properties` contains the following fields:
 
+    ```
+    {
+        "clusterType": <string, one of "Ray", "Spark">,
+        "computeEnvironmentId": <string, The environment ID for the cluster's nodes>,
+        "computeEnvironmentRevisionSpec": <one of "ActiveRevision", "LatestRevision",
+        {"revisionId":"<environment_revision_id>"} (optional)>,
+        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node>,
+        "workerCount": <number, the total workers to spawn for the cluster>,
+        "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
+         "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
+         The disk storage size for the cluster's worker nodes (optional)>
+         "maxWorkerCount": <number, The max number of workers allowed. When
+         this configuration exists, autoscaling is enabled for the cluster and
+         "workerCount" is interpreted as the min number of workers allowed in the cluster
+         (optional)>
+    }
+    ```
 <hr>
 
 ### job_stop(*job_id*, *commit_results=True*):
@@ -225,10 +244,16 @@ parameter in `job_start` method
 
 The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
 
-To install its dependencies, when installing the package from github add the `airflow` flag to extras with pip.
+When installing the client from PyPI, add the `airflow` flag to extras:
 
 ```
-pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=python-domino[airflow]
+pip install python-domino[airflow]
+```
+
+Similarly, when installing the client from GitHub, use the following command:
+
+```
+pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.5#egg=python-domino[airflow]
 ```
 
 ### DominoOperator
