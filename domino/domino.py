@@ -39,6 +39,9 @@ class Domino:
         domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
         api_key = api_key or os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
 
+        # save token file to be able to re-authenticate automatically
+        self._domino_token_file = domino_token_file
+
         # This call sets self.request_manager
         self.authenticate(api_key, auth_token, domino_token_file)
 
@@ -52,6 +55,16 @@ class Domino:
                              f"python-domino version: {__version__}")
             self._logger.error(error_message)
             raise Exception(error_message)
+
+    def _authenticate(fn):
+        """
+        Decorator for automatic re-authentication
+        """
+        def wrapper(self, *args, **kwargs):
+            if self._domino_token_file: # only token file is supported for re-authentication
+                self.authenticate(domino_token_file=self._domino_token_file)
+            return fn(self, *args, **kwargs)
+        return wrapper
 
     @property
     def log(self):
@@ -74,15 +87,17 @@ class Domino:
         self.request_manager = _HttpRequestManager(get_auth_by_type(api_key=api_key,
                                                                     auth_token=auth_token,
                                                                     domino_token_file=domino_token_file))
-
+    @_authenticate
     def commits_list(self):
         url = self._routes.commits_list()
         return self._get(url)
 
+    @_authenticate
     def runs_list(self):
         url = self._routes.runs_list()
         return self._get(url)
 
+    @_authenticate
     def runs_start(self, command, isDirect=False, commitId=None, title=None,
                    tier=None, publishApiEndpoint=None):
 
@@ -100,6 +115,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
+    @_authenticate
     def runs_start_blocking(self, command, isDirect=False, commitId=None,
                             title=None, tier=None, publishApiEndpoint=None,
                             poll_freq=5, max_poll_time=6000, retry_count=5):
@@ -194,14 +210,17 @@ class Domino:
 
         return run_response
 
+    @_authenticate
     def run_stop(self, runId, saveChanges=True):
         self.log.warning("Use job_stop method instead")
         return self.job_stop(job_id=runId, commit_results=saveChanges)
 
+    @_authenticate
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
         return self._get(url)
 
+    @_authenticate
     def get_run_log(self, runId, includeSetupLog=True):
         """
         Get the unified log for a run (setup + stdout).
@@ -225,11 +244,13 @@ class Domino:
 
         return "\n".join(logs)
 
+    @_authenticate
     def get_run_info(self, run_id):
         for run_info in self.runs_list()['data']:
             if run_info['id'] == run_id:
                 return run_info
 
+    @_authenticate
     def runs_stdout(self, runId):
         """
         Get std out emitted by a particular run.
@@ -243,6 +264,7 @@ class Domino:
         # pprint.pformat outputs a string that is ready to be printed
         return pprint.pformat(self._get(url)['stdout'])
 
+    @_authenticate
     def job_start(
             self,
             command: str,
@@ -423,6 +445,7 @@ class Domino:
         response = self.request_manager.post(url, json=payload)
         return response.json()
 
+    @_authenticate
     def job_stop(self, job_id: str, commit_results: bool = True):
         """
         Stops the Job with given job_id
@@ -438,6 +461,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_authenticate
     def job_status(self, job_id: str) -> dict:
         """
         Gets the status of job with given job_id
@@ -448,6 +472,7 @@ class Domino:
             self._routes.job_status(job_id)
         ).json()
 
+    @_authenticate
     def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000,
                            ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
                            **kwargs) -> dict:
@@ -480,34 +505,41 @@ class Domino:
         self.process_log(stdout_msg)
         return job_status
 
+    @_authenticate
     def files_list(self, commitId, path='/'):
         url = self._routes.files_list(commitId, path)
         return self._get(url)
 
+    @_authenticate
     def files_upload(self, path, file):
         url = self._routes.files_upload(path)
         return self._put_file(url, file)
 
+    @_authenticate
     def blobs_get(self, key):
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
         return self.request_manager.get_raw(url)
 
+    @_authenticate
     def fork_project(self, target_name):
         url = self._routes.fork_project(self._project_id)
         request = {"name": target_name}
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_authenticate
     def endpoint_state(self):
         url = self._routes.endpoint_state()
         return self._get(url)
 
+    @_authenticate
     def endpoint_unpublish(self):
         url = self._routes.endpoint()
         response = self.request_manager.delete(url)
         return response
 
+    @_authenticate
     def endpoint_publish(self, file, function, commitId):
         url = self._routes.endpoint_publish()
 
@@ -522,10 +554,12 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_authenticate
     def deployment_version(self):
         url = self._routes.deployment_version()
         return self._get(url)
 
+    @_authenticate
     def project_create(self, project_name, owner_username=None):
         url = self._routes.project_create()
         data = {
@@ -535,11 +569,13 @@ class Domino:
         response = self.request_manager.post(url, data=data, headers=self._csrf_no_check_header)
         return response
 
+    @_authenticate
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()
         return self._get(url)
 
+    @_authenticate
     def get_user_id(self, username_or_email):
         """
         Return the user ID of the the user account matching the given search criteria.
@@ -561,6 +597,7 @@ class Domino:
                 break
         return user_id
 
+    @_authenticate
     def collaborators_add(self, username_or_email, message=""):
         self.requires_at_least("1.53.0.0")
 
@@ -578,6 +615,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_authenticate
     def collaborators_remove(self, username_or_email):
         self.requires_at_least("1.53.0.0")
 
@@ -592,6 +630,7 @@ class Domino:
         return response
 
     # App functions
+    @_authenticate
     def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
         if unpublishRunningApps:
             self.app_unpublish()
@@ -606,6 +645,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_authenticate
     def app_unpublish(self):
         app_id = self._app_id
         if app_id is None:
@@ -617,6 +657,7 @@ class Domino:
             response = self.request_manager.post(url)
             return response
 
+    @_authenticate
     def __app_get_status(self, id) -> Optional[str]:
         app_id = self._app_id
         if app_id is None:
@@ -670,17 +711,20 @@ class Domino:
         return app_id
 
     # Environment functions
+    @_authenticate
     def environments_list(self):
         self.requires_at_least("2.5.0")
         url = self._routes.environments_list()
         return self._get(url)
 
     # Model Manager functions
+    @_authenticate
     def models_list(self):
         self.requires_at_least("2.5.0")
         url = self._routes.models_list()
         return self._get(url)
 
+    @_authenticate
     def model_publish(self, file, function, environment_id, name,
                       description, files_to_exclude=[]):
         self.requires_at_least("2.5.0")
@@ -700,11 +744,13 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
+    @_authenticate
     def model_versions_get(self, model_id):
         self.requires_at_least("2.5.0")
         url = self._routes.model_versions_get(model_id)
         return self._get(url)
 
+    @_authenticate
     def model_version_publish(self, model_id, file, function, environment_id,
                               description, files_to_exclude=[]):
         self.requires_at_least("2.5.0")
@@ -723,6 +769,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
+    @_authenticate
     def model_version_export(self, model_id, model_version_id, registry_host,
                              registry_username, registry_password,
                              repository_name, image_tag):
@@ -741,7 +788,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
-
+    @_authenticate
     def model_version_sagemaker_export(self, model_id, model_version_id, registry_host,
                              registry_username, registry_password,
                              repository_name, image_tag):
@@ -760,12 +807,14 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
+    @_authenticate
     def model_version_export_status(self, model_export_id):
         self.requires_at_least("4.1.0")
 
         url =  self._routes.model_version_export_status(model_export_id)
         return self._get(url)
 
+    @_authenticate
     def model_version_export_logs(self, model_export_id):
         self.requires_at_least("4.1.0")
 
@@ -773,6 +822,7 @@ class Domino:
         return self._get(url)
 
     # Hardware Tier Functions
+    @_authenticate
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
