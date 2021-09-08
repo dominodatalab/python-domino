@@ -60,6 +60,7 @@ class Domino:
         """
         Decorator for automatic re-authentication
         """
+        @functools.wraps(fn)
         def wrapper(self, *args, **kwargs):
             if self._domino_token_file: # only token file is supported for re-authentication
                 self.authenticate(domino_token_file=self._domino_token_file)
