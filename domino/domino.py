@@ -39,8 +39,9 @@ class Domino:
         domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
         api_key = api_key or os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
 
-        # save token file to be able to re-authenticate automatically
+        self._api_key = api_key
         self._domino_token_file = domino_token_file
+        self._auth_token = auth_token
 
         # This call sets self.request_manager
         self.authenticate(api_key, auth_token, domino_token_file)
@@ -62,8 +63,9 @@ class Domino:
         """
         @functools.wraps(fn)
         def wrapper(self, *args, **kwargs):
-            if self._domino_token_file: # only token file is supported for re-authentication
-                self.authenticate(domino_token_file=self._domino_token_file)
+            self.authenticate(api_key=self._api_key,
+                              auth_token=self._auth_token,
+                              domino_token_file=self._domino_token_file)
             return fn(self, *args, **kwargs)
         return wrapper
 
