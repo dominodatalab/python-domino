@@ -4,7 +4,7 @@ Python bindings for the Domino API.
 
 Permits interaction with a Domino deployment from Python using the [Domino API](https://dominodatalab.github.io/api-docs/).
 
-The latest released version is [1.0.4](https://github.com/dominodatalab/python-domino/archive/1.0.4.zip).
+The latest released version is [1.0.5](https://github.com/dominodatalab/python-domino/archive/1.0.5.zip).
 
 ## Version Compatibility Matrix
 
@@ -15,7 +15,7 @@ The latest released version is [1.0.4](https://github.com/dominodatalab/python-d
 | 3.6.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)         |
 | 4.1.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher         |
 
-## Installation 
+## Installation
 
 At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
 
@@ -30,7 +30,7 @@ You can also add `python-domino` to your `requirements.txt` file with the follow
     git+git://github.com/dominodatalab/python-domino.git
 
 Note: To install lower version of library, for example `0.3.5` use the following command:
-    
+
     pip install https://github.com/dominodatalab/python-domino/archive/0.3.5.zip
 
 ## Overview
@@ -53,9 +53,9 @@ The parameters are:
 * *domino_token_file:* (Optional) Path to domino token file containing auth token. If not provided the library will expect to find one
 in the DOMINO_TOKEN_FILE environment variable.
 
-Note: 
+Note:
 1. In case both api_key and domino_token_file are available, then preference will be given to domino_token_file.
-2. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` environment variable to `DEBUG`  
+2. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` environment variable to `DEBUG`
 <hr>
 
 ## Methods
@@ -87,7 +87,7 @@ Start a new run on the selected project. The parameters are:
 * *isDirect:* (Optional) Whether or not this command should be passed directly to a shell.
 * *commitId:* (Optional) The commitId to launch from. If not provided, will launch from latest commit.
 * *title:* (Optional) A title for the run.
-* *tier:* (Optional) The hardware tier to use for the run. This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium".  Will use project default tier if not provided. 
+* *tier:* (Optional) The hardware tier to use for the run. This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium".  Will use project default tier if not provided.
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 
 <hr>
@@ -163,7 +163,7 @@ Publishes an app in the Domino project, or republish an existing app. The parame
 
 ### app_unpublish()
 
-Stops all running apps in the Domino project.  
+Stops all running apps in the Domino project.
 
 <hr>
 
@@ -177,7 +177,7 @@ Starts a new Job (run) in the project
 * *environment_id (string):* (Optional) The environment id to launch job with. If not provided it will use the default environment for the project
 * *on_demand_spark_cluster_properties (dict):* (Optional) On demand spark cluster properties. Following properties
                                                     can be provided in spark cluster
-                                                    
+
     ```
     {
         "computeEnvironmentId": "<Environment ID configured with spark>"
@@ -191,7 +191,28 @@ Starts a new Job (run) in the project
          (optional defaults to 0; 1GB is 1000MB Here)
     }
     ```
+* *param compute_cluster_properties (dict):* (Optional) The compute cluster properties definition contains parameters for
+launching any Domino supported compute cluster for a job. Use this to launch a job that uses a compute cluster instead of
+the deprecated `on_demand_spark_cluster_properties` field. If `on_demand_spark_cluster_properties` and `compute_cluster_properties`
+are both present, `on_demand_spark_cluster_properties` will be ignored. `compute_cluster_properties` contains the following fields:
 
+    ```
+    {
+        "clusterType": <string, one of "Ray", "Spark">,
+        "computeEnvironmentId": <string, The environment ID for the cluster's nodes>,
+        "computeEnvironmentRevisionSpec": <one of "ActiveRevision", "LatestRevision",
+        {"revisionId":"<environment_revision_id>"} (optional)>,
+        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node>,
+        "workerCount": <number, the total workers to spawn for the cluster>,
+        "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
+         "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
+         The disk storage size for the cluster's worker nodes (optional)>
+         "maxWorkerCount": <number, The max number of workers allowed. When
+         this configuration exists, autoscaling is enabled for the cluster and
+         "workerCount" is interpreted as the min number of workers allowed in the cluster
+         (optional)>
+    }
+    ```
 <hr>
 
 ### job_stop(*job_id*, *commit_results=True*):
@@ -199,7 +220,7 @@ Starts a new Job (run) in the project
 Stops the Job (run) in the project
 
 * *job_id (string):* Job identifier
-* *commit_results (boolean):* Defaults to `True`, if `false` job results will not be committed 
+* *commit_results (boolean):* Defaults to `True`, if `false` job results will not be committed
 
 <hr>
 
