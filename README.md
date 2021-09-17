@@ -1,35 +1,37 @@
-# Python-domino
+# python-domino
 
-`python-domino` is a library providing bindings for the [Domino Data Lab API](https://dominodatalab.github.io/api-docs/).
+Python bindings for the Domino API.
 
-The latest released version is `1.0.5`.
+Permits interaction with a Domino deployment from Python using the [Domino API](https://dominodatalab.github.io/api-docs/).
 
-## Version compatibility matrix
+The latest released version is [1.0.5](https://github.com/dominodatalab/python-domino/archive/1.0.5.zip).
 
-`python-domino` library is compatible with different versions of `Domino`:
+## Version Compatibility Matrix
+
+`python-domino` library is compatible with different versions of the `Domino`:
 
 | Domino Versions | Python-Domino |
 | --------------- |:-------------:|
-| 3.6.x or Lower  | 0.3.5         |
-| 4.1.0 or Higher | 1.0.0 or Higher         |
+| 3.6.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)         |
+| 4.1.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher         |
 
-## Installation 
+## Installation
 
-Starting from version `1.0.5`, `python-domino` is available on PyPI:
+At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
 
-    pip install python-domino
+    pip install https://github.com/dominodatalab/python-domino/archive/master.zip
 
-If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) Dockerfile Instructions field, you must add `RUN` to the beginning:
+If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) `Dockerfile Instructions` field, you must add `RUN` to the beginning:
 
-    RUN pip install python-domino
+    RUN pip install https://github.com/dominodatalab/python-domino/archive/master.zip
 
-To install specific version of the library from PyPI, for example, `1.0.5`, use the following command:
+You can also add `python-domino` to your `requirements.txt` file with the following syntax:
 
-    pip install python-domino==1.0.5
+    git+git://github.com/dominodatalab/python-domino.git
 
-To install specific version of the library from GitHub, for example, `1.0.5`, use the following command:
+Note: To install lower version of library, for example `0.3.5` use the following command:
 
-    pip install https://github.com/dominodatalab/python-domino/archive/1.0.5.zip
+    pip install https://github.com/dominodatalab/python-domino/archive/0.3.5.zip
 
 ## Overview
 
@@ -51,9 +53,9 @@ The parameters are:
 * *domino_token_file:* (Optional) Path to domino token file containing auth token. If not provided the library will expect to find one
 in the DOMINO_TOKEN_FILE environment variable.
 
-Note: 
+Note:
 1. In case both api_key and domino_token_file are available, then preference will be given to domino_token_file.
-2. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` environment variable to `DEBUG`  
+2. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` environment variable to `DEBUG`
 <hr>
 
 ## Methods
@@ -85,7 +87,7 @@ Start a new run on the selected project. The parameters are:
 * *isDirect:* (Optional) Whether or not this command should be passed directly to a shell.
 * *commitId:* (Optional) The commitId to launch from. If not provided, will launch from latest commit.
 * *title:* (Optional) A title for the run.
-* *tier:* (Optional) The hardware tier to use for the run. This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium".  Will use project default tier if not provided. 
+* *tier:* (Optional) The hardware tier to use for the run. This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium".  Will use project default tier if not provided.
 * *publishApiEndpoint:* (Optional) Whether or not to publish an API endpoint from the resulting output.
 
 <hr>
@@ -161,7 +163,7 @@ Publishes an app in the Domino project, or republish an existing app. The parame
 
 ### app_unpublish()
 
-Stops all running apps in the Domino project.  
+Stops all running apps in the Domino project.
 
 <hr>
 
@@ -175,7 +177,7 @@ Starts a new Job (run) in the project
 * *environment_id (string):* (Optional) The environment id to launch job with. If not provided it will use the default environment for the project
 * *on_demand_spark_cluster_properties (dict):* (Optional) On demand spark cluster properties. Following properties
                                                     can be provided in spark cluster
-                                                    
+
     ```
     {
         "computeEnvironmentId": "<Environment ID configured with spark>"
@@ -218,7 +220,7 @@ are both present, `on_demand_spark_cluster_properties` will be ignored. `compute
 Stops the Job (run) in the project
 
 * *job_id (string):* Job identifier
-* *commit_results (boolean):* Defaults to `True`, if `false` job results will not be committed 
+* *commit_results (boolean):* Defaults to `True`, if `false` job results will not be committed
 
 <hr>
 
@@ -244,16 +246,10 @@ parameter in `job_start` method
 
 The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
 
-When installing the client from PyPI, add the `airflow` flag to extras:
+To install its dependencies, when installing the package from github add the `airflow` flag to extras with pip.
 
 ```
-pip install python-domino[airflow]
-```
-
-Similarly, when installing the client from GitHub, use the following command:
-
-```
-pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.5#egg=python-domino[airflow]
+pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=python-domino[airflow]
 ```
 
 ### DominoOperator
