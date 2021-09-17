@@ -22,7 +22,6 @@ class BearerAuth(AuthBase):
         https://docs.python-requests.org/en/master/user/advanced/
         """
         auth_token = self._from_token_file() if self.domino_token_file else self.auth_token
-        print(auth_token)
         r.headers["Authorization"] = "Bearer " + auth_token
         return r
 
