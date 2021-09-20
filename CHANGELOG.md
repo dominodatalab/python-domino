@@ -6,6 +6,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Added
 
+* Automatically re-read auth token from file to avoid reusing short-lived access tokens
+
 ### Changed
 
 ## 1.0.5

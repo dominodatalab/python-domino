@@ -6,14 +6,13 @@ class BearerAuth(AuthBase):
     Class for authenticating requests by user supplied token.
     """
 
-    def __init__(self, auth_token):
+    def __init__(self, auth_token=None, domino_token_file=None):
         self.auth_token = auth_token
+        self.domino_token_file = domino_token_file
 
-    @classmethod
-    def from_token_file(cls, path_token_to_file):
-        with open(path_token_to_file, 'r') as token_file:
-            auth_token = token_file.readline().rstrip()
-            return cls(auth_token)
+    def _from_token_file(self):
+        with open(self.domino_token_file, 'r') as token_file:
+            return token_file.readline().rstrip()
 
     def __call__(self, r):
         """
@@ -22,7 +21,8 @@ class BearerAuth(AuthBase):
         More more info, see:
         https://docs.python-requests.org/en/master/user/advanced/
         """
-        r.headers["Authorization"] = "Bearer " + self.auth_token
+        auth_token = self._from_token_file() if self.domino_token_file else self.auth_token
+        r.headers["Authorization"] = "Bearer " + auth_token
         return r
 
 
@@ -42,8 +42,8 @@ def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None):
         "Unable to authenticate: no authentication method provided"
 
     if auth_token is not None:
-        return BearerAuth(auth_token)
+        return BearerAuth(auth_token=auth_token)
     elif domino_token_file is not None:
-        return BearerAuth.from_token_file(domino_token_file)
+        return BearerAuth(domino_token_file=domino_token_file)
     else:
         return HTTPBasicAuth('', api_key)
