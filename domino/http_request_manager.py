@@ -46,5 +46,5 @@ class _HttpRequestManager:
                     self._logger.error(e.response.text)
                 else:
                     self._logger.debug(e.response.text)
-                raise
+            raise
         return response
