@@ -39,12 +39,11 @@ class _HttpRequestManager:
             if e.response.status_code == HTTPStatus.CONFLICT:
                 parse_result = urlparse(e.response.url)
                 self._logger.error(f" An error has occurred. Try to relogin at {parse_result.scheme}://{parse_result.netloc}")
+            # Sometimes, the error response is a long HTML page.
+            # We don't want to log error the whole response html in those cases.
+            if not bool(BeautifulSoup(e.response.text, "html.parser").find()):
+                self._logger.error(e.response.text)
             else:
-                # Sometimes, the error response is a long HTML page.
-                # We don't want to log error the whole response html in those cases.
-                if not bool(BeautifulSoup(e.response.text, "html.parser").find()):
-                    self._logger.error(e.response.text)
-                else:
-                    self._logger.debug(e.response.text)
+                self._logger.debug(e.response.text)
             raise
         return response
