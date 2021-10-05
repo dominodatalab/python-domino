@@ -38,7 +38,7 @@ class _HttpRequestManager:
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == HTTPStatus.CONFLICT:
                 parse_result = urlparse(e.response.url)
-                self._logger.info(f" An error has occurred. Try to relogin at {parse_result.scheme}://{parse_result.netloc}")
+                self._logger.error(f" An error has occurred. Try to relogin at {parse_result.scheme}://{parse_result.netloc}")
             else:
                 # Sometimes, the error response is a long HTML page.
                 # We don't want to log error the whole response html in those cases.
