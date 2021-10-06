@@ -48,3 +48,7 @@ class MalformedInputException(DominoException):
 class MissingRequiredFieldException(DominoException):
     """Missing required field Exception"""
     pass
+
+class ReloginRequiredException(DominoException):
+    """Re-login required Exception"""
+    pass
