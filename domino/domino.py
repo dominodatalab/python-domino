@@ -100,7 +100,7 @@ class Domino:
             response = self.request_manager.post(url, json=request)
             return response.json()
         except ReloginRequiredException:
-            self._logger.info(f" You need to log in to the Domino UI to start the run. Please do it at {self._routes.host}")
+            self._logger.info(f" You need to log in to the Domino UI to start the run. Please do it at {self._routes.host}/relogin?redirectPath=/")
 
     def runs_start_blocking(self, command, isDirect=False, commitId=None,
                             title=None, tier=None, publishApiEndpoint=None,
@@ -426,7 +426,7 @@ class Domino:
             response = self.request_manager.post(url, json=payload)
             return response.json()
         except ReloginRequiredException:
-            self._logger.info(f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}")
+            self._logger.info(f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}/relogin?redirectPath=/")
 
     def job_stop(self, job_id: str, commit_results: bool = True):
         """
