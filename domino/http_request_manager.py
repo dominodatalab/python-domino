@@ -1,5 +1,9 @@
-from requests.auth import AuthBase
 from bs4 import BeautifulSoup
+from http import HTTPStatus
+from requests.auth import AuthBase
+
+from .exceptions import ReloginRequiredException
+
 import logging
 import requests
 
@@ -33,6 +37,8 @@ class _HttpRequestManager:
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
+            if e.response.status_code == HTTPStatus.CONFLICT:
+                raise ReloginRequiredException("Temporary credentials expired")
             # Sometimes, the error response is a long HTML page.
             # We don't want to log error the whole response html in those cases.
             if not bool(BeautifulSoup(e.response.text, "html.parser").find()):
