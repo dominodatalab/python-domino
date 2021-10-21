@@ -24,6 +24,11 @@ Minimum Domino version that supports compute cluster autoscaling
 COMPUTE_CLUSTER_AUTOSCALING_MIN_SUPPORT_DOMINO_VERSION = "5.0.0"
 
 """
+Minimum Domino version supporting external volume mounts
+"""
+MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION = '4.3.3'
+
+"""
 Environment variable names used by this python-domino library
 """
 DOMINO_TOKEN_FILE_KEY_NAME = 'DOMINO_TOKEN_FILE'

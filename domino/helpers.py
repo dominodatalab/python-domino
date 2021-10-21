@@ -35,6 +35,8 @@ def is_compute_cluster_properties_supported(version: str) -> bool:
 def is_on_demand_spark_cluster_supported(version: str) -> bool:
     return parse_version(version) >= parse_version(MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION)
 
+def is_external_volume_mounts_supported(version: str) -> bool:
+    return parse_version(version) >= parse_version(MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION)
 
 def clean_host_url(host_url):
     """
