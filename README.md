@@ -213,6 +213,9 @@ are both present, `on_demand_spark_cluster_properties` will be ignored. `compute
          (optional)>
     }
     ```
+
+* *external_volume_mounts (List[string]):* (Optional) External volume mount ids to mount to run. If not provided will launch with no external volume mounts mounted.
+
 <hr>
 
 ### job_stop(*job_id*, *commit_results=True*):
