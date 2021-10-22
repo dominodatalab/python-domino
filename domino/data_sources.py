@@ -7,7 +7,7 @@ _import_error_message = (
 )
 
 try:
-    from domino_data.datasource import *
+    from domino_data.data_sources import *
 except ImportError as e:
     if e.msg == "No module named 'domino_data'":
         raise ImportError(_import_error_message) from e
@@ -17,7 +17,7 @@ except ImportError as e:
 
 def __getattr__(value):
     try:
-        import domino_data.datasource
+        import domino_data.data_sources
     except ImportError as e:
         raise ImportError(_import_error_message) from e
     return getattr(domino_data, value)
