@@ -1,5 +1,5 @@
 class _Routes:
-    def __init__(self, host, owner_username, project_name):
+    def __init__(self, host, owner_username=None, project_name='quick-start'):
         self.host = host
         self._owner_username = owner_username
         self._project_name = project_name
@@ -161,3 +161,7 @@ class _Routes:
     # User URLs
     def users_get(self):
         return self.host + f'/v4/users'
+
+    #Organizations
+    def orgs_get(self):
+        return self.host + f'/v4/organizations'
