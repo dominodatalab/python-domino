@@ -32,7 +32,7 @@ def default_domino_client():
     # If authentication failed, this raises a requests.exceptions.HTTPError.
     d.environments_list()
 
-    yield d
+    return d
 
 
 @pytest.fixture
