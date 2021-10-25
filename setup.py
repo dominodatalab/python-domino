@@ -32,9 +32,7 @@ setup(
     packages=find_packages(),
     scripts=[],
     url="https://github.com/dominodatalab/python-domino",
-    download_url="https://github.com/dominodatalab/python-domino/"
-    + get_version()
-    + ".zip",
+    download_url=f"https://github.com/dominodatalab/python-domino/{get_version().zip}",  # noqa
     license="Apache Software License (Apache 2.0)",
     description="Python bindings for the Domino API",
     long_description=README,
