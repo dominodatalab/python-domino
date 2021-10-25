@@ -37,7 +37,7 @@ class Domino:
                 # Initialize without a project
                 self._routes = _Routes(host)
         except ValueError as e:
-            self._logger.error(f"Project {project} must blank or be given in the form username/projectname")
+            self._logger.error(f"Project {project} must be given in the form username/projectname")
             raise
 
         domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
