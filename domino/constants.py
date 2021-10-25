@@ -24,9 +24,11 @@ Minimum Domino version that supports compute cluster autoscaling
 COMPUTE_CLUSTER_AUTOSCALING_MIN_SUPPORT_DOMINO_VERSION = "5.0.0"
 
 """
-Environment variable names used by this python-domino library
+Environment variable names used by this python-domino library. The values
+here match the environment variable names a user would find on a deploymemt.
 """
 DOMINO_TOKEN_FILE_KEY_NAME = 'DOMINO_TOKEN_FILE'
 DOMINO_USER_API_KEY_KEY_NAME = 'DOMINO_USER_API_KEY'
 DOMINO_HOST_KEY_NAME = 'DOMINO_API_HOST'
 DOMINO_LOG_LEVEL_KEY_NAME = 'DOMINO_LOG_LEVEL'
+DOMINO_USER_NAME_KEY_NAME = 'DOMINO_USER_NAME'
