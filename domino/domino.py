@@ -40,7 +40,7 @@ class Domino:
             self._logger.error(f"Project {project} must be given in the form username/projectname")
             raise
 
-        domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
+        #domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
         api_key = api_key or os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
 
         # This call sets self.request_manager
@@ -579,13 +579,21 @@ class Domino:
         """
         url = self._routes.users_get()
         response = self.request_manager.get(url)
-        resp = response.json()
+        users = response.json()
 
-        users = []
-        for user in resp:
-            if  user.get('email') and "@example.com" not in user.get('email'):
-                users.append(user)
-                
+        url = self._routes.orgs_get()
+        response = self.request_manager.get(url)
+        orgs = response.json()
+
+        del_users = []
+        for i in range(0,len(users)):
+            for org in orgs:
+                if users[i].get('id') == org.get("organizationUserId"):
+                    del_users.append(i)
+
+        for ele in sorted(del_users, reverse=True):
+            del users[ele]            
+
         return users
 
     def orgs_list(self):
