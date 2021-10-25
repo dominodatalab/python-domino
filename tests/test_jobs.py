@@ -1,13 +1,12 @@
+import time
+from pprint import pformat
+
 import polling2
 import pytest
 
 from domino import Domino
+from domino.helpers import domino_is_reachable
 from requests.exceptions import RequestException
-
-
-@pytest.fixture
-def dummy_hostname():
-    return "http://domino.somefakecompany.com"
 
 
 @pytest.fixture
@@ -80,3 +79,51 @@ def test_job_status_without_ignoring_exceptions(requests_mock, dummy_hostname):
 
     with pytest.raises(RequestException):
         d.job_start_blocking(command="foo.py", ignore_exceptions=())
+
+
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_job_start_blocking(default_domino_client):
+    """
+    Confirm that we can start a job using the v4 API, and block until it succeeds.
+    """
+    job = default_domino_client.job_start_blocking(command="main.py")
+    assert job["statuses"]["executionStatus"] == "Succeeded"
+
+
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_runs_list(default_domino_client):
+    """
+    Confirm that the v1 API endpoint to list jobs returns a list.
+    """
+    runs = default_domino_client.runs_list()
+    assert runs["objectType"] == "list", f"runs_list returned unexpected result:\n{pformat(runs)}"
+    assert isinstance(runs["data"], list), \
+        f"runs_list returned unexpected result:\n{pformat(runs)}"
+
+
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_queue_job(default_domino_client):
+    """
+    Queue a job, and then poll until the job completes (timeout at 240 seconds).
+    """
+    job = default_domino_client.job_start("main.py")
+
+    remaining_polling_seconds = 240
+    while remaining_polling_seconds > 0:
+        job_status = default_domino_client.job_status(job['id'])
+        if not job_status['statuses']['isCompleted']:
+            time.sleep(3)
+            remaining_polling_seconds -= 3
+            print(f"Job {job['id']} has not completed.")
+            continue
+
+        exec_status = job_status['statuses']['executionStatus']
+        try:
+            assert exec_status == "Succeeded"
+            print(f"Job {job['id']} succeeded.")
+            break
+        except AssertionError:
+            print(f"Job failed: {pformat(job_status)}")
+            raise
+    else:
+        pytest.fail(f"Job took too long to complete: {pformat(job_status)}")
