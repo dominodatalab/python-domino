@@ -20,7 +20,7 @@ def dummy_hostname():
 @pytest.fixture(scope="module")
 def default_domino_client():
     """
-    Connect to the quick-start project
+    Module-scoped fixture that uses default authentiation, and provides a Domino client object.
     """
     host = os.getenv(DOMINO_HOST_KEY_NAME)
     user = os.getenv(DOMINO_USER_NAME_KEY_NAME)
