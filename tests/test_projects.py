@@ -65,7 +65,7 @@ def test_upload_file_to_project(default_domino_client):
     """
     Confirm that the python-domino client can upload a file to a project.
     """
-    with open(__file__, "r") as test_file:
+    with open(__file__, "rb") as test_file:
         response = default_domino_client.files_upload(path="/test_file.py", file=test_file)
     assert response.status_code == 201
     assert response.json()["path"] == "test_file.py"
