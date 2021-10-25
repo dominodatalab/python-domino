@@ -252,7 +252,9 @@ class Domino:
             hardware_tier_name: Optional[str] = None,
             environment_id: Optional[str] = None,
             on_demand_spark_cluster_properties: Optional[dict] = None,
-            compute_cluster_properties: Optional[dict] = None) -> dict:
+            compute_cluster_properties: Optional[dict] = None,
+            external_volume_mounts: Optional[List[str]] = None,
+    ) -> dict:
         """
         Starts a Domino Job via V4 API
         :param command:                             string
@@ -305,6 +307,9 @@ class Domino:
                                                         'workerCount' is interpreted as the min number of workers allowed in the cluster
                                                         (optional)>
                                                     }
+        :param external_volume_mounts:              list of string (Optional)
+                                                    External volume mount ids to mount to run. If not provided will launch with
+                                                    no external volume mounts mounted.
         :return: Returns created Job details (number, id etc)
         """
         def validate_on_demand_spark_cluster_properties(max_execution_slot_per_user):
@@ -334,7 +339,7 @@ class Domino:
             return self.request_manager.get(default_spark_setting_url).json()
 
         def validate_is_on_demand_spark_supported():
-            if not is_on_demand_spark_cluster_supported:
+            if not is_on_demand_spark_cluster_supported(self._version):
                 raise OnDemandSparkClusterNotSupportedException(
                     f"Your domino deployment version {self._version} does not support on demand spark cluster. "
                     f"Minimum support version {MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION}")
@@ -374,6 +379,12 @@ class Domino:
             if "maxWorkerCount" in compute_cluster_properties and not is_comute_cluster_autoscaling_supported(self._version):
                 raise UnsupportedFieldException(f"'maxWorkerCount' is not supported in Domino {self._version}.")
 
+        def validate_is_external_volume_mounts_supported():
+            if not is_external_volume_mounts_supported(self._version):
+                raise ExternalVolumeMountsNotSupportedException(
+                    f"Your domino deployment version {self._version} does not support external volume mounts. "
+                    f"Minimum support version {MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION}")
+
         spark_cluster_properties = None
         validated_compute_cluster_properties = None
 
@@ -383,6 +394,8 @@ class Domino:
             self._validate_hardware_tier_name(hardware_tier_name)
         if environment_id is not None:
             self._validate_environment_id(environment_id)
+        if external_volume_mounts is not None:
+            validate_is_external_volume_mounts_supported()
         if compute_cluster_properties is not None:
             validate_distributed_compute_cluster_properties()
 
@@ -420,7 +433,8 @@ class Domino:
           "overrideHardwareTierName": hardware_tier_name,
           "onDemandSparkClusterProperties": spark_cluster_properties,
           "computeClusterProperties": validated_compute_cluster_properties,
-          "environmentId": environment_id
+          "environmentId": environment_id,
+          "externalVolumeMounts": external_volume_mounts
         }
         try:
             response = self.request_manager.post(url, json=payload)

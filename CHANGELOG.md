@@ -8,6 +8,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 * Automatically re-read auth token from file to avoid reusing short-lived access tokens
 * Better token expiration error handling for job_start and runs_start methods
+* Added support for external volume mounts in job_start
 
 ### Changed
 
