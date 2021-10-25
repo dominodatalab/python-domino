@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 
 
 class Domino:
-    def __init__(self, project, api_key=None, host=None, domino_token_file=None, auth_token=None):
+    def __init__(self, project=None, api_key=None, host=None, domino_token_file=None, auth_token=None):
 
         self._configure_logging()
 
@@ -30,10 +30,14 @@ class Domino:
         host = clean_host_url(_host)
 
         try:
-            owner_username, project_name = project.split("/")
-            self._routes = _Routes(host, owner_username, project_name)
+            if project:
+                owner_username, project_name = project.split("/")
+                self._routes = _Routes(host, owner_username, project_name)
+            else:
+                # Initialize without a project
+                self._routes = _Routes(host)
         except ValueError as e:
-            self._logger.error(f"Project {project} must be given in the form username/projectname")
+            self._logger.error(f"Project {project} must blank or be given in the form username/projectname")
             raise
 
         domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
@@ -565,6 +569,37 @@ class Domino:
                 user_id = user['id']
                 break
         return user_id
+
+    def users_list(self):
+        """
+        Return a list of all users available
+
+        Return:
+           users (dict): Details of all users
+        """
+        url = self._routes.users_get()
+        response = self.request_manager.get(url)
+        resp = response.json()
+
+        users = []
+        for user in resp:
+            if  user.get('email') and "@example.com" not in user.get('email'):
+                users.append(user)
+                
+        return users
+
+    def orgs_list(self):
+        """
+        Return a list of all orgs available. Admin API
+
+        Return:
+           orgs (dict): Details of all orgs
+        """
+        url = self._routes.orgs_get()
+        response = self.request_manager.get(url)
+        orgs = response.json()
+                
+        return orgs
 
     def collaborators_add(self, username_or_email, message=""):
         self.requires_at_least("1.53.0.0")
