@@ -28,6 +28,12 @@ class _Routes:
     def project_create(self):
         return self.host + '/project'
 
+    def project_archive(self, project_id):
+        return f'{self.host}/v4/projects/{project_id}'
+
+    def projects_list(self):
+        return f'{self.host}/v4/gateway/projects'
+
     def runs_list(self):
         return self._build_project_url() + '/runs'
 
@@ -64,7 +70,7 @@ class _Routes:
     def collaborators_remove(self, project_id, user_id):
         return self.host + f'/v4/projects/{project_id}/collaborators/{user_id}'
 
-    # API Endpoint URLs 
+    # API Endpoint URLs
     def _build_endpoint_url(self):
         return self.host + '/v1/' + \
             self._owner_username + '/' + self._project_name + '/endpoint'
@@ -142,7 +148,7 @@ class _Routes:
 
     def app_get(self, app_id):
         return f'{self.host}/v4/modelProducts/{app_id}'
-    
+
     # Hardware Tier URLs
     def hardware_tiers_list(self, project_id):
         return self.host + f'/v4/projects/{project_id}/hardwareTiers'

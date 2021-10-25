@@ -540,6 +540,28 @@ class Domino:
         response = self.request_manager.post(url, data=data, headers=self._csrf_no_check_header)
         return response
 
+    def project_archive(self, project_name):
+        """Delete the project with the given name"""
+        all_owned_projects = self.projects_list(show_completed=True)
+        for p in all_owned_projects:
+            if p['name'] == project_name:
+                url = self._routes.project_archive(project_id=p['id'])
+                self.request_manager.delete(url)
+                break
+        else:
+            raise ProjectNotFoundException(project_name)
+
+    def projects_list(self, relationship="Owned", show_completed=False):
+        url = self._routes.projects_list()
+
+        valid_relationships = ["Owned", "Collaborating", "Suggesting", "Popular"]
+        if relationship not in valid_relationships:
+            raise ValueError(f"relationship must be one of {valid_relationships}: {relationship}")
+
+        query = {"relationship": relationship, "showCompleted": str(show_completed).lower()}
+        response = self.request_manager.get(url, params=query)
+        return response.json()
+
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()

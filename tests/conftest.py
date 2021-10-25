@@ -3,10 +3,36 @@ import os
 import pytest
 import requests_mock
 
+from domino import Domino
 from domino.constants import (
+    DOMINO_HOST_KEY_NAME,
     DOMINO_TOKEN_FILE_KEY_NAME,
-    DOMINO_USER_API_KEY_KEY_NAME
+    DOMINO_USER_API_KEY_KEY_NAME,
+    DOMINO_USER_NAME_KEY_NAME
 )
+
+
+@pytest.fixture
+def dummy_hostname():
+    return "http://domino.somefakecompany.com"
+
+
+@pytest.fixture(scope="module")
+def default_domino_client():
+    """
+    Module-scoped fixture that uses default authentiation, and provides a Domino client object.
+    """
+    host = os.getenv(DOMINO_HOST_KEY_NAME)
+    user = os.getenv(DOMINO_USER_NAME_KEY_NAME)
+    assert user, f"User must be specified by {DOMINO_USER_NAME_KEY_NAME} environment variable."
+    assert host, f"Host must be specified by {DOMINO_HOST_KEY_NAME} environment variable."
+
+    d = Domino(host=host, project=f"{user}/quick-start")
+
+    # If authentication failed, this raises a requests.exceptions.HTTPError.
+    d.environments_list()
+
+    return d
 
 
 @pytest.fixture
