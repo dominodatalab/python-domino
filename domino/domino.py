@@ -253,7 +253,7 @@ class Domino:
             environment_id: Optional[str] = None,
             on_demand_spark_cluster_properties: Optional[dict] = None,
             compute_cluster_properties: Optional[dict] = None,
-            external_volume_mounts: Optional[List[str]] = None,
+            external_volume_mounts: Optional[list[str]] = None,
     ) -> dict:
         """
         Starts a Domino Job via V4 API
