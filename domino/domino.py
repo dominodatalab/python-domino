@@ -40,7 +40,7 @@ class Domino:
             self._logger.error(f"Project {project} must be given in the form username/projectname")
             raise
 
-        #domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
+        domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
         api_key = api_key or os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
 
         # This call sets self.request_manager
@@ -611,7 +611,7 @@ class Domino:
         Return a list of all users available
 
         Return:
-           users (dict): Details of all users
+           users (list): Details of all users
         """
         url = self._routes.users_get()
         response = self.request_manager.get(url)
@@ -634,10 +634,11 @@ class Domino:
 
     def orgs_list(self):
         """
-        Return a list of all orgs available. Admin API
+        Return a list of all orgs available. Requires admin level access.
+        If a user without SysAdmin calls this it will return a 403
 
         Return:
-           orgs (dict): Details of all orgs
+           orgs (list): Details of all orgs
         """
         url = self._routes.orgs_get()
         response = self.request_manager.get(url)
