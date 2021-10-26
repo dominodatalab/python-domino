@@ -35,6 +35,8 @@ class Domino:
                 self._routes = _Routes(host, owner_username, project_name)
             else:
                 # Initialize without a project
+                self._logger.warn(f" Initialising without a project will cause Runs, Files,\n"
+                    + "Commits, Blobs and Model functions to become unusable")
                 self._routes = _Routes(host)
         except ValueError as e:
             self._logger.error(f"Project {project} must be given in the form username/projectname")

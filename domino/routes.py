@@ -1,22 +1,35 @@
+from .exceptions import MissingRequiredFieldException
+
 class _Routes:
-    def __init__(self, host, owner_username=None, project_name='quick-start'):
+    def __init__(self, host, owner_username=None, project_name=None):
         self.host = host
         self._owner_username = owner_username
         self._project_name = project_name
 
     # URL builders
     def _build_project_url(self):
-        return self.host + '/v1/projects/' + \
-            self._owner_username + '/' + self._project_name
+        if self._project_name:
+            return self.host + '/v1/projects/' + \
+                self._owner_username + '/' + self._project_name
+        else:
+            raise MissingRequiredFieldException("Object must be initialised with Project name to use this method")
 
     def _build_project_url_private_api(self):
-        return self.host + '/u/' + self._owner_username + \
-            '/' + self._project_name
+        if self._project_name:
+            return self.host + '/u/' + self._owner_username + \
+                '/' + self._project_name
+        else:
+            raise MissingRequiredFieldException("Object must be initialised with Project name to use this method")
+
 
     def _build_old_project_url(self):
-        # TODO refactor once these API endpoints are supported in REST API
-        return self.host + '/' \
-            + self._owner_username + '/' + self._project_name
+        if self._project_name:
+            # TODO refactor once these API endpoints are supported in REST API
+            return self.host + '/' \
+                + self._owner_username + '/' + self._project_name
+        else:
+            raise MissingRequiredFieldException("Object must be initialised with Project name to use this method")
+
 
     def _build_models_url(self):
         return self.host + '/v1/models'
@@ -155,8 +168,11 @@ class _Routes:
 
     # Find Project By OwnerName and project name Url
     def find_project_by_owner_name_and_project_name_url(self):
-        return f'{self.host}/v4/gateway/projects/findProjectByOwnerAndName' \
-               f'?ownerName={self._owner_username}&projectName={self._project_name}'
+        if self._project_name:
+            return f'{self.host}/v4/gateway/projects/findProjectByOwnerAndName' \
+                f'?ownerName={self._owner_username}&projectName={self._project_name}'
+        else:
+            raise MissingRequiredFieldException("Object must be initialised with Project name to use this method")
 
     # User URLs
     def users_get(self):
