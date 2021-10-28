@@ -3,7 +3,8 @@
 _import_error_message = (
     "domino.data_sources is not installed.\n\n"
     "Please pip install dominodatalab-data:\n\n"
-    '  python -m pip install "dominodatalab[data]" --upgrade'
+    "  python -m pip install dominodatalab-data   # install directly\n"
+    '  python -m pip install "dominodatalab[data]" --upgrade   # install via extra dependency'
 )
 
 try:
