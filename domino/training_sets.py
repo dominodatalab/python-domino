@@ -7,7 +7,7 @@ _import_error_message = (
 )
 
 try:
-    from domino_data.training_sets import *
+    from domino_data.training_sets import client as TrainingSetClient, model
 except ImportError as e:
     if e.msg == "No module named 'domino_data'":
         raise ImportError(_import_error_message) from e
@@ -21,6 +21,3 @@ def __getattr__(value):
     except ImportError as e:
         raise ImportError(_import_error_message) from e
     return getattr(domino_data, value)
-
-
-TrainingSetClient = client
