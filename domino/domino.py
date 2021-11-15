@@ -33,11 +33,13 @@ class Domino:
             if project:
                 owner_username, project_name = project.split("/")
                 self._routes = _Routes(host, owner_username, project_name)
+                self._project_included = True
             else:
                 # Initialize without a project
                 self._logger.warn(f" Initialising without a project will cause Runs, Files,\n"
                     + "Commits, Blobs and Model functions to become unusable")
                 self._routes = _Routes(host)
+                self._project_included = False
         except ValueError as e:
             self._logger.error(f"Project {project} must be given in the form username/projectname")
             raise
@@ -66,6 +68,16 @@ class Domino:
         except AttributeError:
             self._configure_logging()
             return self._logger
+    
+    def _check_project(fn):
+        """
+        Decorator to check if class is initialised with project
+        """
+        def wrapper(self, *args, **kwargs):
+            if not self._project_included:
+                raise MissingRequiredFieldException(f"Object must be initialised with" 
+                    f" Project name to use the {fn.__name__} method")
+        return wrapper
 
     def _configure_logging(self):
         logging_level = logging.getLevelName(os.getenv(DOMINO_LOG_LEVEL_KEY_NAME, "INFO").upper())
@@ -81,14 +93,17 @@ class Domino:
                                                                     auth_token=auth_token,
                                                                     domino_token_file=domino_token_file))
 
+    @_check_project
     def commits_list(self):
         url = self._routes.commits_list()
         return self._get(url)
 
+    @_check_project
     def runs_list(self):
         url = self._routes.runs_list()
         return self._get(url)
 
+    @_check_project
     def runs_start(self, command, isDirect=False, commitId=None, title=None,
                    tier=None, publishApiEndpoint=None):
 
@@ -108,6 +123,7 @@ class Domino:
         except ReloginRequiredException:
             self._logger.info(f" You need to log in to the Domino UI to start the run. Please do it at {self._routes.host}/relogin?redirectPath=/")
 
+    @_check_project
     def runs_start_blocking(self, command, isDirect=False, commitId=None,
                             title=None, tier=None, publishApiEndpoint=None,
                             poll_freq=5, max_poll_time=6000, retry_count=5):
@@ -202,14 +218,17 @@ class Domino:
 
         return run_response
 
+    @_check_project
     def run_stop(self, runId, saveChanges=True):
         self.log.warning("Use job_stop method instead")
         return self.job_stop(job_id=runId, commit_results=saveChanges)
 
+    @_check_project
     def runs_status(self, runId):
         url = self._routes.runs_status(runId)
         return self._get(url)
 
+    @_check_project
     def get_run_log(self, runId, includeSetupLog=True):
         """
         Get the unified log for a run (setup + stdout).
@@ -233,11 +252,13 @@ class Domino:
 
         return "\n".join(logs)
 
+    @_check_project
     def get_run_info(self, run_id):
         for run_info in self.runs_list()['data']:
             if run_info['id'] == run_id:
                 return run_info
 
+    @_check_project
     def runs_stdout(self, runId):
         """
         Get std out emitted by a particular run.
@@ -251,6 +272,7 @@ class Domino:
         # pprint.pformat outputs a string that is ready to be printed
         return pprint.pformat(self._get(url)['stdout'])
 
+    @_check_project
     def job_start(
             self,
             command: str,
@@ -448,6 +470,7 @@ class Domino:
         except ReloginRequiredException:
             self._logger.info(f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}/relogin?redirectPath=/")
 
+    @_check_project
     def job_stop(self, job_id: str, commit_results: bool = True):
         """
         Stops the Job with given job_id
@@ -473,6 +496,7 @@ class Domino:
             self._routes.job_status(job_id)
         ).json()
 
+    @_check_project
     def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000,
                            ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
                            **kwargs) -> dict:
@@ -505,34 +529,41 @@ class Domino:
         self.process_log(stdout_msg)
         return job_status
 
+    @_check_project
     def files_list(self, commitId, path='/'):
         url = self._routes.files_list(commitId, path)
         return self._get(url)
 
+    @_check_project
     def files_upload(self, path, file):
         url = self._routes.files_upload(path)
         return self._put_file(url, file)
 
+    @_check_project
     def blobs_get(self, key):
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
         return self.request_manager.get_raw(url)
 
+    @_check_project
     def fork_project(self, target_name):
         url = self._routes.fork_project(self._project_id)
         request = {"name": target_name}
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_check_project
     def endpoint_state(self):
         url = self._routes.endpoint_state()
         return self._get(url)
 
+    @_check_project
     def endpoint_unpublish(self):
         url = self._routes.endpoint()
         response = self.request_manager.delete(url)
         return response
 
+    @_check_project
     def endpoint_publish(self, file, function, commitId):
         url = self._routes.endpoint_publish()
 
@@ -582,6 +613,7 @@ class Domino:
         response = self.request_manager.get(url, params=query)
         return response.json()
 
+    @_check_project
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()
@@ -648,6 +680,7 @@ class Domino:
                 
         return orgs
 
+    @_check_project
     def collaborators_add(self, username_or_email, message=""):
         self.requires_at_least("1.53.0.0")
 
@@ -665,6 +698,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_check_project
     def collaborators_remove(self, username_or_email):
         self.requires_at_least("1.53.0.0")
 
@@ -679,6 +713,7 @@ class Domino:
         return response
 
     # App functions
+    @_check_project
     def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
         if unpublishRunningApps:
             self.app_unpublish()
@@ -693,6 +728,7 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    @_check_project
     def app_unpublish(self):
         app_id = self._app_id
         if app_id is None:
@@ -763,11 +799,13 @@ class Domino:
         return self._get(url)
 
     # Model Manager functions
+    @_check_project
     def models_list(self):
         self.requires_at_least("2.5.0")
         url = self._routes.models_list()
         return self._get(url)
 
+    @_check_project
     def model_publish(self, file, function, environment_id, name,
                       description, files_to_exclude=[]):
         self.requires_at_least("2.5.0")
@@ -792,6 +830,7 @@ class Domino:
         url = self._routes.model_versions_get(model_id)
         return self._get(url)
 
+    @_check_project
     def model_version_publish(self, model_id, file, function, environment_id,
                               description, files_to_exclude=[]):
         self.requires_at_least("2.5.0")
@@ -860,6 +899,7 @@ class Domino:
         return self._get(url)
 
     # Hardware Tier Functions
+    @_check_project    
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
@@ -905,6 +945,7 @@ class Domino:
                 return True
         raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
 
+    @_check_project
     def _validate_commit_id(self, commit_id):
         self.log.debug(f"Validating commit id: {commit_id}")
         for commit in self.commits_list():
@@ -950,8 +991,10 @@ class Domino:
                 at_least_version, self._version))
 
     # Workaround to get project ID which is needed for some model functions
+    # Added catch-all check for @_check_project as well
     @property
     @functools.lru_cache()
+    @_check_project
     def _project_id(self):
         url = self._routes.find_project_by_owner_name_and_project_name_url()
         key = "id"
