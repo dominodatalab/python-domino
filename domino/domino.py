@@ -77,6 +77,7 @@ class Domino:
             if not self._project_included:
                 raise MissingRequiredFieldException(f"Object must be initialised with" 
                     f" Project name to use the {fn.__name__} method")
+            return fn(self, *args, **kwargs)
         return wrapper
 
     def _configure_logging(self):
