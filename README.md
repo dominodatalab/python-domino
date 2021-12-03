@@ -1,37 +1,36 @@
 # python-domino
 
-Python bindings for the Domino API.
+This library provides bindings for the [Domino Data Lab API](https://dominodatalab.github.io/api-docs/).
 
-Permits interaction with a Domino deployment from Python using the [Domino API](https://dominodatalab.github.io/api-docs/).
-
-The latest released version is [1.0.5](https://github.com/dominodatalab/python-domino/archive/1.0.5.zip).
+The latest released version is `1.0.6`.
 
 ## Version Compatibility Matrix
 
 `python-domino` library is compatible with different versions of the `Domino`:
 
-| Domino Versions | Python-Domino |
-| --------------- |:-------------:|
-| 3.6.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)         |
-| 4.1.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher         |
+| Domino Versions |  Python-Domino  |
+| --------------- |:---------------:|
+| 3.6.x or Lower  | 0.3.5           |
+| 4.1.0 or Higher | 1.0.0 or Higher |
 
 ## Installation
 
-At this time, these Domino Python bindings are not in PyPi. You can install the latest version of this package from our Github `master` branch with the following:
+Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
 
-    pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+    pip install dominodatalab
 
-If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) `Dockerfile Instructions` field, you must add `RUN` to the beginning:
+If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) Dockerfile Instructions field, you must add `RUN` to the beginning:
 
-    RUN pip install https://github.com/dominodatalab/python-domino/archive/master.zip
+    RUN pip install dominodatalab
 
-You can also add `python-domino` to your `requirements.txt` file with the following syntax:
+To install specific version of the library from PyPI, for example, `1.0.6`, use the following command:
 
-    git+git://github.com/dominodatalab/python-domino.git
+    pip install dominodatalab==1.0.6
 
-Note: To install lower version of library, for example `0.3.5` use the following command:
+To install specific version of the library from GitHub, for example, `1.0.6`, use the following command:
 
-    pip install https://github.com/dominodatalab/python-domino/archive/0.3.5.zip
+    pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
+
 
 ## Overview
 
@@ -249,10 +248,16 @@ parameter in `job_start` method
 
 The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
 
-To install its dependencies, when installing the package from github add the `airflow` flag to extras with pip.
+When installing the client from PyPI, add the `airflow` flag to extras:
 
 ```
-pip install -e git+https://github.com/dominodatalab/python-domino.git@master#egg=python-domino[airflow]
+pip install dominodatalab[airflow]
+```
+
+Similarly, when installing the client from GitHub, use the following command:
+
+```
+pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg=python-domino[airflow]
 ```
 
 ### DominoOperator
