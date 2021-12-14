@@ -159,5 +159,8 @@ class _Routes:
                f'?ownerName={self._owner_username}&projectName={self._project_name}'
 
     # User URLs
-    def users_get(self):
-        return self.host + f'/v4/users'
+    def users_get(self, list_only_users = None):
+        if list_only_users is None:
+            return self.host + f'/v4/users'
+        else:
+            return self.host + f'/v4/users?listOnlyUsers={list_only_users}'
