@@ -860,13 +860,6 @@ class Domino:
                 return True
         raise HardwareTierNotFoundException(f"{hardware_tier_id} hardware tier Id not found")
 
-    def _validate_hardware_tier_name(self, hardware_tier_name):
-        self.log.debug(f"Validating hardware tier name: {hardware_tier_name}")
-        for hardware_tier in self.hardware_tiers_list():
-            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
-                return True
-        raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
-
     def _validate_commit_id(self, commit_id):
         self.log.debug(f"Validating commit id: {commit_id}")
         for commit in self.commits_list():
