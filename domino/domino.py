@@ -263,8 +263,8 @@ class Domino:
         :param commit_id:                           string (Optional)
                                                     The commitId to launch from. If not provided, will launch
                                                     from latest commit.
-        :param hardware_tier_name:                  string (Optional)
-                                                    The hardware tier NAME to launch job in. If not provided
+        :param hardware_tier_id:                    string (Optional)
+                                                    The hardware tier ID to launch job in. If not provided
                                                     it will use the default hardware tier for the project
         :param environment_id:                      string (Optional)
                                                     The environment id to launch job with. If not provided
@@ -392,7 +392,6 @@ class Domino:
 
         spark_cluster_properties = None
         validated_compute_cluster_properties = None
-        hardware_tier_id = self.get_hardware_tier_id_from_name(hardware_tier_name))
 
         if commit_id is not None:
             self._validate_commit_id(commit_id)
@@ -826,12 +825,6 @@ class Domino:
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
-
-    def get_hardware_tier_id_from_name(self):
-        for hardware_tier in self.hardware_tiers_list():
-            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
-                return hardware_tier['hardwareTier']['id']
-        return None
 
     def process_log(self, log):
         """
