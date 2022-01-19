@@ -249,6 +249,7 @@ class Domino:
             self,
             command: str,
             commit_id: Optional[str] = None,
+            hardware_tier_id: Optional[str] = None,
             hardware_tier_name: Optional[str] = None,
             environment_id: Optional[str] = None,
             on_demand_spark_cluster_properties: Optional[dict] = None,
@@ -265,6 +266,10 @@ class Domino:
                                                     from latest commit.
         :param hardware_tier_id:                    string (Optional)
                                                     The hardware tier ID to launch job in. If not provided
+                                                    it will use the default hardware tier for the project
+        :param hardware_tier_name:                  string (Optional)
+                                                    This field is deprecated. Please use hardware_tier_id.
+                                                    The hardware tier NAME to launch job in. If not provided
                                                     it will use the default hardware tier for the project
         :param environment_id:                      string (Optional)
                                                     The environment id to launch job with. If not provided
@@ -397,6 +402,8 @@ class Domino:
             self._validate_commit_id(commit_id)
         if hardware_tier_id is not None:
             self._validate_hardware_tier_id(hardware_tier_id)
+        if hardware_tier_name is not None:
+            self._validate_hardware_tier_name(hardware_tier_name)
         if environment_id is not None:
             self._validate_environment_id(environment_id)
         if external_volume_mounts is not None:
@@ -433,12 +440,13 @@ class Domino:
                 "masterHardwareTierId": master_hardware_tier_id
             }
 
+        resolved_hardware_tier_id = hardware_tier_id if hardware_tier_id is not None else self.get_hardware_tier_id_from_name(hardware_tier_name)
         url = self._routes.job_start()
         payload = {
           "projectId": self._project_id,
           "commandToRun": command,
           "commitId": commit_id,
-          "overrideHardwareTierId": hardware_tier_id,
+          "overrideHardwareTierId": resolved_hardware_tier_id,
           "onDemandSparkClusterProperties": spark_cluster_properties,
           "computeClusterProperties": validated_compute_cluster_properties,
           "environmentId": environment_id,
@@ -825,6 +833,12 @@ class Domino:
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
+
+    def get_hardware_tier_id_from_name(self):
+        for hardware_tier in self.hardware_tiers_list():
+            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
+                return hardware_tier['hardwareTier']['id']
+        return None
 
     def process_log(self, log):
         """
