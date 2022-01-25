@@ -830,6 +830,28 @@ class Domino:
         return self._get(url)
 
     # Hardware Tier Functions
+    def hardware_tier_create(self, hardware_tier_id, hardware_tier_name, node_pool):
+        url = self._routes.hardware_tier_create()
+        
+        request = {
+            "id": hardware_tier_id,
+            "name": hardware_tier_name,
+            "nodePool": node_pool
+        }
+
+        response = self.request_manager.post(url, json=request)
+        return response.json()
+
+    def hardware_tier_archive(self, hardware_tier_id):
+        url = self._routes.hardware_tier_archive()
+        
+        request = {
+            "id": hardware_tier_id,
+        }
+
+        response = self.request_manager.post(url, json=request)
+        return response.json()
+
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)

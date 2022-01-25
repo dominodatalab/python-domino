@@ -94,13 +94,22 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     """
     Confirm that we can start a job using the v4 API and override the hardware tier id
     """
-    project = default_domino_client.project_create()
-    hardware_tiers = default_domino_client.hardware_tiers_list(project['id'])
+    new_project_name = f"project-{str(uuid.uuid4())}"
+    response = default_domino_client.project_create(new_project_name)
+    assert response.status_code == 200
+
+    project_list = default_domino_client.projects_list()
+    assert any(p['name'] == new_project_name for p in project_list)
+    created_project = next((p for p in project_list if p['name'] == new_project_name), None)
+
+    hardware_tiers = default_domino_client.hardware_tiers_list(created_project['id'])
     non_default_hardware_tiers = (hardware_tier["isDefault"] == False for hardware_tier in hardware_tiers)
 
     if len(non_default_hardware_tiers) > 0:
         job = default_domino_client.job_start_blocking(command="main.py", overrideHardwareTierId=non_default_hardware_tiers[0]['id'])
         assert job["overrideHardwareTierId"] == non_default_hardware_tiers[0]['id']
+
+    default_domino_client.project_archive(new_project_name)
 
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
 def test_runs_list(default_domino_client):
