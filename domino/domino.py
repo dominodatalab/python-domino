@@ -881,9 +881,9 @@ class Domino:
             if hardware_tier_name == hardware_tier['hardwareTier']['name']:
                 count += 1
 
-        if count == 0
+        if count == 0:
             raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
-        if count > 1
+        elif count > 1:
             raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name has more than one match")
         return True
 
