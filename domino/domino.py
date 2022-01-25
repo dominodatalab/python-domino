@@ -834,7 +834,7 @@ class Domino:
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
 
-    def get_hardware_tier_id_from_name(self):
+    def get_hardware_tier_id_from_name(self, hardware_tier_name):
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_name == hardware_tier['hardwareTier']['name']:
                 return hardware_tier['hardwareTier']['id']
