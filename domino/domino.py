@@ -440,7 +440,7 @@ class Domino:
                 "masterHardwareTierId": master_hardware_tier_id
             }
 
-        resolved_hardware_tier_id = hardware_tier_id if hardware_tier_id is not None else self.get_hardware_tier_id_from_name(hardware_tier_name)
+        resolved_hardware_tier_id = hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
         url = self._routes.job_start()
         payload = {
           "projectId": self._project_id,
@@ -832,7 +832,7 @@ class Domino:
     # Hardware Tier Functions
     def hardware_tier_create(self, hardware_tier_id, hardware_tier_name, node_pool):
         url = self._routes.hardware_tier_create()
-        
+
         request = {
             "id": hardware_tier_id,
             "name": hardware_tier_name,
@@ -844,7 +844,7 @@ class Domino:
 
     def hardware_tier_archive(self, hardware_tier_id):
         url = self._routes.hardware_tier_archive()
-        
+
         request = {
             "id": hardware_tier_id,
         }
