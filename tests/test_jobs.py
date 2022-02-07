@@ -95,22 +95,16 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     """
     Confirm that we can start a job using the v4 API and override the hardware tier id
     """
-    new_project_name = f"project-{str(uuid.uuid4())}"
-    response = default_domino_client.project_create(new_project_name)
-    assert response.status_code == 200
+    new_hardware_tier_id = f"hardware-tier-name-{str(uuid.uuid4())}"
+    new_hardware_tier_name = f"hardware-tier-name-{str(uuid.uuid4())}"
+    node_pool = f"node-pool-{str(uuid.uuid4())}"
+    response = default_domino_client.hardware_tier_create(new_hardware_tier_id, new_hardware_tier_name, node_pool)
+    assert response.status_code == 200, f"{response.status_code}: {response.reason}"
 
-    project_list = default_domino_client.projects_list()
-    assert any(p['name'] == new_project_name for p in project_list)
-    project_name_matches = [p for p in project_list if p['name'] == new_project_name]
+    job = default_domino_client.job_start_blocking(command="main.py", hardware_tier_id=new_hardware_tier_id)
+    assert job["overrideHardwareTierId"] == new_hardware_tier_id
 
-    if len(project_name_matches) > 0:
-        hardware_tiers = default_domino_client.hardware_tiers_list(project_name_matches[0]['id'])
-        non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["isDefault"]]
-
-        if len(list(non_default_hardware_tiers)) > 0:
-            job = default_domino_client.job_start_blocking(command="main.py", overrideHardwareTierId=non_default_hardware_tiers[0]['id'])
-            assert job["overrideHardwareTierId"] == non_default_hardware_tiers[0]['id']
-
+    default_domino_client.hardware_tier_archive(new_hardware_tier_id)
     default_domino_client.project_archive(new_project_name)
 
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")

@@ -839,7 +839,7 @@ class Domino:
             "nodePool": node_pool
         }
 
-        response = self.request_manager.post(url, json=request)
+        response = self.request_manager.post(url, json=request, headers=self._csrf_no_check_header)
         return response.json()
 
     def hardware_tier_archive(self, hardware_tier_id):
@@ -849,7 +849,7 @@ class Domino:
             "id": hardware_tier_id,
         }
 
-        response = self.request_manager.post(url, json=request)
+        response = self.request_manager.post(url, json=request, headers=self._csrf_no_check_header)
         return response.json()
 
     def hardware_tiers_list(self):
