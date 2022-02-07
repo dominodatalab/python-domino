@@ -150,10 +150,10 @@ class _Routes:
         return f'{self.host}/v4/modelProducts/{app_id}'
 
     # Hardware Tier URLs
-    def hardware_tier_create(self, hardware_tier_id, hardware_tier_name, node_pool):
+    def hardware_tier_create(self):
         return self.host + f'/admin/hwtiers/insert'
 
-    def hardware_tier_archive(self, hardware_tier_id):
+    def hardware_tier_archive(self):
         return self.host + f'/admin/hwtiers/archive'
 
     def hardware_tiers_list(self, project_id):
