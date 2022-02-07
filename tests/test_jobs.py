@@ -103,7 +103,7 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     created_project = next((p for p in project_list if p['name'] == new_project_name), None)
 
     hardware_tiers = default_domino_client.hardware_tiers_list(created_project['id'])
-    non_default_hardware_tiers = (hardware_tier["isDefault"] == False for hardware_tier in hardware_tiers)
+    non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["isDefault"]]
 
     if len(list(non_default_hardware_tiers)) > 0:
         job = default_domino_client.job_start_blocking(command="main.py", overrideHardwareTierId=non_default_hardware_tiers[0]['id'])

@@ -11,7 +11,7 @@ from domino.exceptions import ProjectNotFoundException
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
 def test_hardware_tier_create(default_domino_client):
     """
-    Confirm that the python-domino client can create a new project.
+    Confirm that the python-domino client can create a new hardware tier
     """
     new_hardware_tier_id = f"hardware-tier-name-{str(uuid.uuid4())}"
     new_hardware_tier_name = f"hardware-tier-name-{str(uuid.uuid4())}"
