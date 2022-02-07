@@ -1,3 +1,4 @@
+import uuid
 import time
 from pprint import pformat
 
@@ -100,14 +101,15 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
 
     project_list = default_domino_client.projects_list()
     assert any(p['name'] == new_project_name for p in project_list)
-    created_project = next((p for p in project_list if p['name'] == new_project_name), None)
+    project_name_matches = [p for p in project_list if p['name'] == new_project_name]
 
-    hardware_tiers = default_domino_client.hardware_tiers_list(created_project['id'])
-    non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["isDefault"]]
+    if len(project_name_matches) > 0:
+        hardware_tiers = default_domino_client.hardware_tiers_list(project_name_matches[0]['id'])
+        non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["isDefault"]]
 
-    if len(list(non_default_hardware_tiers)) > 0:
-        job = default_domino_client.job_start_blocking(command="main.py", overrideHardwareTierId=non_default_hardware_tiers[0]['id'])
-        assert job["overrideHardwareTierId"] == non_default_hardware_tiers[0]['id']
+        if len(list(non_default_hardware_tiers)) > 0:
+            job = default_domino_client.job_start_blocking(command="main.py", overrideHardwareTierId=non_default_hardware_tiers[0]['id'])
+            assert job["overrideHardwareTierId"] == non_default_hardware_tiers[0]['id']
 
     default_domino_client.project_archive(new_project_name)
 
