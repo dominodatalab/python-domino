@@ -127,6 +127,9 @@ class _Routes:
     def job_status(self, job_id):
         return f'{self.host}/v4/jobs/{job_id}'
 
+    def job_runtime_execution_details(self, job_id):
+        return f'{self.host}/v4/jobs/{job_id}/runtimeExecutionDetails'
+
     def default_spark_setting(self, project_id):
         return f'{self.host}/v4/jobs/project/{project_id}/defaultSparkSettings'
 
@@ -150,12 +153,6 @@ class _Routes:
         return f'{self.host}/v4/modelProducts/{app_id}'
 
     # Hardware Tier URLs
-    def hardware_tier_create(self):
-        return self.host + f'/admin/hwtiers/insert'
-
-    def hardware_tier_archive(self):
-        return self.host + f'/admin/hwtiers/archive'
-
     def hardware_tiers_list(self, project_id):
         return self.host + f'/v4/projects/{project_id}/hardwareTiers'
 

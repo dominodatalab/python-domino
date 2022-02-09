@@ -483,6 +483,16 @@ class Domino:
             self._routes.job_status(job_id)
         ).json()
 
+    def job_runtime_execution_details(self, job_id: str) -> dict:
+        """
+        Gets the runtime execution details of job with given job_id
+        :param job_id: The job identifier
+        :return: The details
+        """
+        return self.request_manager.get(
+            self._routes.job_runtime_execution_details(job_id)
+        ).json()
+
     def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000,
                            ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
                            **kwargs) -> dict:
@@ -830,28 +840,6 @@ class Domino:
         return self._get(url)
 
     # Hardware Tier Functions
-    def hardware_tier_create(self, hardware_tier_id, hardware_tier_name, node_pool):
-        url = self._routes.hardware_tier_create()
-
-        request = {
-            "id": hardware_tier_id,
-            "name": hardware_tier_name,
-            "nodePool": node_pool
-        }
-
-        response = self.request_manager.post(url, json=request, headers=self._csrf_no_check_header)
-        return response.json()
-
-    def hardware_tier_archive(self, hardware_tier_id):
-        url = self._routes.hardware_tier_archive()
-
-        request = {
-            "id": hardware_tier_id,
-        }
-
-        response = self.request_manager.post(url, json=request, headers=self._csrf_no_check_header)
-        return response.json()
-
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
