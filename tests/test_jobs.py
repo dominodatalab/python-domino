@@ -107,7 +107,7 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
 def test_job_start_override_hardware_tier_name(default_domino_client):
     """
-    Confirm that we can start a job using the v4 API and override the hardware tier id
+    Confirm that we can start a job using the v4 API and override the hardware tier via hardware_tier_name
     """
     hardware_tiers = default_domino_client.hardware_tiers_list()
     non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["isDefault"]]
