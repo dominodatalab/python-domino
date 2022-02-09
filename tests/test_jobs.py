@@ -1,4 +1,3 @@
-import uuid
 import time
 from pprint import pformat
 
@@ -141,7 +140,6 @@ def test_queue_job(default_domino_client):
     while remaining_polling_seconds > 0:
         job_status = default_domino_client.job_status(job['id'])
         if not job_status['statuses']['isCompleted']:
-
             time.sleep(3)
             remaining_polling_seconds -= 3
             print(f"Job {job['id']} has not completed.")
