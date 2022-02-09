@@ -82,13 +82,13 @@ def test_job_status_without_ignoring_exceptions(requests_mock, dummy_hostname):
         d.job_start_blocking(command="foo.py", ignore_exceptions=())
 
 
-#@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
-#def test_job_start_blocking(default_domino_client):
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_job_start_blocking(default_domino_client):
     """
     Confirm that we can start a job using the v4 API, and block until it succeeds.
     """
-#    job = default_domino_client.job_start_blocking(command="main.py")
-#    assert job["statuses"]["executionStatus"] == "Succeeded"
+    job = default_domino_client.job_start_blocking(command="main.py")
+    assert job["statuses"]["executionStatus"] == "Succeeded"
 
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
 def test_job_start_override_hardware_tier_id(default_domino_client):
@@ -96,15 +96,28 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     Confirm that we can start a job using the v4 API and override the hardware tier id
     """
     hardware_tiers = default_domino_client.hardware_tiers_list()
-    print(hardware_tiers)
     non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["isDefault"]]
     if len(list(non_default_hardware_tiers)) > 0:
-        job_status = default_domino_client.job_start_blocking(command="main.py", hardware_tier_id=non_default_hardware_tiers[0]["hardwareTier"]["id"])
-        print(job_status)
+        override_hardware_tier_id = non_default_hardware_tiers[0]["hardwareTier"]["id"]
+        job_status = default_domino_client.job_start_blocking(command="main.py", hardware_tier_id=override_hardware_tier_id)
         assert job_status['statuses']['isCompleted'] is True
         job_red = default_domino_client.job_runtime_execution_details(job_status['id'])
-        print(job_red)
-        assert job_red["hardwareTierId"] == new_hardware_tier_id
+        assert job_red["hardwareTierId"] == override_hardware_tier_id
+
+# deprecated but ensuring it still works for now
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_job_start_override_hardware_tier_name(default_domino_client):
+    """
+    Confirm that we can start a job using the v4 API and override the hardware tier id
+    """
+    hardware_tiers = default_domino_client.hardware_tiers_list()
+    non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["isDefault"]]
+    if len(list(non_default_hardware_tiers)) > 0:
+        override_hardware_tier_name = non_default_hardware_tiers[0]["hardwareTier"]["name"]
+        job_status = default_domino_client.job_start_blocking(command="main.py", hardware_tier_name=override_hardware_tier_name)
+        assert job_status['statuses']['isCompleted'] is True
+        job_red = default_domino_client.job_runtime_execution_details(job_status['id'])
+        assert job_red["hardwareTier"] == override_hardware_tier_name
 
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
 def test_runs_list(default_domino_client):
@@ -117,18 +130,18 @@ def test_runs_list(default_domino_client):
         f"runs_list returned unexpected result:\n{pformat(runs)}"
 
 
-#@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
-#def test_queue_job(default_domino_client):
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_queue_job(default_domino_client):
     """
     Queue a job, and then poll until the job completes (timeout at 240 seconds).
     """
-#    job = default_domino_client.job_start("main.py")
+    job = default_domino_client.job_start("main.py")
 
-#    remaining_polling_seconds = 240
-#    while remaining_polling_seconds > 0:
-#        job_status = default_domino_client.job_status(job['id'])
-#        if not job_status['statuses']['isCompleted']:
-"""
+    remaining_polling_seconds = 240
+    while remaining_polling_seconds > 0:
+        job_status = default_domino_client.job_status(job['id'])
+        if not job_status['statuses']['isCompleted']:
+
             time.sleep(3)
             remaining_polling_seconds -= 3
             print(f"Job {job['id']} has not completed.")
@@ -144,4 +157,3 @@ def test_runs_list(default_domino_client):
             raise
     else:
         pytest.fail(f"Job took too long to complete: {pformat(job_status)}")
-        """
