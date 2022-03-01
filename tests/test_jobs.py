@@ -89,6 +89,7 @@ def test_job_start_blocking(default_domino_client):
     job = default_domino_client.job_start_blocking(command="main.py")
     assert job["statuses"]["executionStatus"] == "Succeeded"
 
+
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
 def test_job_start_override_hardware_tier_id(default_domino_client):
     """
