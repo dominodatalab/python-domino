@@ -197,11 +197,11 @@ are both present, `on_demand_spark_cluster_properties` will be ignored. `compute
 
     ```
     {
-        "clusterType": <string, one of "Ray", "Spark">,
+        "clusterType": <string, one of "Ray", "Spark", "Dask", "MPI">,
         "computeEnvironmentId": <string, The environment ID for the cluster's nodes>,
         "computeEnvironmentRevisionSpec": <one of "ActiveRevision", "LatestRevision",
         {"revisionId":"<environment_revision_id>"} (optional)>,
-        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node>,
+        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node (required unless clusterType is MPI)>,
         "workerCount": <number, the total workers to spawn for the cluster>,
         "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
          "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },

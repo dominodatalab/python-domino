@@ -5,6 +5,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+* Added support for MPI cluster type in job_start
 
 ### Changed
 
@@ -22,7 +23,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Added
 
-* Added support for launching Dask jobs
+* Added support for launching jobs with Dask clusters via job_start
 * Added the ability to choose which exceptions to ignore (if any) while polling for `job_start_blocking`
 * Added several new unit tests in `test_basic_auth.py` and `test_jobs.py`
 * Added a public method to re-authenticate if a token expires (assuming a long-running process)
