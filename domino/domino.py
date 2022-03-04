@@ -293,11 +293,12 @@ class Domino:
 
                                                     compute_cluster_properties contains the following fields:
                                                     {
-                                                        "clusterType": <string, one of "Ray", "Spark">,
+                                                        "clusterType": <string, one of "Ray", "Spark", "Dask", "MPI">,
                                                         "computeEnvironmentId": <string, The environment ID for the cluster's nodes>,
                                                         "computeEnvironmentRevisionSpec": <one of "ActiveRevision", "LatestRevision",
                                                         {"revisionId":"<environment_revision_id>"} (optional)>,
-                                                        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node>,
+                                                        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node
+                                                        (required unless clusterType is MPI)>,
                                                         "workerCount": <number, the total workers to spawn for the cluster>,
                                                         "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
                                                         "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
@@ -349,10 +350,14 @@ class Domino:
                 raise UnsupportedFieldException(f"'compute_cluster_properties' is not supported in Domino {self._version}.")
 
             required_keys = ["clusterType", "computeEnvironmentId", "masterHardwareTierId", "workerHardwareTierId", "workerCount"]
+            required_key_overrides = {
+                ("masterHardwareTierId", "MPI"): False
+            }
+
             for key in required_keys:
-                try:
-                    compute_cluster_properties[key]
-                except KeyError:
+                key_required = required_key_overrides.get((key, compute_cluster_properties["clusterType"]), True)
+
+                if key_required and (key not in compute_cluster_properties):
                     raise MissingRequiredFieldException(f"{key} is required in compute_cluster_properties")
 
             if not is_cluster_type_supported(self._version, compute_cluster_properties["clusterType"]):
@@ -400,7 +405,10 @@ class Domino:
             validate_distributed_compute_cluster_properties()
 
             validated_compute_cluster_properties = compute_cluster_properties.copy()
-            validated_compute_cluster_properties["masterHardwareTierId"] = { "value": compute_cluster_properties["masterHardwareTierId"] }
+
+            if "masterHardwareTierId" in compute_cluster_properties:
+                validated_compute_cluster_properties["masterHardwareTierId"] = { "value": compute_cluster_properties["masterHardwareTierId"] }
+
             validated_compute_cluster_properties["workerHardwareTierId"] = { "value": compute_cluster_properties["workerHardwareTierId"] }
 
         elif on_demand_spark_cluster_properties is not None:
