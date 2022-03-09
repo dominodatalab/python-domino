@@ -12,24 +12,38 @@ from requests.exceptions import RequestException
 @pytest.fixture
 def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
     """
-    Create mock replies to the chain of calls required before checking job status
+    Some of the tests in this file are true unit tests, and do not require
+    a live deployment. In order for them to run, any API calls made by
+    job_start() internally need to have mocked responses.
+
+    This is the test fixture where all of the mocked API return values are
+    created.
+
+    If any dependent calls to the API are added to job_start, then they must
+    be mocked here as well.
     """
     # Mock the /version API endpoint (GET)
     requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
 
-    # Mock /findProjectByOwnerAndName API endpoint  (GET)
+    # Mock /findProjectByOwnerAndName API endpoint (GET) and return json with ID 999
     project_endpoint = "v4/gateway/projects/findProjectByOwnerAndName"
     project_query = "ownerName=anyuser&projectName=anyproject"
-    requests_mock.get(f"{dummy_hostname}/{project_endpoint}?{project_query}", json={})
+    requests_mock.get(
+        f"{dummy_hostname}/{project_endpoint}?{project_query}",
+        json={"id": "999"}
+    )
 
-    # Mock the jobs/start API endpoint (POST) and return run with ID 123
+    # Mock the jobs/start API endpoint (POST) and return json with ID 123
     jobs_start_endpoint = "v4/jobs/start"
     requests_mock.post(f"{dummy_hostname}/{jobs_start_endpoint}", json={"id": "123"})
 
-    # Mock STDOUT for run with ID 123
+    # Mock STDOUT for run with ID 123 add return json with string value
     stdout_endpoint = "v1/projects/anyuser/anyproject/run/123/stdout"
     requests_mock.get(f"{dummy_hostname}/{stdout_endpoint}", json={"stdout": "whatever"})
 
+    # Mock HWT endpoint
+    hwt_endpoint = "v4/projects/999/hardwareTiers"
+    requests_mock.get(f"{dummy_hostname}/{hwt_endpoint}", json=[])
     yield
 
 
