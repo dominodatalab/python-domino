@@ -25,12 +25,12 @@ def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
     # Mock the /version API endpoint (GET)
     requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
 
-    # Mock /findProjectByOwnerAndName API endpoint (GET) and return json with ID 999
+    # Mock /findProjectByOwnerAndName API endpoint (GET) and return json with ID abcdef
     project_endpoint = "v4/gateway/projects/findProjectByOwnerAndName"
     project_query = "ownerName=anyuser&projectName=anyproject"
     requests_mock.get(
         f"{dummy_hostname}/{project_endpoint}?{project_query}",
-        json={"id": "999"}
+        json={"id": "abcdef"}
     )
 
     # Mock the jobs/start API endpoint (POST) and return json with ID 123
@@ -42,7 +42,7 @@ def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
     requests_mock.get(f"{dummy_hostname}/{stdout_endpoint}", json={"stdout": "whatever"})
 
     # Mock HWT endpoint
-    hwt_endpoint = "v4/projects/999/hardwareTiers"
+    hwt_endpoint = "v4/projects/abcdef/hardwareTiers"
     requests_mock.get(f"{dummy_hostname}/{hwt_endpoint}", json=[])
     yield
 
