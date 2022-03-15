@@ -249,6 +249,7 @@ class Domino:
             self,
             command: str,
             commit_id: Optional[str] = None,
+            hardware_tier_id: Optional[str] = None,
             hardware_tier_name: Optional[str] = None,
             environment_id: Optional[str] = None,
             on_demand_spark_cluster_properties: Optional[dict] = None,
@@ -263,7 +264,11 @@ class Domino:
         :param commit_id:                           string (Optional)
                                                     The commitId to launch from. If not provided, will launch
                                                     from latest commit.
+        :param hardware_tier_id:                    string (Optional)
+                                                    The hardware tier ID to launch job in. If not provided
+                                                    it will use the default hardware tier for the project
         :param hardware_tier_name:                  string (Optional)
+                                                    This field is deprecated. Please use hardware_tier_id.
                                                     The hardware tier NAME to launch job in. If not provided
                                                     it will use the default hardware tier for the project
         :param environment_id:                      string (Optional)
@@ -395,6 +400,8 @@ class Domino:
 
         if commit_id is not None:
             self._validate_commit_id(commit_id)
+        if hardware_tier_id is not None:
+            self._validate_hardware_tier_id(hardware_tier_id)
         if hardware_tier_name is not None:
             self._validate_hardware_tier_name(hardware_tier_name)
         if environment_id is not None:
@@ -433,12 +440,13 @@ class Domino:
                 "masterHardwareTierId": master_hardware_tier_id
             }
 
+        resolved_hardware_tier_id = hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
         url = self._routes.job_start()
         payload = {
           "projectId": self._project_id,
           "commandToRun": command,
           "commitId": commit_id,
-          "overrideHardwareTierName": hardware_tier_name,
+          "overrideHardwareTierId": resolved_hardware_tier_id,
           "onDemandSparkClusterProperties": spark_cluster_properties,
           "computeClusterProperties": validated_compute_cluster_properties,
           "environmentId": environment_id,
@@ -473,6 +481,16 @@ class Domino:
         """
         return self.request_manager.get(
             self._routes.job_status(job_id)
+        ).json()
+
+    def job_runtime_execution_details(self, job_id: str) -> dict:
+        """
+        Gets the runtime execution details of job with given job_id
+        :param job_id: The job identifier
+        :return: The details
+        """
+        return self.request_manager.get(
+            self._routes.job_runtime_execution_details(job_id)
         ).json()
 
     def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000,
@@ -826,6 +844,12 @@ class Domino:
         url = self._routes.hardware_tiers_list(self._project_id)
         return self._get(url)
 
+    def get_hardware_tier_id_from_name(self, hardware_tier_name):
+        for hardware_tier in self.hardware_tiers_list():
+            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
+                return hardware_tier['hardwareTier']['id']
+        return None
+
     def process_log(self, log):
         """
         spool out and replay entire log using bs4 to strip the HTML tags
@@ -861,11 +885,17 @@ class Domino:
         raise HardwareTierNotFoundException(f"{hardware_tier_id} hardware tier Id not found")
 
     def _validate_hardware_tier_name(self, hardware_tier_name):
-        self.log.debug(f"Validating hardware tier id: {hardware_tier_name}")
+        self.log.debug(f"Validating hardware tier name: {hardware_tier_name}")
+        count = 0
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_name == hardware_tier['hardwareTier']['name']:
-                return True
-        raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
+                count += 1
+
+        if count == 0:
+            raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
+        elif count > 1:
+            raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name has more than one match")
+        return True
 
     def _validate_commit_id(self, commit_id):
         self.log.debug(f"Validating commit id: {commit_id}")

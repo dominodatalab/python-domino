@@ -12,24 +12,38 @@ from requests.exceptions import RequestException
 @pytest.fixture
 def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
     """
-    Create mock replies to the chain of calls required before checking job status
+    Some of the tests in this file are true unit tests, and do not require
+    a live deployment. In order for them to run, any API calls made by
+    job_start() internally need to have mocked responses.
+
+    This is the test fixture where all of the mocked API return values are
+    created.
+
+    If any dependent calls to the API are added to job_start, then they must
+    be mocked here as well.
     """
     # Mock the /version API endpoint (GET)
     requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
 
-    # Mock /findProjectByOwnerAndName API endpoint  (GET)
+    # Mock /findProjectByOwnerAndName API endpoint (GET) and return json with ID abcdef
     project_endpoint = "v4/gateway/projects/findProjectByOwnerAndName"
     project_query = "ownerName=anyuser&projectName=anyproject"
-    requests_mock.get(f"{dummy_hostname}/{project_endpoint}?{project_query}", json={})
+    requests_mock.get(
+        f"{dummy_hostname}/{project_endpoint}?{project_query}",
+        json={"id": "abcdef"}
+    )
 
-    # Mock the jobs/start API endpoint (POST) and return run with ID 123
+    # Mock the jobs/start API endpoint (POST) and return json with ID 123
     jobs_start_endpoint = "v4/jobs/start"
     requests_mock.post(f"{dummy_hostname}/{jobs_start_endpoint}", json={"id": "123"})
 
-    # Mock STDOUT for run with ID 123
+    # Mock STDOUT for run with ID 123 add return json with string value
     stdout_endpoint = "v1/projects/anyuser/anyproject/run/123/stdout"
     requests_mock.get(f"{dummy_hostname}/{stdout_endpoint}", json={"stdout": "whatever"})
 
+    # Mock HWT endpoint
+    hwt_endpoint = "v4/projects/abcdef/hardwareTiers"
+    requests_mock.get(f"{dummy_hostname}/{hwt_endpoint}", json=[])
     yield
 
 
@@ -88,6 +102,43 @@ def test_job_start_blocking(default_domino_client):
     """
     job = default_domino_client.job_start_blocking(command="main.py")
     assert job["statuses"]["executionStatus"] == "Succeeded"
+
+
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_job_start_override_hardware_tier_id(default_domino_client):
+    """
+    Confirm that we can start a job using the v4 API and override the hardware tier id
+    """
+    hardware_tiers = default_domino_client.hardware_tiers_list()
+    non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["isDefault"]]
+    if len(non_default_hardware_tiers) == 0:
+        pytest.xfail("No non-default hardware tiers found: cannot run test")
+
+    override_hardware_tier_id = non_default_hardware_tiers[0]["hardwareTier"]["id"]
+    job_status = default_domino_client.job_start_blocking(command="main.py",
+                                                          hardware_tier_id=override_hardware_tier_id)
+    assert job_status['statuses']['isCompleted'] is True
+    job_red = default_domino_client.job_runtime_execution_details(job_status['id'])
+    assert job_red["hardwareTierId"] == override_hardware_tier_id
+
+
+# deprecated but ensuring it still works for now
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_job_start_override_hardware_tier_name(default_domino_client):
+    """
+    Confirm that we can start a job using the v4 API and override the hardware tier via hardware_tier_name
+    """
+    hardware_tiers = default_domino_client.hardware_tiers_list()
+    non_default_hardware_tiers = [hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["isDefault"]]
+    if len(non_default_hardware_tiers) == 0:
+        pytest.xfail("No non-default hardware tiers found: cannot run test")
+    
+    override_hardware_tier_name = non_default_hardware_tiers[0]["hardwareTier"]["name"]
+    job_status = default_domino_client.job_start_blocking(command="main.py", hardware_tier_name=override_hardware_tier_name)
+    
+    assert job_status['statuses']['isCompleted'] is True
+    job_red = default_domino_client.job_runtime_execution_details(job_status['id'])
+    assert job_red["hardwareTier"] == override_hardware_tier_name
 
 
 @pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")

@@ -127,6 +127,9 @@ class _Routes:
     def job_status(self, job_id):
         return f'{self.host}/v4/jobs/{job_id}'
 
+    def job_runtime_execution_details(self, job_id):
+        return f'{self.host}/v4/jobs/{job_id}/runtimeExecutionDetails'
+
     def default_spark_setting(self, project_id):
         return f'{self.host}/v4/jobs/project/{project_id}/defaultSparkSettings'
 
