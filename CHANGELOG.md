@@ -5,6 +5,12 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+## 1.0.7
+
+### Added
 * Added support for MPI cluster type in job_start
 * Added support for overriding the default hardware tier by by id when starting a job
 
