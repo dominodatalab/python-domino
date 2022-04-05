@@ -36,21 +36,8 @@ class Domino:
             self._logger.error(f"Project {project} must be given in the form username/projectname")
             raise
 
-        # See `README.md` for the precedence explanation
-        actual_api_key = None
-        actual_domino_token_file = None
-
-        if not auth_token:
-            if domino_token_file:
-                actual_domino_token_file = domino_token_file
-            elif api_key:
-                actual_api_key = api_key
-            else:
-                actual_api_key = os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
-                actual_domino_token_file = os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
-
         # This call sets self.request_manager
-        self.authenticate(actual_api_key, auth_token, actual_domino_token_file)
+        self.authenticate(api_key, auth_token, domino_token_file)
 
         # Get version
         self._version = self.deployment_version().get("version")
@@ -83,7 +70,9 @@ class Domino:
         """
         self.request_manager = _HttpRequestManager(get_auth_by_type(api_key=api_key,
                                                                     auth_token=auth_token,
-                                                                    domino_token_file=domino_token_file))
+                                                                    domino_token_file=domino_token_file,
+                                                                    api_key_from_env=os.getenv(DOMINO_USER_API_KEY_KEY_NAME),
+                                                                    domino_token_file_from_env=os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)))
 
     def commits_list(self):
         url = self._routes.commits_list()
