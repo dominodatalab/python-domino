@@ -54,10 +54,9 @@ in the DOMINO_TOKEN_FILE environment variable.
 * *auth_token:* (Optional) Authentication token
 
 Note:
-1. The preference is always given to authentication token. If it's not passed, the path to domino token file
-takes precedence, if it is explicitly passed as a parameter, otherwise the API key is used. If none of these three
-parameters is passed,  then preference will be given to domino_token_file from the environment variable, then
-to the API key from the environment variable
+1. The authentication preference should always be given to the authentication token. If it's not passed, the path to domino token file
+takes precedence, otherwise the API key is used. If none of these three parameters are passed, then preference will be given to the
+domino token file from the corresponding environment variable, then to the API key from the corresponding environment variable.
 2. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` environment variable to `DEBUG`
 <hr>
 

@@ -7,6 +7,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Updated authentication methods precedence.
 
 ## 1.0.7
 
