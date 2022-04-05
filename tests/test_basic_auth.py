@@ -125,6 +125,21 @@ def test_auth_token_precedence():
 
 
 @pytest.mark.usefixtures("mock_domino_version_response")
+@pytest.mark.skipif(not os.getenv(DOMINO_TOKEN_FILE_KEY_NAME), reason="No token file in environment")  # noqa:E501
+def test_auth_with_only_api_key_passed_as_parameter():
+    """
+    Confirm that api key takes precedence over both token file and API key authentication
+    if they are not passed as parameters.
+    """
+    dummy_host = "http://domino.somefakecompany.com"
+    dummy_api_key = "top_secret_api_key"
+
+    d = Domino(host=dummy_host, project="anyuser/quick-start", api_key=dummy_api_key)
+    assert isinstance(d.request_manager.auth, requests.auth.HTTPBasicAuth), \
+        "With only api key passed as a parameter, it takes precedence over DOMINO_TOKEN_FILE_KEY_NAME"
+
+
+@pytest.mark.usefixtures("mock_domino_version_response")
 def test_token_file_precedence(dummy_token_file):
     """
     Confirm that token file authentication takes precedence over API key authentication.
