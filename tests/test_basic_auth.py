@@ -20,7 +20,7 @@ def test_no_auth_type_error():
     """
     dummy_host = "http://domino.somefakecompany.com"
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(RuntimeError):
         Domino(host=dummy_host, project="anyuser/quick-start")
 
 
@@ -126,7 +126,7 @@ def test_auth_token_precedence():
 
 @pytest.mark.usefixtures("mock_domino_version_response")
 @pytest.mark.skipif(not os.getenv(DOMINO_TOKEN_FILE_KEY_NAME), reason="No token file in environment")  # noqa:E501
-def test_auth_with_only_api_key_passed_as_parameter():
+def test_auth_with_api_key_and_env_token_file():
     """
     Confirm that api key takes precedence over both token file and API key authentication
     if they are not passed as parameters.

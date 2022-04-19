@@ -1,5 +1,9 @@
 from requests.auth import AuthBase, HTTPBasicAuth
 
+from .constants import *
+
+import os
+
 
 class BearerAuth(AuthBase):
     """
@@ -26,7 +30,7 @@ class BearerAuth(AuthBase):
         return r
 
 
-def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None, api_key_from_env=None, domino_token_file_from_env=None):
+def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None):
     """
     Return appropriate authentication object for requests.
 
@@ -40,9 +44,6 @@ def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None, api_
         5. api_key_from_env
     """
 
-    assert any([api_key, auth_token, domino_token_file, api_key_from_env, domino_token_file_from_env]), \
-        "Unable to authenticate: no authentication method provided"
-
     if auth_token is not None:
         return BearerAuth(auth_token=auth_token)
     elif domino_token_file is not None:
@@ -50,5 +51,12 @@ def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None, api_
     elif api_key is not None:
         return HTTPBasicAuth('', api_key)
     else:
-        return self.get_auth_by_type(api_key=api_key_from_env, domino_token_file=domino_token_file_from_env)
-
+        # In the case that no authentication type was passed when this method
+        # called, fall back to deriving the auth info from the environment.
+        api_key_from_env = os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
+        domino_token_file_from_env = os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
+        if api_key_from_env or domino_token_file_from_env:
+            return get_auth_by_type(api_key=api_key_from_env, domino_token_file=domino_token_file_from_env)
+        else:
+            # All attempts failed -- nothing to do but raise an error.
+            raise RuntimeError("Unable to authenticate: no authentication provided")

@@ -70,9 +70,7 @@ class Domino:
         """
         self.request_manager = _HttpRequestManager(get_auth_by_type(api_key=api_key,
                                                                     auth_token=auth_token,
-                                                                    domino_token_file=domino_token_file,
-                                                                    api_key_from_env=os.getenv(DOMINO_USER_API_KEY_KEY_NAME),
-                                                                    domino_token_file_from_env=os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)))
+                                                                    domino_token_file=domino_token_file))
 
     def commits_list(self):
         url = self._routes.commits_list()
