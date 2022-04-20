@@ -36,9 +36,6 @@ class Domino:
             self._logger.error(f"Project {project} must be given in the form username/projectname")
             raise
 
-        domino_token_file = domino_token_file or os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
-        api_key = api_key or os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
-
         # This call sets self.request_manager
         self.authenticate(api_key, auth_token, domino_token_file)
 
