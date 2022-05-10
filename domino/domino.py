@@ -41,7 +41,7 @@ class Domino:
 
         # Get version
         self._version = self.deployment_version().get("version")
-        self._logger.info(f"Domino deployment {host} is running version {self._version}")
+        self._logger.debug(f"Domino deployment {host} is running version {self._version}")
 
         # Check version compatibility
         if not is_version_compatible(self._version):
