@@ -8,6 +8,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 * Updated authentication methods precedence.
+* Changed version number message logging level to debug
 
 ## 1.0.7
 
