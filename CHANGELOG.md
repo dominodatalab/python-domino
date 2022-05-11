@@ -2,9 +2,17 @@
 
 All notable changes to the `python-domino` library will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+### Changed
+
 ## 1.0.8
 
 ### Added
+
+### Changed
 * Updated authentication methods precedence.
 * Changed version number message logging level to debug
 
@@ -12,7 +20,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Added
 * Added support for MPI cluster type in job_start
-* Added support for overriding the default hardware tier by by id when starting a job
+* Added support for overriding the default hardware tier by id when starting a job
 
 ### Changed
 * Overriding the hardware tier by name has been marked as deprecated
