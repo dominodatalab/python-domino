@@ -2,7 +2,7 @@
 
 This library provides bindings for the [Domino Data Lab API](https://dominodatalab.github.io/api-docs/).
 
-The latest released version is `1.0.7`.
+The latest released version is `1.0.8`.
 
 ## Version Compatibility Matrix
 
@@ -15,7 +15,7 @@ The latest released version is `1.0.7`.
 
 ## Installation
 
-Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
+Starting from version `1.0.8`, `python-domino` is available on PyPI as `dominodatalab`:
 
     pip install dominodatalab
 
@@ -23,13 +23,13 @@ If you are adding install instructions for `python-domino` to your [Domino Envir
 
     RUN pip install dominodatalab
 
-To install specific version of the library from PyPI, for example, `1.0.6`, use the following command:
+To install specific version of the library from PyPI, for example, `1.0.8`, use the following command:
 
-    pip install dominodatalab==1.0.6
+    pip install dominodatalab==1.0.8
 
-To install specific version of the library from GitHub, for example, `1.0.6`, use the following command:
+To install specific version of the library from GitHub, for example, `1.0.8`, use the following command:
 
-    pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
+    pip install https://github.com/dominodatalab/python-domino/archive/1.0.8.zip
 
 
 ## Overview
@@ -260,7 +260,7 @@ pip install dominodatalab[airflow]
 Similarly, when installing the client from GitHub, use the following command:
 
 ```
-pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg=python-domino[airflow]
+pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.8#egg=python-domino[airflow]
 ```
 
 ### DominoOperator
