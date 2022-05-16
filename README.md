@@ -1,4 +1,5 @@
 # python-domino
+[![PyPI version](https://badge.fury.io/py/dominodatalab.svg)](https://badge.fury.io/py/dominodatalab)
 
 This library provides bindings for the [Domino Data Lab API](https://dominodatalab.github.io/api-docs/).
 
