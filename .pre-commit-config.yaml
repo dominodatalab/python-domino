@@ -1,0 +1,45 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    -   id: check-case-conflict
+    -   id: check-merge-conflict
+    -   id: detect-private-key
+    -   id: end-of-file-fixer
+        exclude: 'config\.yml'
+    -   id: forbid-new-submodules
+    -   id: mixed-line-ending
+    -   id: no-commit-to-branch
+        args: [-b, master, -b, develop]
+    -   id: trailing-whitespace
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+    -   id: flake8
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.9.3
+    hooks:
+    -   id: isort
+-   repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    -   id: black
+        language_version: python # Should be a command that runs python3.6+
+-   repo: https://github.com/dominodatalab/pre-commit-circleci
+    rev: v0.0.1
+    hooks:
+    -   id: circleci-validate
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.910
+    hooks:
+    -   id: mypy
+        args: [--no-warn-no-return, --namespace-packages, --explicit-package-bases, --ignore-missing-imports, --follow-imports=silent]
+        additional_dependencies:
+            - "types-pyyaml"
+            - "types-requests"
+            - "types-retry"
+            - "types-pytz"
+            - "types-tabulate"
+            - "types-python-dateutil"
+            - "types-redis"
+            - "types-protobuf"
