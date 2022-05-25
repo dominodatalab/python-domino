@@ -31,4 +31,3 @@ t1 = DominoOperator(
     dag=dag,
     command=["python -V"],
 )
-

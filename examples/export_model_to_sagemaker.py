@@ -25,8 +25,16 @@ SLEEP_TIME_SECONDS = 10
 #  repository name you defined above.
 aws_account = boto3.client("sts").get_caller_identity().get("Account")
 aws_ecr_auth = boto3.client("ecr").get_authorization_token(registryIds=[aws_account])
-aws_ecr_registry = aws_ecr_auth["authorizationData"][0]["proxyEndpoint"].lstrip("https://").lstrip("http://")
-aws_ecr_credentials = b64decode(aws_ecr_auth["authorizationData"][0]["authorizationToken"]).decode("utf-8").split(":")
+aws_ecr_registry = (
+    aws_ecr_auth["authorizationData"][0]["proxyEndpoint"]
+    .lstrip("https://")
+    .lstrip("http://")
+)
+aws_ecr_credentials = (
+    b64decode(aws_ecr_auth["authorizationData"][0]["authorizationToken"])
+    .decode("utf-8")
+    .split(":")
+)
 aws_ecr_username = aws_ecr_credentials[0]
 aws_ecr_password = aws_ecr_credentials[1]
 
@@ -34,12 +42,13 @@ aws_ecr_password = aws_ecr_credentials[1]
 #  DOMINO_PROJECT_OWNER, DOMINO_PROJECT_NAME, and DOMINO_USER_API_KEY
 #  environment variables set
 #  (runs inside a Domino executor automatically set these for you)
-domino = Domino(project = "{0}/{1}".format(
-                     os.environ['DOMINO_PROJECT_OWNER'],
-                     os.environ['DOMINO_PROJECT_NAME']
-                ),
-                api_key = os.environ['DOMINO_USER_API_KEY'],
-                host = os.environ['DOMINO_API_HOST'])
+domino = Domino(
+    project="{0}/{1}".format(
+        os.environ["DOMINO_PROJECT_OWNER"], os.environ["DOMINO_PROJECT_NAME"]
+    ),
+    api_key=os.environ["DOMINO_USER_API_KEY"],
+    host=os.environ["DOMINO_API_HOST"],
+)
 
 # Grab a list of all models in the project
 project_models = domino.models_list()
@@ -51,41 +60,43 @@ model_id = project_models["data"][0]["id"]
 # Get information about every model version for this model and desc sort these
 #  by the model number
 model_versions = sorted(
-                     domino.model_versions_get(model_id)["data"],
-                     key = lambda ver: ver["metadata"]["number"],
-                     reverse = True
-                 )
+    domino.model_versions_get(model_id)["data"],
+    key=lambda ver: ver["metadata"]["number"],
+    reverse=True,
+)
 
 # Let's get the latest version of this model
 model_version_id = model_versions[0]["_id"]
 
 # Initiate export of model as SageMaker-compatible Docker image
-#  Be sure 
+#  Be sure
 model_export_image_tag = "domino-{PROJECT_OWNER}-{PROJECT_NAME}-{MODEL_ID}-{MODEL_VERSION_ID}".format(
-                              PROJECT_OWNER = os.environ['DOMINO_PROJECT_OWNER'],
-                              PROJECT_NAME = os.environ['DOMINO_PROJECT_NAME'],
-                              MODEL_ID = model_id,
-                              MODEL_VERSION_ID = model_version_id
-                         )
+    PROJECT_OWNER=os.environ["DOMINO_PROJECT_OWNER"],
+    PROJECT_NAME=os.environ["DOMINO_PROJECT_NAME"],
+    MODEL_ID=model_id,
+    MODEL_VERSION_ID=model_version_id,
+)
 
-print("Exporting model {PROJECT_OWNER}/{PROJECT_NAME}/{MODEL_ID}/{MODEL_VERSION_ID} to AWS ECR repoistory {ECR_REGISTRY}/{ECR_REPOSITORY}:{IMAGE_TAG} as SageMaker-compatiable Docker image".format(
-    PROJECT_OWNER = os.environ['DOMINO_PROJECT_OWNER'],
-    PROJECT_NAME = os.environ['DOMINO_PROJECT_NAME'],
-    MODEL_ID = model_id,
-    MODEL_VERSION_ID = model_version_id,
-    ECR_REGISTRY = aws_ecr_registry,
-    ECR_REPOSITORY = AWS_ECR_REPOSITORY_NAME,
-    IMAGE_TAG = model_export_image_tag
-))
+print(
+    "Exporting model {PROJECT_OWNER}/{PROJECT_NAME}/{MODEL_ID}/{MODEL_VERSION_ID} to AWS ECR repoistory {ECR_REGISTRY}/{ECR_REPOSITORY}:{IMAGE_TAG} as SageMaker-compatiable Docker image".format(
+        PROJECT_OWNER=os.environ["DOMINO_PROJECT_OWNER"],
+        PROJECT_NAME=os.environ["DOMINO_PROJECT_NAME"],
+        MODEL_ID=model_id,
+        MODEL_VERSION_ID=model_version_id,
+        ECR_REGISTRY=aws_ecr_registry,
+        ECR_REPOSITORY=AWS_ECR_REPOSITORY_NAME,
+        IMAGE_TAG=model_export_image_tag,
+    )
+)
 
 model_export = domino.model_version_sagemaker_export(
-    model_id = model_id,
-    model_version_id = model_version_id,
-    registry_host = aws_ecr_registry,
-    registry_username = aws_ecr_username,
-    registry_password = aws_ecr_password,
-    repository_name = AWS_ECR_REPOSITORY_NAME,
-    image_tag = model_export_image_tag
+    model_id=model_id,
+    model_version_id=model_version_id,
+    registry_host=aws_ecr_registry,
+    registry_username=aws_ecr_username,
+    registry_password=aws_ecr_password,
+    repository_name=AWS_ECR_REPOSITORY_NAME,
+    image_tag=model_export_image_tag,
 )
 
 # Display the export status
