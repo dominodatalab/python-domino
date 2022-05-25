@@ -30,7 +30,7 @@ MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION = "4.3.3"
 
 """
 Environment variable names used by this python-domino library. The values
-here match the environment variable names a user would find on a deploymemt.
+here match the environment variable names a user would find on a deployment.
 """
 DOMINO_TOKEN_FILE_KEY_NAME = "DOMINO_TOKEN_FILE"
 DOMINO_USER_API_KEY_KEY_NAME = "DOMINO_USER_API_KEY"

@@ -1,10 +1,17 @@
 from typing import Optional, Tuple, List
 
 from .routes import _Routes
-from .helpers import *
+from . import helpers
 from .http_request_manager import _HttpRequestManager
 from .authentication import get_auth_by_type
-from .exceptions import *
+from .constants import (
+    DOMINO_HOST_KEY_NAME,
+    DOMINO_LOG_LEVEL_KEY_NAME,
+    MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
+    CLUSTER_TYPE_MIN_SUPPORT,
+    MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION,
+)
+from . import exceptions
 
 from domino._version import __version__
 
@@ -20,20 +27,26 @@ from bs4 import BeautifulSoup
 
 
 class Domino:
-    def __init__(self, project, api_key=None, host=None, domino_token_file=None, auth_token=None):
+    def __init__(
+        self, project, api_key=None, host=None, domino_token_file=None, auth_token=None
+    ):
 
         self._configure_logging()
 
         _host = host or os.getenv(DOMINO_HOST_KEY_NAME)
-        assert _host, ("Host must be supplied as a parameter or through the "
-                       f"{DOMINO_HOST_KEY_NAME} environment variable.")
-        host = clean_host_url(_host)
+        assert _host, (
+            "Host must be supplied as a parameter or through the "
+            f"{DOMINO_HOST_KEY_NAME} environment variable."
+        )
+        host = helpers.clean_host_url(_host)
 
         try:
             owner_username, project_name = project.split("/")
             self._routes = _Routes(host, owner_username, project_name)
-        except ValueError as e:
-            self._logger.error(f"Project {project} must be given in the form username/projectname")
+        except ValueError:
+            self._logger.error(
+                f"Project {project} must be given in the form username/projectname"
+            )
             raise
 
         # This call sets self.request_manager
@@ -41,12 +54,16 @@ class Domino:
 
         # Get version
         self._version = self.deployment_version().get("version")
-        self._logger.debug(f"Domino deployment {host} is running version {self._version}")
+        self._logger.debug(
+            f"Domino deployment {host} is running version {self._version}"
+        )
 
         # Check version compatibility
-        if not is_version_compatible(self._version):
-            error_message = (f"Domino version: {self._version} is not compatible with "
-                             f"python-domino version: {__version__}")
+        if not helpers.is_version_compatible(self._version):
+            error_message = (
+                f"Domino version: {self._version} is not compatible with "
+                f"python-domino version: {__version__}"
+            )
             self._logger.error(error_message)
             raise Exception(error_message)
 
@@ -59,7 +76,9 @@ class Domino:
             return self._logger
 
     def _configure_logging(self):
-        logging_level = logging.getLevelName(os.getenv(DOMINO_LOG_LEVEL_KEY_NAME, "INFO").upper())
+        logging_level = logging.getLevelName(
+            os.getenv(DOMINO_LOG_LEVEL_KEY_NAME, "INFO").upper()
+        )
         logging.basicConfig(level=logging_level)
         self._logger = logging.getLogger(__name__)
 
@@ -68,9 +87,13 @@ class Domino:
         Method to authenticate the request manager. An existing domino client object can
         use this with a new token if the existing credentials expire.
         """
-        self.request_manager = _HttpRequestManager(get_auth_by_type(api_key=api_key,
-                                                                    auth_token=auth_token,
-                                                                    domino_token_file=domino_token_file))
+        self.request_manager = _HttpRequestManager(
+            get_auth_by_type(
+                api_key=api_key,
+                auth_token=auth_token,
+                domino_token_file=domino_token_file,
+            )
+        )
 
     def commits_list(self):
         url = self._routes.commits_list()
@@ -80,8 +103,15 @@ class Domino:
         url = self._routes.runs_list()
         return self._get(url)
 
-    def runs_start(self, command, isDirect=False, commitId=None, title=None,
-                   tier=None, publishApiEndpoint=None):
+    def runs_start(
+        self,
+        command,
+        isDirect=False,
+        commitId=None,
+        title=None,
+        tier=None,
+        publishApiEndpoint=None,
+    ):
 
         url = self._routes.runs_start()
 
@@ -91,17 +121,28 @@ class Domino:
             "commitId": commitId,
             "title": title,
             "tier": tier,
-            "publishApiEndpoint": publishApiEndpoint
+            "publishApiEndpoint": publishApiEndpoint,
         }
         try:
             response = self.request_manager.post(url, json=request)
             return response.json()
-        except ReloginRequiredException:
-            self._logger.info(f" You need to log in to the Domino UI to start the run. Please do it at {self._routes.host}/relogin?redirectPath=/")
+        except exceptions.ReloginRequiredException:
+            self._logger.info(
+                f" You need to log in to the Domino UI to start the run. Please do it at {self._routes.host}/relogin?redirectPath=/"
+            )
 
-    def runs_start_blocking(self, command, isDirect=False, commitId=None,
-                            title=None, tier=None, publishApiEndpoint=None,
-                            poll_freq=5, max_poll_time=6000, retry_count=5):
+    def runs_start_blocking(
+        self,
+        command,
+        isDirect=False,
+        commitId=None,
+        title=None,
+        tier=None,
+        publishApiEndpoint=None,
+        poll_freq=5,
+        max_poll_time=6000,
+        retry_count=5,
+    ):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
         see if the task is done.  If the task errors an exception is raised.
@@ -147,9 +188,10 @@ class Domino:
                         (in-case of transient http errors). If this
                         threshold exceeds, an exception is raised.
         """
-        run_response = self.runs_start(command, isDirect, commitId, title,
-                                       tier, publishApiEndpoint)
-        run_id = run_response['runId']
+        run_response = self.runs_start(
+            command, isDirect, commitId, title, tier, publishApiEndpoint
+        )
+        run_id = run_response["runId"]
 
         poll_start = time.time()
         current_retry_count = 0
@@ -157,26 +199,39 @@ class Domino:
             try:
                 run_info = self.get_run_info(run_id)
                 if run_info is None:
-                    raise RunNotFoundException(f"Tried to access nonexistent run id {run_id}")
+                    raise exceptions.RunNotFoundException(
+                        f"Tried to access nonexistent run id {run_id}"
+                    )
                 current_retry_count = 0
-            except (requests.exceptions.RequestException, RunNotFoundException) as e:
+            except (
+                requests.exceptions.RequestException,
+                exceptions.RunNotFoundException,
+            ) as e:
                 current_retry_count += 1
-                self.log.warning(f'Failed to get run info for runId: {run_id} : {e}')
+                self.log.warning(f"Failed to get run info for runId: {run_id} : {e}")
                 if current_retry_count > retry_count:
-                    raise Exception(f'Cannot get run info, max retry {retry_count} exceeded') from None
+                    raise Exception(
+                        f"Cannot get run info, max retry {retry_count} exceeded"
+                    ) from None
                 else:
-                    self.log.info(f'Retrying ({current_retry_count}/{retry_count}) getting run info ...')
+                    self.log.info(
+                        f"Retrying ({current_retry_count}/{retry_count}) getting run info ..."
+                    )
                     time.sleep(poll_freq)
                     continue
 
             elapsed_time = time.time() - poll_start
 
             if elapsed_time >= max_poll_time:
-                raise Exception('Run \
+                raise Exception(
+                    "Run \
                                 exceeded maximum time of \
-                                {} seconds'.format(max_poll_time))
+                                {} seconds".format(
+                        max_poll_time
+                    )
+                )
 
-            output_commit_id = run_info.get('outputCommitId')
+            output_commit_id = run_info.get("outputCommitId")
             if not output_commit_id:
                 time.sleep(poll_freq)
                 continue
@@ -185,9 +240,11 @@ class Domino:
             else:
                 stdout_msg = self.get_run_log(runId=run_id, includeSetupLog=False)
 
-                if run_info['status'] != 'Succeeded':
+                if run_info["status"] != "Succeeded":
                     self.process_log(stdout_msg)
-                    raise RunFailedException(f"Remote run {run_id} finished but did not succeed.")
+                    raise exceptions.RunFailedException(
+                        f"Remote run {run_id} finished but did not succeed."
+                    )
 
                 break
 
@@ -225,8 +282,8 @@ class Domino:
         return "\n".join(logs)
 
     def get_run_info(self, run_id):
-        for run_info in self.runs_list()['data']:
-            if run_info['id'] == run_id:
+        for run_info in self.runs_list()["data"]:
+            if run_info["id"] == run_id:
                 return run_info
 
     def runs_stdout(self, runId):
@@ -240,18 +297,18 @@ class Domino:
         """
         url = self._routes.runs_stdout(runId)
         # pprint.pformat outputs a string that is ready to be printed
-        return pprint.pformat(self._get(url)['stdout'])
+        return pprint.pformat(self._get(url)["stdout"])
 
     def job_start(
-            self,
-            command: str,
-            commit_id: Optional[str] = None,
-            hardware_tier_id: Optional[str] = None,
-            hardware_tier_name: Optional[str] = None,
-            environment_id: Optional[str] = None,
-            on_demand_spark_cluster_properties: Optional[dict] = None,
-            compute_cluster_properties: Optional[dict] = None,
-            external_volume_mounts: Optional[List[str]] = None,
+        self,
+        command: str,
+        commit_id: Optional[str] = None,
+        hardware_tier_id: Optional[str] = None,
+        hardware_tier_name: Optional[str] = None,
+        environment_id: Optional[str] = None,
+        on_demand_spark_cluster_properties: Optional[dict] = None,
+        compute_cluster_properties: Optional[dict] = None,
+        external_volume_mounts: Optional[List[str]] = None,
     ) -> dict:
         """
         Starts a Domino Job via V4 API
@@ -315,82 +372,129 @@ class Domino:
                                                     no external volume mounts mounted.
         :return: Returns created Job details (number, id etc)
         """
+
         def validate_on_demand_spark_cluster_properties(max_execution_slot_per_user):
-            self.log.debug(f"Validating spark cluster properties: {on_demand_spark_cluster_properties}")
+            self.log.debug(
+                f"Validating spark cluster properties: {on_demand_spark_cluster_properties}"
+            )
             validations = {
-                'executorCount': lambda ec: validate_spark_executor_count(int(ec), max_execution_slot_per_user),
-                'computeEnvironmentId': lambda com_env_id: self._validate_environment_id(com_env_id),
-                'executorHardwareTierId': lambda exec_hwd_tier_id: self._validate_hardware_tier_id(exec_hwd_tier_id),
-                'masterHardwareTierId': lambda master_hwd_tier_id: self._validate_hardware_tier_id(master_hwd_tier_id),
-                'executorStorageMB': lambda exec_storage_mb: True
+                "executorCount": lambda ec: validate_spark_executor_count(
+                    int(ec), max_execution_slot_per_user
+                ),
+                "computeEnvironmentId": lambda com_env_id: self._validate_environment_id(
+                    com_env_id
+                ),
+                "executorHardwareTierId": lambda exec_hwd_tier_id: self._validate_hardware_tier_id(
+                    exec_hwd_tier_id
+                ),
+                "masterHardwareTierId": lambda master_hwd_tier_id: self._validate_hardware_tier_id(
+                    master_hwd_tier_id
+                ),
+                "executorStorageMB": lambda exec_storage_mb: True,
             }
-            if 'computeEnvironmentId' not in on_demand_spark_cluster_properties:
-                raise MissingRequiredFieldException(f"Mandatory field computeEnvironmentId not passed in spark properties")
+            if "computeEnvironmentId" not in on_demand_spark_cluster_properties:
+                raise exceptions.MissingRequiredFieldException(
+                    "Mandatory field computeEnvironmentId not passed in spark properties"
+                )
             for k, v in on_demand_spark_cluster_properties.items():
                 if not validations.get(k, lambda x: False)(v):
-                    raise MalformedInputException(f"Invalid spark property {k}:{v} found")
+                    raise exceptions.MalformedInputException(
+                        f"Invalid spark property {k}:{v} found"
+                    )
 
         def validate_spark_executor_count(executor_count, max_executor_count):
             if executor_count <= max_executor_count:
                 return True
             else:
-                raise MalformedInputException(f"executor count: {executor_count} exceeding max executor count: {max_executor_count}")
+                raise exceptions.MalformedInputException(
+                    f"executor count: {executor_count} exceeding max executor count: {max_executor_count}"
+                )
 
         def get_default_spark_settings():
-            self.log.debug(f"Getting default spark settings")
-            default_spark_setting_url = self._routes.default_spark_setting(self._project_id)
+            self.log.debug("Getting default spark settings")
+            default_spark_setting_url = self._routes.default_spark_setting(
+                self._project_id
+            )
             return self.request_manager.get(default_spark_setting_url).json()
 
         def validate_is_on_demand_spark_supported():
-            if not is_on_demand_spark_cluster_supported(self._version):
-                raise OnDemandSparkClusterNotSupportedException(
+            if not helpers.is_on_demand_spark_cluster_supported(self._version):
+                raise exceptions.OnDemandSparkClusterNotSupportedException(
                     f"Your domino deployment version {self._version} does not support on demand spark cluster. "
-                    f"Minimum support version {MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION}")
-
-        def validate_distributed_compute_cluster_properties():
-            if not is_compute_cluster_properties_supported(self._version):
-                raise UnsupportedFieldException(f"'compute_cluster_properties' is not supported in Domino {self._version}.")
-
-            required_keys = ["clusterType", "computeEnvironmentId", "masterHardwareTierId", "workerHardwareTierId", "workerCount"]
-            required_key_overrides = {
-                ("masterHardwareTierId", "MPI"): False
-            }
-
-            for key in required_keys:
-                key_required = required_key_overrides.get((key, compute_cluster_properties["clusterType"]), True)
-
-                if key_required and (key not in compute_cluster_properties):
-                    raise MissingRequiredFieldException(f"{key} is required in compute_cluster_properties")
-
-            if not is_cluster_type_supported(self._version, compute_cluster_properties["clusterType"]):
-                supported_types = [ct for ct,min_version in CLUSTER_TYPE_MIN_SUPPORT if is_cluster_type_supported(self._version, ct)]
-                supported_types_str = ", ".join(supported_types)
-                raise MalformedInputException(
-                    f"Domino {self._version} does not support cluster type {compute_cluster_properties['clusterType']}." +
-                    f" This version of Domino supports the following cluster types: {supported_types_str}"
+                    f"Minimum support version {MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION}"
                 )
 
+        def validate_distributed_compute_cluster_properties():
+            if not helpers.is_compute_cluster_properties_supported(self._version):
+                raise exceptions.UnsupportedFieldException(
+                    f"'compute_cluster_properties' is not supported in Domino {self._version}."
+                )
+
+            required_keys = [
+                "clusterType",
+                "computeEnvironmentId",
+                "masterHardwareTierId",
+                "workerHardwareTierId",
+                "workerCount",
+            ]
+            required_key_overrides = {("masterHardwareTierId", "MPI"): False}
+
+            for key in required_keys:
+                key_required = required_key_overrides.get(
+                    (key, compute_cluster_properties["clusterType"]), True
+                )
+
+                if key_required and (key not in compute_cluster_properties):
+                    raise exceptions.MissingRequiredFieldException(
+                        f"{key} is required in compute_cluster_properties"
+                    )
+
+            if not helpers.is_cluster_type_supported(
+                self._version, compute_cluster_properties["clusterType"]
+            ):
+                supported_types = [
+                    ct
+                    for ct, min_version in CLUSTER_TYPE_MIN_SUPPORT
+                    if helpers.is_cluster_type_supported(self._version, ct)
+                ]
+                supported_types_str = ", ".join(supported_types)
+                raise exceptions.MalformedInputException(
+                    f"Domino {self._version} does not support cluster type {compute_cluster_properties['clusterType']}."
+                    + f" This version of Domino supports the following cluster types: {supported_types_str}"
+                )
 
             def throw_if_information_invalid(key: str, info: dict) -> bool:
                 try:
                     self._validate_information_data_type(info)
                 except Exception as e:
-                    raise MalformedInputException(f"{key} in compute_cluster_properties failed validation: {e}")
+                    raise exceptions.MalformedInputException(
+                        f"{key} in compute_cluster_properties failed validation: {e}"
+                    )
 
             if "workerStorage" in compute_cluster_properties:
-                throw_if_information_invalid("workerStorage", compute_cluster_properties["workerStorage"])
+                throw_if_information_invalid(
+                    "workerStorage", compute_cluster_properties["workerStorage"]
+                )
 
             if compute_cluster_properties["workerCount"] < 1:
-                raise MalformedInputException("compute_cluster_properties.workerCount must be greater than 0")
+                raise exceptions.MalformedInputException(
+                    "compute_cluster_properties.workerCount must be greater than 0"
+                )
 
-            if "maxWorkerCount" in compute_cluster_properties and not is_comute_cluster_autoscaling_supported(self._version):
-                raise UnsupportedFieldException(f"'maxWorkerCount' is not supported in Domino {self._version}.")
+            if (
+                "maxWorkerCount" in compute_cluster_properties
+                and not helpers.is_comute_cluster_autoscaling_supported(self._version)
+            ):
+                raise exceptions.UnsupportedFieldException(
+                    f"'maxWorkerCount' is not supported in Domino {self._version}."
+                )
 
         def validate_is_external_volume_mounts_supported():
-            if not is_external_volume_mounts_supported(self._version):
-                raise ExternalVolumeMountsNotSupportedException(
+            if not helpers.is_external_volume_mounts_supported(self._version):
+                raise exceptions.ExternalVolumeMountsNotSupportedException(
                     f"Your domino deployment version {self._version} does not support external volume mounts. "
-                    f"Minimum support version {MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION}")
+                    f"Minimum support version {MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION}"
+                )
 
         spark_cluster_properties = None
         validated_compute_cluster_properties = None
@@ -411,49 +515,67 @@ class Domino:
             validated_compute_cluster_properties = compute_cluster_properties.copy()
 
             if "masterHardwareTierId" in compute_cluster_properties:
-                validated_compute_cluster_properties["masterHardwareTierId"] = { "value": compute_cluster_properties["masterHardwareTierId"] }
+                validated_compute_cluster_properties["masterHardwareTierId"] = {
+                    "value": compute_cluster_properties["masterHardwareTierId"]
+                }
 
-            validated_compute_cluster_properties["workerHardwareTierId"] = { "value": compute_cluster_properties["workerHardwareTierId"] }
+            validated_compute_cluster_properties["workerHardwareTierId"] = {
+                "value": compute_cluster_properties["workerHardwareTierId"]
+            }
 
         elif on_demand_spark_cluster_properties is not None:
             validate_is_on_demand_spark_supported()
             default_spark_setting = get_default_spark_settings()
-            max_execution_slot = default_spark_setting['maximumExecutionSlotsPerUser']
-            default_executor_hardware_tier = default_spark_setting['executorHardwareTierId']
-            default_master_hardware_tier = default_spark_setting['masterHardwareTierId']
+            max_execution_slot = default_spark_setting["maximumExecutionSlotsPerUser"]
+            default_executor_hardware_tier = default_spark_setting[
+                "executorHardwareTierId"
+            ]
+            default_master_hardware_tier = default_spark_setting["masterHardwareTierId"]
             validate_on_demand_spark_cluster_properties(max_execution_slot)
-            executor_hardware_tier_id = on_demand_spark_cluster_properties.get('executorHardwareTierId',
-                                                                               default_executor_hardware_tier)
-            master_hardware_tier_id = on_demand_spark_cluster_properties.get('masterHardwareTierId',
-                                                                             default_master_hardware_tier)
-            executor_count = int(on_demand_spark_cluster_properties.get('executorCount', 1))
-            compute_environment_id = on_demand_spark_cluster_properties.get('computeEnvironmentId')
-            executor_storage = int(on_demand_spark_cluster_properties.get('executorStorageMB', 0))
+            executor_hardware_tier_id = on_demand_spark_cluster_properties.get(
+                "executorHardwareTierId", default_executor_hardware_tier
+            )
+            master_hardware_tier_id = on_demand_spark_cluster_properties.get(
+                "masterHardwareTierId", default_master_hardware_tier
+            )
+            executor_count = int(
+                on_demand_spark_cluster_properties.get("executorCount", 1)
+            )
+            compute_environment_id = on_demand_spark_cluster_properties.get(
+                "computeEnvironmentId"
+            )
+            executor_storage = int(
+                on_demand_spark_cluster_properties.get("executorStorageMB", 0)
+            )
             spark_cluster_properties = {
                 "computeEnvironmentId": compute_environment_id,
                 "executorCount": executor_count,
                 "executorHardwareTierId": executor_hardware_tier_id,
                 "executorStorageMB": executor_storage,
-                "masterHardwareTierId": master_hardware_tier_id
+                "masterHardwareTierId": master_hardware_tier_id,
             }
 
-        resolved_hardware_tier_id = hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
+        resolved_hardware_tier_id = (
+            hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
+        )
         url = self._routes.job_start()
         payload = {
-          "projectId": self._project_id,
-          "commandToRun": command,
-          "commitId": commit_id,
-          "overrideHardwareTierId": resolved_hardware_tier_id,
-          "onDemandSparkClusterProperties": spark_cluster_properties,
-          "computeClusterProperties": validated_compute_cluster_properties,
-          "environmentId": environment_id,
-          "externalVolumeMounts": external_volume_mounts
+            "projectId": self._project_id,
+            "commandToRun": command,
+            "commitId": commit_id,
+            "overrideHardwareTierId": resolved_hardware_tier_id,
+            "onDemandSparkClusterProperties": spark_cluster_properties,
+            "computeClusterProperties": validated_compute_cluster_properties,
+            "environmentId": environment_id,
+            "externalVolumeMounts": external_volume_mounts,
         }
         try:
             response = self.request_manager.post(url, json=payload)
             return response.json()
-        except ReloginRequiredException:
-            self._logger.info(f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}/relogin?redirectPath=/")
+        except exceptions.ReloginRequiredException:
+            self._logger.info(
+                f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}/relogin?redirectPath=/"
+            )
 
     def job_stop(self, job_id: str, commit_results: bool = True):
         """
@@ -465,7 +587,7 @@ class Domino:
         request = {
             "projectId": self._project_id,
             "jobId": job_id,
-            "commitResults": commit_results
+            "commitResults": commit_results,
         }
         response = self.request_manager.post(url, json=request)
         return response
@@ -476,9 +598,7 @@ class Domino:
         :param job_id: The job identifier
         :return: The details
         """
-        return self.request_manager.get(
-            self._routes.job_status(job_id)
-        ).json()
+        return self.request_manager.get(self._routes.job_status(job_id)).json()
 
     def job_runtime_execution_details(self, job_id: str) -> dict:
         """
@@ -490,9 +610,13 @@ class Domino:
             self._routes.job_runtime_execution_details(job_id)
         ).json()
 
-    def job_start_blocking(self, poll_freq: int = 5, max_poll_time: int = 6000,
-                           ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
-                           **kwargs) -> dict:
+    def job_start_blocking(
+        self,
+        poll_freq: int = 5,
+        max_poll_time: int = 6000,
+        ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
+        **kwargs,
+    ) -> dict:
         """
         Starts a job in a blocking loop, periodically polling for status of job
         is complete. Will ignore intermediate request exception.
@@ -502,27 +626,33 @@ class Domino:
         :param kwargs: Additional arguments to be passed to job_start
         :return:
         """
+
         def get_job_status(job_identifier):
             status = self.job_status(job_identifier)
-            self.log.info(f"Polling Job: {job_identifier} status is completed: {status['statuses']['isCompleted']}")
-            if status['statuses']['executionStatus'] == "Failed":
-                raise RunFailedException(f"Run Status Failed for run: {job_identifier}")
+            self.log.info(
+                f"Polling Job: {job_identifier} status is completed: {status['statuses']['isCompleted']}"
+            )
+            if status["statuses"]["executionStatus"] == "Failed":
+                raise exceptions.RunFailedException(
+                    f"Run Status Failed for run: {job_identifier}"
+                )
             return status
+
         job = self.job_start(**kwargs)
-        job_id = job['id']
+        job_id = job["id"]
         job_status = polling2.poll(
             target=lambda: get_job_status(job_id),
-            check_success=lambda status: status['statuses']['isCompleted'],
+            check_success=lambda status: status["statuses"]["isCompleted"],
             ignore_exceptions=ignore_exceptions,
             timeout=max_poll_time,
             step=poll_freq,
-            log_error=self.log.level
+            log_error=self.log.level,
         )
         stdout_msg = self.get_run_log(runId=job_id, includeSetupLog=False)
         self.process_log(stdout_msg)
         return job_status
 
-    def files_list(self, commitId, path='/'):
+    def files_list(self, commitId, path="/"):
         url = self._routes.files_list(commitId, path)
         return self._get(url)
 
@@ -555,10 +685,7 @@ class Domino:
 
         request = {
             "commitId": commitId,
-            "bindingDefinition": {
-                "file": file,
-                "function": function
-            }
+            "bindingDefinition": {"file": file, "function": function},
         }
 
         response = self.request_manager.post(url, json=request)
@@ -570,32 +697,36 @@ class Domino:
 
     def project_create(self, project_name, owner_username=None):
         url = self._routes.project_create()
-        data = {
-            'projectName': project_name,
-            'ownerOverrideUsername': owner_username
-        }
-        response = self.request_manager.post(url, data=data, headers=self._csrf_no_check_header)
+        data = {"projectName": project_name, "ownerOverrideUsername": owner_username}
+        response = self.request_manager.post(
+            url, data=data, headers=self._csrf_no_check_header
+        )
         return response
 
     def project_archive(self, project_name):
         """Delete the project with the given name"""
         all_owned_projects = self.projects_list(show_completed=True)
         for p in all_owned_projects:
-            if p['name'] == project_name:
-                url = self._routes.project_archive(project_id=p['id'])
+            if p["name"] == project_name:
+                url = self._routes.project_archive(project_id=p["id"])
                 self.request_manager.delete(url)
                 break
         else:
-            raise ProjectNotFoundException(project_name)
+            raise exceptions.ProjectNotFoundException(project_name)
 
     def projects_list(self, relationship="Owned", show_completed=False):
         url = self._routes.projects_list()
 
         valid_relationships = ["Owned", "Collaborating", "Suggesting", "Popular"]
         if relationship not in valid_relationships:
-            raise ValueError(f"relationship must be one of {valid_relationships}: {relationship}")
+            raise ValueError(
+                f"relationship must be one of {valid_relationships}: {relationship}"
+            )
 
-        query = {"relationship": relationship, "showCompleted": str(show_completed).lower()}
+        query = {
+            "relationship": relationship,
+            "showCompleted": str(show_completed).lower(),
+        }
         response = self.request_manager.get(url, params=query)
         return response.json()
 
@@ -620,8 +751,8 @@ class Domino:
 
         user_id = None
         for user in users:
-            if username_or_email in (user.get('userName'), user.get('email')):
-                user_id = user['id']
+            if username_or_email in (user.get("userName"), user.get("email")):
+                user_id = user["id"]
                 break
         return user_id
 
@@ -631,13 +762,12 @@ class Domino:
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
-            raise UserNotFoundException(f"Could not add collaborator matching {username_or_email}")
+            raise exceptions.UserNotFoundException(
+                f"Could not add collaborator matching {username_or_email}"
+            )
 
         url = self._routes.collaborators_add(self._project_id)
-        request = {
-            "collaboratorId": user_id,
-            "projectRole": "Contributor"
-        }
+        request = {"collaboratorId": user_id, "projectRole": "Contributor"}
 
         response = self.request_manager.post(url, json=request)
         return response
@@ -648,7 +778,9 @@ class Domino:
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
-            raise UserNotFoundException(f"Could not remove collaborator matching {username_or_email}")
+            raise exceptions.UserNotFoundException(
+                f"Could not remove collaborator matching {username_or_email}"
+            )
 
         url = self._routes.collaborators_remove(self._project_id, user_id)
 
@@ -664,9 +796,7 @@ class Domino:
             # No App Exists creating one
             app_id = self.__app_create(hardware_tier_id=hardwareTierId)
         url = self._routes.app_start(app_id)
-        request = {
-            'hardwareTierId': hardwareTierId
-        }
+        request = {"hardwareTierId": hardwareTierId}
         response = self.request_manager.post(url, json=request)
         return response
 
@@ -676,7 +806,7 @@ class Domino:
             return
         status = self.__app_get_status(app_id)
         self.log.debug(f"App {app_id} status={status}")
-        if status and status != 'Stopped' and status != 'Failed':
+        if status and status != "Stopped" and status != "Failed":
             url = self._routes.app_stop(app_id)
             response = self.request_manager.post(url)
             return response
@@ -687,7 +817,7 @@ class Domino:
             return None
         url = self._routes.app_get(app_id)
         response = self.request_manager.get(url).json()
-        return response.get('status', None)
+        return response.get("status", None)
 
     def __app_create(self, name: str = "", hardware_tier_id: str = None) -> str:
         """
@@ -699,30 +829,26 @@ class Domino:
         """
         url = self._routes.app_create()
         request_payload = {
-            'modelProductType': 'APP',
-            'projectId': self._project_id,
-            'name': name,
-            'owner': '',
-            'created': time.time_ns(),
-            'lastUpdated': time.time_ns(),
-            'status': '',
-            'media': [],
-            'openUrl': '',
-            'tags': [],
-            'stats': {
-                'usageCount': 0
+            "modelProductType": "APP",
+            "projectId": self._project_id,
+            "name": name,
+            "owner": "",
+            "created": time.time_ns(),
+            "lastUpdated": time.time_ns(),
+            "status": "",
+            "media": [],
+            "openUrl": "",
+            "tags": [],
+            "stats": {"usageCount": 0},
+            "appExtension": {"appType": ""},
+            "id": "000000000000000000000000",
+            "permissionsData": {
+                "visibility": "GRANT_BASED",
+                "accessRequestStatuses": {},
+                "pendingInvitations": [],
+                "discoverable": True,
+                "appAccessStatus": "ALLOWED",
             },
-            'appExtension': {
-                'appType': ''
-            },
-            'id': '000000000000000000000000',
-            'permissionsData': {
-                'visibility': 'GRANT_BASED',
-                'accessRequestStatuses': {},
-                'pendingInvitations': [],
-                'discoverable': True,
-                'appAccessStatus': 'ALLOWED'
-            }
         }
         r = self.request_manager.post(url, json=request_payload)
         response = r.json()
@@ -745,8 +871,9 @@ class Domino:
         url = self._routes.models_list()
         return self._get(url)
 
-    def model_publish(self, file, function, environment_id, name,
-                      description, files_to_exclude=[]):
+    def model_publish(
+        self, file, function, environment_id, name, description, files_to_exclude=[]
+    ):
         self.requires_at_least("2.5.0")
 
         url = self._routes.model_publish()
@@ -758,7 +885,7 @@ class Domino:
             "file": file,
             "function": function,
             "excludeFiles": files_to_exclude,
-            "environmentId": environment_id
+            "environmentId": environment_id,
         }
 
         response = self.request_manager.post(url, json=request)
@@ -769,8 +896,9 @@ class Domino:
         url = self._routes.model_versions_get(model_id)
         return self._get(url)
 
-    def model_version_publish(self, model_id, file, function, environment_id,
-                              description, files_to_exclude=[]):
+    def model_version_publish(
+        self, model_id, file, function, environment_id, description, files_to_exclude=[]
+    ):
         self.requires_at_least("2.5.0")
 
         url = self._routes.model_version_publish(model_id)
@@ -781,15 +909,22 @@ class Domino:
             "file": file,
             "function": function,
             "excludeFiles": files_to_exclude,
-            "environmentId": environment_id
+            "environmentId": environment_id,
         }
 
         response = self.request_manager.post(url, json=request)
         return response.json()
 
-    def model_version_export(self, model_id, model_version_id, registry_host,
-                             registry_username, registry_password,
-                             repository_name, image_tag):
+    def model_version_export(
+        self,
+        model_id,
+        model_version_id,
+        registry_host,
+        registry_username,
+        registry_password,
+        repository_name,
+        image_tag,
+    ):
         self.requires_at_least("4.1.0")
 
         url = self._routes.model_version_export(model_id, model_version_id)
@@ -799,16 +934,22 @@ class Domino:
             "username": registry_username,
             "password": registry_password,
             "repository": repository_name,
-            "tag": image_tag
+            "tag": image_tag,
         }
 
         response = self.request_manager.post(url, json=request)
         return response.json()
 
-
-    def model_version_sagemaker_export(self, model_id, model_version_id, registry_host,
-                             registry_username, registry_password,
-                             repository_name, image_tag):
+    def model_version_sagemaker_export(
+        self,
+        model_id,
+        model_version_id,
+        registry_host,
+        registry_username,
+        registry_password,
+        repository_name,
+        image_tag,
+    ):
         self.requires_at_least("4.2.0")
 
         url = self._routes.model_version_sagemaker_export(model_id, model_version_id)
@@ -818,7 +959,7 @@ class Domino:
             "username": registry_username,
             "password": registry_password,
             "repository": repository_name,
-            "tag": image_tag
+            "tag": image_tag,
         }
 
         response = self.request_manager.post(url, json=request)
@@ -827,13 +968,13 @@ class Domino:
     def model_version_export_status(self, model_export_id):
         self.requires_at_least("4.1.0")
 
-        url =  self._routes.model_version_export_status(model_export_id)
+        url = self._routes.model_version_export_status(model_export_id)
         return self._get(url)
 
     def model_version_export_logs(self, model_export_id):
         self.requires_at_least("4.1.0")
 
-        url =  self._routes.model_version_export_logs(model_export_id)
+        url = self._routes.model_version_export_logs(model_export_id)
         return self._get(url)
 
     # Hardware Tier Functions
@@ -843,8 +984,8 @@ class Domino:
 
     def get_hardware_tier_id_from_name(self, hardware_tier_name):
         for hardware_tier in self.hardware_tiers_list():
-            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
-                return hardware_tier['hardwareTier']['id']
+            if hardware_tier_name == hardware_tier["hardwareTier"]["name"]:
+                return hardware_tier["hardwareTier"]["id"]
         return None
 
     def process_log(self, log):
@@ -863,35 +1004,47 @@ class Domino:
 
     # Validation methods
     def _useable_environments_list(self):
-        self.log.debug(f"Getting list of useable environment")
-        useable_environment_list_url = self._routes.useable_environments_list(self._project_id)
-        return self.request_manager.get(useable_environment_list_url).json()['environments']
+        self.log.debug("Getting list of useable environment")
+        useable_environment_list_url = self._routes.useable_environments_list(
+            self._project_id
+        )
+        return self.request_manager.get(useable_environment_list_url).json()[
+            "environments"
+        ]
 
     def _validate_environment_id(self, environment_id):
         self.log.debug(f"Validating environment id: {environment_id}")
         for environment in self._useable_environments_list():
-            if environment_id == environment['id']:
+            if environment_id == environment["id"]:
                 return True
-        raise EnvironmentNotFoundException(f"{environment_id} environment not found")
+        raise exceptions.EnvironmentNotFoundException(
+            f"{environment_id} environment not found"
+        )
 
     def _validate_hardware_tier_id(self, hardware_tier_id):
         self.log.debug(f"Validating hardware tier id: {hardware_tier_id}")
         for hardware_tier in self.hardware_tiers_list():
-            if hardware_tier_id == hardware_tier['hardwareTier']['id']:
+            if hardware_tier_id == hardware_tier["hardwareTier"]["id"]:
                 return True
-        raise HardwareTierNotFoundException(f"{hardware_tier_id} hardware tier Id not found")
+        raise exceptions.HardwareTierNotFoundException(
+            f"{hardware_tier_id} hardware tier Id not found"
+        )
 
     def _validate_hardware_tier_name(self, hardware_tier_name):
         self.log.debug(f"Validating hardware tier name: {hardware_tier_name}")
         count = 0
         for hardware_tier in self.hardware_tiers_list():
-            if hardware_tier_name == hardware_tier['hardwareTier']['name']:
+            if hardware_tier_name == hardware_tier["hardwareTier"]["name"]:
                 count += 1
 
         if count == 0:
-            raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name not found")
+            raise exceptions.HardwareTierNotFoundException(
+                f"{hardware_tier_name} hardware tier name not found"
+            )
         elif count > 1:
-            raise HardwareTierNotFoundException(f"{hardware_tier_name} hardware tier name has more than one match")
+            raise exceptions.HardwareTierNotFoundException(
+                f"{hardware_tier_name} hardware tier name has more than one match"
+            )
         return True
 
     def _validate_commit_id(self, commit_id):
@@ -899,7 +1052,7 @@ class Domino:
         for commit in self.commits_list():
             if commit_id == commit:
                 return True
-        raise CommitNotFoundException(f"{commit_id} commit Id not found")
+        raise exceptions.CommitNotFoundException(f"{commit_id} commit Id not found")
 
     # Helper methods
     def _get(self, url):
@@ -912,31 +1065,38 @@ class Domino:
     def _validate_blob_key(key):
         regex = re.compile("^\\w{40,40}$")
         if not regex.match(key):
-            raise Exception(("Blob key should be 40 alphanumeric characters. "
-                             "Perhaps you passed a file path on accident? "
-                             "If you have a file path and want to get the "
-                             "file, use files_list to get the blob key."))
+            raise Exception(
+                (
+                    "Blob key should be 40 alphanumeric characters. "
+                    "Perhaps you passed a file path on accident? "
+                    "If you have a file path and want to get the "
+                    "file, use files_list to get the blob key."
+                )
+            )
 
     @staticmethod
     def _validate_information_data_type(info: dict):
-        accepted_units = {'GiB': True, 'MB': True}
+        accepted_units = {"GiB": True, "MB": True}
 
         try:
             unit = info["unit"]
-            value = info["value"]
+            _ = info["value"]
             accepted_units[unit]
         except KeyError:
             raise Exception(
-                f"Information value is formatted incorrectly." +
-                f" Allowed units: {', '.join(accepted_units.keys())}" +
-                " Example: { 'unit': 'GiB', 'value': 5 }"
+                "Information value is formatted incorrectly."
+                + f" Allowed units: {', '.join(accepted_units.keys())}"
+                + " Example: { 'unit': 'GiB', 'value': 5 }"
             )
 
     def requires_at_least(self, at_least_version):
         if at_least_version > self._version:
-            raise Exception("You need at least version {} but your deployment \
+            raise Exception(
+                "You need at least version {} but your deployment \
                             seems to be running {}".format(
-                at_least_version, self._version))
+                    at_least_version, self._version
+                )
+            )
 
     # Workaround to get project ID which is needed for some model functions
     @property
@@ -964,4 +1124,4 @@ class Domino:
             app_id = None
         return app_id
 
-    _csrf_no_check_header = {'Csrf-Token': 'nocheck'}
+    _csrf_no_check_header = {"Csrf-Token": "nocheck"}

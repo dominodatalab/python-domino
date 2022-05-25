@@ -32,7 +32,9 @@ setup(
     packages=find_packages(),
     scripts=[],
     url="https://github.com/dominodatalab/python-domino",
-    download_url='https://github.com/dominodatalab/python-domino/archive/' + get_version() + '.zip',
+    download_url="https://github.com/dominodatalab/python-domino/archive/"
+    + get_version()
+    + ".zip",
     license="Apache Software License (Apache 2.0)",
     description="Python bindings for the Domino API",
     long_description=README,
@@ -42,10 +44,10 @@ setup(
     tests_require=[
         "pytest==6.2.2",
         "requests_mock>=1.9.*",
-        'polling2',
-        'flake8==4.0.1',
-        'black==22.3.0',
-        'apache-airflow==1.10.15'
+        "polling2",
+        "flake8==4.0.1",
+        "black==22.3.0",
+        "apache-airflow==1.10.15",
     ],
     extras_require={
         "airflow": ["apache-airflow==1.*,>=1.10"],
