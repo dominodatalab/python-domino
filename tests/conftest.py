@@ -8,7 +8,7 @@ from domino.constants import (
     DOMINO_HOST_KEY_NAME,
     DOMINO_TOKEN_FILE_KEY_NAME,
     DOMINO_USER_API_KEY_KEY_NAME,
-    DOMINO_USER_NAME_KEY_NAME
+    DOMINO_USER_NAME_KEY_NAME,
 )
 
 
@@ -24,8 +24,12 @@ def default_domino_client():
     """
     host = os.getenv(DOMINO_HOST_KEY_NAME)
     user = os.getenv(DOMINO_USER_NAME_KEY_NAME)
-    assert user, f"User must be specified by {DOMINO_USER_NAME_KEY_NAME} environment variable."
-    assert host, f"Host must be specified by {DOMINO_HOST_KEY_NAME} environment variable."
+    assert (
+        user
+    ), f"User must be specified by {DOMINO_USER_NAME_KEY_NAME} environment variable."
+    assert (
+        host
+    ), f"Host must be specified by {DOMINO_HOST_KEY_NAME} environment variable."
 
     d = Domino(host=host, project=f"{user}/quick-start")
 
@@ -48,12 +52,14 @@ def mock_domino_version_response():
         "commitId": "123deadbeef456",
         "commitUrl": "https://repo.somefakecompany.com/domino/commit/123deadbeef456",
         "timestamp": "2021-06-14T16:50:02Z",
-        "version": "9.9.9"
+        "version": "9.9.9",
     }
 
     dummy_url = "http://domino.somefakecompany.com"
     with requests_mock.Mocker() as mock_endpoint:
-        response = mock_endpoint.get(f"{dummy_url}/version", json=version_info, status_code=200)
+        response = mock_endpoint.get(
+            f"{dummy_url}/version", json=version_info, status_code=200
+        )
         yield response
 
 

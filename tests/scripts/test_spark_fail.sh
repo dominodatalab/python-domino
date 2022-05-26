@@ -2,4 +2,4 @@
 # testing that job failure works properly w/ the operator
 # by throwing an exit code
 
-python -c 'import sys; sys.exit(1)'
+python -c "import sys; sys.exit(1)"

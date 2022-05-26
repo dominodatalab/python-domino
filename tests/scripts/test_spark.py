@@ -13,9 +13,9 @@ if __name__ == "__main__":
     sqlContext = SQLContext(sc)
     spark = sqlContext.sparkSession
 
-    df = pd.DataFrame([1, 2, 3, 4, 5], columns=['a'])
+    df = pd.DataFrame([1, 2, 3, 4, 5], columns=["a"])
 
-    df['a'] = df['a'].astype(int)
+    df["a"] = df["a"].astype(int)
 
     sdf = spark.createDataFrame(df)
 
