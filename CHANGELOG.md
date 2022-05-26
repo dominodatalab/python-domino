@@ -5,6 +5,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+* added black and flake8 formatting
 
 ### Changed
 
