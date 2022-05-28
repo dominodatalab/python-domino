@@ -681,6 +681,14 @@ class Domino:
         url = self._routes.workspace_delete(self._project_id, workspace_id)
         return self.request_manager.delete(url)
 
+    def workspace_archive(self, execution_id, project_id=None):
+        payload = {
+            "workspaceId": execution_id,
+            "projectId": project_id or self._project_id
+        }
+        url = self._routes.workspace_archive()
+        return self.request_manager.post(url, json=payload)
+
     def collaborators_get(self):
         self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()

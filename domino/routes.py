@@ -46,6 +46,9 @@ class _Routes:
     def workspace_get(self, project_id, workspace_id):
         return f"{self.host}/v4/workspace/project/{project_id}/workspace/{workspace_id}"
 
+    def workspace_archive(self):
+        return f"{self.host}/v4/workspaces/archive"
+
     def workspace_delete(self, project_id, workspace_id):
         return f"{self.host}/v4/workspace/project/{project_id}/workspace/{workspace_id}"
 
