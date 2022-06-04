@@ -1,6 +1,7 @@
 import pathlib
-from setuptools import setup, find_packages
 import re
+
+from setuptools import find_packages, setup
 
 PACKAGE_NAME = "domino"
 
@@ -17,7 +18,7 @@ def get_version():
     except EnvironmentError:
         return None
     for line in f.readlines():
-        mo = re.match("__version__ = \"([^']+)\"", line)
+        mo = re.match('__version__ = "([^\']+)"', line)
         if mo:
             ver = mo.group(1)
             return ver
@@ -48,6 +49,7 @@ setup(
         "flake8==4.0.1",
         "black==22.3.0",
         "apache-airflow==1.10.15",
+        "pre-commit",
     ],
     extras_require={
         "airflow": ["apache-airflow==1.*,>=1.10"],

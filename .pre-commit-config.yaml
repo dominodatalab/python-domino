@@ -10,7 +10,7 @@ repos:
     -   id: forbid-new-submodules
     -   id: mixed-line-ending
     -   id: no-commit-to-branch
-        args: [-b, master, -b, develop]
+        args: [-b, master]
     -   id: trailing-whitespace
 -   repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
