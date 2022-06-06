@@ -254,13 +254,13 @@ The `python-domino` client comes bundled with an Operator for use with airflow a
 When installing the client from PyPI, add the `airflow` flag to extras:
 
 ```
-pip install dominodatalab[airflow]
+pip install "dominodatalab[airflow]"
 ```
 
 Similarly, when installing the client from GitHub, use the following command:
 
 ```
-pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg=python-domino[airflow]
+pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg="dominodatalab[airflow]"
 ```
 
 ### DominoOperator

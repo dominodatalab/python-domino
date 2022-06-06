@@ -8,6 +8,7 @@ import os
 from datetime import datetime
 
 import pytest
+
 from domino.airflow import DominoSparkOperator
 from domino.exceptions import RunFailedException
 
@@ -16,21 +17,24 @@ SPARK_ENVIRONMENT_ID = os.environ.get("DOMINO_SPARK_TEST_ENVIRONMENT_ID")
 
 
 def test_spark_operator_no_cluster():
-    airflow = pytest.importorskip("airflow")
+    # airflow = pytest.importorskip("airflow")
 
     from airflow import DAG
     from airflow.models import TaskInstance
 
     dag = DAG(dag_id="foo", start_date=datetime.now())
     task = DominoSparkOperator(
-        dag=dag, task_id="foo", project=TEST_PROJECT, command="test_spark.py",
+        dag=dag,
+        task_id="foo",
+        project=TEST_PROJECT,
+        command="test_spark.py",
     )
     ti = TaskInstance(task=task, execution_date=datetime.now())
     task.execute(ti.get_template_context())
 
 
 def test_spark_operator_with_cluster():
-    airflow = pytest.importorskip("airflow")
+    # airflow = pytest.importorskip("airflow")
 
     from airflow import DAG
     from airflow.models import TaskInstance
@@ -51,14 +55,17 @@ def test_spark_operator_with_cluster():
 
 
 def test_spark_operator_no_cluster_failed():
-    airflow = pytest.importorskip("airflow")
+    # airflow = pytest.importorskip("airflow")
 
     from airflow import DAG
     from airflow.models import TaskInstance
 
     dag = DAG(dag_id="foo", start_date=datetime.now())
     task = DominoSparkOperator(
-        dag=dag, task_id="foo", project=TEST_PROJECT, command="test_spark_fail.sh",
+        dag=dag,
+        task_id="foo",
+        project=TEST_PROJECT,
+        command="test_spark_fail.sh",
     )
     ti = TaskInstance(task=task, execution_date=datetime.now())
 

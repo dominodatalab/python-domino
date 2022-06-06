@@ -1,3 +1,5 @@
+__all__ = ["DominoOperator", "DominoSparkOperator"]
+
 try:
     from domino.airflow._operator import DominoOperator, DominoSparkOperator
 except SyntaxError:
