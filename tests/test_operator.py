@@ -16,7 +16,7 @@ TEST_PROJECT = os.environ.get("DOMINO_TEST_PROJECT")
 
 
 def test_operator():
-    # airflow = pytest.importorskip("airflow")
+    pytest.importorskip("airflow")
 
     from airflow import DAG
     from airflow.models import TaskInstance
@@ -34,7 +34,7 @@ def test_operator():
 
 
 def test_operator_fail(caplog):
-    # airflow = pytest.importorskip("airflow")
+    pytest.importorskip("airflow")
 
     from airflow import DAG
     from airflow.models import TaskInstance
@@ -54,7 +54,7 @@ def test_operator_fail(caplog):
 
 
 def test_operator_fail_invalid_tier(caplog):
-    # airflow = pytest.importorskip("airflow")
+    pytest.importorskip("airflow")
 
     from airflow import DAG
     from airflow.models import TaskInstance
