@@ -1,5 +1,6 @@
-from domino import Domino
 import os
+
+from domino import Domino
 
 output_dir = "results"
 

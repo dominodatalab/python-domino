@@ -6,11 +6,12 @@
 #    (-o is treated as a directory if there are multiple results found by matching -R)
 
 
-from domino import Domino
-import os
 import argparse
-import time
+import os
 import re
+import time
+
+from domino import Domino
 
 CHUNK_SIZE = 16 * 1024
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "")

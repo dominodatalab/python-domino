@@ -3,10 +3,10 @@ from pprint import pformat
 
 import polling2
 import pytest
+from requests.exceptions import RequestException
 
 from domino import Domino
 from domino.helpers import domino_is_reachable
-from requests.exceptions import RequestException
 
 
 @pytest.fixture

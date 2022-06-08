@@ -6,8 +6,8 @@ import requests
 from domino import Domino, authentication
 from domino.constants import (
     DOMINO_HOST_KEY_NAME,
-    DOMINO_USER_API_KEY_KEY_NAME,
     DOMINO_TOKEN_FILE_KEY_NAME,
+    DOMINO_USER_API_KEY_KEY_NAME,
 )
 from domino.helpers import domino_is_reachable
 

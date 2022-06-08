@@ -1,8 +1,9 @@
 import time
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
+
 from domino import Domino
 
 

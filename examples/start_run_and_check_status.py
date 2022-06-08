@@ -1,5 +1,6 @@
-from domino import Domino
 import os
+
+from domino import Domino
 
 domino = Domino(
     "marks/quick-start",

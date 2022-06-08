@@ -1,8 +1,8 @@
+import os
+
 from requests.auth import AuthBase, HTTPBasicAuth
 
-from .constants import DOMINO_USER_API_KEY_KEY_NAME, DOMINO_TOKEN_FILE_KEY_NAME
-
-import os
+from .constants import DOMINO_TOKEN_FILE_KEY_NAME, DOMINO_USER_API_KEY_KEY_NAME
 
 
 class BearerAuth(AuthBase):

@@ -1,14 +1,14 @@
 # Required for AWS ECR registry credentials access
-import boto3
+# Additional libraries for this example
+import os
+import pprint
 from base64 import b64decode
+from time import sleep
+
+import boto3
 
 # Required for Domino APIs
 from domino import Domino
-
-# Additional libraries for this example
-import os
-from time import sleep
-import pprint
 
 # Set this to your AWS ECR repository name
 AWS_ECR_REPOSITORY_NAME = "domino-model-exports"
@@ -70,11 +70,13 @@ model_version_id = model_versions[0]["_id"]
 
 # Initiate export of model as SageMaker-compatible Docker image
 #  Be sure
-model_export_image_tag = "domino-{PROJECT_OWNER}-{PROJECT_NAME}-{MODEL_ID}-{MODEL_VERSION_ID}".format(
-    PROJECT_OWNER=os.environ["DOMINO_PROJECT_OWNER"],
-    PROJECT_NAME=os.environ["DOMINO_PROJECT_NAME"],
-    MODEL_ID=model_id,
-    MODEL_VERSION_ID=model_version_id,
+model_export_image_tag = (
+    "domino-{PROJECT_OWNER}-{PROJECT_NAME}-{MODEL_ID}-{MODEL_VERSION_ID}".format(
+        PROJECT_OWNER=os.environ["DOMINO_PROJECT_OWNER"],
+        PROJECT_NAME=os.environ["DOMINO_PROJECT_NAME"],
+        MODEL_ID=model_id,
+        MODEL_VERSION_ID=model_version_id,
+    )
 )
 
 print(

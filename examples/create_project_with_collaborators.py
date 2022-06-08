@@ -1,6 +1,7 @@
+import os
+
 from domino import Domino
 from domino.exceptions import ProjectNotFoundException
-import os
 
 domino = Domino(
     "marks/quick-start",

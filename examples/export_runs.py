@@ -1,7 +1,9 @@
-from domino import Domino
-import pandas as pd
 import json
 import os
+
+import pandas as pd
+
+from domino import Domino
 
 output_dir = "results"
 

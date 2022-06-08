@@ -1,29 +1,28 @@
-from typing import Optional, Tuple, List
+import functools
+import logging
+import os
+import pprint
+import re
+import time
+from typing import List, Optional, Tuple
 
-from .routes import _Routes
-from . import helpers
-from .http_request_manager import _HttpRequestManager
-from .authentication import get_auth_by_type
-from .constants import (
-    DOMINO_HOST_KEY_NAME,
-    DOMINO_LOG_LEVEL_KEY_NAME,
-    MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
-    CLUSTER_TYPE_MIN_SUPPORT,
-    MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION,
-)
-from . import exceptions
+import polling2
+import requests
+from bs4 import BeautifulSoup
 
 from domino._version import __version__
 
-import os
-import logging
-import requests
-import functools
-import time
-import pprint
-import re
-import polling2
-from bs4 import BeautifulSoup
+from . import exceptions, helpers
+from .authentication import get_auth_by_type
+from .constants import (
+    CLUSTER_TYPE_MIN_SUPPORT,
+    DOMINO_HOST_KEY_NAME,
+    DOMINO_LOG_LEVEL_KEY_NAME,
+    MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION,
+    MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
+)
+from .http_request_manager import _HttpRequestManager
+from .routes import _Routes
 
 
 class Domino:

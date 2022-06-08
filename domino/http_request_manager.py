@@ -1,11 +1,11 @@
-from bs4 import BeautifulSoup
+import logging
 from http import HTTPStatus
+
+import requests
+from bs4 import BeautifulSoup
 from requests.auth import AuthBase
 
 from .exceptions import ReloginRequiredException
-
-import logging
-import requests
 
 
 class _HttpRequestManager:

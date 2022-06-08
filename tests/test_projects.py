@@ -4,8 +4,8 @@ from pprint import pformat
 import pytest
 
 from domino import Domino
-from domino.helpers import domino_is_reachable
 from domino.exceptions import ProjectNotFoundException
+from domino.helpers import domino_is_reachable
 
 
 @pytest.mark.skipif(
