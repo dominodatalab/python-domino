@@ -2,3 +2,4 @@ requests>=2.4.2
 bs4==0.*,>=0.0.1
 polling2
 pre-commit
+pytest

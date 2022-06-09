@@ -1,5 +1,5 @@
 [flake8]
-max-complexity = 10
+max-complexity = 33
 # Default plus E266 - There should be only one leading # for a block comment
 ignore =
     E121,  # A line is less indented than it should be for hanging indents
