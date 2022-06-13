@@ -17,7 +17,7 @@ domino = Domino(
 raw_runs = domino.runs_list()["data"]
 
 # print number of runs to STDOUT
-print("Details of {0} runs received").format(len(raw_runs))
+print(f"Details of {len(raw_runs)} runs received")
 
 # create results directory if it doesn't exist
 if not os.path.exists(output_dir):

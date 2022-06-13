@@ -1098,7 +1098,7 @@ class Domino:
             )
 
     # Workaround to get project ID which is needed for some model functions
-    @property
+    @property  # type: ignore # mypy incorrect error silencer
     @functools.lru_cache()
     def _project_id(self):
         url = self._routes.find_project_by_owner_name_and_project_name_url()
