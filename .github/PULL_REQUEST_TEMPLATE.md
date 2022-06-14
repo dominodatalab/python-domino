@@ -17,6 +17,7 @@ _e.g. "I ran an upgrade from 4.2 to 4.6"._
 - [ ] Has relevant documentation been updated?
 - [ ] Does the code follow [Python Style Guide] (https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
 - [ ] Update the [changelog](https://github.com/dominodatalab/python-domino/blob/master/CHANGELOG.md)
-- [ ] Test with deploy all [deploy-all](https://dominodatalab.atlassian.net/wiki/spaces/ENG/pages/2133458978/Fleetcommand+CLI+fcmd#Deploy-a-dev%2FPR-style-deploy) validation, or explain why you do not think it is necessary.
+[ ] Are the existing unit tests still passing?
+[ ] Have new unit tests been added to cover any changes to the code?
 
 ### References (optional)
