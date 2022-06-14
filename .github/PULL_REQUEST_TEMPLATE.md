@@ -1,3 +1,7 @@
+### Link to JIRA
+
+[PLAT-XYZ](https://dominodatalab.atlassian.net/browse)
+
 ### What issue does this pull request solve?
 
 _placeholder_
@@ -19,7 +23,7 @@ _e.g. "I ran an upgrade from 4.2 to 4.6"._
 - [ ] Has relevant documentation been updated?
 - [ ] Does the code follow [Python Style Guide] (https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html)
 - [ ] Update the [changelog](https://github.com/dominodatalab/python-domino/blob/master/CHANGELOG.md)
-[ ] Are the existing unit tests still passing?
-[ ] Have new unit tests been added to cover any changes to the code?
+- [ ] Are the existing unit tests still passing?
+- [ ] Have new unit tests been added to cover any changes to the code?
 
 ### References (optional)

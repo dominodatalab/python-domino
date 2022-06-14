@@ -45,11 +45,11 @@ setup(
     tests_require=[
         "pytest==6.2.2",
         "requests_mock>=1.9.*",
-        "polling2",
+        "polling2==0.5.0",
         "flake8==4.0.1",
         "black==22.3.0",
         "apache-airflow==1.10.15",
-        "pre-commit",
+        "pre-commit==2.19.0",
     ],
     extras_require={
         "airflow": ["apache-airflow==1.*,>=1.10"],
