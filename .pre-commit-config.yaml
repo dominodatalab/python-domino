@@ -6,7 +6,6 @@ repos:
       - id: check-merge-conflict
       - id: detect-private-key
       - id: end-of-file-fixer
-        exclude: 'config\.yml'
       - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: no-commit-to-branch

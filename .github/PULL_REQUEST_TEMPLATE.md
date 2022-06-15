@@ -1,6 +1,6 @@
 ### Link to JIRA
 
-[PLAT-XYZ](https://dominodatalab.atlassian.net/browse)
+[DOM-XYZ](https://dominodatalab.atlassian.net/browse)
 
 ### What issue does this pull request solve?
 
@@ -25,5 +25,6 @@ _e.g. "I ran an upgrade from 4.2 to 4.6"._
 - [ ] Update the [changelog](https://github.com/dominodatalab/python-domino/blob/master/CHANGELOG.md)
 - [ ] Are the existing unit tests still passing?
 - [ ] Have new unit tests been added to cover any changes to the code?
+- [ ] Has the JIRA ticket(s) been linked above?
 
 ### References (optional)
