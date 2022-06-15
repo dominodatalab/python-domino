@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.models import Variable
 
@@ -31,4 +32,3 @@ t1 = DominoOperator(
     dag=dag,
     command=["python -V"],
 )
-

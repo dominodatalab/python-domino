@@ -16,7 +16,12 @@ MINIMUM_DISTRIBUTED_CLUSTER_SUPPORT_DOMINO_VERSION = "4.5.0"
 """
 Distributed compute cluster types and their minimum supported Domino version
 """
-CLUSTER_TYPE_MIN_SUPPORT = [("Spark", "4.5.0"), ("Ray", "4.5.0"), ("Dask", "4.6.0"), ("MPI", "5.1.1")]
+CLUSTER_TYPE_MIN_SUPPORT = [
+    ("Spark", "4.5.0"),
+    ("Ray", "4.5.0"),
+    ("Dask", "4.6.0"),
+    ("MPI", "5.1.1"),
+]
 
 """
 Minimum Domino version that supports compute cluster autoscaling
@@ -30,7 +35,7 @@ MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION = "4.3.3"
 
 """
 Environment variable names used by this python-domino library. The values
-here match the environment variable names a user would find on a deploymemt.
+here match the environment variable names a user would find on a deployment.
 """
 DOMINO_TOKEN_FILE_KEY_NAME = "DOMINO_TOKEN_FILE"
 DOMINO_USER_API_KEY_KEY_NAME = "DOMINO_USER_API_KEY"

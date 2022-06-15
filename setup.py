@@ -1,6 +1,7 @@
 import pathlib
-from setuptools import setup, find_packages
 import re
+
+from setuptools import find_packages, setup
 
 PACKAGE_NAME = "domino"
 
@@ -17,7 +18,7 @@ def get_version():
     except EnvironmentError:
         return None
     for line in f.readlines():
-        mo = re.match("__version__ = '([^']+)'", line)
+        mo = re.match('__version__ = "([^\']+)"', line)
         if mo:
             ver = mo.group(1)
             return ver
@@ -32,7 +33,9 @@ setup(
     packages=find_packages(),
     scripts=[],
     url="https://github.com/dominodatalab/python-domino",
-    download_url='https://github.com/dominodatalab/python-domino/archive/' + get_version() + '.zip',
+    download_url="https://github.com/dominodatalab/python-domino/archive/"
+    + get_version()
+    + ".zip",
     license="Apache Software License (Apache 2.0)",
     description="Python bindings for the Domino API",
     long_description=README,
@@ -42,7 +45,11 @@ setup(
     tests_require=[
         "pytest==6.2.2",
         "requests_mock>=1.9.*",
-        'polling2'
+        "polling2==0.5.0",
+        "flake8==4.0.1",
+        "black==22.3.0",
+        "apache-airflow==1.10.15",
+        "pre-commit==2.19.0",
     ],
     extras_require={
         "airflow": ["apache-airflow==1.*,>=1.10"],

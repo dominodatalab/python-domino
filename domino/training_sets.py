@@ -8,7 +8,8 @@ _import_error_message = (
 )
 
 try:
-    from domino_data.training_sets import client as TrainingSetClient, model
+    from domino_data.training_sets import client as TrainingSetClient
+    from domino_data.training_sets import model
 except ImportError as e:
     if e.msg == "No module named 'domino_data'":
         raise ImportError(_import_error_message) from e

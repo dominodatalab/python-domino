@@ -35,6 +35,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+Pipfile
+Pipfile.lock
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -146,3 +148,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# local linters
+.isort.cfg
+.markdownlint.yaml
+.shellcheckrc
+.trunk/

@@ -5,6 +5,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+* added black and flake8 formatting
+* implemented pre-commit for black / flake8 formatting.
 
 ### Changed
 * Updated runs_stdout output
@@ -111,5 +113,5 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Changed
 
 * Fixed issues in `model_version_publish` method.
-* Fixed issues in `app_publish` and `app_unpublish` methods. 
+* Fixed issues in `app_publish` and `app_unpublish` methods.
 * Fixed issues in `project_create`, `fork_project` and `collaborators_add` methods.
