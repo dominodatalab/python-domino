@@ -294,9 +294,20 @@ class Domino:
         runId : string
                 the id associated with the run.
         """
+
+        html_start_tags = "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; " \
+                          "white-space: -o-pre-wrap; word-wrap: break-word; word-wrap: break-all;'>"
+        html_end_tags = "</pre>$"
+        span_regex = re.compile('<?span.*?>')
+        returns = "'\\n\'\n"
+
         url = self._routes.runs_stdout(runId)
-        # pprint.pformat outputs a string that is ready to be printed
-        return pprint.pformat(self._get(url)["stdout"])
+        raw_stdout = self._get(url)['stdout']
+
+        stdout = re.sub(html_end_tags, "", re.sub(span_regex, "", raw_stdout))\
+            .replace(html_start_tags, "").replace(returns, "\n")
+
+        return stdout
 
     def job_start(
         self,

@@ -9,6 +9,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 * implemented pre-commit for black / flake8 formatting.
 
 ### Changed
+* Updated runs_stdout output
 
 ## 1.0.8
 
