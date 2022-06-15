@@ -239,7 +239,8 @@ class Domino:
                 the id associated with the run.
         """
 
-        html_start_tags = "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; word-wrap: break-word; word-wrap: break-all;'>"
+        html_start_tags = "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; " \
+                          "white-space: -o-pre-wrap; word-wrap: break-word; word-wrap: break-all;'>"
         html_end_tags = "</pre>$"
         span_regex = re.compile('<?span.*?>')
         returns = "'\\n\'\n"
