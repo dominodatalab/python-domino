@@ -52,7 +52,7 @@ setup(
         "pre-commit==2.19.0",
     ],
     extras_require={
-        "airflow": ["apache-airflow==1.*,>=1.10"],
+        "airflow": ["apache-airflow>=1,<3"],
         "data": ["dominodatalab-data>=0.1.0"],
     },
 )
