@@ -178,3 +178,32 @@ def test_queue_job(default_domino_client):
             raise
     else:
         pytest.fail(f"Job took too long to complete: {pformat(job_status)}")
+
+
+@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+def test_job_result_stdout(default_domino_client):
+    """
+    Queue a job, and then poll until the job completes (timeout at 240 seconds).
+    """
+    job = default_domino_client.job_start("main.py")
+
+    remaining_polling_seconds = 240
+    while remaining_polling_seconds > 0:
+        job_status = default_domino_client.job_status(job['id'])
+        if not job_status['statuses']['isCompleted']:
+            time.sleep(5)
+            remaining_polling_seconds -= 5
+            continue
+
+        stdout_data = default_domino_client.runs_stdout(job["id"])
+
+        try:
+            html_start_tags = "<pre style='white-space: pre-wrap; white-space"
+            assert stdout_data != ""
+            assert html_start_tags not in stdout_data
+            break
+        except AssertionError:
+            print(f"Job failed: {pformat(job_status)}")
+            raise
+    else:
+        pytest.fail(f"Job took too long to complete: {pformat(job_status)}")
