@@ -166,20 +166,20 @@ class _Routes:
 
     # App URLs
     def app_publish(self):
-        return self._build_project_url_private_api() + '/nb/startSession'
+        return self._build_project_url_private_api() + "/nb/startSession"
 
     # Datasets URLs
     def datasets_list(self, project_id):
         if project_id is None:
-            return self.host + '/dataset'
-        else: 
-            return self.host + '/dataset?projectId=' + str(project_id)
+            return self.host + "/dataset"
+        else:
+            return self.host + "/dataset?projectId=" + str(project_id)
 
-    def datasets_create(self): 
-        return self.host + '/dataset'
+    def datasets_create(self):
+        return self.host + "/dataset"
 
-    def datasets_details(self, dataset_id, dataset_name=None, dataset_description=None): 
-        return self.host + '/dataset' + '/' + str(dataset_id)
+    def datasets_details(self, dataset_id, dataset_name=None, dataset_description=None):
+        return self.host + "/dataset" + "/" + str(dataset_id)
 
     def app_list(self, project_id):
         return self.host + f"/v4/modelProducts?projectId={project_id}"

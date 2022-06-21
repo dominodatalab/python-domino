@@ -1,7 +1,6 @@
 import functools
 import logging
 import os
-import pprint
 import re
 import time
 from typing import List, Optional, Tuple
@@ -295,17 +294,22 @@ class Domino:
                 the id associated with the run.
         """
 
-        html_start_tags = "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; " \
-                          "white-space: -o-pre-wrap; word-wrap: break-word; word-wrap: break-all;'>"
+        html_start_tags = (
+            "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; "
+            "white-space: -o-pre-wrap; word-wrap: break-word; word-wrap: break-all;'>"
+        )
         html_end_tags = "</pre>$"
-        span_regex = re.compile('<?span.*?>')
-        returns = "'\\n\'\n"
+        span_regex = re.compile("<?span.*?>")
+        returns = "'\\n'\n"
 
         url = self._routes.runs_stdout(runId)
-        raw_stdout = self._get(url)['stdout']
+        raw_stdout = self._get(url)["stdout"]
 
-        stdout = re.sub(html_end_tags, "", re.sub(span_regex, "", raw_stdout))\
-            .replace(html_start_tags, "").replace(returns, "\n")
+        stdout = (
+            re.sub(html_end_tags, "", re.sub(span_regex, "", raw_stdout))
+            .replace(html_start_tags, "")
+            .replace(returns, "\n")
+        )
 
         return stdout
 
@@ -901,7 +905,6 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
-
     def model_versions_get(self, model_id):
         self.requires_at_least("2.5.0")
         url = self._routes.model_versions_get(model_id)
@@ -932,18 +935,18 @@ class Domino:
         url = self._routes.datasets_list(projectId)
         return self._get(url)
 
-    def datasets_create(self, projectId, datasetName, datasetDescription): 
+    def datasets_create(self, projectId, datasetName, datasetDescription):
         self.requires_at_least("3.6.0")
         url = self._routes.datasets_create()
         request = {
             "datasetName": datasetName,
             "description": datasetDescription,
-            "projectId": self._project_id
+            "projectId": self._project_id,
         }
-        response = requests.post(url, auth=('', self._api_key), json=request)
+        response = requests.post(url, auth=("", self._api_key), json=request)
         return response.json()
 
-    def datasets_details(self, datasetId): 
+    def datasets_details(self, datasetId):
         self.requires_at_least("3.6.0")
         url = self._routes.datasets_details(datasetId)
         return self._get(url)
@@ -951,12 +954,9 @@ class Domino:
     def datasets_update_details(self, datasetId, datasetName, datasetDescription):
         self.requires_at_least("3.6.0")
         url = self._routes.datasets_details(datasetId, datasetName, datasetDescription)
-        request = {
-            "datasetName": datasetName,
-            "description": datasetDescription
-        }
+        request = {"datasetName": datasetName, "description": datasetDescription}
         print(url)
-        response = requests.patch(url, data=request, auth=('', self._api_key))
+        response = requests.patch(url, data=request, auth=("", self._api_key))
         print(response.request)
         print(response.reason)
         return response
