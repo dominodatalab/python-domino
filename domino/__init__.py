@@ -1,3 +1,5 @@
-from .domino import Domino
+__all__ = ["Domino", "__version__"]
 
-__version__ = "0.3.5"
+from domino._version import __version__
+
+from .domino import Domino
