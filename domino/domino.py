@@ -937,12 +937,12 @@ class Domino:
 
     def datasets_ids(self, project_id) -> list:
         dataset_list = self.datasets_list(project_id)
-        dataset_ids = [dataset_id for dataset_id in dataset_list["datasetId"]]
+        dataset_ids = [dataset_id["datasetId"] for dataset_id in dataset_list]
         return dataset_ids
 
     def datasets_names(self, project_id) -> list:
         dataset_list = self.datasets_list(project_id)
-        dataset_names = [dataset_id for dataset_id in dataset_list["datasetName"]]
+        dataset_names = [dataset_id["datasetName"] for dataset_id in dataset_list]
         return dataset_names
 
     def datasets_create(self, dataset_name, dataset_description):
@@ -967,7 +967,7 @@ class Domino:
 
     def datasets_update_details(self, datasetId, datasetName, datasetDescription):
         self.requires_at_least("3.6.0")
-        url = self._routes.datasets_details(datasetId, datasetName, datasetDescription)
+        url = self._routes.datasets_details(datasetId)
         request = {"datasetName": datasetName, "description": datasetDescription}
         response = self.request_manager.post(url, data=request)
         print(response.request)

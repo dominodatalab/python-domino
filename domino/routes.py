@@ -178,7 +178,7 @@ class _Routes:
     def datasets_create(self):
         return self.host + "/dataset"
 
-    def datasets_details(self, dataset_id, dataset_name=None, dataset_description=None):
+    def datasets_details(self, dataset_id):
         return self.host + "/dataset" + "/" + str(dataset_id)
 
     def app_list(self, project_id):
