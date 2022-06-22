@@ -4,6 +4,18 @@ class DominoException(Exception):
     pass
 
 
+class DatasetNotFoundException(DominoException):
+    """Run Not Found Exception"""
+
+    pass
+
+
+class DatasetExistsException(DominoException):
+    """Run Not Found Exception"""
+
+    pass
+
+
 class RunNotFoundException(DominoException):
     """Run Not Found Exception"""
 

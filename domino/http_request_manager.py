@@ -26,6 +26,13 @@ class _HttpRequestManager:
             )
         )
 
+    def patch(self, url, data=None, json=None, **kwargs):
+        return self._raise_for_status(
+            self.request_session.patch(
+                url, auth=self.auth, data=data, json=json, **kwargs
+            )
+        )
+
     def get(self, url, **kwargs):
         return self._raise_for_status(
             self.request_session.get(url, auth=self.auth, **kwargs)

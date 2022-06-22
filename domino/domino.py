@@ -929,21 +929,35 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
-    # Datasets Functions
-    def datasets_list(self, projectId=None):
+    # Dataset Functions
+    def datasets_list(self, project_id=None):
         self.requires_at_least("3.6.0")
-        url = self._routes.datasets_list(projectId)
+        url = self._routes.datasets_list(project_id)
         return self._get(url)
 
-    def datasets_create(self, projectId, datasetName, datasetDescription):
+    def datasets_ids(self, project_id) -> list:
+        dataset_list = self.datasets_list(project_id)
+        dataset_ids = [dataset_id for dataset_id in dataset_list["datasetId"]]
+        return dataset_ids
+
+    def datasets_names(self, project_id) -> list:
+        dataset_list = self.datasets_list(project_id)
+        dataset_names = [dataset_id for dataset_id in dataset_list["datasetName"]]
+        return dataset_names
+
+    def datasets_create(self, dataset_name, dataset_description):
         self.requires_at_least("3.6.0")
+
+        if dataset_name in self.datasets_names(self._project_id):
+            raise exceptions.DatasetExistsException("Dataset Name must be Unique")
+
         url = self._routes.datasets_create()
         request = {
-            "datasetName": datasetName,
-            "description": datasetDescription,
+            "datasetName": dataset_name,
+            "description": dataset_description,
             "projectId": self._project_id,
         }
-        response = requests.post(url, auth=("", self._api_key), json=request)
+        response = self.request_manager.post(url, json=request)
         return response.json()
 
     def datasets_details(self, datasetId):
@@ -955,11 +969,22 @@ class Domino:
         self.requires_at_least("3.6.0")
         url = self._routes.datasets_details(datasetId, datasetName, datasetDescription)
         request = {"datasetName": datasetName, "description": datasetDescription}
-        print(url)
-        response = requests.patch(url, data=request, auth=("", self._api_key))
+        response = self.request_manager.post(url, data=request)
         print(response.request)
         print(response.reason)
         return response
+
+    def dataset_remove(self, datasetId):
+        if datasetId in self.datasets_ids(self._project_id):
+            raise exceptions.DatasetNotFoundException(f"Dataset with id {datasetId} does not exist")
+        url = self._routes.datasets_details(datasetId)
+        response = self.request_manager.delete(url)
+        return response
+
+    def datasets_remove(self, dataset_ids:list):
+        for dataset_id in dataset_ids:
+            url = self._routes.datasets_details(dataset_id)
+            self.request_manager.delete(url)
 
     def model_version_export(
         self,
