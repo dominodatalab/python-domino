@@ -960,24 +960,31 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response.json()
 
-    def datasets_details(self, datasetId):
+    def datasets_details(self, dataset_id):
         self.requires_at_least("3.6.0")
-        url = self._routes.datasets_details(datasetId)
+        url = self._routes.datasets_details(dataset_id)
         return self._get(url)
 
-    def datasets_update_details(self, datasetId, datasetName, datasetDescription):
+    def datasets_update_details(self, dataset_id, dataset_name=None, dataset_description=None):
         self.requires_at_least("3.6.0")
-        url = self._routes.datasets_details(datasetId)
-        request = {"datasetName": datasetName, "description": datasetDescription}
+        url = self._routes.datasets_details(dataset_id)
+        request = {}
+        if dataset_name:
+            if dataset_name in self.datasets_names(self._project_id):
+                raise exceptions.DatasetExistsException("Dataset Name must be Unique")
+            else:
+                request.update({"datasetName": dataset_name})
+        if dataset_description:
+            request.update({"description": dataset_description})
+
         response = self.request_manager.post(url, data=request)
-        print(response.request)
-        print(response.reason)
+
         return response
 
-    def dataset_remove(self, datasetId):
-        if datasetId in self.datasets_ids(self._project_id):
-            raise exceptions.DatasetNotFoundException(f"Dataset with id {datasetId} does not exist")
-        url = self._routes.datasets_details(datasetId)
+    def dataset_remove(self, dataset_id):
+        if dataset_id in self.datasets_ids(self._project_id):
+            raise exceptions.DatasetNotFoundException(f"Dataset with id {dataset_id} does not exist")
+        url = self._routes.datasets_details(dataset_id)
         response = self.request_manager.delete(url)
         return response
 
