@@ -38,6 +38,7 @@ class Domino:
         )
         host = helpers.clean_host_url(_host)
 
+
         try:
             owner_username, project_name = project.split("/")
             self._routes = _Routes(host, owner_username, project_name)
@@ -427,7 +428,7 @@ class Domino:
         def get_default_spark_settings():
             self.log.debug("Getting default spark settings")
             default_spark_setting_url = self._routes.default_spark_setting(
-                self._project_id
+                self.project_id
             )
             return self.request_manager.get(default_spark_setting_url).json()
 
@@ -574,7 +575,7 @@ class Domino:
         )
         url = self._routes.job_start()
         payload = {
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "commandToRun": command,
             "commitId": commit_id,
             "overrideHardwareTierId": resolved_hardware_tier_id,
@@ -599,7 +600,7 @@ class Domino:
         """
         url = self._routes.job_stop()
         request = {
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "jobId": job_id,
             "commitResults": commit_results,
         }
@@ -680,7 +681,7 @@ class Domino:
         return self.request_manager.get_raw(url)
 
     def fork_project(self, target_name):
-        url = self._routes.fork_project(self._project_id)
+        url = self._routes.fork_project(self.project_id)
         request = {"name": target_name}
         response = self.request_manager.post(url, json=request)
         return response
@@ -780,7 +781,7 @@ class Domino:
                 f"Could not add collaborator matching {username_or_email}"
             )
 
-        url = self._routes.collaborators_add(self._project_id)
+        url = self._routes.collaborators_add(self.project_id)
         request = {"collaboratorId": user_id, "projectRole": "Contributor"}
 
         response = self.request_manager.post(url, json=request)
@@ -796,7 +797,7 @@ class Domino:
                 f"Could not remove collaborator matching {username_or_email}"
             )
 
-        url = self._routes.collaborators_remove(self._project_id, user_id)
+        url = self._routes.collaborators_remove(self.project_id, user_id)
 
         response = self.request_manager.delete(url)
         return response
@@ -844,7 +845,7 @@ class Domino:
         url = self._routes.app_create()
         request_payload = {
             "modelProductType": "APP",
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "name": name,
             "owner": "",
             "created": time.time_ns(),
@@ -895,7 +896,7 @@ class Domino:
         request = {
             "name": name,
             "description": description,
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "file": file,
             "function": function,
             "excludeFiles": files_to_exclude,
@@ -919,7 +920,7 @@ class Domino:
 
         request = {
             "description": description,
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "file": file,
             "function": function,
             "excludeFiles": files_to_exclude,
@@ -948,14 +949,14 @@ class Domino:
     def datasets_create(self, dataset_name, dataset_description):
         self.requires_at_least("3.6.0")
 
-        if dataset_name in self.datasets_names(self._project_id):
+        if dataset_name in self.datasets_names(self.project_id):
             raise exceptions.DatasetExistsException("Dataset Name must be Unique")
 
         url = self._routes.datasets_create()
         request = {
             "datasetName": dataset_name,
             "description": dataset_description,
-            "projectId": self._project_id,
+            "projectId": self.project_id,
         }
         response = self.request_manager.post(url, json=request)
         return response.json()
@@ -970,25 +971,25 @@ class Domino:
         url = self._routes.datasets_details(dataset_id)
         request = {}
         if dataset_name:
-            if dataset_name in self.datasets_names(self._project_id):
+            if dataset_name in self.datasets_names(self.project_id):
                 raise exceptions.DatasetExistsException("Dataset Name must be Unique")
             else:
                 request.update({"datasetName": dataset_name})
         if dataset_description:
             request.update({"description": dataset_description})
 
-        response = self.request_manager.post(url, data=request)
+        self.request_manager.patch(url, json=request)
 
-        return response
+        return self._get(url)
 
-    def dataset_remove(self, dataset_id):
-        if dataset_id in self.datasets_ids(self._project_id):
+    def _dataset_remove(self, dataset_id):
+        if dataset_id in self.datasets_ids(self.project_id):
             raise exceptions.DatasetNotFoundException(f"Dataset with id {dataset_id} does not exist")
         url = self._routes.datasets_details(dataset_id)
         response = self.request_manager.delete(url)
         return response
 
-    def datasets_remove(self, dataset_ids:list):
+    def datasets_remove(self, dataset_ids: list):
         for dataset_id in dataset_ids:
             url = self._routes.datasets_details(dataset_id)
             self.request_manager.delete(url)
@@ -1057,7 +1058,7 @@ class Domino:
 
     # Hardware Tier Functions
     def hardware_tiers_list(self):
-        url = self._routes.hardware_tiers_list(self._project_id)
+        url = self._routes.hardware_tiers_list(self.project_id)
         return self._get(url)
 
     def get_hardware_tier_id_from_name(self, hardware_tier_name):
@@ -1084,7 +1085,7 @@ class Domino:
     def _useable_environments_list(self):
         self.log.debug("Getting list of useable environment")
         useable_environment_list_url = self._routes.useable_environments_list(
-            self._project_id
+            self.project_id
         )
         return self.request_manager.get(useable_environment_list_url).json()[
             "environments"
@@ -1179,7 +1180,7 @@ class Domino:
     # Workaround to get project ID which is needed for some model functions
     @property  # type: ignore # mypy incorrect error silencer
     @functools.lru_cache()
-    def _project_id(self):
+    def project_id(self):
         url = self._routes.find_project_by_owner_name_and_project_name_url()
         key = "id"
         response = self._get(url)
@@ -1189,7 +1190,7 @@ class Domino:
     # This will fetch app_id of app in current project
     @property
     def _app_id(self):
-        url = self._routes.app_list(self._project_id)
+        url = self._routes.app_list(self.project_id)
         response = self._get(url)
         if len(response) != 0:
             app = response[0]
