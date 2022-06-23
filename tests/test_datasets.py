@@ -1,13 +1,22 @@
+import random
+
 import pytest
 
 from domino.helpers import domino_is_reachable
 
 
+@pytest.fixture
+def random_seq():
+    rand_val = random.randint(1000, 8888)
+    rand_val2 = random.randint(1000, 8888)
+    return f"-{rand_val}-{rand_val2}"
+
+
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
-def test_datasets_create_and_ids(default_domino_client):
-    dataset_name = "My-Integration-Test-Dataset"
+def test_datasets_create_and_ids(default_domino_client, random_seq):
+    dataset_name = "My-Integration-Test-Dataset" + random_seq
     dataset_desc = "A dataset for testing purposes."
     new_dataset = default_domino_client.datasets_create(
         dataset_name=dataset_name, dataset_description=dataset_desc
@@ -38,12 +47,12 @@ def test_datasets_list(default_domino_client):
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
-def test_datasets_update_details_and_name(default_domino_client):
+def test_datasets_update_details_and_name(default_domino_client, random_seq):
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
         1
     ]
 
-    new_datasets_name = "My-New-Integration-Test-Dataset"
+    new_datasets_name = "My-New-Integration-Test-Dataset" + random_seq
     new_datasets_description = "My New Integration Test Dataset Description"
 
     new_dataset = default_domino_client.datasets_update_details(
@@ -62,9 +71,12 @@ def test_datasets_update_details_and_name(default_domino_client):
     assert new_datasets_description == newer_dataset["description"]
 
 
-def test_datasets_details(default_domino_client):
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_datasets_details(default_domino_client, random_seq):
 
-    new_dataset_name = "My-New-Integration-Test-Dataset-3"
+    new_dataset_name = "My-New-Integration-Test-Dataset-3" + random_seq
     new_dataset_description = "My New Integration Test Dataset Description 4"
 
     new_dataset = default_domino_client.datasets_create(
@@ -82,6 +94,9 @@ def test_datasets_details(default_domino_client):
     assert "created" in dataset_details.keys()
 
 
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
 def test_datasets_remove(default_domino_client):
     datasets_ids = default_domino_client.datasets_ids(default_domino_client.project_id)
     default_domino_client.datasets_remove(datasets_ids[1:])
