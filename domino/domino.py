@@ -38,7 +38,6 @@ class Domino:
         )
         host = helpers.clean_host_url(_host)
 
-
         try:
             owner_username, project_name = project.split("/")
             self._routes = _Routes(host, owner_username, project_name)
@@ -966,7 +965,9 @@ class Domino:
         url = self._routes.datasets_details(dataset_id)
         return self._get(url)
 
-    def datasets_update_details(self, dataset_id, dataset_name=None, dataset_description=None):
+    def datasets_update_details(
+        self, dataset_id, dataset_name=None, dataset_description=None
+    ):
         self.requires_at_least("3.6.0")
         url = self._routes.datasets_details(dataset_id)
         request = {}
@@ -984,7 +985,9 @@ class Domino:
 
     def _dataset_remove(self, dataset_id):
         if dataset_id in self.datasets_ids(self.project_id):
-            raise exceptions.DatasetNotFoundException(f"Dataset with id {dataset_id} does not exist")
+            raise exceptions.DatasetNotFoundException(
+                f"Dataset with id {dataset_id} does not exist"
+            )
         url = self._routes.datasets_details(dataset_id)
         response = self.request_manager.delete(url)
         return response

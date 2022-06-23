@@ -1,5 +1,5 @@
 import os
-from pprint import pprint
+
 from domino import Domino
 
 # requires DOMINO_TOKEN_FILE environment variables, or api_token parameter
@@ -22,10 +22,9 @@ print(
 
 #  Create dataset for current project
 new_project_dataset = domino.datasets_create(
-    'My-New-Test-Dataset-2',
-    'A dataset for testing purposes.'
+    "My-New-Test-Dataset-2", "A dataset for testing purposes."
 )
-print('Datasets for current project:\n'+str(new_project_dataset))
+print("Datasets for current project:\n" + str(new_project_dataset))
 
 # Get the details of a dataset, if one exists for the current project
 current_project_datasets = domino.datasets_list(domino.project_id)
@@ -37,18 +36,14 @@ new_dataset_name = "My-Test-Dataset-New-Name"
 new_dataset_description = "An updated description for a dataset for testing purposes."
 
 datasets_name_update = domino.datasets_update_details(
-    dataset_id=str(dataset_id),
-    dataset_name=new_dataset_name
+    dataset_id=str(dataset_id), dataset_name=new_dataset_name
 )
 
-print(
-    "Dataset with updated details for current project:"
-    + str(datasets_name_update)
-)
+print("Dataset with updated details for current project:" + str(datasets_name_update))
 
 datasets_description_update = domino.datasets_update_details(
     dataset_id=str(dataset_id),
-    dataset_description="An updated description for a dataset for testing purposes."
+    dataset_description="An updated description for a dataset for testing purposes.",
 )
 
 print(

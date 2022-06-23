@@ -5,8 +5,9 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
-* added black and flake8 formatting
-* implemented pre-commit for black / flake8 formatting.
+* Added black and flake8 formatting
+* Implemented pre-commit for black / flake8 formatting.
+* Added / updated dataset endpoint usability. 
 
 ### Changed
 * Updated runs_stdout output
