@@ -247,6 +247,70 @@ parameter in `job_start` method
 
 <hr>
 
+## Datasets
+
+### datasets_list(project_id=None)
+
+provides of json list of all the datasets currently available.
+
+- _project_id (string):_ (Defaults to None) id that identify the specific project to be used 
+- each project can hold up to 5 datasets.
+
+<hr>
+
+### datasets_ids(*project_id)
+
+list the ids of a filtered datasets for a particular project
+
+- _project_id:_ id that identify the specific project to be used 
+
+<hr>
+
+### datasets_names(project_id) 
+
+list the names of a filtered datasets for a particular project
+
+- _project_id:_ id that identify the specific project to be used 
+
+<hr>
+
+### datasets_details(*dataset_id)
+
+provides detailed information about datasets, including but not limited to name, description, created timestamps <br>
+about a specified dataset
+
+- _dataset_id:_ id that identify the specific dataset to be used 
+
+<hr>
+
+### datasets_create(*dataset_name, *dataset_description)
+
+creates a new dataset with a given name and description
+
+- _dataset_name:_ Name of the new dataset (Must be unique)
+- _dataset_description:_ Description of the dataset
+
+<hr>
+
+### datasets_update_details(*dataset_id, dataset_name=None, dataset_description=None)
+
+Updates the name and / or description of a specified dataset
+
+- _dataset_id:_ id that identify the specific dataset to be updated 
+- _dataset_name:_ (Optional) New name of the dataset * May have unintended referential consequences* 
+- _dataset_description:_ (Optional) New description of the dataset
+
+<hr>
+
+### datasets_remove(dataset_ids)
+
+delete list of datasets for a given set of datasets by ids.
+
+- _dataset_ids: (list\[string\])_ list of ids of datasets to be deleted
+Note: datasets are first marked for deletion, then are deleted after a certain amount of time. 
+
+<hr>
+
 ## Airflow
 
 The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
