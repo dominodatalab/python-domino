@@ -17,6 +17,7 @@ from domino.constants import (
     DOMINO_HOST_KEY_NAME,
     DOMINO_LOG_LEVEL_KEY_NAME,
     MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION,
+    MINIMUM_GA_DOMINO_VERSION,
     MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
 )
 from domino.http_request_manager import _HttpRequestManager
@@ -51,6 +52,8 @@ class Domino:
 
         # Get version
         self._version = self.deployment_version().get("version")
+        assert self.requires_at_least(MINIMUM_GA_DOMINO_VERSION)
+
         self._logger.debug(
             f"Domino deployment {host} is running version {self._version}"
         )
@@ -220,20 +223,14 @@ class Domino:
             elapsed_time = time.time() - poll_start
 
             if elapsed_time >= max_poll_time:
-                raise Exception(
-                    "Run \
-                                exceeded maximum time of \
-                                {} seconds".format(
-                        max_poll_time
-                    )
-                )
+                raise Exception(f"Run exceeded maximum time of {max_poll_time} seconds")
 
             output_commit_id = run_info.get("outputCommitId")
             if not output_commit_id:
                 time.sleep(poll_freq)
                 continue
 
-            # once task has finished running check to see if it was successfull
+            # once task has finished running check to see if it was successful
             else:
                 stdout_msg = self.get_run_log(runId=run_id, includeSetupLog=False)
 
@@ -744,7 +741,6 @@ class Domino:
         return response.json()
 
     def collaborators_get(self):
-        self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()
         return self._get(url)
 
@@ -770,8 +766,6 @@ class Domino:
         return user_id
 
     def collaborators_add(self, username_or_email, message=""):
-        self.requires_at_least("1.53.0.0")
-
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
@@ -786,8 +780,6 @@ class Domino:
         return response
 
     def collaborators_remove(self, username_or_email):
-        self.requires_at_least("1.53.0.0")
-
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
@@ -874,21 +866,19 @@ class Domino:
 
     # Environment functions
     def environments_list(self):
-        self.requires_at_least("2.5.0")
         url = self._routes.environments_list()
         return self._get(url)
 
     # Model Manager functions
     def models_list(self):
-        self.requires_at_least("2.5.0")
         url = self._routes.models_list()
         return self._get(url)
 
     def model_publish(
-        self, file, function, environment_id, name, description, files_to_exclude=[]
+        self, file, function, environment_id, name, description, files_to_exclude=None
     ):
-        self.requires_at_least("2.5.0")
-
+        if files_to_exclude is None:
+            files_to_exclude = []
         url = self._routes.model_publish()
 
         request = {
@@ -905,15 +895,20 @@ class Domino:
         return response.json()
 
     def model_versions_get(self, model_id):
-        self.requires_at_least("2.5.0")
         url = self._routes.model_versions_get(model_id)
         return self._get(url)
 
     def model_version_publish(
-        self, model_id, file, function, environment_id, description, files_to_exclude=[]
+        self,
+        model_id,
+        file,
+        function,
+        environment_id,
+        description,
+        files_to_exclude=None,
     ):
-        self.requires_at_least("2.5.0")
-
+        if files_to_exclude is None:
+            files_to_exclude = []
         url = self._routes.model_version_publish(model_id)
 
         request = {
@@ -930,7 +925,6 @@ class Domino:
 
     # Dataset Functions
     def datasets_list(self, project_id=None):
-        self.requires_at_least("3.6.0")
         url = self._routes.datasets_list(project_id)
         return self._get(url)
 
@@ -945,8 +939,6 @@ class Domino:
         return dataset_names
 
     def datasets_create(self, dataset_name, dataset_description):
-        self.requires_at_least("3.6.0")
-
         if dataset_name in self.datasets_names(self.project_id):
             raise exceptions.DatasetExistsException("Dataset Name must be Unique")
 
@@ -960,14 +952,12 @@ class Domino:
         return response.json()
 
     def datasets_details(self, dataset_id):
-        self.requires_at_least("3.6.0")
         url = self._routes.datasets_details(dataset_id)
         return self._get(url)
 
     def datasets_update_details(
         self, dataset_id, dataset_name=None, dataset_description=None
     ):
-        self.requires_at_least("3.6.0")
         url = self._routes.datasets_details(dataset_id)
         request = {}
         if dataset_name:
@@ -1173,11 +1163,10 @@ class Domino:
     def requires_at_least(self, at_least_version):
         if at_least_version > self._version:
             raise Exception(
-                "You need at least version {} but your deployment \
-                            seems to be running {}".format(
-                    at_least_version, self._version
-                )
+                f"You need at least version {at_least_version} but your deployment \
+                            seems to be running {self._version}"
             )
+        return True
 
     # Workaround to get project ID which is needed for some model functions
     @property  # type: ignore # mypy incorrect error silencer

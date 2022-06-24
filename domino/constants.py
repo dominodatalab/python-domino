@@ -4,6 +4,12 @@ Minimum Domino version supported by this python-domino library
 MINIMUM_SUPPORTED_DOMINO_VERSION = "4.1.0"
 
 """
+Minimum Domino version allowed by this python-domino library
+This version is set to be deprecated in the future
+"""
+MINIMUM_GA_DOMINO_VERSION = "3.6.0"
+
+"""
 Minimum Domino version supporting on demand spark cluster
 """
 MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION = "4.2.0"
