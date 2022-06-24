@@ -205,7 +205,9 @@ def test_queue_job(default_domino_client):
         pytest.fail(f"Job took too long to complete: {pformat(job_status)}")
 
 
-@pytest.mark.skipif(not domino_is_reachable(), reason="No access to a live Domino deployment")
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
 def test_job_result_stdout(default_domino_client):
     """
     Queue a job, and then poll until the job completes (timeout at 240 seconds).
@@ -214,8 +216,8 @@ def test_job_result_stdout(default_domino_client):
 
     remaining_polling_seconds = 240
     while remaining_polling_seconds > 0:
-        job_status = default_domino_client.job_status(job['id'])
-        if not job_status['statuses']['isCompleted']:
+        job_status = default_domino_client.job_status(job["id"])
+        if not job_status["statuses"]["isCompleted"]:
             time.sleep(5)
             remaining_polling_seconds -= 5
             continue

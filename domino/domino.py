@@ -1,7 +1,6 @@
 import functools
 import logging
 import os
-import pprint
 import re
 import time
 from typing import List, Optional, Tuple
@@ -10,19 +9,19 @@ import polling2
 import requests
 from bs4 import BeautifulSoup
 
+from domino import exceptions, helpers
 from domino._version import __version__
-
-from . import exceptions, helpers
-from .authentication import get_auth_by_type
-from .constants import (
+from domino.authentication import get_auth_by_type
+from domino.constants import (
     CLUSTER_TYPE_MIN_SUPPORT,
     DOMINO_HOST_KEY_NAME,
     DOMINO_LOG_LEVEL_KEY_NAME,
     MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION,
+    MINIMUM_GA_DOMINO_VERSION,
     MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
 )
-from .http_request_manager import _HttpRequestManager
-from .routes import _Routes
+from domino.http_request_manager import _HttpRequestManager
+from domino.routes import _Routes
 
 
 class Domino:
@@ -53,6 +52,8 @@ class Domino:
 
         # Get version
         self._version = self.deployment_version().get("version")
+        assert self.requires_at_least(MINIMUM_GA_DOMINO_VERSION)
+
         self._logger.debug(
             f"Domino deployment {host} is running version {self._version}"
         )
@@ -222,20 +223,14 @@ class Domino:
             elapsed_time = time.time() - poll_start
 
             if elapsed_time >= max_poll_time:
-                raise Exception(
-                    "Run \
-                                exceeded maximum time of \
-                                {} seconds".format(
-                        max_poll_time
-                    )
-                )
+                raise Exception(f"Run exceeded maximum time of {max_poll_time} seconds")
 
             output_commit_id = run_info.get("outputCommitId")
             if not output_commit_id:
                 time.sleep(poll_freq)
                 continue
 
-            # once task has finished running check to see if it was successfull
+            # once task has finished running check to see if it was successful
             else:
                 stdout_msg = self.get_run_log(runId=run_id, includeSetupLog=False)
 
@@ -295,17 +290,22 @@ class Domino:
                 the id associated with the run.
         """
 
-        html_start_tags = "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; " \
-                          "white-space: -o-pre-wrap; word-wrap: break-word; word-wrap: break-all;'>"
+        html_start_tags = (
+            "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; "
+            "white-space: -o-pre-wrap; word-wrap: break-word; word-wrap: break-all;'>"
+        )
         html_end_tags = "</pre>$"
-        span_regex = re.compile('<?span.*?>')
-        returns = "'\\n\'\n"
+        span_regex = re.compile("<?span.*?>")
+        returns = "'\\n'\n"
 
         url = self._routes.runs_stdout(runId)
-        raw_stdout = self._get(url)['stdout']
+        raw_stdout = self._get(url)["stdout"]
 
-        stdout = re.sub(html_end_tags, "", re.sub(span_regex, "", raw_stdout))\
-            .replace(html_start_tags, "").replace(returns, "\n")
+        stdout = (
+            re.sub(html_end_tags, "", re.sub(span_regex, "", raw_stdout))
+            .replace(html_start_tags, "")
+            .replace(returns, "\n")
+        )
 
         return stdout
 
@@ -423,7 +423,7 @@ class Domino:
         def get_default_spark_settings():
             self.log.debug("Getting default spark settings")
             default_spark_setting_url = self._routes.default_spark_setting(
-                self._project_id
+                self.project_id
             )
             return self.request_manager.get(default_spark_setting_url).json()
 
@@ -570,7 +570,7 @@ class Domino:
         )
         url = self._routes.job_start()
         payload = {
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "commandToRun": command,
             "commitId": commit_id,
             "overrideHardwareTierId": resolved_hardware_tier_id,
@@ -595,7 +595,7 @@ class Domino:
         """
         url = self._routes.job_stop()
         request = {
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "jobId": job_id,
             "commitResults": commit_results,
         }
@@ -676,7 +676,7 @@ class Domino:
         return self.request_manager.get_raw(url)
 
     def fork_project(self, target_name):
-        url = self._routes.fork_project(self._project_id)
+        url = self._routes.fork_project(self.project_id)
         request = {"name": target_name}
         response = self.request_manager.post(url, json=request)
         return response
@@ -741,7 +741,6 @@ class Domino:
         return response.json()
 
     def collaborators_get(self):
-        self.requires_at_least("1.53.0.0")
         url = self._routes.collaborators_get()
         return self._get(url)
 
@@ -767,8 +766,6 @@ class Domino:
         return user_id
 
     def collaborators_add(self, username_or_email, message=""):
-        self.requires_at_least("1.53.0.0")
-
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
@@ -776,15 +773,13 @@ class Domino:
                 f"Could not add collaborator matching {username_or_email}"
             )
 
-        url = self._routes.collaborators_add(self._project_id)
+        url = self._routes.collaborators_add(self.project_id)
         request = {"collaboratorId": user_id, "projectRole": "Contributor"}
 
         response = self.request_manager.post(url, json=request)
         return response
 
     def collaborators_remove(self, username_or_email):
-        self.requires_at_least("1.53.0.0")
-
         user_id = self.get_user_id(username_or_email)
 
         if user_id is None:
@@ -792,7 +787,7 @@ class Domino:
                 f"Could not remove collaborator matching {username_or_email}"
             )
 
-        url = self._routes.collaborators_remove(self._project_id, user_id)
+        url = self._routes.collaborators_remove(self.project_id, user_id)
 
         response = self.request_manager.delete(url)
         return response
@@ -840,7 +835,7 @@ class Domino:
         url = self._routes.app_create()
         request_payload = {
             "modelProductType": "APP",
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "name": name,
             "owner": "",
             "created": time.time_ns(),
@@ -871,27 +866,25 @@ class Domino:
 
     # Environment functions
     def environments_list(self):
-        self.requires_at_least("2.5.0")
         url = self._routes.environments_list()
         return self._get(url)
 
     # Model Manager functions
     def models_list(self):
-        self.requires_at_least("2.5.0")
         url = self._routes.models_list()
         return self._get(url)
 
     def model_publish(
-        self, file, function, environment_id, name, description, files_to_exclude=[]
+        self, file, function, environment_id, name, description, files_to_exclude=None
     ):
-        self.requires_at_least("2.5.0")
-
+        if files_to_exclude is None:
+            files_to_exclude = []
         url = self._routes.model_publish()
 
         request = {
             "name": name,
             "description": description,
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "file": file,
             "function": function,
             "excludeFiles": files_to_exclude,
@@ -902,20 +895,25 @@ class Domino:
         return response.json()
 
     def model_versions_get(self, model_id):
-        self.requires_at_least("2.5.0")
         url = self._routes.model_versions_get(model_id)
         return self._get(url)
 
     def model_version_publish(
-        self, model_id, file, function, environment_id, description, files_to_exclude=[]
+        self,
+        model_id,
+        file,
+        function,
+        environment_id,
+        description,
+        files_to_exclude=None,
     ):
-        self.requires_at_least("2.5.0")
-
+        if files_to_exclude is None:
+            files_to_exclude = []
         url = self._routes.model_version_publish(model_id)
 
         request = {
             "description": description,
-            "projectId": self._project_id,
+            "projectId": self.project_id,
             "file": file,
             "function": function,
             "excludeFiles": files_to_exclude,
@@ -924,6 +922,69 @@ class Domino:
 
         response = self.request_manager.post(url, json=request)
         return response.json()
+
+    # Dataset Functions
+    def datasets_list(self, project_id=None):
+        url = self._routes.datasets_list(project_id)
+        return self._get(url)
+
+    def datasets_ids(self, project_id) -> list:
+        dataset_list = self.datasets_list(project_id)
+        dataset_ids = [dataset_id["datasetId"] for dataset_id in dataset_list]
+        return dataset_ids
+
+    def datasets_names(self, project_id) -> list:
+        dataset_list = self.datasets_list(project_id)
+        dataset_names = [dataset_id["datasetName"] for dataset_id in dataset_list]
+        return dataset_names
+
+    def datasets_create(self, dataset_name, dataset_description):
+        if dataset_name in self.datasets_names(self.project_id):
+            raise exceptions.DatasetExistsException("Dataset Name must be Unique")
+
+        url = self._routes.datasets_create()
+        request = {
+            "datasetName": dataset_name,
+            "description": dataset_description,
+            "projectId": self.project_id,
+        }
+        response = self.request_manager.post(url, json=request)
+        return response.json()
+
+    def datasets_details(self, dataset_id):
+        url = self._routes.datasets_details(dataset_id)
+        return self._get(url)
+
+    def datasets_update_details(
+        self, dataset_id, dataset_name=None, dataset_description=None
+    ):
+        url = self._routes.datasets_details(dataset_id)
+        request = {}
+        if dataset_name:
+            if dataset_name in self.datasets_names(self.project_id):
+                raise exceptions.DatasetExistsException("Dataset Name must be Unique")
+            else:
+                request.update({"datasetName": dataset_name})
+        if dataset_description:
+            request.update({"description": dataset_description})
+
+        self.request_manager.patch(url, json=request)
+
+        return self._get(url)
+
+    def _dataset_remove(self, dataset_id):
+        if dataset_id in self.datasets_ids(self.project_id):
+            raise exceptions.DatasetNotFoundException(
+                f"Dataset with id {dataset_id} does not exist"
+            )
+        url = self._routes.datasets_details(dataset_id)
+        response = self.request_manager.delete(url)
+        return response
+
+    def datasets_remove(self, dataset_ids: list):
+        for dataset_id in dataset_ids:
+            url = self._routes.datasets_details(dataset_id)
+            self.request_manager.delete(url)
 
     def model_version_export(
         self,
@@ -989,7 +1050,7 @@ class Domino:
 
     # Hardware Tier Functions
     def hardware_tiers_list(self):
-        url = self._routes.hardware_tiers_list(self._project_id)
+        url = self._routes.hardware_tiers_list(self.project_id)
         return self._get(url)
 
     def get_hardware_tier_id_from_name(self, hardware_tier_name):
@@ -1016,7 +1077,7 @@ class Domino:
     def _useable_environments_list(self):
         self.log.debug("Getting list of useable environment")
         useable_environment_list_url = self._routes.useable_environments_list(
-            self._project_id
+            self.project_id
         )
         return self.request_manager.get(useable_environment_list_url).json()[
             "environments"
@@ -1102,16 +1163,15 @@ class Domino:
     def requires_at_least(self, at_least_version):
         if at_least_version > self._version:
             raise Exception(
-                "You need at least version {} but your deployment \
-                            seems to be running {}".format(
-                    at_least_version, self._version
-                )
+                f"You need at least version {at_least_version} but your deployment \
+                            seems to be running {self._version}"
             )
+        return True
 
     # Workaround to get project ID which is needed for some model functions
     @property  # type: ignore # mypy incorrect error silencer
     @functools.lru_cache()
-    def _project_id(self):
+    def project_id(self):
         url = self._routes.find_project_by_owner_name_and_project_name_url()
         key = "id"
         response = self._get(url)
@@ -1121,7 +1181,7 @@ class Domino:
     # This will fetch app_id of app in current project
     @property
     def _app_id(self):
-        url = self._routes.app_list(self._project_id)
+        url = self._routes.app_list(self.project_id)
         response = self._get(url)
         if len(response) != 0:
             app = response[0]

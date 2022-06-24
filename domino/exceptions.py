@@ -4,14 +4,26 @@ class DominoException(Exception):
     pass
 
 
+class DatasetNotFoundException(DominoException):
+    """Dataset not found Exception"""
+
+    pass
+
+
+class DatasetExistsException(DominoException):
+    """Dataset already exists Exception"""
+
+    pass
+
+
 class RunNotFoundException(DominoException):
-    """Run Not Found Exception"""
+    """Run not found Exception"""
 
     pass
 
 
 class ProjectNotFoundException(DominoException):
-    """Project Not Found Exception"""
+    """Project not found Exception"""
 
     pass
 
