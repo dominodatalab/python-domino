@@ -79,7 +79,7 @@ List the runs on the selected project.
 
 <hr>
 
-### runs*start(\_command, isDirect, commitId, title, tier, publishApiEndpoint*)
+### runs_start(\_command, isDirect, commitId, title, tier, publishApiEndpoint*)
 
 Start a new run on the selected project. The parameters are:
 
@@ -93,7 +93,7 @@ Start a new run on the selected project. The parameters are:
 
 <hr>
 
-### runs*start_blocking(\_command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
+### runs_start_blocking(\_command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
 
 Same as method `run_start` except make a blocking request that waits until job is finished.
 
@@ -119,7 +119,7 @@ Stop an existing run in the selected project. The parameters are:
 
 <hr>
 
-### runs*stdout(\_runId*)
+### runs_stdout(\_runId*)
 
 Get stdout emitted by a particular run. The parameters are:
 
@@ -127,7 +127,7 @@ Get stdout emitted by a particular run. The parameters are:
 
 <hr>
 
-### files*list(\_commitId, path*)
+### files_list(\_commitId, path*)
 
 List the files in a folder in the Domino project. The parameters are:
 
@@ -136,7 +136,7 @@ List the files in a folder in the Domino project. The parameters are:
 
 <hr>
 
-### files*upload(\_path, file*)
+### files_upload(\_path, file*)
 
 Upload a Python file object into the specified path inside the project. See `examples/upload_file.py` for an example. The parameters, both of which are required, are:
 
@@ -145,7 +145,7 @@ Upload a Python file object into the specified path inside the project. See `exa
 
 <hr>
 
-### blobs*get(\_key*)
+### blobs_get(\_key*)
 
 Retrieve a file from the Domino server by blob key. The parameters are:
 
@@ -153,7 +153,7 @@ Retrieve a file from the Domino server by blob key. The parameters are:
 
 <hr>
 
-### app*publish(\_unpublishRunningApps=True*, _hardwareTierId=None_)
+### app_publish(\_unpublishRunningApps=True*, _hardwareTierId=None_)
 
 Publishes an app in the Domino project, or republish an existing app. The parameters are:
 
@@ -168,7 +168,7 @@ Stops all running apps in the Domino project.
 
 <hr>
 
-### job*start(\_command*, _commit_id=None_, _hardware_tier_name=None_, _environment_id=None_, _on_demand_spark_cluster_properties=None_):
+### job_start(\_command*, _commit_id=None_, _hardware_tier_name=None_, _environment_id=None_, _on_demand_spark_cluster_properties=None_):
 
 Starts a new Job (run) in the project
 
@@ -220,7 +220,7 @@ Starts a new Job (run) in the project
 
 <hr>
 
-### job*stop(\_job_id*, _commit_results=True_):
+### job_stop(\_job_id*, _commit_results=True_):
 
 Stops the Job (run) in the project
 
@@ -229,7 +229,7 @@ Stops the Job (run) in the project
 
 <hr>
 
-### job*status(\_job_id*):
+### job_status(\_job_id*):
 
 Gets the status of a Job
 
@@ -237,7 +237,7 @@ Gets the status of a Job
 
 <hr>
 
-### job*start_blocking(\_poll_freq=5*, _max_poll_time=6000_, \*\*kwargs):
+### job_start_blocking(\_poll_freq=5*, _max_poll_time=6000_, \*\*kwargs):
 
 Starts a job and polls until the job is finished. Additionally this method supports all the
 parameter in `job_start` method

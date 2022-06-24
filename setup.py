@@ -50,9 +50,11 @@ setup(
         "black==22.3.0",
         "apache-airflow==1.10.15",
         "pre-commit==2.19.0",
+        "nbconvert==6.0.0",
+        "Jinja2==2.11.3",
     ],
     extras_require={
-        "airflow": ["apache-airflow==1.*,>=1.10"],
+        "airflow": ["apache-airflow==2.2.4"],
         "data": ["dominodatalab-data>=0.1.0"],
     },
 )
