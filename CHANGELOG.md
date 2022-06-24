@@ -10,6 +10,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Added / updated dataset endpoint usability.
 
 ### Changed
+* updated airflow dependency 2.2.4
 * Updated runs_stdout output
 
 ## 1.0.8
