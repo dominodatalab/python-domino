@@ -809,7 +809,7 @@ class Domino:
         app_id = self.app_id()
         if app_id is None:
             return
-        status = self.__app_get_status(app_id)
+        status = self.app_get_status(app_id)
         self.log.debug(f"App {app_id} status={status}")
         if status and status != "Stopped" and status != "Failed":
             url = self._routes.app_stop(app_id)
@@ -835,14 +835,17 @@ class Domino:
         # for backwards compatibility, we keep this property
         return self.app_id()
 
-
-    def __app_get_status(self, id) -> Optional[str]:
+    def app_get_status(self, id) -> Optional[str]:
         app_id = self.app_id()
         if app_id is None:
             return None
         url = self._routes.app_get(app_id)
         response = self.request_manager.get(url).json()
         return response.get("status", None)
+
+    def __app_get_status(self, id) -> Optional[str]:
+        # for backwards compatibility, we keep this method
+        return self.__app_get_status()
 
     def __app_create(self, name: str = "", hardware_tier_id: str = None) -> str:
         """
