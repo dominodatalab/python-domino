@@ -21,4 +21,4 @@ def __getattr__(value):
         import domino_data.data_sources
     except ImportError as e:
         raise ImportError(_import_error_message) from e
-    return getattr(domino_data, value)
+    return getattr(domino_data.data_sources, value)
