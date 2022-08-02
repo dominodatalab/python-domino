@@ -58,6 +58,7 @@ Note:
    takes precedence, otherwise the API key is used. If none of these three parameters are passed, then preference will be given to the
    domino token file from the corresponding environment variable, then to the API key from the corresponding environment variable.
 2. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` environment variable to `DEBUG`
+3. For testing purposes and issues with ssl certificates, set environment variable `DOMINO_VERIFY_CERTIFICATE` to `false`. Be sure to unset this variable when not in use.
 <hr>
 
 ## Methods
