@@ -33,14 +33,14 @@ new_collaborators = domino.collaborators_add("integration-test")
 print(new_collaborators)
 
 # get tags
-tags = domino.tags_get()
+tags = domino.tags_list()
 pprint(tags)
 
 domino.tags_add(["new", "old"])
 domino.tags_add(["new", "old"])
-tags = domino.tags_get()
+tags = domino.tags_list()
 pprint(tags)
 
 domino.tags_remove("old")
-tags = domino.tags_get()
+tags = domino.tags_list()
 pprint(tags)

@@ -751,14 +751,12 @@ class Domino:
 
     def tags_add(self, tags: list, project_id=None):
         project_id = project_id if project_id else self.project_id
-        js_body = {
-            "tagNames": tags
-        }
+        js_body = {"tagNames": tags}
         url = self._routes.tags_add(project_id)
         response = self.request_manager.post(url, json=js_body)
         return response
 
-    def tag_get_id(self, tag_name,  project_id=None):
+    def tag_get_id(self, tag_name, project_id=None):
         tags = self.tags_list(project_id)
         for tag in tags:
             if tag_name == tag["name"]:

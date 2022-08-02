@@ -173,9 +173,7 @@ def test_tags_list_add_to_project(default_domino_client):
 
     assert len(new_tags) > len(first_tags)
 
-    assert any(
-        "new-tags" == tag["name"] for tag in new_tags
-    )
+    assert any("new-tags" == tag["name"] for tag in new_tags)
 
 
 @pytest.mark.skipif(
@@ -211,13 +209,11 @@ def test_tags_list_remove_from_a_project(default_domino_client):
 
     assert len(new_tags) < len(first_tags)
 
-    assert (
-        "new-tags" != tag["id"] for tag in new_tags
-    )
+    assert ("new-tags" != tag["id"] for tag in new_tags)
 
 
 def test_archiving_non_existent_project_raises_appropriate_error(
-        dummy_hostname, requests_mock
+    dummy_hostname, requests_mock
 ):
     """
     Confirm that trying to archive a bogus project will throw the appropriate exception.
