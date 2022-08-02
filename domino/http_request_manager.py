@@ -1,10 +1,12 @@
 import logging
+import os
 from http import HTTPStatus
 
 import requests
 from bs4 import BeautifulSoup
 from requests.auth import AuthBase
 
+from .constants import DOMINO_NOT_VERIFY_CERT
 from .exceptions import ReloginRequiredException
 
 
@@ -18,6 +20,8 @@ class _HttpRequestManager:
         self.auth = auth
         self._logger = logging.getLogger(__name__)
         self.request_session = requests.Session()
+        if os.environ[DOMINO_NOT_VERIFY_CERT]:
+            self.request_session.verify = False
 
     def post(self, url, data=None, json=None, **kwargs):
         return self._raise_for_status(
