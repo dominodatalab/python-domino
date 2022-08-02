@@ -740,6 +740,38 @@ class Domino:
         response = self.request_manager.get(url, params=query)
         return response.json()
 
+    def tags_list(self, project_id=None):
+        project_id = project_id if project_id else self.project_id
+        url = self._routes.tags_list(project_id)
+        return self._get(url)["tags"]
+
+    def tags_add(self, tags: list, project_id=None):
+        project_id = project_id if project_id else self.project_id
+        js_body = {
+            "tagNames": tags
+        }
+        url = self._routes.tags_add(project_id)
+        response = self.request_manager.post(url, json=js_body)
+        return response
+
+    def tag_get_id(self, tag_name,  project_id=None):
+        tags = self.tags_list(project_id)
+        for tag in tags:
+            if tag_name == tag["name"]:
+                return tag["id"]
+        logging.warning(f"tag with name {tag_name} not found for this project")
+        return
+
+    def tags_remove(self, tag_name, project_id=None):
+        project_id = project_id if project_id else self.project_id
+        tag_id = self.tag_get_id(tag_name, project_id)
+
+        if tag_id:
+            url = self._routes.tags_remove(project_id, tag_id)
+            response = self.request_manager.delete(url)
+            return response
+        return
+
     def collaborators_get(self):
         url = self._routes.collaborators_get()
         return self._get(url)

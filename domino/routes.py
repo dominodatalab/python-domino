@@ -37,6 +37,16 @@ class _Routes:
     def projects_list(self):
         return f"{self.host}/v4/gateway/projects"
 
+    # tags URLs
+    def tags_list(self, project_id):
+        return f"{self.host}/v4/projects/{project_id}"
+
+    def tags_add(self, project_id):
+        return f"{self.host}/v4/projects/{project_id}/tags"
+
+    def tags_remove(self, project_id, tag_id):
+        return f"{self.host}/v4/projects/{project_id}/tags/{tag_id}"
+
     def runs_list(self):
         return self._build_project_url() + "/runs"
 

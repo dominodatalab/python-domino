@@ -1,3 +1,4 @@
+import json
 import uuid
 from pprint import pformat
 
@@ -159,8 +160,46 @@ def test_unpublish_app_from_a_project(default_domino_client):
     assert response.status_code == 200, f"{response.status_code}: {response.reason}"
 
 
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_tags_list_add_from_a_project(default_domino_client):
+    """
+    Confirm that the python-domino client can get and add tags a project.
+    """
+    first_tags = default_domino_client.tags_list()
+
+    default_domino_client.tags_add(["new-tags"])
+    new_tags = default_domino_client.tags_list()
+
+    assert len(new_tags) < len(first_tags)
+
+    assert any(
+        "new-tags" == tag["name"] for tag in new_tags
+    )
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_tags_list_remove_from_a_project(default_domino_client):
+    """
+    Confirm that the python-domino client can get and add tags a project.
+    """
+    first_tags = default_domino_client.tags_list()
+
+    default_domino_client.tags_remove("new-tags")
+    new_tags = default_domino_client.tags_list()
+
+    assert len(new_tags) < len(first_tags)
+
+    assert (
+        "new-tags" != tag["id"] for tag in new_tags
+    )
+
+
 def test_archiving_non_existent_project_raises_appropriate_error(
-    dummy_hostname, requests_mock
+        dummy_hostname, requests_mock
 ):
     """
     Confirm that trying to archive a bogus project will throw the appropriate exception.
