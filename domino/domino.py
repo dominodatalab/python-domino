@@ -745,6 +745,10 @@ class Domino:
         url = self._routes.tags_list(project_id)
         return self._get(url)["tags"]
 
+    def tag_details(self, tag_id):
+        url = self._routes.tag_details(tag_id)
+        return self._get(url)
+
     def tags_add(self, tags: list, project_id=None):
         project_id = project_id if project_id else self.project_id
         js_body = {

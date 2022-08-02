@@ -41,6 +41,9 @@ class _Routes:
     def tags_list(self, project_id):
         return f"{self.host}/v4/projects/{project_id}"
 
+    def tag_details(self, tag_id):
+        return f"{self.host}/projectTags/{tag_id}"
+
     def tags_add(self, project_id):
         return f"{self.host}/v4/projects/{project_id}/tags"
 
