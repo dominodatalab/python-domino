@@ -21,7 +21,6 @@ class _HttpRequestManager:
         self._logger = logging.getLogger(__name__)
         self.request_session = requests.Session()
         if os.environ.get(DOMINO_NOT_VERIFY_CERT, None) in ["true", "True", "y", "yes"]:
-            print("yep")
             self.request_session.verify = False
 
     def post(self, url, data=None, json=None, **kwargs):
