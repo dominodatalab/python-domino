@@ -9,6 +9,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Implemented pre-commit for black / flake8 formatting.
 * Added / updated dataset endpoint usability.
 * Added option to bypass certification verification
+* Added tags functionality
 
 ### Changed
 * updated airflow dependency 2.2.4

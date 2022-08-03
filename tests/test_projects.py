@@ -159,6 +159,59 @@ def test_unpublish_app_from_a_project(default_domino_client):
     assert response.status_code == 200, f"{response.status_code}: {response.reason}"
 
 
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_tags_list_add_to_project(default_domino_client):
+    """
+    Confirm that the python-domino client can get and add tags a project.
+    """
+    first_tags = default_domino_client.tags_list()
+
+    default_domino_client.tags_add(["new-tags"])
+    new_tags = default_domino_client.tags_list()
+
+    assert len(new_tags) > len(first_tags)
+
+    assert any("new-tags" == tag["name"] for tag in new_tags)
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_tags_details(default_domino_client):
+    """
+    Confirm that the python-domino client can get tags details.
+    """
+    tag_name = "test-detail-tags"
+    test_tag = default_domino_client.tags_add([tag_name])
+    tag_id = test_tag.json()[0]["id"]
+    detail_tag = default_domino_client.tag_details(tag_id)
+
+    assert detail_tag["name"] == tag_name
+    assert detail_tag["_id"] == tag_id
+    assert detail_tag["lastAdded"] is not None
+
+    default_domino_client.tags_remove(tag_name)
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_tags_list_remove_from_a_project(default_domino_client):
+    """
+    Confirm that the python-domino client can get and add tags a project.
+    """
+    first_tags = default_domino_client.tags_list()
+
+    default_domino_client.tags_remove("new-tags")
+    new_tags = default_domino_client.tags_list()
+
+    assert len(new_tags) < len(first_tags)
+
+    assert ("new-tags" != tag["id"] for tag in new_tags)
+
+
 def test_archiving_non_existent_project_raises_appropriate_error(
     dummy_hostname, requests_mock
 ):

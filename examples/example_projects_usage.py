@@ -1,4 +1,5 @@
 import os
+from pprint import pprint
 
 from domino import Domino
 from domino.exceptions import ProjectNotFoundException
@@ -30,3 +31,16 @@ print(collaborators)
 
 new_collaborators = domino.collaborators_add("integration-test")
 print(new_collaborators)
+
+# get tags
+tags = domino.tags_list()
+pprint(tags)
+
+domino.tags_add(["new", "old"])
+domino.tags_add(["new", "old"])
+tags = domino.tags_list()
+pprint(tags)
+
+domino.tags_remove("old")
+tags = domino.tags_list()
+pprint(tags)

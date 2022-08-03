@@ -21,6 +21,9 @@ class _HttpRequestManager:
         self._logger = logging.getLogger(__name__)
         self.request_session = requests.Session()
         if os.environ.get(DOMINO_VERIFY_CERTIFICATE, None) in ["false", "f", "n", "no"]:
+            warning = "InsecureRequestWarning: Bypassing certificate verification is strongly ill-advised"
+            logging.warning(warning)
+            print(warning)
             self.request_session.verify = False
 
     def post(self, url, data=None, json=None, **kwargs):
