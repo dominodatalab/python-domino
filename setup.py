@@ -50,7 +50,7 @@ setup(
         "black==22.3.0",
         "apache-airflow==1.10.15",
         "pre-commit==2.19.0",
-        "nbconvert==6.0.0",
+        "nbconvert==6.3.0",
         "Jinja2==2.11.3",
     ],
     extras_require={
