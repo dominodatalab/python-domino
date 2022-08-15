@@ -48,7 +48,6 @@ setup(
         "polling2==0.5.0",
         "flake8==4.0.1",
         "black==22.3.0",
-        "apache-airflow==1.10.15",
         "pre-commit==2.19.0",
         "nbconvert==6.3.0",
         "Jinja2==2.11.3",
