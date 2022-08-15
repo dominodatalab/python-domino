@@ -12,9 +12,10 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Added tags functionality
 
 ### Changed
-* updated airflow dependency 2.2.4
+* updated airflow dependency to 2.2.4
 * Updated runs_stdout output
 * Fixed issues with import from domino_data
+* Updated nbconvert dependency version to 6.3.0
 
 ## 1.0.8
 
