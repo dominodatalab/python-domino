@@ -28,6 +28,7 @@ class BearerAuth(AuthBase):
         auth_token = (
             self._from_token_file() if self.domino_token_file else self.auth_token
         )
+        r.headers["User-Agent"] = "Python-Domino-API"
         r.headers["Authorization"] = "Bearer " + auth_token
         return r
 
