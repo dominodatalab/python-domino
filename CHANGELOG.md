@@ -16,7 +16,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Updated runs_stdout output
 * Fixed issues with import from domino_data
 * Updated nbconvert dependency version to 6.3.0
-* updated request user-agent to Python-Domino-Api
+* updated request user-agent to python-domino/{version}
 
 ## 1.0.8
 
