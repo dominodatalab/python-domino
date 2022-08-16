@@ -2,6 +2,7 @@ import os
 
 from requests.auth import AuthBase, HTTPBasicAuth
 
+from ._version import __version__
 from .constants import DOMINO_TOKEN_FILE_KEY_NAME, DOMINO_USER_API_KEY_KEY_NAME
 
 
@@ -28,6 +29,7 @@ class BearerAuth(AuthBase):
         auth_token = (
             self._from_token_file() if self.domino_token_file else self.auth_token
         )
+        r.headers["User-Agent"] = f"python-domino/{__version__}"
         r.headers["Authorization"] = "Bearer " + auth_token
         return r
 
