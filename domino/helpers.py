@@ -1,7 +1,7 @@
 import os
 import socket
 import urllib
-from distutils.version import LooseVersion as parse_version
+from packaging.version import parse as parse_version
 
 from . import constants
 
