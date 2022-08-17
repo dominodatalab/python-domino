@@ -667,6 +667,8 @@ class Domino:
         return self._get(url)
 
     def files_upload(self, path, file):
+        if path[0] != "/":
+            path = "/" + path
         url = self._routes.files_upload(path)
         return self._put_file(url, file)
 
