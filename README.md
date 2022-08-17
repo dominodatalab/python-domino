@@ -355,3 +355,14 @@ Allows a user to schedule domino runs via the v4 api, which supports `onDemandSp
 
 This library is made available under the Apache 2.0 License.
 This is an open-source project of [Domino Data Lab](https://www.dominodatalab.com).
+
+## Development
+
+The current python-domino is based off of python 3.9, therefore it is recommended for development. 
+Pipenv is also recommended to manage the dependencies. 
+
+to install dependencies from setup.py for development, 
+`pipenv install -e ".[dev]"`
+
+same process can be followed for airflow and data
+`pipenv install -e ".[data]" ".[airflow]"`
