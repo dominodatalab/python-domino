@@ -1,6 +1,7 @@
 import os
 import socket
 import urllib
+
 from packaging.version import parse as parse_version
 
 from . import constants

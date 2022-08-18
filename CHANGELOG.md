@@ -18,8 +18,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Updated nbconvert dependency version to 6.3.0
 * updated request user-agent to python-domino/{version}
 * Updated dependency management
-
-### Removed
+* Changed file handling for `files_upload`
 * removed requirements.txt in favor setup.py
 
 ## 1.0.8

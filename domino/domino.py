@@ -17,8 +17,8 @@ from domino.constants import (
     DOMINO_HOST_KEY_NAME,
     DOMINO_LOG_LEVEL_KEY_NAME,
     MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION,
-    MINIMUM_GA_DOMINO_VERSION,
     MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
+    MINIMUM_SUPPORTED_DOMINO_VERSION,
 )
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
@@ -52,7 +52,7 @@ class Domino:
 
         # Get version
         self._version = self.deployment_version().get("version")
-        assert self.requires_at_least(MINIMUM_GA_DOMINO_VERSION)
+        assert self.requires_at_least(MINIMUM_SUPPORTED_DOMINO_VERSION)
 
         self._logger.debug(
             f"Domino deployment {host} is running version {self._version}"
@@ -667,6 +667,8 @@ class Domino:
         return self._get(url)
 
     def files_upload(self, path, file):
+        if not path.startswith("/"):
+            path = "/" + path
         url = self._routes.files_upload(path)
         return self._put_file(url, file)
 

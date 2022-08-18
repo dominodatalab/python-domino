@@ -396,10 +396,10 @@ This is an open-source project of [Domino Data Lab](https://www.dominodatalab.co
 
 ## Development
 
-The current python-domino is based off of python 3.9, therefore it is recommended for development. 
-Pipenv is also recommended to manage the dependencies. 
+The current python-domino is based off of python 3.9, therefore it is recommended for development.
+Pipenv is also recommended to manage the dependencies.
 
-to install dependencies from setup.py for development, 
+to install dependencies from setup.py for development,
 `pipenv install -e ".[dev]"`
 
 same process can be followed for airflow and data
