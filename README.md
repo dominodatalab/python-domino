@@ -2,7 +2,7 @@
 
 This library provides bindings for the [Domino Data Lab API](https://dominodatalab.github.io/api-docs/).
 
-The latest released version is `1.0.8`.
+The latest released version is `1.1.0`.
 
 ## Version Compatibility Matrix
 
