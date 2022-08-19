@@ -316,44 +316,6 @@ Note: datasets are first marked for deletion, then are deleted after a certain a
 
 <hr>
 
-## Tags
-Project tags are an easy way to add freeform metadata to a project. Tags help colleagues and consumers organize <br>
-and find projects that interest them in Domino. Tags can be used to describe the subject explored by a project, <br>
-the packages and libraries it uses, or the source of the data within.
-
-### tags_list(*project_id)
-
-returns the list of tags assigned to the specified project
-
-- _project_id:_ id that identifies the specific project to be used
-
-### tag_details(tag_id)
-
-provides detail information about the tag
-
-- _tag_id:_ id that identifies the specific project to be used
-
-### tags_add(tags, *project_id)
-
-Creates a tag, if it does not exist, and add it to the current the project
-
-- _tags (list):_ name that identifies the specific tag to be used
-- _project_id:_ (Defaults to current project id) id that identifies the specific project to be used
-
-### tag_get_id(tag_name, *project_id)
-
-returns the tag id using the tag string name
-
-- _tag_name (string):_ name that identifies the specific tag to be used
-- _project_id:_ (Defaults to current project id) id that identifies the specific project to be used
-
-### tags_remove(tag_name, project_id=None)
-
-removes the tag from a project
-
-- _tag_name (string):_ name that identifies the specific tag to be used
-- _project_id:_ (Defaults to current project id) id that identifies the specific project to be used
-
 ## Airflow
 
 The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
@@ -393,14 +355,3 @@ Allows a user to schedule domino runs via the v4 api, which supports `onDemandSp
 
 This library is made available under the Apache 2.0 License.
 This is an open-source project of [Domino Data Lab](https://www.dominodatalab.com).
-
-## Development
-
-The current python-domino is based off of python 3.9, therefore it is recommended for development.
-Pipenv is also recommended to manage the dependencies.
-
-to install dependencies from setup.py for development,
-`pipenv install -e ".[dev]"`
-
-same process can be followed for airflow and data
-`pipenv install -e ".[data]" ".[airflow]"`
