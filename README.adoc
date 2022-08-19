@@ -38,18 +38,37 @@ If you are adding install instructions for `python-domino` to your https://suppo
 RUN pip install dominodatalab
 ----
 
-To install a specific version of the library from PyPI, such as `1.0.6`, use the following command:
+To install a specific version of the library from PyPI, such as `1.0.6`:
 
 [source,shell]
 ----
 pip install dominodatalab==1.0.6
 ----
 
-To install a specific version of the library from GitHub, such as `1.0.6`, use the following command:
+To install a specific version of the library from GitHub, such as `1.0.6`:
 
 [source,shell]
 ----
 pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
+----
+
+== Development
+
+The current python-domino is based on Python 3.9, which is therefore recommended for development.
+Pipenv is also recommended to manage the dependencies.
+
+To install dependencies from `setup.py` for development:
+
+[source,shell]
+----
+pipenv install -e ".[dev]"
+----
+
+Use the same process for Airflow and data:
+
+[source,shell]
+----
+pipenv install -e ".[data]" ".[airflow]"
 ----
 
 == Set up the connection
@@ -57,8 +76,6 @@ pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 You can set up the connection by creating a new instance of `Domino`:
 
 ._class_ Domino(project, api_key=None, host=None, domino_token_file=None, auth_token=None)
-
-.Parameters
 
 * _project:_ A project identifier (in the form of ownerusername/projectname)
 * _api_key:_ (Optional) An API key to authenticate with. 
@@ -90,8 +107,6 @@ See https://github.com/dominodatalab/python-domino/blob/master/examples/example_
 
 Create a new project with given project name.
 
-.Parameters
-
 * _project_name:_ The name of the project.
 * _owner_username:_ (Optional) The owner username for the project. 
 This parameter is useful when you need to create a project under an organization.
@@ -100,48 +115,52 @@ This parameter is useful when you need to create a project under an organization
 
 Get the list of collaborators on a project.
 
-==== collaborators_add()
+==== collaborators_add(username_or_email, message="")
 
 Add collaborators to a project.
 
-[source,python]
-----
-domino.collaborators_add("collaborator1", "collaborator2")
-----
+* _username_or_email:_ Name or email of the Domino user to add as collaborator to the current project.
+* _message:_ Optional - Message related to the user's role or purpose to the project.
 
-.Parameters
+=== Project tags
 
-* _collaborator_username:_ Usernames of one or more collaborators to add to the project.
+Project tags are an easy way to add freeform metadata to a project. Tags help colleagues and consumers organize <br>
+and find projects that interest them in Domino. Tags can be used to describe the subject explored by a project, <br>
+the packages and libraries it uses, or the source of the data within.
 
-==== tags_list()
+==== tags_list(*project_id)
 
 List a project's tags.
 
-==== tags_add()
+* _project_id:_ The project identifier.
 
-Add tags to a project.
+### tag_details(tag_id)
 
-[source,python]
-----
-domino.tags_add(["tag1", "tag2"])
-----
+Get details about a tag.
 
-.Parameters
+* _tag_id:_ The tag identifier.
 
-* _tag_name:_ Names of one or more tags to add to the project.
+==== tags_add(tags, *project_id)
 
-==== tags_remove()
+Create a tag, if it does not exist, and add it to a project.
 
-Remove tags from a project.
+* _tags (list):_ One or more tag names.
 
-[source,python]
-----
-domino.tags_remove("old")
-----
+* _project_id:_ (Defaults to current project ID) The project identifier.
 
-.Parameters
+==== tag_get_id(tag_name, *project_id)
 
-* _tag_name:_ Names of one or more tags to remove from the project.
+Get the tag ID using the tag string name.
+
+* _tag_name (string):_ The tag name.
+* _project_id:_ (Defaults to current project id) The project ID.
+
+==== tags_remove(tag_name, project_id=None)
+
+Remove a tag from a project.
+
+* _tag_name (string):_ The tag name.
+* _project_id:_ (Defaults to current project id) The project ID.
 
 === Executions
 
@@ -152,8 +171,6 @@ List the executions on the selected project.
 ==== runs_start(_command, isDirect, commitId, title, tier, publishApiEndpoint*)
 
 Start a new execution on the selected project. 
-
-.Parameters
 
 * _command:_ The command to execution as an array of strings where members of the array represent arguments of the command. 
 For example: `["main.py", "hi mom"]`
@@ -169,8 +186,6 @@ If not provided, the project's default tier is used.
 ==== runs_start_blocking(_command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
 
 Start a new execution on the selected project and make a blocking request that waits until job is finished.
-
-.Parameters
 
 * _command:_ The command to execution as an array of strings where members of the array represent arguments of the command. 
 For example: `["main.py", "hi mom"]`
@@ -192,16 +207,12 @@ If this threshold is exceeded, an exception is raised.
 
 Stop an existing execution in the selected project.
 
-.Parameters
-
 * _runId:_ String that identifies the execution.
 * _saveChanges:_ (Defaults to True) If false, execution results are discarded.
 
 ==== runs_stdout(_runId*)
 
 Get `stdout` emitted by a particular execution.
-
-.Parameters
 
 * _runId:_ string that identifies the execution
 
@@ -211,8 +222,6 @@ Get `stdout` emitted by a particular execution.
 
 List the files in a folder in the Domino project.
 
-.Parameters
-
 * _commitId:_ The `commitId` to list files from.
 * _path:_ (Defaults to "/") The path to list from.
 
@@ -221,8 +230,6 @@ List the files in a folder in the Domino project.
 Upload a Python file object into the specified path inside the project. 
 See `examples/upload_file.py` for an example.
 All parameters are required.
-
-.Parameters
 
 * _path:_ The path to save the file to. 
 For example, `/README.md` writes to the root directory of the project while `/data/numbers.csv` saves the file to a subfolder named `data`.
@@ -234,8 +241,6 @@ For example: `f = open("authors.txt","rb")`
 
 Retrieve a file from the Domino server by blob key.
 
-.Parameters
-
 * _key:_ The key of the file to fetch from the blob server.
 
 === Apps
@@ -243,8 +248,6 @@ Retrieve a file from the Domino server by blob key.
 ==== app_publish(_unpublishRunningApps=True*, _hardwareTierId=None_)
 
 Publish an app in the Domino project, or republish an existing app. 
-
-.Parameters
 
 * _unpublishRunningApps:_ (Defaults to True) Check for active app instances in the current project and unpublish them before publishing.
 * _hardwareTierId:_ (Optional) Launch the app on the specified hardware tier.
@@ -258,8 +261,6 @@ Stop all running apps in the Domino project.
 ==== job_start(_command*, _commit_id=None_, _hardware_tier_name=None_, _environment_id=None_, _on_demand_spark_cluster_properties=None_):
 
 Start a new job (execution) in the project.
-
-.Parameters
 
 * _command (string):_ Command to execute in Job. 
 For example: `domino.job_start(command="main.py arg1 arg2")`
@@ -316,16 +317,12 @@ If not provided, the job launches with no external volumes mounted.
 
 Stop the Job (execution) in the project.
 
-.Parameters
-
 * _job_id (string):_ Job identifier.
-* _commit_results (boolean):_ Defaults to `true`; if `false`, the job results are not committed.
+* _commit_results (boolean):_ (Defaults to `true`) If `false`, the job results are not committed.
 
 ==== job_status(_job_id*):
 
 Get the status of a job.
-
-.Parameters
 
 * _job_id (string):_ Job identifier.
 
@@ -333,8 +330,6 @@ Get the status of a job.
 
 Start a job and poll until the job is finished. 
 Additionally, this method supports all the parameters in the `job_start` method.
-
-.Parameters
 
 * _poll_freq:_ Poll frequency interval in seconds.
 * _max_poll_time:_ Max poll time in seconds.
@@ -355,15 +350,13 @@ Each project can hold up to 5 datasets.
 
 ==== datasets_ids(*project_id)
 
-List the IDs of a filtered datasets for a particular project.
-// What does this mean?
+List the IDs the datasets for a particular project.
 
 * _project_id:_ The project identifier.
 
 ==== datasets_names(project_id)
 
-List the names of a filtered datasets for a particular project.
-// What does this mean?
+List the names the datasets for a particular project.
 
 * _project_id:_ The project identifier.
 
@@ -395,7 +388,7 @@ CAUTION: May have unintended referential consequences.
 Delete a set of datasets.
 
 * _dataset_ids: (list[string])_ List of IDs of the datasets to delete.
-NOTE: Datasets are first marked for deletion, then deleted after a period of time.
+NOTE: Datasets are first marked for deletion, then deleted after approximately 5 minutes.
 
 // How much time?
 
