@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from requests.auth import AuthBase
 
+from ._version import __version__
 from .constants import DOMINO_VERIFY_CERTIFICATE
 from .exceptions import ReloginRequiredException
 
@@ -20,6 +21,8 @@ class _HttpRequestManager:
         self.auth = auth
         self._logger = logging.getLogger(__name__)
         self.request_session = requests.Session()
+        self.request_session.headers["User-Agent"] = f"python-domino/{__version__}"
+
         if os.environ.get(DOMINO_VERIFY_CERTIFICATE, None) in ["false", "f", "n", "no"]:
             warning = "InsecureRequestWarning: Bypassing certificate verification is strongly ill-advised"
             logging.warning(warning)
