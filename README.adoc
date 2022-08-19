@@ -23,24 +23,28 @@ The `python-domino` library is compatible with different versions of Domino:
 
 Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
 
+[source,shell]
 ----
 pip install dominodatalab
 ----
 
 If you are adding install instructions for `python-domino` to your https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management[Domino Environment^] Dockerfile Instructions field, you must add `RUN` to the beginning:
 
+[source,shell]
 ----
 RUN pip install dominodatalab
 ----
 
 To install specific version of the library from PyPI, for example, `1.0.6`, use the following command:
 
+[source,shell]
 ----
 pip install dominodatalab==1.0.6
 ----
 
 To install specific version of the library from GitHub, for example, `1.0.6`, use the following command:
 
+[source,shell]
 ----
 pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 ----
@@ -51,7 +55,7 @@ You can set up the connection by creating a new instance of `Domino`:
 
 ._class_ Domino(project, api_key=None, host=None, domino_token_file=None, auth_token=None)
 
-The parameters are:
+.Parameters
 
 * _project:_ A project identifier (in the form of ownerusername/projectname)
 * _api_key:_ (Optional) An API key to authenticate with. 
@@ -64,12 +68,12 @@ If not provided, the library expects to find one in the `DOMINO_TOKEN_FILE` envi
 
 [NOTE]
 ====
-. The authentication preference should always be given to the authentication token. 
+* The authentication preference should always be given to the authentication token. 
 If it's not passed, the path to domino token file takes precedence, otherwise the API key is used. 
 If none of these three parameters are passed, then preference is given to the Domino token file from the corresponding environment variable, then to the API key from the corresponding environment variable.
-. By default the log level is set to `INFO`.
+* By default the log level is set to `INFO`.
 To set the log level to `DEBUG`, set the `DOMINO_LOG_LEVEL` environment variable to `DEBUG`.
-. For testing purposes and issues with SSL certificates, set the environment variable `DOMINO_VERIFY_CERTIFICATE` to `false`. 
+* For testing purposes and issues with SSL certificates, set the environment variable `DOMINO_VERIFY_CERTIFICATE` to `false`. 
 Be sure to unset this variable when not in use.
 ====
 
@@ -203,8 +207,8 @@ If not provided, the job launches from the latest commit.
 If not provided, the project's default tier is used.
 * _environment_id (string):_ (Optional) The environment ID with which to launch the job. 
 If not provided, the project's default environment is used.
-* _on_demand_spark_cluster_properties (dict):_ (Optional) On demand spark cluster properties. Following properties
-can be provided in spark cluster
+* _on_demand_spark_cluster_properties (dict):_ (Optional) On demand spark cluster properties. 
+The following properties can be provided in the Spark cluster:
 +
 ----
 {
@@ -339,18 +343,21 @@ The `python-domino` client comes bundled with an https://airflow.apache.org/docs
 
 When installing the client from PyPI, add the `airflow` flag to extras:
 
+[source,shell]
 ----
 pip install "dominodatalab[airflow]"
 ----
 
 Similarly, when installing the client from GitHub, use the following command:
 
+[source,shell]
 ----
 pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg="dominodatalab[airflow]"
 ----
 
 === DominoOperator
 
+[source,python]
 ----
 from domino.airflow import DominoOperator
 ----
@@ -368,6 +375,7 @@ Follows the same function signature as `domino.runs_start` with two extra argume
 
 === DominoSparkOperator
 
+[source,python]
 ----
 from domino.airflow import DominoSparkOperator
 ----
