@@ -1,8 +1,11 @@
 = python-domino
 
-This library provides bindings for the https://dominodatalab.github.io/api-docs/[Domino Data Lab API].
+This library provides bindings for the Domino APIs.  See this documentation for details about the APIs:
 
-The latest released version is `1.0.8`.
+* https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/[Latest public Domino APIs]
+* https://dominodatalab.github.io/api-docs/[Legacy APIs]
+
+The latest released version of `python-domino` is `1.0.8`.
 
 == Version compatibility matrix
 
@@ -12,10 +15,10 @@ The `python-domino` library is compatible with different versions of Domino:
 |===
 | Domino Versions | Python-Domino
 
-| 3.6.x or Lower
+| 3.6.x or lower
 | http://github.com/dominodatalab/python-domino/archive/0.3.5.zip[0.3.5]
 
-| 4.1.0 or Higher
+| 4.1.0 or higher
 | https://github.com/dominodatalab/python-domino/archive/1.0.0.zip[1.0.0] or higher
 |===
 
@@ -79,7 +82,11 @@ Be sure to unset this variable when not in use.
 
 == Methods
 
-=== project_create(project_name, owner_username=None)
+=== Projects
+
+See https://github.com/dominodatalab/python-domino/blob/master/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
+
+==== project_create(project_name, owner_username=None)
 
 Create a new project with given project name.
 
@@ -89,11 +96,60 @@ Create a new project with given project name.
 * _owner_username:_ (Optional) The owner username for the project. 
 This parameter is useful when you need to create a project under an organization.
 
-=== runs_list()
+==== collaborators_get()
 
-List the runs on the selected project.
+Get the list of collaborators on a project.
 
-=== runs_start(_command, isDirect, commitId, title, tier, publishApiEndpoint*)
+==== collaborators_add()
+
+Add collaborators to a project.
+
+[source,python]
+----
+domino.collaborators_add("collaborator1", "collaborator2")
+----
+
+.Parameters
+
+* _collaborator_username:_ Usernames of one or more collaborators to add to the project.
+
+==== tags_list()
+
+List a project's tags.
+
+==== tags_add()
+
+Add tags to a project.
+
+[source,python]
+----
+domino.tags_add(["tag1", "tag2"])
+----
+
+.Parameters
+
+* _tag_name:_ Names of one or more tags to add to the project.
+
+==== tags_remove()
+
+Remove tags from a project.
+
+[source,python]
+----
+domino.tags_remove("old")
+----
+
+.Parameters
+
+* _tag_name:_ Names of one or more tags to remove from the project.
+
+=== Executions
+
+==== runs_list()
+
+List the executions on the selected project.
+
+==== runs_start(_command, isDirect, commitId, title, tier, publishApiEndpoint*)
 
 Start a new execution on the selected project. 
 
@@ -110,7 +166,7 @@ This is the human-readable name of the hardware tier, such as "Free", "Small", o
 If not provided, the project's default tier is used.
 * _publishApiEndpoint:_ (Optional) Whether or not to publish an API endpoint from the resulting output.
 
-=== runs_start_blocking(_command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
+==== runs_start_blocking(_command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
 
 Start a new execution on the selected project and make a blocking request that waits until job is finished.
 
@@ -132,7 +188,7 @@ If this threshold is exceeded, an exception is raised.
 * _retry_count:_ (Optional) Maximum number of polling retries (in case of transient HTTP errors). 
 If this threshold is exceeded, an exception is raised.
 
-=== run_stop(*runId, saveChanges=True):
+==== run_stop(*runId, saveChanges=True):
 
 Stop an existing execution in the selected project.
 
@@ -141,7 +197,7 @@ Stop an existing execution in the selected project.
 * _runId:_ String that identifies the execution.
 * _saveChanges:_ (Defaults to True) If false, execution results are discarded.
 
-=== runs_stdout(_runId*)
+==== runs_stdout(_runId*)
 
 Get `stdout` emitted by a particular execution.
 
@@ -149,7 +205,9 @@ Get `stdout` emitted by a particular execution.
 
 * _runId:_ string that identifies the execution
 
-=== files_list(_commitId, path*)
+=== Files and blobs
+
+==== files_list(_commitId, path*)
 
 List the files in a folder in the Domino project.
 
@@ -158,7 +216,7 @@ List the files in a folder in the Domino project.
 * _commitId:_ The `commitId` to list files from.
 * _path:_ (Defaults to "/") The path to list from.
 
-=== files_upload(_path, file*)
+==== files_upload(_path, file*)
 
 Upload a Python file object into the specified path inside the project. 
 See `examples/upload_file.py` for an example.
@@ -172,7 +230,7 @@ If the specified folder does not yet exist, it is created.
 * _file:_ A Python file object. 
 For example: `f = open("authors.txt","rb")`
 
-=== blobs_get(_key*)
+==== blobs_get(_key*)
 
 Retrieve a file from the Domino server by blob key.
 
@@ -180,7 +238,9 @@ Retrieve a file from the Domino server by blob key.
 
 * _key:_ The key of the file to fetch from the blob server.
 
-=== app_publish(_unpublishRunningApps=True*, _hardwareTierId=None_)
+=== Apps
+
+==== app_publish(_unpublishRunningApps=True*, _hardwareTierId=None_)
 
 Publish an app in the Domino project, or republish an existing app. 
 
@@ -189,11 +249,13 @@ Publish an app in the Domino project, or republish an existing app.
 * _unpublishRunningApps:_ (Defaults to True) Check for active app instances in the current project and unpublish them before publishing.
 * _hardwareTierId:_ (Optional) Launch the app on the specified hardware tier.
 
-=== app_unpublish()
+==== app_unpublish()
 
 Stop all running apps in the Domino project.
 
-=== job_start(_command*, _commit_id=None_, _hardware_tier_name=None_, _environment_id=None_, _on_demand_spark_cluster_properties=None_):
+=== Jobs
+
+==== job_start(_command*, _commit_id=None_, _hardware_tier_name=None_, _environment_id=None_, _on_demand_spark_cluster_properties=None_):
 
 Start a new job (execution) in the project.
 
@@ -250,7 +312,7 @@ If `on_demand_spark_cluster_properties` and `compute_cluster_properties` are bot
 * _external_volume_mounts (List[string]):_ (Optional) External volume mount IDs to mount to execution. 
 If not provided, the job launches with no external volumes mounted.
 
-=== job_stop(_job_id*, _commit_results=True_):
+==== job_stop(_job_id*, _commit_results=True_):
 
 Stop the Job (execution) in the project.
 
@@ -259,7 +321,7 @@ Stop the Job (execution) in the project.
 * _job_id (string):_ Job identifier.
 * _commit_results (boolean):_ Defaults to `true`; if `false`, the job results are not committed.
 
-=== job_status(_job_id*):
+==== job_status(_job_id*):
 
 Get the status of a job.
 
@@ -267,7 +329,7 @@ Get the status of a job.
 
 * _job_id (string):_ Job identifier.
 
-=== job_start_blocking(_poll_freq=5*, _max_poll_time=6000_, **kwargs):
+==== job_start_blocking(_poll_freq=5*, _max_poll_time=6000_, **kwargs):
 
 Start a job and poll until the job is finished. 
 Additionally, this method supports all the parameters in the `job_start` method.
@@ -277,41 +339,41 @@ Additionally, this method supports all the parameters in the `job_start` method.
 * _poll_freq:_ Poll frequency interval in seconds.
 * _max_poll_time:_ Max poll time in seconds.
 
-== Datasets
+=== Datasets
 
 A Domino dataset is a collection of files that are available in user executions as a filesystem directory.
 A dataset always reflects the most recent version of the data.
 You can modify the contents of a dataset through the Domino UI or through workload executions.
-See https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more details.
+See https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more details, and https://github.com/dominodatalab/python-domino/blob/master/examples/example_dataset.py[`example_dataset.py`^] for example code.
 
-=== datasets_list(project_id=None)
+==== datasets_list(project_id=None)
 
 Provide a JSON list of all the available datasets.
 
 * _project_id (string):_ (Defaults to None) The project identifier.
 Each project can hold up to 5 datasets.
 
-=== datasets_ids(*project_id)
+==== datasets_ids(*project_id)
 
 List the IDs of a filtered datasets for a particular project.
 // What does this mean?
 
 * _project_id:_ The project identifier.
 
-=== datasets_names(project_id)
+==== datasets_names(project_id)
 
 List the names of a filtered datasets for a particular project.
 // What does this mean?
 
 * _project_id:_ The project identifier.
 
-=== datasets_details(*dataset_id)
+==== datasets_details(*dataset_id)
 
 Provide details about a dataset.
 
 * _dataset_id:_ The dataset identifier.
 
-=== datasets_create(*dataset_name, *dataset_description)
+==== datasets_create(*dataset_name, *dataset_description)
 
 Create a new dataset.
 
@@ -319,7 +381,7 @@ Create a new dataset.
 The name must be unique.
 * _dataset_description:_ Description of the dataset.
 
-=== datasets_update_details(*dataset_id, dataset_name=None, dataset_description=None)
+==== datasets_update_details(*dataset_id, dataset_name=None, dataset_description=None)
 
 Update a dataset's name or description.
 
@@ -328,7 +390,7 @@ Update a dataset's name or description.
 CAUTION: May have unintended referential consequences.
 * _dataset_description:_ (Optional) New description of the dataset.
 
-=== datasets_remove(dataset_ids)
+==== datasets_remove(dataset_ids)
 
 Delete a set of datasets.
 
@@ -354,6 +416,8 @@ Similarly, when installing the client from GitHub, use the following command:
 ----
 pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg="dominodatalab[airflow]"
 ----
+
+See also https://github.com/dominodatalab/python-domino/blob/master/examples/example_airflow_dag.py[example_airflow_dag.py] for example code.
 
 === DominoOperator
 
