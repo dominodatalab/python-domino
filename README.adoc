@@ -4,9 +4,9 @@ This library provides bindings for the https://dominodatalab.github.io/api-docs/
 
 The latest released version is `1.0.8`.
 
-== Version Compatibility Matrix
+== Version compatibility matrix
 
-`python-domino` library is compatible with different versions of Domino:
+The `python-domino` library is compatible with different versions of Domino:
 
 [cols=",^"]
 |===
@@ -19,7 +19,7 @@ The latest released version is `1.0.8`.
 | https://github.com/dominodatalab/python-domino/archive/1.0.0.zip[1.0.0] or Higher
 |===
 
-== Installation
+== Install python-domino
 
 Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
 
@@ -27,7 +27,7 @@ Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominoda
 pip install dominodatalab
 ----
 
-If you are adding install instructions for `python-domino` to your https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management[Domino Environment] Dockerfile Instructions field, you must add `RUN` to the beginning:
+If you are adding install instructions for `python-domino` to your https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management[Domino Environment^] Dockerfile Instructions field, you must add `RUN` to the beginning:
 
 ----
 RUN pip install dominodatalab
@@ -45,42 +45,45 @@ To install specific version of the library from GitHub, for example, `1.0.6`, us
 pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 ----
 
-== Overview
+== Set up the connection
 
-=== Setting up the connection
+You can set up the connection by creating a new instance of `Domino`:
 
-You can set up the connection by creating new instance of `Domino`.
-
-=== _class_ Domino(project, api_key=None, host=None, domino_token_file=None, auth_token=None)
+._class_ Domino(project, api_key=None, host=None, domino_token_file=None, auth_token=None)
 
 The parameters are:
 
 * _project:_ A project identifier (in the form of ownerusername/projectname)
-* _api_key:_ (Optional) An API key to authenticate with. If not provided the library will expect to find one
-in the DOMINO_USER_API_KEY environment variable.
-* _host:_ (Optional) A host URL. If not provided the library will expect to find one in the DOMINO_API_HOST
-environment variable.
-* _domino_token_file:_ (Optional) Path to domino token file containing auth token. If not provided the library will expect to find one
-in the DOMINO_TOKEN_FILE environment variable.
-* _auth_token:_ (Optional) Authentication token
+* _api_key:_ (Optional) An API key to authenticate with. 
+If not provided, the library expects to find one in the `DOMINO_USER_API_KEY` environment variable.
+* _host:_ (Optional) A host URL. 
+If not provided, the library expects to find one in the `DOMINO_API_HOST` environment variable.
+* _domino_token_file:_ (Optional) Path to domino token file containing auth token. 
+If not provided, the library expects to find one in the `DOMINO_TOKEN_FILE` environment variable.
+* _auth_token:_ (Optional) Authentication token.
 
 [NOTE]
 ====
-. The authentication preference should always be given to the authentication token. If it's not passed, the path to domino token file
-takes precedence, otherwise the API key is used. If none of these three parameters are passed, then preference will be given to the
-domino token file from the corresponding environment variable, then to the API key from the corresponding environment variable.
-. By default the log level is set to `INFO`, to set log level to `DEBUG`, set `DOMINO_LOG_LEVEL` environment variable to `DEBUG`
-. For testing purposes and issues with ssl certificates, set environment variable `DOMINO_VERIFY_CERTIFICATE` to `false`. Be sure to unset this variable when not in use.
+. The authentication preference should always be given to the authentication token. 
+If it's not passed, the path to domino token file takes precedence, otherwise the API key is used. 
+If none of these three parameters are passed, then preference is given to the Domino token file from the corresponding environment variable, then to the API key from the corresponding environment variable.
+. By default the log level is set to `INFO`.
+To set the log level to `DEBUG`, set the `DOMINO_LOG_LEVEL` environment variable to `DEBUG`.
+. For testing purposes and issues with SSL certificates, set the environment variable `DOMINO_VERIFY_CERTIFICATE` to `false`. 
+Be sure to unset this variable when not in use.
 ====
 
 == Methods
 
-=== project_create(project_name, owner_username=None):
+=== project_create(project_name, owner_username=None)
 
-Create a new project with given project name. The parameters are:
+Create a new project with given project name.
 
-* _project_name:_ The name of the project
-* _owner_username:_ (Optional) The owner username for the project. This parameter is useful in-case project needs to be created under some organization.
+.Parameters
+
+* _project_name:_ The name of the project.
+* _owner_username:_ (Optional) The owner username for the project. 
+This parameter is useful when you need to create a project under an organization.
 
 === runs_list()
 
@@ -88,83 +91,118 @@ List the runs on the selected project.
 
 === runs_start(_command, isDirect, commitId, title, tier, publishApiEndpoint*)
 
-Start a new run on the selected project. The parameters are:
+Start a new run on the selected project. 
 
-* _command:_ The command to run as an array of strings where members of the array represent arguments
-of the command. E.g. `["main.py", "hi mom"]`
+.Parameters
+
+* _command:_ The command to run as an array of strings where members of the array represent arguments of the command. 
+For example: `["main.py", "hi mom"]`
 * _isDirect:_ (Optional) Whether or not this command should be passed directly to a shell.
-* _commitId:_ (Optional) The commitId to launch from. If not provided, will launch from latest commit.
+* _commitId:_ (Optional) The `commitId` to launch from. 
+If not provided, the project launches from the latest commit.
 * _title:_ (Optional) A title for the run.
-* _tier:_ (Optional) The hardware tier to use for the run. This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium". Will use project default tier if not provided.
+* _tier:_ (Optional) The hardware tier to use for the run. 
+This is the human-readable name of the hardware tier, such as "Free", "Small", or "Medium". 
+If not provided, the project's default tier is used.
 * _publishApiEndpoint:_ (Optional) Whether or not to publish an API endpoint from the resulting output.
 
 === runs_start_blocking(_command, isDirect, commitId, title, tier, publishApiEndpoint, poll_freq=5, max_poll_time=6000*)
 
-Same as method `run_start` except make a blocking request that waits until job is finished.
+Start a new run on the selected project and make a blocking request that waits until job is finished.
 
-* _command:_ The command to run as an array of strings where members of the array represent arguments
-of the command. E.g. `["main.py", "hi mom"]`
+.Parameters
+
+* _command:_ The command to run as an array of strings where members of the array represent arguments of the command. 
+For example: `["main.py", "hi mom"]`
 * _isDirect:_ (Optional) Whether or not this command should be passed directly to a shell.
-* _commitId:_ (Optional) The commitId to launch from. If not provided, will launch from latest commit.
+* _commitId:_ (Optional) The `commitId` to launch from.
+If not provided, the project launches from the latest commit.
 * _title:_ (Optional) A title for the run.
-* _tier:_ (Optional) The hardware tier to use for the run. Will use project default tier if not provided.
+* _tier:_ (Optional) The hardware tier to use for the run. 
+Will use project's default tier if not provided.
+If not provided, the project's default tier is used.
 * _publishApiEndpoint:_ (Optional) Whether or not to publish an API endpoint from the resulting output.
-* _poll_freq:_ (Optional) Number of seconds in between polling of the Domino server for status of the task that is running.
-* _max_poll_time:_ (Optional) Maximum number of seconds to wait for a task to complete. If this threshold is exceeded, an exception is raised.
-* _retry_count:_ (Optional) Maximum number of retry to do while polling (in-case of transient http errors). If this threshold is exceeded, an exception is raised.
+* _poll_freq:_ (Optional) Number of seconds between polling of the Domino server for status of the task that is running.
+* _max_poll_time:_ (Optional) Maximum number of seconds to wait for a task to complete. 
+If this threshold is exceeded, an exception is raised.
+* _retry_count:_ (Optional) Maximum number of polling retries (in case of transient HTTP errors). 
+If this threshold is exceeded, an exception is raised.
 
 === run_stop(*runId, saveChanges=True):
 
-Stop an existing run in the selected project. The parameters are:
+Stop an existing run in the selected project.
 
-* _runId:_ string that identifies the run
-* _saveChanges:_ (Defaults to True) If false, run results will be discarded.
+.Parameters
+
+* _runId:_ String that identifies the run.
+* _saveChanges:_ (Defaults to True) If false, run results are discarded.
 
 === runs_stdout(_runId*)
 
-Get stdout emitted by a particular run. The parameters are:
+Get `stdout` emitted by a particular run.
+
+.Parameters
 
 * _runId:_ string that identifies the run
 
 === files_list(_commitId, path*)
 
-List the files in a folder in the Domino project. The parameters are:
+List the files in a folder in the Domino project.
 
-* _commitId:_ The commitId to list files from.
+.Parameters
+
+* _commitId:_ The `commitId` to list files from.
 * _path:_ (Defaults to "/") The path to list from.
 
 === files_upload(_path, file*)
 
-Upload a Python file object into the specified path inside the project. See `examples/upload_file.py` for an example. The parameters, both of which are required, are:
+Upload a Python file object into the specified path inside the project. 
+See `examples/upload_file.py` for an example.
+All parameters are required.
 
-* _path:_ The path to save the file to. For example, `/README.md` will write to the root directory of the project while `/data/numbers.csv` will save the file to a subfolder named `data` (if the `data` folder does not yet exist, it will be created)
-* _file:_ A Python file object. For example, `f = open("authors.txt","rb")`
+.Parameters
+
+* _path:_ The path to save the file to. 
+For example, `/README.md` writes to the root directory of the project while `/data/numbers.csv` saves the file to a subfolder named `data`.
+If the specified folder does not yet exist, it is created.
+* _file:_ A Python file object. 
+For example: `f = open("authors.txt","rb")`
 
 === blobs_get(_key*)
 
-Retrieve a file from the Domino server by blob key. The parameters are:
+Retrieve a file from the Domino server by blob key.
 
-* *key:* The key of the file to fetch from the blob server.
+.Parameters
+
+* _key:_ The key of the file to fetch from the blob server.
 
 === app_publish(_unpublishRunningApps=True*, _hardwareTierId=None_)
 
-Publishes an app in the Domino project, or republish an existing app. The parameters are:
+Publish an app in the Domino project, or republish an existing app. 
 
-* _unpublishRunningApps:_ (Defaults to True) Will check for any active app instances in the current project and unpublish them before publishing.
-* _hardwareTierId:_ (Optional) Will launch the app on the specified hardware tier. Only applies for Domino 3.4+.
+.Parameters
+
+* _unpublishRunningApps:_ (Defaults to True) Check for active app instances in the current project and unpublish them before publishing.
+* _hardwareTierId:_ (Optional) Launch the app on the specified hardware tier.
 
 === app_unpublish()
 
-Stops all running apps in the Domino project.
+Stop all running apps in the Domino project.
 
 === job_start(_command*, _commit_id=None_, _hardware_tier_name=None_, _environment_id=None_, _on_demand_spark_cluster_properties=None_):
 
-Starts a new Job (run) in the project
+Start a new job (execution) in the project.
 
-* _command (string):_ Command to execute in Job. Ex `domino.job_start(command="main.py arg1 arg2")`
-* _commit_id (string):_ (Optional) The commitId to launch from. If not provided, will launch from latest commit.
-* _hardware_tier_name (string):_ (Optional) The hardware tier NAME to launch job in. If not provided it will use the default hardware tier for the project
-* _environment_id (string):_ (Optional) The environment id to launch job with. If not provided it will use the default environment for the project
+.Parameters
+
+* _command (string):_ Command to execute in Job. 
+For example: `domino.job_start(command="main.py arg1 arg2")`
+* _commit_id (string):_ (Optional) The `commitId` to launch from. 
+If not provided, the job launches from the latest commit.
+* _hardware_tier_name (string):_ (Optional) The hardware tier NAME to launch job in. 
+If not provided, the project's default tier is used.
+* _environment_id (string):_ (Optional) The environment ID with which to launch the job. 
+If not provided, the project's default environment is used.
 * _on_demand_spark_cluster_properties (dict):_ (Optional) On demand spark cluster properties. Following properties
 can be provided in spark cluster
 +
@@ -183,9 +221,9 @@ can be provided in spark cluster
 ----
 
 * _param compute_cluster_properties (dict):_ (Optional) The compute cluster properties definition contains parameters for
-launching any Domino supported compute cluster for a job. Use this to launch a job that uses a compute cluster instead of
-the deprecated `on_demand_spark_cluster_properties` field. If `on_demand_spark_cluster_properties` and `compute_cluster_properties`
-are both present, `on_demand_spark_cluster_properties` will be ignored. `compute_cluster_properties` contains the following fields:
+launching any Domino supported compute cluster for a job. 
+Use this to launch a job that uses a compute cluster instead of the deprecated `on_demand_spark_cluster_properties` field. 
+If `on_demand_spark_cluster_properties` and `compute_cluster_properties` are both present, `on_demand_spark_cluster_properties` is ignored. `compute_cluster_properties` contains the following fields:
 +
 ----
 {
@@ -205,87 +243,99 @@ are both present, `on_demand_spark_cluster_properties` will be ignored. `compute
 }
 ----
 
-* _external_volume_mounts (List[string]):_ (Optional) External volume mount ids to mount to run. If not provided will launch with no external volume mounts mounted.
+* _external_volume_mounts (List[string]):_ (Optional) External volume mount IDs to mount to run. 
+If not provided, the job launches with no external volumes mounted.
 
 === job_stop(_job_id*, _commit_results=True_):
 
-Stops the Job (run) in the project
+Stop the Job (execution) in the project.
 
-* _job_id (string):_ Job identifier
-* _commit_results (boolean):_ Defaults to `True`, if `false` job results will not be committed
+.Parameters
+
+* _job_id (string):_ Job identifier.
+* _commit_results (boolean):_ Defaults to `true`; if `false`, the job results are not committed.
 
 === job_status(_job_id*):
 
-Gets the status of a Job
+Get the status of a job.
 
-* _job_id (string):_ Job identifier
+.Parameters
+
+* _job_id (string):_ Job identifier.
 
 === job_start_blocking(_poll_freq=5*, _max_poll_time=6000_, **kwargs):
 
-Starts a job and polls until the job is finished. Additionally this method supports all the
-parameter in `job_start` method
+Start a job and poll until the job is finished. 
+Additionally, this method supports all the parameters in the `job_start` method.
 
-* _poll_freq:_ Poll frequency interval in seconds
-* _max_poll_time:_ Max poll time in seconds
+.Parameters
+
+* _poll_freq:_ Poll frequency interval in seconds.
+* _max_poll_time:_ Max poll time in seconds.
 
 == Datasets
 
-A Domino Dataset is a collection of files that are available in user executions as a filesystem directory. +
-A Dataset always reflects the most recent version of the data. +
-You can modify the contents of a Dataset through the Domino UI or through workload executions at any time.
-see https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more info.
+A Domino dataset is a collection of files that are available in user executions as a filesystem directory.
+A dataset always reflects the most recent version of the data.
+You can modify the contents of a dataset through the Domino UI or through workload executions.
+See https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more details.
 
 === datasets_list(project_id=None)
 
-provides of json list of all the datasets currently available.
+Provide a JSON list of all the available datasets.
 
-* _project_id (string):_ (Defaults to None) id that identifies the specific project to be used
-* each project can hold up to 5 datasets.
+* _project_id (string):_ (Defaults to None) The project identifier.
+Each project can hold up to 5 datasets.
 
 === datasets_ids(*project_id)
 
-list the ids of a filtered datasets for a particular project
+List the IDs of a filtered datasets for a particular project.
+// What does this mean?
 
-* _project_id:_ id that identifies the specific project to be used
+* _project_id:_ The project identifier.
 
 === datasets_names(project_id)
 
-list the names of a filtered datasets for a particular project
+List the names of a filtered datasets for a particular project.
+// What does this mean?
 
-* _project_id:_ id that identifies the specific project to be used
+* _project_id:_ The project identifier.
 
 === datasets_details(*dataset_id)
 
-provides detailed information about datasets, including but not limited to name, description, created timestamps +
-about a specified dataset
+Provide details about a dataset.
 
-* _dataset_id:_ id that identifies the specific dataset to be used
+* _dataset_id:_ The dataset identifier.
 
 === datasets_create(*dataset_name, *dataset_description)
 
-creates a new dataset with a given name and description
+Create a new dataset.
 
-* _dataset_name:_ Name of the new dataset (Must be unique)
-* _dataset_description:_ Description of the dataset
+* _dataset_name:_ Name of the new dataset.
+The name must be unique.
+* _dataset_description:_ Description of the dataset.
 
 === datasets_update_details(*dataset_id, dataset_name=None, dataset_description=None)
 
-Updates the name and / or description of a specified dataset
+Update a dataset's name or description.
 
-* _dataset_id:_ id that identifies the specific dataset to be updated
-* _dataset_name:_ (Optional) New name of the dataset * May have unintended referential consequences*
-* _dataset_description:_ (Optional) New description of the dataset
+* _dataset_id:_ The dataset identifier.
+* _dataset_name:_ (Optional) New name of the dataset.
+CAUTION: May have unintended referential consequences.
+* _dataset_description:_ (Optional) New description of the dataset.
 
 === datasets_remove(dataset_ids)
 
-delete list of datasets for a given set of datasets by ids.
+Delete a set of datasets.
 
-* _dataset_ids: (list[string])_ list of ids of datasets to be deleted
-Note: datasets are first marked for deletion, then are deleted after a certain amount of time.
+* _dataset_ids: (list[string])_ List of IDs of the datasets to delete.
+NOTE: Datasets are first marked for deletion, then deleted after a period of time.
+
+// How much time?
 
 == Airflow
 
-The `python-domino` client comes bundled with an Operator for use with airflow as an extra.
+The `python-domino` client comes bundled with an https://airflow.apache.org/docs/apache-airflow/stable/concepts/operators.html[Operator^] for use with https://airflow.apache.org/[Apache Airflow^] as an extra.
 
 When installing the client from PyPI, add the `airflow` flag to extras:
 
@@ -305,7 +355,8 @@ pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg=
 from domino.airflow import DominoOperator
 ----
 
-Allows a user to schedule domino runs via airflow. Follows the same function signature as `domino.runs_start` with two extra arguments:
+Allows a user to schedule Domino executions via Airflow. 
+Follows the same function signature as `domino.runs_start` with two extra arguments:
 
 [cols=2*]
 |===
@@ -321,7 +372,8 @@ Allows a user to schedule domino runs via airflow. Follows the same function sig
 from domino.airflow import DominoSparkOperator
 ----
 
-Allows a user to schedule domino runs via the v4 api, which supports `onDemandSparkClusters`. Follows the same function signature as `domino.job_start`, with the addition of `startup_delay` from above.
+Allows a user to schedule Domino executions via the v4 API, which supports `onDemandSparkClusters`. 
+Follows the same function signature as `domino.job_start`, with the addition of `startup_delay` from above.
 
 == License
 
