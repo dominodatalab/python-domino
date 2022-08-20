@@ -124,9 +124,9 @@ Add collaborators to a project.
 
 === Project tags
 
-Project tags are an easy way to add freeform metadata to a project. Tags help colleagues and consumers organize <br>
-and find projects that interest them in Domino. Tags can be used to describe the subject explored by a project, <br>
-the packages and libraries it uses, or the source of the data within.
+Project tags are an easy way to add freeform metadata to a project. 
+Tags help colleagues and consumers organize and find the Domino projects that interest them. 
+Tags can be used to describe the subject explored by a project, the packages and libraries it uses, or the source of the data within.
 
 ==== tags_list(*project_id)
 
