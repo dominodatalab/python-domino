@@ -13,7 +13,7 @@ The `python-domino` library is compatible with different versions of Domino:
 
 [cols=",^"]
 |===
-| Domino Versions | Python-Domino
+| Domino Versions | python-domino
 
 | 3.6.x or lower
 | http://github.com/dominodatalab/python-domino/archive/0.3.5.zip[0.3.5]
@@ -54,7 +54,7 @@ pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 
 == Development
 
-The current python-domino is based on Python 3.9, which is therefore recommended for development.
+The current `python-domino` is based on Python 3.9, which is therefore recommended for development.
 Pipenv is also recommended to manage the dependencies.
 
 To install dependencies from `setup.py` for development:
@@ -134,7 +134,7 @@ List a project's tags.
 
 * _project_id:_ The project identifier.
 
-### tag_details(tag_id)
+==== tag_details(tag_id)
 
 Get details about a tag.
 
