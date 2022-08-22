@@ -17,8 +17,8 @@ from domino.constants import (
     DOMINO_HOST_KEY_NAME,
     DOMINO_LOG_LEVEL_KEY_NAME,
     MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION,
-    MINIMUM_SUPPORTED_DOMINO_VERSION,
     MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
+    MINIMUM_SUPPORTED_DOMINO_VERSION,
 )
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
