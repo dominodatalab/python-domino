@@ -48,6 +48,7 @@ setup(
             "flake8==4.0.1",
             "Jinja2==2.11.3",
             "nbconvert==6.3.0",
+            "packaging==21.3",
             "polling2==0.5.0",
             "pre-commit==2.19.0",
             "pyspark==3.3.0",
