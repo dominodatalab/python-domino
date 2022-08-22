@@ -26,6 +26,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Updated dependency management
 * Changed file handling for `files_upload`
 * removed requirements.txt in favor setup.py
+* updated readme content and format as well as asciidoc version of readme
 
 ## 1.0.8
 
