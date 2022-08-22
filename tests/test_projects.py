@@ -87,6 +87,7 @@ def test_upload_file_to_project(default_domino_client):
     assert response.status_code == 201
     assert response.json()["path"] == "test_file.py"
 
+
 def test_upload_file_to_project_without_forward_slash(default_domino_client):
     """
     Confirm that the python-domino client can upload a file to a project.
