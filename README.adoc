@@ -128,6 +128,8 @@ Project tags are an easy way to add freeform metadata to a project.
 Tags help colleagues and consumers organize and find the Domino projects that interest them. 
 Tags can be used to describe the subject explored by a project, the packages and libraries it uses, or the source of the data within.
 
+See https://github.com/dominodatalab/python-domino/blob/master/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
+
 ==== tags_list(*project_id)
 
 List a project's tags.
@@ -163,6 +165,11 @@ Remove a tag from a project.
 * _project_id:_ (Defaults to current project id) The project ID.
 
 === Executions
+
+See these code example files:
+
+* https://github.com/dominodatalab/python-domino/blob/master/examples/start_run_and_check_status.py[`start_run_and_check_status.py`^]
+* https://github.com/dominodatalab/python-domino/blob/master/examples/export_runs.py[`export_runs.py`^]
 
 ==== runs_list()
 
@@ -217,6 +224,11 @@ Get `stdout` emitted by a particular execution.
 * _runId:_ string that identifies the execution
 
 === Files and blobs
+
+See these code example files:
+
+* https://github.com/dominodatalab/python-domino/blob/master/examples/upload_file.py[`upload_file.py`^]
+* https://github.com/dominodatalab/python-domino/blob/master/examples/upload_and_run_file_and_download_results.py[`upload_and_run_file_and_download_results.py`^]
 
 ==== files_list(_commitId, path*)
 
@@ -339,6 +351,7 @@ Additionally, this method supports all the parameters in the `job_start` method.
 A Domino dataset is a collection of files that are available in user executions as a filesystem directory.
 A dataset always reflects the most recent version of the data.
 You can modify the contents of a dataset through the Domino UI or through workload executions.
+
 See https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more details, and https://github.com/dominodatalab/python-domino/blob/master/examples/example_dataset.py[`example_dataset.py`^] for example code.
 
 ==== datasets_list(project_id=None)
