@@ -39,7 +39,7 @@ setup(
     long_description=README,
     long_description_content_type="text/markdown",
     keywords=["Domino Data Lab", "API"],
-    install_requires=["requests>=2.4.2", "bs4==0.*,>=0.0.1", "polling2", "packaging==21.3",],
+    install_requires=["packaging", "requests>=2.4.2", "bs4==0.*,>=0.0.1", "polling2"],
     extras_require={
         "airflow": ["apache-airflow==2.2.4"],
         "data": ["dominodatalab-data>=0.1.0"],
@@ -48,6 +48,7 @@ setup(
             "flake8==4.0.1",
             "Jinja2==2.11.3",
             "nbconvert==6.3.0",
+            "packaging==21.3",
             "polling2==0.5.0",
             "pre-commit==2.19.0",
             "pyspark==3.3.0",
