@@ -8,6 +8,11 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## 1.1.1
+
+### Changed
+* Updated packaging in installation dependency
+
 ## 1.1.0
 
 ### Added
