@@ -8,6 +8,11 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## 1.1.2
+
+### Changed
+* Updated `job_start` method to validate HardwareTier IDs in `compute_cluster_properties`
+
 ## 1.1.1
 
 ### Changed
