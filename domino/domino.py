@@ -502,8 +502,7 @@ class Domino:
             if "masterHardwareTierId" in compute_cluster_properties:
                 self._validate_hardware_tier_id(compute_cluster_properties["masterHardwareTierId"])
 
-            if "workerHardwareTierId" in compute_cluster_properties:
-                self._validate_hardware_tier_id(compute_cluster_properties["workerHardwareTierId"])
+            self._validate_hardware_tier_id(compute_cluster_properties["workerHardwareTierId"])
 
         def validate_is_external_volume_mounts_supported():
             if not helpers.is_external_volume_mounts_supported(self._version):
