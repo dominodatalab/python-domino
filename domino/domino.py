@@ -499,6 +499,11 @@ class Domino:
                     f"'maxWorkerCount' is not supported in Domino {self._version}."
                 )
 
+            if "masterHardwareTierId" in compute_cluster_properties:
+                self._validate_hardware_tier_id(compute_cluster_properties["masterHardwareTierId"])
+
+            self._validate_hardware_tier_id(compute_cluster_properties["workerHardwareTierId"])
+
         def validate_is_external_volume_mounts_supported():
             if not helpers.is_external_volume_mounts_supported(self._version):
                 raise exceptions.ExternalVolumeMountsNotSupportedException(
