@@ -5,7 +5,7 @@ This library provides bindings for the Domino APIs.  See this documentation for 
 * https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/[Latest public Domino APIs]
 * https://dominodatalab.github.io/api-docs/[Legacy APIs]
 
-The latest released version of `python-domino` is `1.1.0`.
+The latest released version of `python-domino` is `1.1.1`.
 
 == Version compatibility matrix
 
