@@ -1,8 +1,28 @@
 import os
 
+from requests import models
 from requests.auth import AuthBase, HTTPBasicAuth
 
-from .constants import DOMINO_TOKEN_FILE_KEY_NAME, DOMINO_USER_API_KEY_KEY_NAME
+from .constants import DOMINO_TOKEN_FILE_KEY_NAME, DOMINO_USER_API_KEY_KEY_NAME, \
+    DOMINO_API_PROXY
+from .http_request_manager import _SessionInitializer
+
+
+class ProxyAuth(AuthBase, _SessionInitializer):
+    """
+    Class for authenticating requests using the Domino API Proxy.
+    """
+
+    def __init__(self, api_proxy):
+        self.api_proxy = api_proxy
+
+    def __call__(self, r):
+        return r
+
+    def __initialize__(self, session):
+        session.proxies.update({
+            'http': f'http://{self.api_proxy}',
+        })
 
 
 class BearerAuth(AuthBase):
@@ -32,21 +52,25 @@ class BearerAuth(AuthBase):
         return r
 
 
-def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None):
+def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None, api_proxy=None):
     """
     Return appropriate authentication object for requests.
 
     If no authentication credential is provided, the call fails with an AssertError
 
     Precedence in the case of multiple credentials is:
-        1. auth_token string
-        2. domino_token_file
-        3. api_key
-        4. domino_token_file_from_env
-        5. api_key_from_env
+        1. api_proxy
+        2. auth_token string
+        3. domino_token_file
+        4. api_key
+        5. api_proxy_from_env
+        6. domino_token_file_from_env
+        7. api_key_from_env
     """
 
-    if auth_token is not None:
+    if api_proxy is not None:
+        return ProxyAuth(api_proxy)
+    elif auth_token is not None:
         return BearerAuth(auth_token=auth_token)
     elif domino_token_file is not None:
         return BearerAuth(domino_token_file=domino_token_file)
@@ -55,11 +79,12 @@ def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None):
     else:
         # In the case that no authentication type was passed when this method
         # called, fall back to deriving the auth info from the environment.
+        api_proxy_from_env = os.getenv(DOMINO_API_PROXY)
         api_key_from_env = os.getenv(DOMINO_USER_API_KEY_KEY_NAME)
         domino_token_file_from_env = os.getenv(DOMINO_TOKEN_FILE_KEY_NAME)
-        if api_key_from_env or domino_token_file_from_env:
+        if api_key_from_env or domino_token_file_from_env or api_proxy_from_env:
             return get_auth_by_type(
-                api_key=api_key_from_env, domino_token_file=domino_token_file_from_env
+                api_key=api_key_from_env, domino_token_file=domino_token_file_from_env, api_proxy=api_proxy_from_env
             )
         else:
             # All attempts failed -- nothing to do but raise an error.

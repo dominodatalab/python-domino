@@ -26,7 +26,7 @@ from domino.routes import _Routes
 
 class Domino:
     def __init__(
-        self, project, api_key=None, host=None, domino_token_file=None, auth_token=None
+        self, project, api_key=None, host=None, domino_token_file=None, auth_token=None, api_proxy=None,
     ):
 
         self._configure_logging()
@@ -48,7 +48,7 @@ class Domino:
             raise
 
         # This call sets self.request_manager
-        self.authenticate(api_key, auth_token, domino_token_file)
+        self.authenticate(api_key, auth_token, domino_token_file, api_proxy)
 
         # Get version
         self._version = self.deployment_version().get("version")
@@ -82,7 +82,7 @@ class Domino:
         logging.basicConfig(level=logging_level)
         self._logger = logging.getLogger(__name__)
 
-    def authenticate(self, api_key=None, auth_token=None, domino_token_file=None):
+    def authenticate(self, api_key=None, auth_token=None, domino_token_file=None, api_proxy=None):
         """
         Method to authenticate the request manager. An existing domino client object can
         use this with a new token if the existing credentials expire.
@@ -92,6 +92,7 @@ class Domino:
                 api_key=api_key,
                 auth_token=auth_token,
                 domino_token_file=domino_token_file,
+                api_proxy=api_proxy,
             )
         )
 

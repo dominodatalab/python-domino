@@ -13,6 +13,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 * Updated packaging in installation dependency
+* Added support for Domino API Proxy.
 
 ## 1.1.0
 

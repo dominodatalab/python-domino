@@ -10,6 +10,9 @@ from ._version import __version__
 from .constants import DOMINO_VERIFY_CERTIFICATE
 from .exceptions import ReloginRequiredException
 
+class _SessionInitializer:
+    def __initialize__(self, session):
+        raise NotImplementedError('Session initializers must be callable.')
 
 class _HttpRequestManager:
     """
@@ -22,6 +25,9 @@ class _HttpRequestManager:
         self._logger = logging.getLogger(__name__)
         self.request_session = requests.Session()
         self.request_session.headers["User-Agent"] = f"python-domino/{__version__}"
+
+        if isinstance(self.auth, _SessionInitializer):
+            self.auth.__initialize__(self.request_session)
 
         if os.environ.get(DOMINO_VERIFY_CERTIFICATE, None) in ["false", "f", "n", "no"]:
             warning = "InsecureRequestWarning: Bypassing certificate verification is strongly ill-advised"

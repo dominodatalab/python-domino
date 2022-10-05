@@ -55,6 +55,11 @@ You can set up the connection by creating a new instance of `Domino`:
 
 -   *project:* A project identifier (in the form of
     ownerusername/projectname).
+    
+-   *api_proxy:* (Optional) Location of the Domino API proxy as host:port.
+    If set, this proxy will be used to intercept any Domino API requests and insert an auth token.
+    This is the preferred method of authentication. Alternatively, the same behavior can be achieved
+    by setting the `DOMINO_API_PROXY` environment variable.
 
 -   *api_key:* (Optional) An API key to authenticate with. If not
     provided, the library expects to find one in the
@@ -69,12 +74,12 @@ You can set up the connection by creating a new instance of `Domino`:
 
 -   *auth_token:* (Optional) Authentication token.
 
--   The authentication preference should always be given to the
-    authentication token. If it’s not passed, the path to domino token
-    file takes precedence, otherwise the API key is used. If none of
-    these three parameters are passed, then preference is given to the
-    Domino token file from the corresponding environment variable, then
-    to the API key from the corresponding environment variable.
+-   The authentication preference should always be given to the API proxy.
+    If it’s not passed, then the authentication token takes precedence, then the path to the domino
+    token file, otherwise the API key is used. If none of
+    these four parameters are passed, then preference is given to the Api Proxy from the
+    corresponding environment variable, then the Domino token file from the corresponding
+    environment variable, then to the API key from the corresponding environment variable.
 
 -   By default, the log level is set to `INFO`. To set the log level to
     `DEBUG`, set the `DOMINO_LOG_LEVEL` environment variable to `DEBUG`.
