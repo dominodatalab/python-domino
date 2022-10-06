@@ -17,9 +17,20 @@ class ProxyAuth(AuthBase, _SessionInitializer):
         self.api_proxy = api_proxy
 
     def __call__(self, r):
+        """
+        Override the default __call__ method for the AuthBase base class.
+        Note this override is no-op, the actual work happens in the initialize method.
+
+        More more info, see:
+        https://docs.python-requests.org/en/master/user/advanced/
+        """
         return r
 
     def __initialize__(self, session):
+        """
+        Override the default __initialize__ method for the _SessionInitializer base class.
+        """
+
         session.proxies.update({
             'http': f'http://{self.api_proxy}',
         })
@@ -68,13 +79,13 @@ def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None, api_
         7. api_key_from_env
     """
 
-    if api_proxy is not None:
+    if api_proxy:
         return ProxyAuth(api_proxy)
-    elif auth_token is not None:
+    elif auth_token:
         return BearerAuth(auth_token=auth_token)
-    elif domino_token_file is not None:
+    elif domino_token_file:
         return BearerAuth(domino_token_file=domino_token_file)
-    elif api_key is not None:
+    elif api_key:
         return HTTPBasicAuth("", api_key)
     else:
         # In the case that no authentication type was passed when this method

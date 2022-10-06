@@ -3,6 +3,7 @@ import os
 import pytest
 import requests
 
+import domino.authentication
 from domino import Domino, authentication
 from domino.constants import (
     DOMINO_HOST_KEY_NAME,
@@ -86,6 +87,20 @@ def test_object_creation_with_api_key():
     assert isinstance(
         d.request_manager.auth, requests.auth.HTTPBasicAuth
     ), "Authentication using API key should be of type requests.auth.HTTPBasicAuth"
+
+
+@pytest.mark.usefixtures("mock_domino_version_response", "clear_token_file_from_env")
+def test_object_creation_with_api_proxy():
+    """
+    Confirm that the expected auth type is used when using api proxy.
+    """
+    dummy_host = "http://domino.somefakecompany.com"
+    dummy_api_proxy = "localhost:1234"
+
+    d = Domino(host=dummy_host, project="anyuser/quick-start", api_key=dummy_api_proxy)
+    assert isinstance(
+        d.request_manager.auth, domino.authentication.ProxyAuth
+    ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"
 
 
 @pytest.mark.usefixtures("mock_domino_version_response")

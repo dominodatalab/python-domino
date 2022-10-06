@@ -59,7 +59,9 @@ You can set up the connection by creating a new instance of `Domino`:
 -   *api_proxy:* (Optional) Location of the Domino API proxy as host:port.
     If set, this proxy will be used to intercept any Domino API requests and insert an auth token.
     This is the preferred method of authentication. Alternatively, the same behavior can be achieved
-    by setting the `DOMINO_API_PROXY` environment variable.
+    by setting the `DOMINO_API_PROXY` environment variable (this variable is set inside a Domino run
+    container in version 5.4.0 or later). Note this mechanism will not work when connecting to a
+    HTTPS endpoint, so it is mainly meant to be used inside Domino runs.
 
 -   *api_key:* (Optional) An API key to authenticate with. If not
     provided, the library expects to find one in the
@@ -74,7 +76,7 @@ You can set up the connection by creating a new instance of `Domino`:
 
 -   *auth_token:* (Optional) Authentication token.
 
--   The authentication preference should always be given to the API proxy.
+-   The authentication preference should be given to the API proxy.
     If it’s not passed, then the authentication token takes precedence, then the path to the domino
     token file, otherwise the API key is used. If none of
     these four parameters are passed, then preference is given to the Api Proxy from the
