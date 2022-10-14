@@ -4,7 +4,6 @@ import os
 import re
 import time
 from typing import List, Optional, Tuple
-from weakref import ref
 
 import polling2
 import requests
@@ -713,9 +712,7 @@ class Domino:
 
     def deployment_version(self):
         url = self._routes.deployment_version()
-        res1 = self._get(url)
-        res1["version"] = "5.4.0"
-        return res1
+        return self._get(url)
 
     def project_create(self, project_name, owner_username=None):
         url = self._routes.project_create()
