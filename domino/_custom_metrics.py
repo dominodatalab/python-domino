@@ -164,7 +164,7 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
 
     def _from_metric_value(self, obj: MetricValueV1) -> Dict:
         # Numbers come in as Decimal objects but we want floats
-        ret = {"timestamp": obj.referenceTimestamp, "value": float(obj["value"])}
+        ret = {"timestamp": str(obj.referenceTimestamp), "value": float(obj["value"])}
         if obj.tags is not None:
             ret["tags"] = {tag["key"]: tag["value"] for tag in obj.tags}
         return ret
