@@ -54,6 +54,28 @@ def test_spark_operator_with_cluster():
     task.execute(ti.get_template_context())
 
 
+def test_spark_operator_with_compute_cluster_properties():
+    pytest.importorskip("airflow")
+
+    from airflow import DAG
+    from airflow.models import TaskInstance
+
+    dag = DAG(dag_id="foo", start_date=datetime.now())
+    task = DominoSparkOperator(
+        dag=dag,
+        task_id="foo",
+        project=TEST_PROJECT,
+        command="test_spark.py",
+        compute_cluster_properties={
+            "clusterType": "Spark",
+            "computeEnvironmentId": SPARK_ENVIRONMENT_ID,
+            "workerCount": 3,
+        },
+    )
+    ti = TaskInstance(task=task, execution_date=datetime.now())
+    task.execute(ti.get_template_context())
+
+
 def test_spark_operator_no_cluster_failed():
     pytest.importorskip("airflow")
 
