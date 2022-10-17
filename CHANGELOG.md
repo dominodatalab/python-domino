@@ -7,6 +7,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Added parameter `compute_cluster_properties` to DominoSparkOperator
 * Updated `job_start` method to validate HardwareTier IDs in `compute_cluster_properties`
 
 ## 1.1.1
