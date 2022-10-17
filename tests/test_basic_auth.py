@@ -101,6 +101,21 @@ def test_object_creation_with_api_proxy():
     assert isinstance(
         d.request_manager.auth, domino.authentication.ProxyAuth
     ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"
+    assert d.request_manager.auth.api_proxy == "http://localhost:1234"
+
+@pytest.mark.usefixtures("mock_domino_version_response", "clear_token_file_from_env")
+def test_object_creation_with_api_proxy_with_scheme():
+    """
+    Confirm that the expected auth type is used when using api proxy.
+    """
+    dummy_host = "http://domino.somefakecompany.com"
+    dummy_api_proxy = "https://localhost:1234"
+
+    d = Domino(host=dummy_host, project="anyuser/quick-start", api_key=dummy_api_proxy)
+    assert isinstance(
+        d.request_manager.auth, domino.authentication.ProxyAuth
+    ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"
+    assert d.request_manager.auth.api_proxy == "https://localhost:1234"
 
 
 @pytest.mark.usefixtures("mock_domino_version_response")
