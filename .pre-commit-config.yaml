@@ -45,3 +45,7 @@ repos:
           - "types-python-dateutil"
           - "types-redis"
           - "types-protobuf"
+          - "types-python-dateutil"
+          - "types-frozendict"
+          - "types-typing-extensions"
+          - "types-urllib3"

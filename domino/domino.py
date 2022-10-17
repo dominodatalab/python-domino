@@ -22,6 +22,7 @@ from domino.constants import (
 )
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
+from domino._custom_metrics import _CustomMetricsClientBase, _CustomMetricsClientGen, _CustomMetricsClient
 
 
 class Domino:
@@ -1114,6 +1115,17 @@ class Domino:
                     self.log.warning(text)
                 else:
                     self.log.info(text)
+
+
+    _CUSTOM_METRICS_USE_GEN = True
+
+    def custom_metrics_client(self) -> _CustomMetricsClientBase:
+        self.requires_at_least("5.3.1")
+        if self._CUSTOM_METRICS_USE_GEN:
+            return _CustomMetricsClientGen(self, self._routes)
+        else:
+            return _CustomMetricsClient(self, self._routes)
+
 
     # Validation methods
     def _useable_environments_list(self):
