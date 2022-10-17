@@ -1,20 +1,27 @@
 import os
+import re
 
-from requests import models
 from requests.auth import AuthBase, HTTPBasicAuth
 
 from .constants import DOMINO_TOKEN_FILE_KEY_NAME, DOMINO_USER_API_KEY_KEY_NAME, \
     DOMINO_API_PROXY
-from .http_request_manager import _SessionInitializer
 
 
-class ProxyAuth(AuthBase, _SessionInitializer):
+class ProxyAuth(AuthBase):
     """
-    Class for authenticating requests using the Domino API Proxy.
+    Class for authenticating requests using the Domino API reverse Proxy.
+    All Domino URLs will use the proxy as host instead.
     """
 
     def __init__(self, api_proxy):
-        self.api_proxy = api_proxy
+        match = re.search("(https?://)?([^/]+:[0-9]+)$", api_proxy)
+        if not match:
+            raise RuntimeError("Bad proxy URL: '%s', must be host:port or scheme://host:port" % api_proxy)
+        if not match.group(1):
+            proxy_str = "http://" + match.group(2)
+        else:
+            proxy_str = api_proxy
+        self.api_proxy = proxy_str
 
     def __call__(self, r):
         """
@@ -24,16 +31,12 @@ class ProxyAuth(AuthBase, _SessionInitializer):
         More more info, see:
         https://docs.python-requests.org/en/master/user/advanced/
         """
+        r.url = self._replaceHostWithProxy(r.url)
         return r
 
-    def __initialize__(self, session):
-        """
-        Override the default __initialize__ method for the _SessionInitializer base class.
-        """
+    def _replaceHostWithProxy(self, url):
+        return re.sub('^.*?://[^/]+', self.api_proxy, url)
 
-        session.proxies.update({
-            'http': f'http://{self.api_proxy}',
-        })
 
 
 class BearerAuth(AuthBase):
