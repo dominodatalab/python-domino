@@ -17,10 +17,6 @@ from domino.helpers import domino_is_reachable
 
 TEST_PROJECT = os.environ.get("DOMINO_SPARK_TEST_PROJECT")
 
-
-SPARK_ENVIRONMENT_ID = os.environ.get("DOMINO_SPARK_TEST_ENVIRONMENT_ID")
-
-
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
