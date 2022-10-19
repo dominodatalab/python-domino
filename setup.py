@@ -39,7 +39,8 @@ setup(
     long_description=README,
     long_description_content_type="text/markdown",
     keywords=["Domino Data Lab", "API"],
-    install_requires=["packaging", "requests>=2.4.2", "bs4==0.*,>=0.0.1", "polling2~=0.5.0", "urllib3~=1.26.12", "typing-extensions~=4.4.0", "frozendict~=2.3.4", "python-dateutil~=2.8.2"],
+    install_requires=["packaging", "requests>=2.4.2", "bs4==0.*,>=0.0.1", "polling2~=0.5.0",
+                      "urllib3~=1.26.12", "typing-extensions~=4.4.0", "frozendict~=2.3.4", "python-dateutil~=2.8.2"],
     extras_require={
         "airflow": ["apache-airflow==2.2.4"],
         "data": ["dominodatalab-data>=0.1.0"],
@@ -55,6 +56,7 @@ setup(
             "pytest==6.2.2",
             "requests_mock==1.9.3",
             "tox==3.25.1",
+            "frozendict==2.3.4",
         ],
     },
 )

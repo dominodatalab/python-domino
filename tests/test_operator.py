@@ -8,20 +8,40 @@ import os
 from datetime import datetime
 
 import pytest
+from airflow.operators.dummy import DummyOperator
 
 from domino.airflow import DominoOperator
 from domino.exceptions import RunFailedException
+from airflow import DAG
+from airflow.models import TaskInstance
+
 
 TEST_PROJECT = os.environ.get("DOMINO_TEST_PROJECT")
 
 
-def test_operator():
+def test_airflow_dags():
     pytest.importorskip("airflow")
 
     from airflow import DAG
     from airflow.models import TaskInstance
 
-    dag = DAG(dag_id="foo", start_date=datetime.now())
+    start_time = datetime.now()
+
+    dag = DAG(dag_id="airflow_dag_test_0", start_date=start_time)
+    task = DummyOperator(
+        dag=dag,
+        task_id='run_this_last',
+    )
+
+    task.run()
+    ti = TaskInstance(task=task, execution_date=start_time)
+    task.execute(ti.get_template_context())
+
+
+def test_operator():
+    start_time = datetime.now()
+
+    dag = DAG(dag_id="foo", start_date=start_time)
     task = DominoOperator(
         dag=dag,
         task_id="foo",
@@ -29,17 +49,16 @@ def test_operator():
         isDirect=True,
         command=["python -V"],
     )
-    ti = TaskInstance(task=task, execution_date=datetime.now())
+
+    task.run()
+    ti = TaskInstance(task=task, execution_date=start_time)
     task.execute(ti.get_template_context())
 
 
 def test_operator_fail(caplog):
-    pytest.importorskip("airflow")
+    execution_dt = datetime.now()
 
-    from airflow import DAG
-    from airflow.models import TaskInstance
-
-    dag = DAG(dag_id="foo", start_date=datetime.now())
+    dag = DAG(dag_id="foo", start_date=execution_dt)
     task = DominoOperator(
         dag=dag,
         task_id="foo",
@@ -47,19 +66,17 @@ def test_operator_fail(caplog):
         isDirect=True,
         command=["python -c 'import sys; sys.exit(1)'"],
     )
-    ti = TaskInstance(task=task, execution_date=datetime.now())
 
     with pytest.raises(RunFailedException):
+        task.run()
+        ti = TaskInstance(task=task, execution_date=execution_dt)
         task.execute(ti.get_template_context())
 
 
 def test_operator_fail_invalid_tier(caplog):
-    pytest.importorskip("airflow")
+    execution_dt = datetime.now()
 
-    from airflow import DAG
-    from airflow.models import TaskInstance
-
-    dag = DAG(dag_id="foo", start_date=datetime.now())
+    dag = DAG(dag_id="foo", start_date=execution_dt)
     task = DominoOperator(
         dag=dag,
         task_id="foo",
@@ -68,7 +85,8 @@ def test_operator_fail_invalid_tier(caplog):
         command=["python -V"],
         tier="this tier does not exist",
     )
-    ti = TaskInstance(task=task, execution_date=datetime.now())
 
     with pytest.raises(ValueError):
+        task.run()
+        ti = TaskInstance(task=task, execution_date=execution_dt)
         task.execute(ti.get_template_context())
