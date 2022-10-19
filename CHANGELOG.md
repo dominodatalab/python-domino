@@ -7,6 +7,14 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+
+
+## 1.2.0
+
+### Added
+* implemented [custometrics](https://github.com/cerebrotech/documentation/blob/631953a78a5264db838e17bb5c3798322acf494c/content/user_guide/publish/domino-models/bnp-preview.adoc#custom-model-monitoring-metrics)  functionality
+
+### Changed
 * Updated `job_start` method to validate HardwareTier IDs in `compute_cluster_properties`
 * Updated airflow related tests to facilitate testing
 * Updated dependency with frozendict
