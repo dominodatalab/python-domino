@@ -52,7 +52,7 @@ class Domino:
         self.authenticate(api_key, auth_token, domino_token_file, api_proxy)
 
         # Get version
-        self._version = self.deployment_version().get("version") or "5.4.2"
+        self._version = self.deployment_version().get("version")
         assert self.requires_at_least(MINIMUM_SUPPORTED_DOMINO_VERSION)
 
         self._logger.debug(
@@ -1215,8 +1215,6 @@ class Domino:
             )
 
     def requires_at_least(self, at_least_version):
-        if os.getenv("TEST_PROJECT"):
-            return True
         if at_least_version > self._version:
             raise Exception(
                 f"You need at least version {at_least_version} but your deployment \
