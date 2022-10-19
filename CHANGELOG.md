@@ -9,6 +9,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Changed
 * Updated `job_start` method to validate HardwareTier IDs in `compute_cluster_properties`
 * Updated airflow related tests to facilitate testing
+* Updated dependency with frozendict
 
 ## 1.1.1
 
