@@ -31,12 +31,35 @@ def default_domino_client():
         host
     ), f"Host must be specified by {DOMINO_HOST_KEY_NAME} environment variable."
 
-    d = Domino(host=host, project=f"{user}/quick-start")
+    domino_client = Domino(host=host, project=f"{user}/quick-start")
 
     # If authentication failed, this raises a requests.exceptions.HTTPError.
-    d.environments_list()
+    domino_client.environments_list()
 
-    return d
+    return domino_client
+
+
+@pytest.fixture(scope="module")
+def spark_environment_id():
+    """
+    Module-scoped fixture that uses default authentiation, and provides a Domino client object.
+    """
+    host = os.getenv(DOMINO_HOST_KEY_NAME)
+    user = os.getenv(DOMINO_USER_NAME_KEY_NAME)
+    assert (
+        user
+    ), f"User must be specified by {DOMINO_USER_NAME_KEY_NAME} environment variable."
+    assert (
+        host
+    ), f"Host must be specified by {DOMINO_HOST_KEY_NAME} environment variable."
+
+    domino_client = Domino(host=host, project=f"{user}/quick-start")
+
+    env_list = domino_client.environments_list()
+
+    for env in env_list["data"]:
+        if "Spark Compute Environment" in env["name"]:
+            return env["id"]
 
 
 @pytest.fixture
