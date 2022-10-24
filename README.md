@@ -6,7 +6,7 @@ documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `1.1.0`.
+The latest released version of `python-domino` is `1.2.0`.
 
 # Version compatibility matrix
 
@@ -56,7 +56,7 @@ You can set up the connection by creating a new instance of `Domino`:
 -   *project:* A project identifier (in the form of
     ownerusername/projectname).
     
--   *api_proxy:* (Optional) Location of the Domino API proxy as host:port.
+-   *api_proxy:* (Optional) Location of the Domino API reverse proxy as host:port.
     If set, this proxy will be used to intercept any Domino API requests and insert an auth token.
     This is the preferred method of authentication. Alternatively, the same behavior can be achieved
     by setting the `DOMINO_API_PROXY` environment variable (this variable is set inside a Domino run

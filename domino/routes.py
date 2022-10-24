@@ -213,6 +213,16 @@ class _Routes:
     def hardware_tiers_list(self, project_id):
         return self.host + f"/v4/projects/{project_id}/hardwareTiers"
 
+    # Custom Metrics URLs
+    def metric_alerts(self):
+        return self.host + "/api/metricAlerts/v1";
+
+    def log_metrics(self):
+        return self.host + f"/api/metricValues/v1"
+
+    def read_metrics(self, model_monitoring_id, metric):
+        return self.host + f"/api/metricValues/v1/{model_monitoring_id}/{metric}"
+
     # Find Project By OwnerName and project name Url
     def find_project_by_owner_name_and_project_name_url(self):
         return (
