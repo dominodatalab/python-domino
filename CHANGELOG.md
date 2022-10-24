@@ -7,7 +7,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
-
+* Added parameter `compute_cluster_properties` to DominoSparkOperator
 
 ## 1.2.0
 

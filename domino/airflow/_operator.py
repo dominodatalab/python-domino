@@ -133,6 +133,7 @@ class DominoSparkOperator(BaseOperator):
                                                 The environment id to launch job with. If not provided
                                                 it will use the default environment for the project
     :param on_demand_spark_cluster_properties:  dict (Optional)
+                                                This field is deprecated. Please use compute_cluster_properties.
                                                 On demand spark cluster properties. Following properties
                                                 can be provided in spark cluster
                                                 {
@@ -146,6 +147,31 @@ class DominoSparkOperator(BaseOperator):
                                                     "executorStorageMB": "<Executor's storage in MB>"
                                                         (optional defaults to 0; 1GB is 1000MB Here)
                                                 }
+        :param compute_cluster_properties:          dict (Optional)
+                                                    The compute cluster properties definition contains parameters for
+                                                    launching any Domino supported compute cluster for a job. Use this
+                                                    to launch a job that uses a compute cluster instead of
+                                                    the deprecated on_demand_spark_cluster_properties field. If
+                                                    on_demand_spark_cluster_properties and compute_cluster_properties
+                                                    are both present, on_demand_spark_cluster_properties will be ignored.
+
+                                                    compute_cluster_properties contains the following fields:
+                                                    {
+                                                        "clusterType": <string, one of "Ray", "Spark", "Dask", "MPI">,
+                                                        "computeEnvironmentId": <string, The environment ID for the cluster's nodes>,
+                                                        "computeEnvironmentRevisionSpec": <one of "ActiveRevision", "LatestRevision",
+                                                        {"revisionId":"<environment_revision_id>"} (optional)>,
+                                                        "masterHardwareTierId": <string, the Hardware tier ID for the cluster's master node
+                                                        (required unless clusterType is MPI)>,
+                                                        "workerCount": <number, the total workers to spawn for the cluster>,
+                                                        "workerHardwareTierId": <string, The Hardware tier ID for the cluster workers>,
+                                                        "workerStorage": <{ "value": <number>, "unit": <one of "GiB", "MB"> },
+                                                        The disk storage size for the cluster's worker nodes (optional)>
+                                                        "maxWorkerCount": <number, The max number of workers allowed. When
+                                                        this configuration exists, autoscaling is enabled for the cluster and
+                                                        'workerCount' is interpreted as the min number of workers allowed in the cluster
+                                                        (optional)>
+                                                    }
     :param poll_freq: int polling frequency interval in seconds
     :param max_poll_time: int max poll time in seconds
     :param startup_delay: int (Optional) number of seconds to wait before starting the job
@@ -169,6 +195,7 @@ class DominoSparkOperator(BaseOperator):
         hardware_tier_name: Optional[str] = None,
         environment_id: Optional[str] = None,
         on_demand_spark_cluster_properties: Optional[dict] = None,
+        compute_cluster_properties: Optional[dict] = None,
         *args,
         **kwargs
     ):
@@ -188,6 +215,7 @@ class DominoSparkOperator(BaseOperator):
         self.startup_delay = startup_delay
         self.environment_id = environment_id
         self.spark_propertires = on_demand_spark_cluster_properties
+        self.compute_cluster_properties = compute_cluster_properties
 
         self.client: Optional[Domino] = None
         self.run_id: Optional[str] = None
@@ -212,4 +240,5 @@ class DominoSparkOperator(BaseOperator):
             poll_freq=self.poll_freq,
             max_poll_time=self.max_poll_time,
             on_demand_spark_cluster_properties=self.spark_propertires,
+            compute_cluster_properties=self.compute_cluster_properties,
         )
