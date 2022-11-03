@@ -1,5 +1,6 @@
-This library provides bindings for the Domino APIs. See this
-documentation for details about the APIs:
+This library provides bindings for the Domino APIs.  It ships with the Domino Standard Environment (DSE).
+
+See this documentation for details about the APIs:
 
 -   [Latest public Domino
     APIs](https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/)
@@ -19,6 +20,9 @@ Domino:
 | 4.1.0 or higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher |
 
 # Install python-domino
+
+Because `python-domino` ships with the DSE, normally you do not need to install it.  
+This section provides instructions for installing it in another environment or updating it to a newer version.
 
 Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
 
@@ -66,13 +70,18 @@ You can set up the connection by creating a new instance of `Domino`:
 -   *api_key:* (Optional) An API key to authenticate with. If not
     provided, the library expects to find one in the
     `DOMINO_USER_API_KEY` environment variable.
+    If you are using the Python package in code that is already running in Domino, 
+    the `DOMINO_API_USER_KEY` variable is set automatically to be the key for the user who started the run.
+
 
 -   *host:* (Optional) A host URL. If not provided, the library expects
     to find one in the `DOMINO_API_HOST` environment variable.
 
--   *domino_token_file:* (Optional) Path to domino token file
-    containing auth token. If not provided, the library expects to find
+-   *domino_token_file:* (Optional) Path to the Domino token file
+    containing the auth token. If not provided, the library expects to find
     one in the `DOMINO_TOKEN_FILE` environment variable.
+    If you are using Python package in code that is already running in Domino, 
+    the `DOMINO_TOKEN_FILE` is set automatically to be the token file for the user who started the run.
 
 -   *auth_token:* (Optional) Authentication token.
 
