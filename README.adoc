@@ -1,5 +1,7 @@
 = python-domino
 
+:latest-version: 1.2.0
+
 This library provides bindings for the Domino APIs.  It ships with the Domino Standard Environment (DSE).
 // In older versions it ships with the DAD.
 
@@ -8,7 +10,7 @@ See this documentation for details about the APIs:
 * https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/[Latest public Domino APIs]
 * https://dominodatalab.github.io/api-docs/[Legacy APIs]
 
-The latest released version of `python-domino` is `1.2.0`.
+The latest released version of `python-domino` is `{latest-version}`.
 
 == Version compatibility matrix
 
@@ -133,7 +135,7 @@ Be sure to unset this variable when not in use.
 
 === Projects
 
-See https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
+See https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
 
 ==== project_create(project_name, owner_username=None)
 
@@ -160,7 +162,7 @@ Project tags are an easy way to add freeform metadata to a project.
 Tags help colleagues and consumers organize and find the Domino projects that interest them. 
 Tags can be used to describe the subject explored by a project, the packages and libraries it uses, or the source of the data within.
 
-See https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
+See https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
 
 ==== tags_list(*project_id)
 
@@ -200,8 +202,8 @@ Remove a tag from a project.
 
 See these code example files:
 
-* https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/start_run_and_check_status.py[`start_run_and_check_status.py`^]
-* https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/export_runs.py[`export_runs.py`^]
+* https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/start_run_and_check_status.py[`start_run_and_check_status.py`^]
+* https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/export_runs.py[`export_runs.py`^]
 
 ==== runs_list()
 
@@ -259,8 +261,8 @@ Get `stdout` emitted by a particular execution.
 
 See these code example files:
 
-* https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/upload_file.py[`upload_file.py`^]
-* https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/upload_and_run_file_and_download_results.py[`upload_and_run_file_and_download_results.py`^]
+* https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/upload_file.py[`upload_file.py`^]
+* https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/upload_and_run_file_and_download_results.py[`upload_and_run_file_and_download_results.py`^]
 
 ==== files_list(commitId, path)
 
@@ -384,7 +386,7 @@ A Domino dataset is a collection of files that are available in user executions 
 A dataset always reflects the most recent version of the data.
 You can modify the contents of a dataset through the Domino UI or through workload executions.
 
-See https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more details, and https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/example_dataset.py[`example_dataset.py`^] for example code.
+See https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more details, and https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/example_dataset.py[`example_dataset.py`^] for example code.
 
 ==== datasets_list(project_id=None)
 
@@ -504,7 +506,7 @@ Similarly, when installing the client from GitHub, use the following command:
 pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg="dominodatalab[airflow]"
 ----
 
-See also https://github.com/dominodatalab/python-domino/blob/release-1.2.0/examples/example_airflow_dag.py[example_airflow_dag.py] for example code.
+See also https://github.com/dominodatalab/python-domino/blob/release-{latest-version}/examples/example_airflow_dag.py[example_airflow_dag.py] for example code.
 
 === DominoOperator
 
