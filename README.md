@@ -6,7 +6,7 @@ documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `1.2.0`.
+The latest released version of `python-domino` is `1.2.1`.
 
 # Version compatibility matrix
 
@@ -14,9 +14,10 @@ The `python-domino` library is compatible with different versions of
 Domino:
 
 | Domino Versions |                                    Python-Domino                                    |
-| --------------- | :---------------------------------------------------------------------------------: |
-| 3.6.x or lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)            |
+|-----------------|:-----------------------------------------------------------------------------------:|
+| 3.6.x or lower  |      [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)       |
 | 4.1.0 or higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher |
+| 5.3.0 or higher | [1.2.0](https://github.com/dominodatalab/python-domino/archive/1.2.0.zip) or Higher |
 
 # Install python-domino
 

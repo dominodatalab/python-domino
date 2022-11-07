@@ -7,7 +7,11 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
-* Added python versions check upon dominodatalab installation
+
+## 1.2.1
+
+### Changed
+* Set minimum python versions check
 * Added parameter `compute_cluster_properties` to DominoSparkOperator
 
 ## 1.2.0
