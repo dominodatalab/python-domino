@@ -1,7 +1,13 @@
 import pathlib
 import re
+import sys
 
 from setuptools import find_packages, setup
+
+if sys.version_info < (3,8):
+    message = f"dominodatalab requires Python '>=3.8.0' but the running Python is {'.'.join(map(str,sys.version_info[:3]))}"
+    message += "\nYou should consider Checking python-domino and domino compatibility"
+    sys.exit(message)
 
 PACKAGE_NAME = "domino"
 
@@ -39,7 +45,7 @@ setup(
     long_description=README,
     long_description_content_type="text/markdown",
     keywords=["Domino Data Lab", "API"],
-    python_requires='>3.8.0',
+    python_requires='>=3.8.0',
     install_requires=["packaging", "requests>=2.4.2", "bs4==0.*,>=0.0.1", "polling2~=0.5.0",
                       "urllib3~=1.26.12", "typing-extensions~=4.4.0", "frozendict~=2.3.4", "python-dateutil~=2.8.2"],
     extras_require={
