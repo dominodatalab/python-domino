@@ -13,34 +13,15 @@ The latest released version is `1.0.8`.
 | 3.6.x or Lower  | [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)             |
 | 4.1.0 or Higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher |
 
-## Installation
-
-Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
-
-    pip install dominodatalab
-
-If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) Dockerfile Instructions field, you must add `RUN` to the beginning:
-
-    RUN pip install dominodatalab
-
-To install specific version of the library from PyPI, for example, `1.0.6`, use the following command:
-
-    pip install dominodatalab==1.0.6
-
-To install specific version of the library from GitHub, for example, `1.0.6`, use the following command:
-
-    pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 
 
-## Overview
-
-### Setting up the connection
+## Setting up the connection
 
 You can set up the connection by creating new instance of `Domino`.
 
 <hr>
 
-### *class* Domino(project, api_key=None, host=None, domino_token_file=None, auth_token=None)
+## *class* Domino(project, api_key=None, host=None, domino_token_file=None, auth_token=None)
 
 The parameters are:
 
@@ -281,6 +262,27 @@ from domino.airflow import DominoSparkOperator
 ```
 
 Allows a user to schedule domino runs via the v4 api, which supports `onDemandSparkClusters`. Follows the same function signature as `domino.job_start`, with the addition of `startup_delay` from above.
+
+## Manual installation
+
+Because `python-domino` ships with the DSE, normally you do not need to install it.  
+This section provides instructions for installing it in another environment or updating it to a newer version.
+
+Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
+
+    pip install dominodatalab
+
+If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) Dockerfile Instructions field, you must add `RUN` to the beginning:
+
+    RUN pip install dominodatalab
+
+To install specific version of the library from PyPI, for example, `1.0.6`, use the following command:
+
+    pip install dominodatalab==1.0.6
+
+To install specific version of the library from GitHub, for example, `1.0.6`, use the following command:
+
+    pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 
 
 ## License
