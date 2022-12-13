@@ -1,5 +1,6 @@
-This library provides bindings for the Domino APIs. See this
-documentation for details about the APIs:
+This library provides bindings for the Domino APIs.  It ships with the Domino Standard Environment (DSE).
+
+See this documentation for details about the APIs:
 
 -   [Latest public Domino
     APIs](https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/)
@@ -17,30 +18,14 @@ Domino:
 |-----------------|:-----------------------------------------------------------------------------------:|
 | 3.6.x or lower  |      [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)       |
 | 4.1.0 or higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher |
-| 5.3.0 or higher | [1.2.0](https://github.com/dominodatalab/python-domino/archive/1.2.0.zip) or Higher |
-
-# Install python-domino
-
-Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
-
-    pip install dominodatalab
-
-If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) Dockerfile Instructions field, you must add `RUN` to the beginning:
-
-    RUN pip install dominodatalab
-
-To install a specific version of the library from PyPI, such as `1.0.6`:
-
-    pip install dominodatalab==1.0.6
-
-To install a specific version of the library from GitHub, such as
-`1.0.6`:
-
-    pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
+| 5.3.0 or higher | [1.2.0](https://github.com/dominodatalab/python-domino/archive/1.2.1.zip) or Higher |
 
 # Development
 
-The current `python-domino` is based on Python 3.9, which is therefore recommended for development. Pipenv is also recommended to manage the dependencies.
+The current `python-domino` is based on Python 3.9, which is therefore recommended for development. `Pipenv` is also recommended to manage the dependencies.
+
+To use the Python binding in a Domino workbook session, include `dominodatalab` in your project's requirements.txt file.
+This makes the Python binding available for each new workbook session (or batch run) started within the project.
 
 To install dependencies from `setup.py` for development:
 
@@ -54,49 +39,70 @@ Use the same process for Airflow and data:
 
 You can set up the connection by creating a new instance of `Domino`:
 
--   *project:* A project identifier (in the form of
-    ownerusername/projectname).
+    _class_ Domino(project, api_key=None, host=None, domino_token_file=None, auth_token=None)
+
+-   *project:* A project identifier (in the form of ownerusername/projectname).
     
 -   *api_proxy:* (Optional) Location of the Domino API reverse proxy as host:port.
-    If set, this proxy will be used to intercept any Domino API requests and insert an auth token.
-    This is the preferred method of authentication. Alternatively, the same behavior can be achieved
-    by setting the `DOMINO_API_PROXY` environment variable (this variable is set inside a Domino run
-    container in version 5.4.0 or later). Note this mechanism will not work when connecting to a
-    HTTPS endpoint, so it is mainly meant to be used inside Domino runs.
 
--   *api_key:* (Optional) An API key to authenticate with. If not
-    provided, the library expects to find one in the
-    `DOMINO_USER_API_KEY` environment variable.
+    If set, this proxy is used to intercept any Domino API requests and insert an authentication token.
+    _This is the preferred method of authentication_. 
+    Alternatively, set the `DOMINO_API_PROXY` environment variable.
+    In Domino 5.4.0 or later, this variable is set inside a Domino run container.
 
--   *host:* (Optional) A host URL. If not provided, the library expects
-    to find one in the `DOMINO_API_HOST` environment variable.
+    NOTE: This mechanism does not work when connecting to an HTTPS endpoint; it is meant to be used inside Domino runs.
 
--   *domino_token_file:* (Optional) Path to domino token file
-    containing auth token. If not provided, the library expects to find
-    one in the `DOMINO_TOKEN_FILE` environment variable.
+-   *api_key:* (Optional) An API key to authenticate with. 
+
+    If not provided, the library expects to find one in the `DOMINO_USER_API_KEY` environment variable.
+    If you are using the Python package in code that is already running in Domino, the `DOMINO_API_USER_KEY` variable is set automatically to be the key for the user who started the run.
+
+-   *host:* (Optional) A host URL. 
+
+    If not provided, the library expects to find one in the `DOMINO_API_HOST` environment variable.
+
+-   *domino_token_file:* (Optional) Path to the Domino token file
+    containing the auth token. 
+
+    If not provided, the library expects to find one in the `DOMINO_TOKEN_FILE` environment variable.
+    If you are using Python package in code that is already running in Domino, the `DOMINO_TOKEN_FILE` is set automatically to be the token file for the user who started the run.
 
 -   *auth_token:* (Optional) Authentication token.
 
--   The authentication preference should be given to the API proxy.
-    If it’s not passed, then the authentication token takes precedence, then the path to the domino
-    token file, otherwise the API key is used. If none of
-    these four parameters are passed, then preference is given to the Api Proxy from the
-    corresponding environment variable, then the Domino token file from the corresponding
-    environment variable, then to the API key from the corresponding environment variable.
+## Authentication
 
--   By default, the log level is set to `INFO`. To set the log level to
-    `DEBUG`, set the `DOMINO_LOG_LEVEL` environment variable to `DEBUG`.
+Domino looks for the authentication method in the following order and uses the first one it finds:
 
--   For testing purposes and issues with SSL certificates, set the
-    environment variable `DOMINO_VERIFY_CERTIFICATE` to `false`. Be sure
-    to unset this variable when not in use.
+1. `api_proxy`
+2. `auth_token`
+3. `domino_token_file`
+4. `api_key`
+5. `DOMINO_API_PROXY`
+6. `DOMINO_TOKEN_FILE`
+7. `DOMINO_USER_API_KEY`
+
+The API proxy is the preferred method of authentication.
+See 
+[Use the API Proxy to Authenticate Calls to the Domino API](https://docs.dominodatalab.com/en/latest/api_guide/ddf8eb).
+
+## Additional environment variables
+
+- `DOMINO_LOG_LEVEL`
+  
+    The default log level is `INFO`.
+    You can change the log level by setting `DOMINO_LOG_LEVEL`, for example to `DEBUG`.
+
+- `DOMINO_VERIFY_CERTIFICATE`
+  
+    For testing purposes and issues with SSL certificates, set `DOMINO_VERIFY_CERTIFICATE` to `false`. 
+    Be sure to unset this variable when not in use.
 
 # Methods
 
 ## Projects
 
 See
-[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/example_projects_usage.py)
+[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/example_projects_usage.py)
 for example code.
 
 ### project_create(project_name, owner_username=None)
@@ -132,7 +138,7 @@ project, the packages and libraries it uses, or the source of the data
 within.
 
 See
-[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/example_projects_usage.py)
+[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/example_projects_usage.py)
 for example code.
 
 ### tags_list(\*project_id)
@@ -176,9 +182,9 @@ Remove a tag from a project.
 
 See these code example files:
 
--   [`start_run_and_check_status.py`](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/start_run_and_check_status.py)
+-   [`start_run_and_check_status.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/start_run_and_check_status.py)
 
--   [`export_runs.py`](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/export_runs.py)
+-   [`export_runs.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/export_runs.py)
 
 ### runs_list()
 
@@ -262,9 +268,9 @@ Get `stdout` emitted by a particular execution.
 
 See these code example files:
 
--   [`upload_file.py`](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/upload_file.py)
+-   [`upload_file.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/upload_file.py)
 
--   [`upload_and_run_file_and_download_results.py`](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/upload_and_run_file_and_download_results.py)
+-   [`upload_and_run_file_and_download_results.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/upload_and_run_file_and_download_results.py)
 
 ### files_list(commitId, path)
 
@@ -411,7 +417,7 @@ through the Domino UI or through workload executions.
 See [Domino
 Datasets](https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/)
 for more details, and
-[`example_dataset.py`](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/example_dataset.py)
+[`example_dataset.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/example_dataset.py)
 for example code.
 
 ### datasets_list(project_id=None)
@@ -483,7 +489,7 @@ command:
     pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg="dominodatalab[airflow]"
 
 See also
-[example_airflow_dag.py](https://github.com/dominodatalab/python-domino/blob/release-1.1.0/examples/example_airflow_dag.py)
+[example_airflow_dag.py](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/example_airflow_dag.py)
 for example code.
 
 ## DominoOperator
@@ -503,6 +509,76 @@ same function signature as `domino.runs_start` with two extra arguments:
 Allows a user to schedule Domino executions via the v4 API, which
 supports `onDemandSparkClusters`. Follows the same function signature as
 `domino.job_start`, with the addition of `startup_delay` from above.
+
+# Example
+
+    from domino import Domino
+
+    # By and large your commands will run against a single project,
+    # so you must specify the full project name
+    domino = Domino("chris/canon")
+
+    # List all runs in the project, most-recently queued first
+    all_runs = domino.runs_list()['data']
+
+    latest_100_runs = all_runs[0:100]
+
+    print(latest_100_runs)
+
+    # all runs have a commitId (the snapshot of the project when the
+    # run starts) and, if the run completed, an "outputCommitId"
+    # (the snapshot of the project after the run completed)
+    most_recent_run = all_runs[0]
+
+    commitId = most_recent_run['outputCommitId']
+
+    # list all the files in the output commit ID -- only showing the
+    # entries under the results directory.  If not provided, will
+    # list all files in the project.  Or you can say path=“/“ to
+    # list all files
+    files = domino.files_list(commitId, path='results/')['data']
+
+    for file in files:
+    print file['path'], '->', file['url']
+
+    print(files)
+
+    # Get the content (i.e. blob) for the file you're interested in.
+    # blobs_get returns a connection rather than the content, because
+    # the content can get quite large and it's up to you how you want
+    # to handle it
+    print(domino.blobs_get(files[0]['key']).read())
+
+    # Start a run of file main.py using the latest copy of that file
+    domino.runs_start(["main.py", "arg1", "arg2"])
+
+    # Start a "direct" command
+    domino.runs_start(["echo 'Hello, World!'"], isDirect=True)
+
+    # Start a run of a specific commit
+    domino.runs_start(["main.py"], commitId="aabbccddee")
+
+# Manual installation
+
+Because `python-domino` ships with the DSE, normally you do not need to install it.  
+This section provides instructions for installing it in another environment or updating it to a newer version.
+
+Starting from version `1.0.6`, `python-domino` is available on PyPI as `dominodatalab`:
+
+    pip install dominodatalab
+
+If you are adding install instructions for `python-domino` to your [Domino Environment](https://support.dominodatalab.com/hc/en-us/articles/115000392643-Compute-Environment-Management) Dockerfile Instructions field, you must add `RUN` to the beginning:
+
+    RUN pip install dominodatalab
+
+To install a specific version of the library from PyPI, such as `1.0.6`:
+
+    pip install dominodatalab==1.0.6
+
+To install a specific version of the library from GitHub, such as
+`1.0.6`:
+
+    pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 
 # License
 
