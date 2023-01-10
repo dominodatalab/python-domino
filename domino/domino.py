@@ -357,7 +357,7 @@ class Domino:
         :param compute_cluster_properties:          dict (Optional)
                                                     The compute cluster properties definition contains parameters for
                                                     launching any Domino supported compute cluster for a job. Use this
-                                                    to launch a job that uses a compute cluster instead of
+                                                    to launch a job that uses compute cluster instead of
                                                     the deprecated on_demand_spark_cluster_properties field. If
                                                     on_demand_spark_cluster_properties and compute_cluster_properties
                                                     are both present, on_demand_spark_cluster_properties will be ignored.

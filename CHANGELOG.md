@@ -7,6 +7,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Updated DominoSparkOperator test for `compute_cluster_properties`
+* Set minimum python version required to ">=3.7"
 
 ## 1.2.1
 

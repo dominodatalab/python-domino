@@ -2,7 +2,7 @@
 To run these tests you need to have at least configured airflow in
 local mode and run:
 
-`airflow initdb`
+`airflow db init`
 """
 import os
 from datetime import datetime
@@ -17,6 +17,7 @@ from airflow.models import TaskInstance
 
 
 TEST_PROJECT = os.environ.get("DOMINO_TEST_PROJECT")
+dag_id = "test_operator"
 
 
 def test_airflow_dags():
@@ -27,10 +28,10 @@ def test_airflow_dags():
 
     start_time = datetime.now()
 
-    dag = DAG(dag_id="airflow_dag_test_0", start_date=start_time)
+    dag = DAG(dag_id, start_date=start_time)
     task = DummyOperator(
         dag=dag,
-        task_id='run_this_last',
+        task_id='test_airflow_dags',
     )
 
     task.run()
@@ -41,10 +42,10 @@ def test_airflow_dags():
 def test_operator():
     start_time = datetime.now()
 
-    dag = DAG(dag_id="foo", start_date=start_time)
+    dag = DAG(dag_id, start_date=start_time)
     task = DominoOperator(
         dag=dag,
-        task_id="foo",
+        task_id="test_operator",
         project=TEST_PROJECT,
         isDirect=True,
         command=["python -V"],
@@ -58,10 +59,10 @@ def test_operator():
 def test_operator_fail(caplog):
     execution_dt = datetime.now()
 
-    dag = DAG(dag_id="foo", start_date=execution_dt)
+    dag = DAG(dag_id, start_date=execution_dt)
     task = DominoOperator(
         dag=dag,
-        task_id="foo",
+        task_id="test_operator_fail",
         project=TEST_PROJECT,
         isDirect=True,
         command=["python -c 'import sys; sys.exit(1)'"],
@@ -76,10 +77,10 @@ def test_operator_fail(caplog):
 def test_operator_fail_invalid_tier(caplog):
     execution_dt = datetime.now()
 
-    dag = DAG(dag_id="foo", start_date=execution_dt)
+    dag = DAG(dag_id, start_date=execution_dt)
     task = DominoOperator(
         dag=dag,
-        task_id="foo",
+        task_id="test_operator_fail_invalid_tier",
         project=TEST_PROJECT,
         isDirect=True,
         command=["python -V"],

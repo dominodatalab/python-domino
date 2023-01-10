@@ -3,7 +3,7 @@ import os
 from domino import Domino
 
 domino = Domino(
-    "marks/quick-start-fork",
+    os.environ['DOMINO_TEST_PROJECT'],
     api_key=os.environ["DOMINO_USER_API_KEY"],
     host=os.environ["DOMINO_API_HOST"],
 )
@@ -17,7 +17,7 @@ global_environments = list(
 )
 print(
     "This Domino deployment has \
-      {} gloabl environments".format(
+      {} global environments".format(
         len(global_environments)
     )
 )
