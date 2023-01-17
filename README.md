@@ -7,7 +7,7 @@ See this documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `1.2.1`.
+The latest released version of `python-domino` is `1.2.2`.
 
 # Version compatibility matrix
 
@@ -19,6 +19,7 @@ Domino:
 | 3.6.x or lower  |      [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)       |
 | 4.1.0 or higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher |
 | 5.3.0 or higher | [1.2.0](https://github.com/dominodatalab/python-domino/archive/1.2.1.zip) or Higher |
+| 5.5.0 or higher | [1.2.2](https://github.com/dominodatalab/python-domino/archive/1.2.2.zip) or Higher |
 
 # Development
 
@@ -102,7 +103,7 @@ See
 ## Projects
 
 See
-[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/example_projects_usage.py)
+[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/example_projects_usage.py)
 for example code.
 
 ### project_create(project_name, owner_username=None)
@@ -138,7 +139,7 @@ project, the packages and libraries it uses, or the source of the data
 within.
 
 See
-[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/example_projects_usage.py)
+[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/example_projects_usage.py)
 for example code.
 
 ### tags_list(\*project_id)
@@ -182,9 +183,9 @@ Remove a tag from a project.
 
 See these code example files:
 
--   [`start_run_and_check_status.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/start_run_and_check_status.py)
+-   [`start_run_and_check_status.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/start_run_and_check_status.py)
 
--   [`export_runs.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/export_runs.py)
+-   [`export_runs.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/export_runs.py)
 
 ### runs_list()
 
@@ -268,9 +269,9 @@ Get `stdout` emitted by a particular execution.
 
 See these code example files:
 
--   [`upload_file.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/upload_file.py)
+-   [`upload_file.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/upload_file.py)
 
--   [`upload_and_run_file_and_download_results.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/upload_and_run_file_and_download_results.py)
+-   [`upload_and_run_file_and_download_results.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/upload_and_run_file_and_download_results.py)
 
 ### files_list(commitId, path)
 
@@ -417,7 +418,7 @@ through the Domino UI or through workload executions.
 See [Domino
 Datasets](https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/)
 for more details, and
-[`example_dataset.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.1/examples/example_dataset.py)
+[`example_dataset.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/example_dataset.py)
 for example code.
 
 ### datasets_list(project_id=None)
