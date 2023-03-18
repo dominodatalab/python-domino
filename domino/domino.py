@@ -357,7 +357,7 @@ class Domino:
         :param compute_cluster_properties:          dict (Optional)
                                                     The compute cluster properties definition contains parameters for
                                                     launching any Domino supported compute cluster for a job. Use this
-                                                    to launch a job that uses compute cluster instead of
+                                                    to launch a job that uses a compute cluster instead of
                                                     the deprecated on_demand_spark_cluster_properties field. If
                                                     on_demand_spark_cluster_properties and compute_cluster_properties
                                                     are both present, on_demand_spark_cluster_properties will be ignored.
@@ -918,7 +918,7 @@ class Domino:
         return self._get(url)
 
     def model_publish(
-        self, file, function, environment_id, name, description, files_to_exclude=None
+        self, file, function, environment_id, name, description, logHttpRequestResponse, files_to_exclude=None
     ):
         if files_to_exclude is None:
             files_to_exclude = []
@@ -932,6 +932,7 @@ class Domino:
             "function": function,
             "excludeFiles": files_to_exclude,
             "environmentId": environment_id,
+            "logHttpRequestResponse": logHttpRequestResponse
         }
 
         response = self.request_manager.post(url, json=request)
