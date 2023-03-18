@@ -8,6 +8,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+* Replaced `bs4` with `beautifulsoup4` in `setup.py`.
+
 ## 1.2.2
 
 ### Added
