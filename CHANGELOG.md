@@ -7,6 +7,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Updated Model API to support for `logHttpRequestResponse`
 
 ## 1.2.2
 
