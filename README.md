@@ -384,7 +384,7 @@ Start a new job (execution) in the project.
     volume mount IDs to mount to execution. If not provided, the job
     launches with no external volumes mounted.
 
--   *titile (string): (Optional) Title for Job.
+-   *title (string): (Optional) Title for Job.
 
 ### job_stop(job_id, commit_results=True):
 
