@@ -321,6 +321,7 @@ class Domino:
         on_demand_spark_cluster_properties: Optional[dict] = None,
         compute_cluster_properties: Optional[dict] = None,
         external_volume_mounts: Optional[List[str]] = None,
+        title: Optional[str] = None,
     ) -> dict:
         """
         Starts a Domino Job via V4 API
@@ -382,6 +383,8 @@ class Domino:
         :param external_volume_mounts:              list of string (Optional)
                                                     External volume mount ids to mount to run. If not provided will launch with
                                                     no external volume mounts mounted.
+        :param title                                string (Optional)
+                                                    Title for the Job
         :return: Returns created Job details (number, id etc)
         """
 
@@ -585,6 +588,7 @@ class Domino:
             "computeClusterProperties": validated_compute_cluster_properties,
             "environmentId": environment_id,
             "externalVolumeMounts": external_volume_mounts,
+            "title": title,
         }
         try:
             response = self.request_manager.post(url, json=payload)

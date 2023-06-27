@@ -2,10 +2,10 @@
 
 All notable changes to the `python-domino` library will be documented in this file.
 
-## [Unreleased]
+## 1.2.4
 
 ### Added
-
+* `job_start` now includes an optional `title` parameter
 ### Changed
 
 ## 1.2.3

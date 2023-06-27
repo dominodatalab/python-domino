@@ -320,7 +320,7 @@ Stop all running apps in the Domino project.
 
 ## Jobs
 
-### job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None):
+### job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None):
 
 Start a new job (execution) in the project.
 
@@ -383,6 +383,8 @@ Start a new job (execution) in the project.
 -   *external_volume_mounts (List\[string\]):* (Optional) External
     volume mount IDs to mount to execution. If not provided, the job
     launches with no external volumes mounted.
+
+-   *title (string): (Optional) Title for Job.
 
 ### job_stop(job_id, commit_results=True):
 
