@@ -2,10 +2,16 @@
 
 All notable changes to the `python-domino` library will be documented in this file.
 
+## [Unreleased]
+### Added
+
+### Changed
+
 ## 1.2.4
 
 ### Added
 * `job_start` now includes an optional `title` parameter
+
 ### Changed
 
 ## 1.2.3
@@ -13,7 +19,6 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
-
 * Replaced `bs4` with `beautifulsoup4` in `setup.py`.
 
 ## 1.2.2

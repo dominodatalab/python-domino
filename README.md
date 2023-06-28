@@ -7,7 +7,7 @@ See this documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `1.2.3`.
+The latest released version of `python-domino` is `1.2.4`.
 
 # Version compatibility matrix
 
