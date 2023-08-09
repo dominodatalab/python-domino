@@ -4,6 +4,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ## [Unreleased]
 ### Added
+* Updated Apps documentation
 
 ### Changed
 
