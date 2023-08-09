@@ -300,14 +300,14 @@ Retrieve a file from the Domino server by blob key.
 
 ==== app_publish(unpublishRunningApps=True, hardwareTierId=None)
 
-Publish an app in the Domino project, or republish an existing app.
+Publish an app within a project, or republish an existing app.
 
-* _unpublishRunningApps:_ (Defaults to True) Check for active app instances in the current project and unpublish them before publishing.
+* _unpublishRunningApps:_ (Defaults to True) Check for an active app instance in the current project and unpublish it before re/publishing.
 * _hardwareTierId:_ (Optional) Launch the app on the specified hardware tier.
 
 ==== app_unpublish()
 
-Stop all running apps in the Domino project.
+Stop the running app in the project.
 
 === Jobs
 
