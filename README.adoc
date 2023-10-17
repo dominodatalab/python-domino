@@ -8,7 +8,7 @@ This library provides bindings for the Domino APIs.  It ships with the Domino St
 
 See this documentation for details about the APIs:
 
-* https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/[Latest public Domino APIs]
+* https://docs.dominodatalab.com/en/latest/api_guide/f35c19/api-guide/[Latest public Domino APIs]
 * https://dominodatalab.github.io/api-docs/[Legacy APIs]
 
 The latest released version of `python-domino` is `{latest-version}`.
