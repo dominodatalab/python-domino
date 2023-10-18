@@ -8,7 +8,7 @@ This library provides bindings for the Domino APIs.  It ships with the Domino St
 
 See this documentation for details about the APIs:
 
-* https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/[Latest public Domino APIs]
+* https://docs.dominodatalab.com/en/latest/api_guide/f35c19/api-guide/[Latest public Domino APIs]
 * https://dominodatalab.github.io/api-docs/[Legacy APIs]
 
 The latest released version of `python-domino` is `{latest-version}`.
@@ -394,7 +394,7 @@ A Domino dataset is a collection of files that are available in user executions 
 A dataset always reflects the most recent version of the data.
 You can modify the contents of a dataset through the Domino UI or through workload executions.
 
-See https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/[Domino Datasets] for more details, and {python-domino-repo}/blob/release-{latest-version}/examples/example_dataset.py[`example_dataset.py`^] for example code.
+See https://docs.dominodatalab.com/en/latest/user_guide/ba5bad/manage-data-in-domino-datasets/[Domino Datasets] for more details, and {python-domino-repo}/blob/release-{latest-version}/examples/example_dataset.py[`example_dataset.py`^] for example code.
 
 ==== datasets_list(project_id=None)
 
