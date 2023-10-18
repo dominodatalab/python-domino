@@ -3,7 +3,7 @@ This library provides bindings for the Domino APIs.  It ships with the Domino St
 See this documentation for details about the APIs:
 
 -   [Latest public Domino
-    APIs](https://docs.dominodatalab.com/en/latest/api_guide/8c929e/domino-public-apis/)
+    APIs](https://docs.dominodatalab.com/en/latest/api_guide/f35c19/api-guide/)
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
@@ -418,7 +418,7 @@ recent version of the data. You can modify the contents of a dataset
 through the Domino UI or through workload executions.
 
 See [Domino
-Datasets](https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/)
+Datasets](https://docs.dominodatalab.com/en/latest/user_guide/ba5bad/manage-data-in-domino-datasets/)
 for more details, and
 [`example_dataset.py`](https://github.com/dominodatalab/python-domino/blob/release-1.2.2/examples/example_dataset.py)
 for example code.
