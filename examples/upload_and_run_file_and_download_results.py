@@ -69,7 +69,7 @@ def download_results(domino, commitId, results, output, exp):
         output = ""
 
     for d in download:
-        url = domino.blobs_get(d["key"])
+        url = domino.blobs_get_v2(d["path"], commitId, domino.project_id)
         file_to_write = ""
 
         # if we have multiple files, then output is a directory

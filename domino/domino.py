@@ -684,8 +684,18 @@ class Domino:
         return self._put_file(url, file)
 
     def blobs_get(self, key):
+        """
+        Deprecated. Use blobs_get_v2(path, commit_id, project_id) instead
+        :param key: blob key
+        :return: blob content
+        """
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
+        return self.request_manager.get_raw(url)
+
+    def blobs_get_v2(self, path, commit_id, project_id):
+        self._validate_blob_path(path)
+        url = self._routes.blobs_get_v2(path, commit_id, project_id)
         return self.request_manager.get_raw(url)
 
     def fork_project(self, target_name):
@@ -1200,6 +1210,17 @@ class Domino:
                     "Perhaps you passed a file path on accident? "
                     "If you have a file path and want to get the "
                     "file, use files_list to get the blob key."
+                )
+            )
+
+    @staticmethod
+    def _validate_blob_path(path):
+        pattern = r"(^|\/)\.\.($|\/)"
+        if re.search(pattern, path):
+            raise Exception(
+                (
+                    "Path should be canonical and cannot contain "
+                    "'..' or '../'. "
                 )
             )
 
