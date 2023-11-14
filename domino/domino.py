@@ -4,6 +4,7 @@ import os
 import re
 import time
 from typing import List, Optional, Tuple
+import warnings
 
 import polling2
 import requests
@@ -689,6 +690,9 @@ class Domino:
         :param key: blob key
         :return: blob content
         """
+        message = "blobs_get is deprecated and will soon be removed. Please migrate to blobs_get_v2 and adjust the " \
+                  "input parameters accordingly "
+        warnings.warn(message, DeprecationWarning)
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
         return self.request_manager.get_raw(url)

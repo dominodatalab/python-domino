@@ -1,3 +1,5 @@
+import warnings
+
 class _Routes:
     def __init__(self, host, owner_username, project_name):
         self.host = host
@@ -73,6 +75,9 @@ class _Routes:
 
     # Deprecated - use blobs_get_v2 instead
     def blobs_get(self, key):
+        message = "blobs_get is deprecated and will soon be removed. Please migrate to blobs_get_v2 and adjust the " \
+                  "input parameters accordingly "
+        warnings.warn(message, DeprecationWarning)
         return self._build_project_url() + "/blobs/" + key
 
     def blobs_get_v2(self, path, commit_id, project_id):
