@@ -133,8 +133,7 @@ def test_get_file_from_a_project_v2(default_domino_client):
 
     for file in files_list["data"]:
         if file["path"] == ".dominoignore":
-            decompressed_data = gzip.decompress(default_domino_client.blobs_get_v2(file["path"], commits_list[0], default_domino_client.project_id).read())
-            file_contents = decompressed_data.decode('utf-8')
+            file_contents = default_domino_client.blobs_get_v2(file["path"], commits_list[0], default_domino_client.project_id).read()
             break
 
     assert "ignore certain files" in str(
