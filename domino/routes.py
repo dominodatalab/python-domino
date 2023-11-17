@@ -81,7 +81,7 @@ class _Routes:
         return self._build_project_url() + "/blobs/" + key
 
     def blobs_get_v2(self, path, commit_id, project_id):
-        return self.host + f"/api/projects/beta/projects/{project_id}/files/{commit_id}/{path}/content"
+        return self.host + f"/api/projects/v1/projects/{project_id}/files/{commit_id}/{path}/content"
 
     def fork_project(self, project_id):
         return self.host + f"/v4/projects/{project_id}/fork"
