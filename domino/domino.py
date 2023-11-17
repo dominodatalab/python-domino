@@ -1219,11 +1219,21 @@ class Domino:
 
     @staticmethod
     def _validate_blob_path(path):
-        pattern = r"(^|\/)\.\.($|\/)"
-        if re.search(pattern, path):
-            raise Exception(
+        """
+        Helper method to validate that the path is normalized
+        For example: A//B, A/B/, A/./B and A/foo/../B are not normalized/canonical, whereas A/B is.
+
+        Args:
+            path: the string of the path to check
+
+        Return:
+           None, however, it throws a MalformedInputException if the input is not normalized/canonical.
+        """
+        normalized_path = os.path.normpath(path)
+        if path != normalized_path:
+            raise exceptions.MalformedInputException(
                 (
-                    "Path should be canonical and cannot contain "
+                    "Path should be normalized and cannot contain "
                     "'..' or '../'. "
                 )
             )
