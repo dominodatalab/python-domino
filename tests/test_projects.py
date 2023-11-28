@@ -1,9 +1,10 @@
 import uuid
 from pprint import pformat
 
+import gzip
 import pytest
 
-from domino import Domino
+from domino import Domino, exceptions
 from domino.exceptions import ProjectNotFoundException
 from domino.helpers import domino_is_reachable
 
@@ -118,6 +119,40 @@ def test_get_file_from_a_project(default_domino_client):
     assert "ignore certain files" in str(
         file_contents
     ), f"Unable to get .dominoignore file\n{str(file_contents)}"
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_get_file_from_a_project_v2(default_domino_client):
+    """
+    Confirm that the python-domino client can download a file from a project in the v2 endpoint
+    """
+    commits_list = default_domino_client.commits_list()
+    files_list = default_domino_client.files_list(commits_list[0])
+
+    for file in files_list["data"]:
+        if file["path"] == ".dominoignore":
+            file_contents = default_domino_client.blobs_get_v2(file["path"], commits_list[0], default_domino_client.project_id).read()
+            break
+
+    assert "ignore certain files" in str(
+        file_contents
+    ), f"Unable to get .dominoignore file\n{str(file_contents)}"
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+def test_get_blobs_v2_non_canonical(default_domino_client):
+    """
+    Confirm that the python-domino client get_blobs_v2 will fail if input path is non-canonical
+    """
+    non_canonical_path = "/domino/mnt/../test.py"
+    commits_list = default_domino_client.commits_list()
+
+    with pytest.raises(exceptions.MalformedInputException):
+        default_domino_client.blobs_get_v2(non_canonical_path, commits_list[0], default_domino_client.project_id).read()
 
 
 @pytest.mark.skipif(

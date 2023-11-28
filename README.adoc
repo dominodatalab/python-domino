@@ -481,10 +481,10 @@ print file['path'], '->', file['url']
 print(files)
 
 # Get the content (i.e. blob) for the file you're interested in.
-# blobs_get returns a connection rather than the content, because
+# blobs_get_v2 returns a connection rather than the content, because
 # the content can get quite large and it's up to you how you want
 # to handle it
-print(domino.blobs_get(files[0]['key']).read())
+print(domino.blobs_get_v2(files[0]['path'], commitId, domino.project_id).read())
 
 # Start a run of file main.py using the latest copy of that file
 domino.runs_start(["main.py", "arg1", "arg2"])

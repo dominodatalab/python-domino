@@ -4,6 +4,7 @@ import os
 import re
 import time
 from typing import List, Optional, Tuple
+import warnings
 
 import polling2
 import requests
@@ -684,8 +685,21 @@ class Domino:
         return self._put_file(url, file)
 
     def blobs_get(self, key):
+        """
+        Deprecated. Use blobs_get_v2(path, commit_id, project_id) instead
+        :param key: blob key
+        :return: blob content
+        """
+        message = "blobs_get is deprecated and will soon be removed. Please migrate to blobs_get_v2 and adjust the " \
+                  "input parameters accordingly "
+        warnings.warn(message, DeprecationWarning)
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
+        return self.request_manager.get_raw(url)
+
+    def blobs_get_v2(self, path, commit_id, project_id):
+        self._validate_blob_path(path)
+        url = self._routes.blobs_get_v2(path, commit_id, project_id)
         return self.request_manager.get_raw(url)
 
     def fork_project(self, target_name):
@@ -1200,6 +1214,27 @@ class Domino:
                     "Perhaps you passed a file path on accident? "
                     "If you have a file path and want to get the "
                     "file, use files_list to get the blob key."
+                )
+            )
+
+    @staticmethod
+    def _validate_blob_path(path):
+        """
+        Helper method to validate that the path is normalized
+        For example: A//B, A/B/, A/./B and A/foo/../B are not normalized/canonical, whereas A/B is.
+
+        Args:
+            path: the string of the path to check
+
+        Return:
+           None, however, it throws a MalformedInputException if the input is not normalized/canonical.
+        """
+        normalized_path = os.path.normpath(path)
+        if path != normalized_path:
+            raise exceptions.MalformedInputException(
+                (
+                    "Path should be normalized and cannot contain "
+                    "'..' or '../'. "
                 )
             )
 
