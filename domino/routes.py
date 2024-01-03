@@ -1,5 +1,7 @@
 import warnings
 
+from urllib.parse import quote
+
 class _Routes:
     def __init__(self, host, owner_username, project_name):
         self.host = host
@@ -202,6 +204,41 @@ class _Routes:
 
     def datasets_details(self, dataset_id):
         return self.host + "/dataset" + "/" + str(dataset_id)
+
+    def datasets_start_upload(self, dataset_id):
+        return self.host + f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/start"
+
+    def datasets_test_chunk(
+        self,
+        dataset_id,
+        upload_key,
+        chunk_number,
+        total_chunks,
+        identifier,
+        checksum
+    ): return (
+        self.host +
+        f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}&resumableChunkNumber={chunk_number}" +
+        f"&resumableIdentifier={quote(identifier)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+    )
+
+    def datasets_upload_chunk(
+        self,
+        dataset_id,
+        key,
+        chunk_number,
+        total_chunks,
+        chunk_size,
+        current_chunk_size,
+        identifier,
+        resumable_relative_path,
+        checksum
+    ): return (
+        self.host +
+        f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}&" +
+        f"resumableChunkSize={chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
+        f"&resumableRelativePath={quote(resumable_relative_path)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+    )
 
     def app_list(self, project_id):
         return self.host + f"/v4/modelProducts?projectId={project_id}"
