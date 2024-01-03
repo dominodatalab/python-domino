@@ -1080,13 +1080,17 @@ class Domino:
         dataset_id,
         path_to_local_file,
         target_chunk_size=16 * 1024,  # consider moving to configurable constants
+        file_upload_setting="Overwrite"
     ):
         if not os.path.exists(path_to_local_file):
             raise FileNotFoundError(f"local file with path #{path_to_local_file} not found")
         # checks permissions and if dataset is active, then creates and persists upload key, and instantiates tmp folder
         start_upload_url = self._routes.datasets_start_upload(dataset_id)
-        start_upload_response = self._get(start_upload_url)
-        upload_key = start_upload_response.get("upload_key", None)
+        start_upload_body = {
+            "filePaths": [],
+            "fileCollisionSetting": file_upload_setting
+        }
+        upload_key = self.request_manager.post(start_upload_url, json=start_upload_body).json()
         if not upload_key:
             raise RuntimeError(f"upload key for {dataset_id} not found")
 
@@ -1095,12 +1099,12 @@ class Domino:
         file_name = os.path.basename(path_to_local_file)
         total_chunks = max(int(math.ceil(float(file_size) / target_chunk_size)), 1)
         chunk_q = [self._upload_chunk(dataset_id, file_name, upload_key, total_chunks, chunk_num, target_chunk_size,
-                                      file_size, path_to_local_file) for chunk_num in range(1, total_chunks)]
+                                      file_size, path_to_local_file) for chunk_num in range(1, total_chunks + 1)]
 
         # return chunk queue for user to parallelize
         return json.dumps(chunk_q, indent=4)
 
-    def upload_file_chunk(self, chunk_map):
+    def datasets_upload_file_chunk(self, chunk_map):
         MAX_UPLOAD_ATTEMPTS = 10  # consider moving to configurable constants
         UPLOAD_READ_TIMEOUT_IN_SEC = 30  # consider moving to configurable constants
 
@@ -1129,8 +1133,10 @@ class Domino:
         actual_chunk_size = len(chunk_data)
         test_chunk_url = self._routes.datasets_test_chunk(dataset_id, upload_key, chunk_number, total_chunks,
                                                           identifier, chunk_checksum)
-        test_chunk_response = self._get(test_chunk_url)
-        if not test_chunk_response:
+        # test chunk returns no content if it should upload
+        should_upload = self.request_manager.get(test_chunk_url).status_code == 204
+
+        if should_upload:
             upload_try = 1
             uploaded = False
             while upload_try <= MAX_UPLOAD_ATTEMPTS and not uploaded:
@@ -1143,28 +1149,32 @@ class Domino:
                     file_object = io.BytesIO(chunk_data)
                     # files to pass in post's **kwargs
                     files = {
-                        'file': (chunk_relative_path, file_object, 'application/octet-stream')
+                        chunk_relative_path: (file_name, chunk_data, 'application/octet-stream')
                     }
-
                     start_time_ns = time.time_ns()
                     # uploading!
-                    self.request_manager.post(upload_chunk_url, files=files, timeout=UPLOAD_READ_TIMEOUT_IN_SEC)
+                    self.request_manager.post(upload_chunk_url, files=files, timeout=UPLOAD_READ_TIMEOUT_IN_SEC, headers=self._csrf_no_check_header)
                     end_time_ns = time.time_ns()
                     duration_ns = end_time_ns - start_time_ns
                     bandwidth_bytes_per_second = actual_chunk_size / duration_ns * 1000000000.0
                     self.log.info(f"Uploaded chunk {chunk_number} of {total_chunks} for {file_name} "
                                   f"in {duration_ns / 1_000_000:.1f}ms ({bandwidth_bytes_per_second:.1f} B/s)")
-                except Exception:
+                    uploaded = True
+                except Exception as e:
                     if upload_try > MAX_UPLOAD_ATTEMPTS:
                         raise RuntimeError(f"Uploading chunk {chunk_number} of {total_chunks} for {file_name} "
                                            f"failed. Please try again")
                     else:
                         self.log.info(f"Failed to upload chunk {chunk_number} of {total_chunks} for {file_name}. "
                                       f"Retrying...")
-                        time.sleep(5000 * upload_try)
+                        time.sleep(5 * upload_try)  # sleep time should be a constant
                         upload_try += 1
         else:
             self.log.info(f"Skipping chunk {chunk_number} of {total_chunks} for {file_name}")
+
+    def datasets_end_upload(self, dataset_id, upload_key):
+        url = self._routes.datasets_end_upload(dataset_id, upload_key)
+        return self._get(url)
 
     def model_version_export(
         self,
@@ -1319,9 +1329,6 @@ class Domino:
     # Helper methods
     def _get(self, url):
         return self.request_manager.get(url).json()
-
-    def _post(self, url, request):
-        return self.request_manager.post(url, json=request)
 
     def _put_file(self, url, file):
         return self.request_manager.put(url, data=file)

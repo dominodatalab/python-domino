@@ -2,6 +2,7 @@ import warnings
 
 from urllib.parse import quote
 
+
 class _Routes:
     def __init__(self, host, owner_username, project_name):
         self.host = host
@@ -11,11 +12,11 @@ class _Routes:
     # URL builders
     def _build_project_url(self):
         return (
-            self.host
-            + "/v1/projects/"
-            + self._owner_username
-            + "/"
-            + self._project_name
+                self.host
+                + "/v1/projects/"
+                + self._owner_username
+                + "/"
+                + self._project_name
         )
 
     def _build_project_url_private_api(self):
@@ -100,12 +101,12 @@ class _Routes:
     # API Endpoint URLs
     def _build_endpoint_url(self):
         return (
-            self.host
-            + "/v1/"
-            + self._owner_username
-            + "/"
-            + self._project_name
-            + "/endpoint"
+                self.host
+                + "/v1/"
+                + self._owner_username
+                + "/"
+                + self._project_name
+                + "/endpoint"
         )
 
     def endpoint(self):
@@ -132,30 +133,30 @@ class _Routes:
 
     def model_version_export(self, model_id, model_version_id):
         return (
-            self._build_models_v4_url()
-            + "/"
-            + model_id
-            + "/"
-            + model_version_id
-            + "/exportImageToRegistry"
+                self._build_models_v4_url()
+                + "/"
+                + model_id
+                + "/"
+                + model_version_id
+                + "/exportImageToRegistry"
         )
 
     def model_version_sagemaker_export(self, model_id, model_version_id):
         return (
-            self._build_models_v4_url()
-            + "/"
-            + model_id
-            + "/"
-            + model_version_id
-            + "/exportImageForSagemaker"
+                self._build_models_v4_url()
+                + "/"
+                + model_id
+                + "/"
+                + model_version_id
+                + "/exportImageForSagemaker"
         )
 
     def model_version_export_status(self, model_export_id):
         return (
-            self._build_models_v4_url()
-            + "/"
-            + model_export_id
-            + "/getExportImageStatus"
+                self._build_models_v4_url()
+                + "/"
+                + model_export_id
+                + "/getExportImageStatus"
         )
 
     def model_version_export_logs(self, model_export_id):
@@ -209,36 +210,41 @@ class _Routes:
         return self.host + f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/start"
 
     def datasets_test_chunk(
-        self,
-        dataset_id,
-        upload_key,
-        chunk_number,
-        total_chunks,
-        identifier,
-        checksum
-    ): return (
-        self.host +
-        f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}&resumableChunkNumber={chunk_number}" +
-        f"&resumableIdentifier={quote(identifier)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
-    )
+            self,
+            dataset_id,
+            upload_key,
+            chunk_number,
+            total_chunks,
+            identifier,
+            checksum
+    ):
+        return (
+                self.host +
+                f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}&resumableChunkNumber={chunk_number}" +
+                f"&resumableIdentifier={quote(identifier)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+        )
 
     def datasets_upload_chunk(
-        self,
-        dataset_id,
-        key,
-        chunk_number,
-        total_chunks,
-        target_chunk_size,
-        current_chunk_size,
-        identifier,
-        resumable_relative_path,
-        checksum
-    ): return (
-            self.host +
-        f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}&" +
-        f"resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
-        f"&resumableRelativePath={quote(resumable_relative_path)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
-    )
+            self,
+            dataset_id,
+            key,
+            chunk_number,
+            total_chunks,
+            target_chunk_size,
+            current_chunk_size,
+            identifier,
+            resumable_relative_path,
+            checksum
+    ):
+        return (
+                self.host +
+                f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}" +
+                f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
+                f"&resumableRelativePath={quote(resumable_relative_path)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+        )
+
+    def datasets_end_upload(self, dataset_id, upload_key):
+        return self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/end/{upload_key}"
 
     def app_list(self, project_id):
         return self.host + f"/v4/modelProducts?projectId={project_id}"
