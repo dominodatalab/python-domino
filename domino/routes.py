@@ -228,15 +228,15 @@ class _Routes:
         key,
         chunk_number,
         total_chunks,
-        chunk_size,
+        target_chunk_size,
         current_chunk_size,
         identifier,
         resumable_relative_path,
         checksum
     ): return (
-        self.host +
+            self.host +
         f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}&" +
-        f"resumableChunkSize={chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
+        f"resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
         f"&resumableRelativePath={quote(resumable_relative_path)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
     )
 
