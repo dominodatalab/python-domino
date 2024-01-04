@@ -96,7 +96,7 @@ class Uploader:
         if not self.upload_key:
             raise RuntimeError(f"upload key for {self.dataset_id} not found. Could not end session.")
         url = self.routes.datasets_end_upload(self.dataset_id, self.upload_key)
-        return self.request_manager.get(url).json()
+        return self.request_manager.get(url)
 
     def _create_chunk_queue(self) -> [UploadChunk]:
         file_size = os.path.getsize(self.local_path_file)
