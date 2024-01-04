@@ -248,8 +248,11 @@ class _Routes:
     def datasets_cancel_upload(self, dataset_id, upload_key):
         return self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/cancel/{upload_key}"
 
-    def datasets_end_upload(self, dataset_id, upload_key):
-        return self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/end/{upload_key}"
+    def datasets_end_upload(self, dataset_id, upload_key, target_relative_path=None):
+        url = self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/end/{upload_key}"
+        if target_relative_path:
+            url += f"?targetRelativePath={target_relative_path}"
+        return url
 
     def app_list(self, project_id):
         return self.host + f"/v4/modelProducts?projectId={project_id}"

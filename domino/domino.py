@@ -1053,7 +1053,8 @@ class Domino:
         local_path_to_file: str,
         file_upload_setting: str = None,
         max_workers: int = None,
-        target_chunk_size: int = None
+        target_chunk_size: int = None,
+        target_relative_path: str = None
     ) -> str:
         """Upload file to dataset with multithreaded support.
 
@@ -1063,6 +1064,7 @@ class Domino:
             file_upload_setting: setting to resolve naming conflict, one of Ignore, Rename, Overwrite (default)
             max_workers: max amount of threads (default: 10)
             target_chunk_size: max chunk size for multipart upload (default: 8MB)
+            target_relative_path: path in the dataset to upload the file to
         Returns local path to uploaded file
         """
         uploader = datasets.Uploader(
@@ -1075,7 +1077,8 @@ class Domino:
 
             file_upload_setting=file_upload_setting,
             max_workers=max_workers,
-            target_chunk_size=target_chunk_size
+            target_chunk_size=target_chunk_size,
+            target_relative_path=target_relative_path
         )
 
         try:
@@ -1086,7 +1089,6 @@ class Domino:
             self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file} failed, canceling session. "
                            f"Please try again.")
             uploader.cancel_upload_session()
-            raise e
 
     def model_version_export(
         self,

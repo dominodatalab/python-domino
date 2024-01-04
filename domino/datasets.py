@@ -52,6 +52,7 @@ class Uploader:
             log: Logger,
             request_manager: _HttpRequestManager,
             routes: _Routes,
+            target_relative_path: str,
 
             file_upload_setting: str,
             max_workers: int,
@@ -67,6 +68,7 @@ class Uploader:
         self.target_chunk_size = target_chunk_size or 8 * MB
         self.file_upload_setting = file_upload_setting or FILE_UPLOAD_SETTING_DEFAULT
         self.max_workers = max_workers or MAX_WORKERS
+        self.target_relative_path = target_relative_path
         self.upload_key = None  # this will be set once the session is started
 
     def start_upload_session(self):
@@ -90,12 +92,12 @@ class Uploader:
 
     def cancel_upload_session(self):
         url = self.routes.datasets_cancel_upload(self.dataset_id, self.upload_key)
-        return self.request_manager.delete(url).json()
+        return self.request_manager.get(url)
 
     def end_upload_session(self):
         if not self.upload_key:
             raise RuntimeError(f"upload key for {self.dataset_id} not found. Could not end session.")
-        url = self.routes.datasets_end_upload(self.dataset_id, self.upload_key)
+        url = self.routes.datasets_end_upload(self.dataset_id, self.upload_key, self.target_relative_path)
         return self.request_manager.get(url)
 
     def _create_chunk_queue(self) -> [UploadChunk]:
