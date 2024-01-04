@@ -51,6 +51,7 @@ setup(
     extras_require={
         "airflow": ["apache-airflow==2.2.4"],
         "data": ["dominodatalab-data>=0.1.0"],
+        "flyte": ["flytekit>=1.10.2"],
         "dev": [
             "black==22.3.0",
             "flake8==4.0.1",
