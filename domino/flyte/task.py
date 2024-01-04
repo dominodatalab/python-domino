@@ -18,6 +18,7 @@ class EnvironmentRevisionType(str, Enum):
     ActiveRevision = "ActiveRevision"
     LatestRevision = "LatestRevision"
     SomeRevision = "SomeRevision"
+    RestrictedRevision = "RestrictedRevision"
 
 
 @dataclass 

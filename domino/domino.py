@@ -316,11 +316,14 @@ class Domino:
         self,
         command: str,
         commit_id: Optional[str] = None,
+        main_repo_git_ref: Optional[dict] = None,
         hardware_tier_id: Optional[str] = None,
         hardware_tier_name: Optional[str] = None,
         environment_id: Optional[str] = None,
+        environment_revision_spec: Optional[str] = None,
         on_demand_spark_cluster_properties: Optional[dict] = None,
         compute_cluster_properties: Optional[dict] = None,
+        volume_size_gib: Optional[float] = None,
         external_volume_mounts: Optional[List[str]] = None,
         title: Optional[str] = None,
     ) -> dict:
@@ -580,16 +583,20 @@ class Domino:
             hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
         )
         url = self._routes.job_start()
+
         payload = {
             "projectId": self.project_id,
             "commandToRun": command,
+            "title": title,
             "commitId": commit_id,
+            "mainRepoGitRef": main_repo_git_ref,
             "overrideHardwareTierId": resolved_hardware_tier_id,
             "onDemandSparkClusterProperties": spark_cluster_properties,
-            "computeClusterProperties": validated_compute_cluster_properties,
             "environmentId": environment_id,
+            "environmentRevisionSpec": environment_revision_spec,
+            "computeClusterProperties": validated_compute_cluster_properties,
+            "overrideVolumeSizeGiB": volume_size_gib,
             "externalVolumeMounts": external_volume_mounts,
-            "title": title,
         }
         try:
             response = self.request_manager.post(url, json=payload)
