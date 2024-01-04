@@ -1,10 +1,54 @@
+import json
+from enum import Enum
 from typing import Any, Dict, Optional, Type, Tuple
 from datetime import timedelta
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from flytekit.configuration import SerializationSettings
 from flytekit.core.base_task import PythonTask, TaskMetadata
 from flytekit.core.interface import Interface
 from flytekit.extend.backend.base_agent import AsyncAgentExecutorMixin
+
+@dataclass
+class GitRef(object):
+    type: str
+    value: Optional[str] = None
+
+# Must inherit from str for json serialization to work
+class EnvironmentRevisionType(str, Enum):
+    ActiveRevision = "ActiveRevision"
+    LatestRevision = "LatestRevision"
+    SomeRevision = "SomeRevision"
+
+
+@dataclass 
+class EnvironmentRevisionSpec(object):
+    EnvironmentRevisionType: EnvironmentRevisionType
+    EnvironmentRevisionId: Optional[str] = None
+
+    def __post_init__(self):
+        if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision and not self.EnvironmentRevisionId:
+            raise ValueError(f"EnvironmentRevisionId must be specified when using type {self.EnvironmentRevisionType}")
+
+
+# Must inherit from str for json serialization to work
+class ComputeClusterType(str, Enum):
+    Dask = "Dask"
+    Spark = "Spark"
+    Ray = "Ray"
+    MPI = "MPI"
+
+
+@dataclass
+class ClusterProperties(object):
+    ClusterType: ComputeClusterType
+    ComputeEnvironmentId: str
+    WorkerHardareTierId: str
+    WorkerCount: int
+    WorkerStorageGiB: Optional[float] = None
+    MaxWorkerCount: Optional[int] = None
+    ComputeEnvironmentRevisionSpec: Optional[EnvironmentRevisionSpec] = None
+    MasterHardwareTierId: Optional[str] = None
+    ExtraConfigs: Optional[Dict[str, str]] = None
 
 
 @dataclass
@@ -17,9 +61,12 @@ class DominoJobConfig(object):
     Command: str
     Title: Optional[str] = None
     CommitId: Optional[str] = None
+    MainRepoGitRef: Optional[GitRef] = None
     HardwareTierId: Optional[str] = None
     EnvironmentId: Optional[str] = None
-    ComputeClusterProperties: Optional[Dict[str, str]] = None  # TODO: We probably need a better type here to pass it to the agent
+    EnvironmentRevisionSpec: Optional[EnvironmentRevisionSpec] = None
+    ComputeClusterProperties: Optional[ClusterProperties] = None
+    VolumeSizeGiB: Optional[float] = None
     ExternalVolumeMounts: Optional[Tuple[str]] = None
 
 
@@ -47,13 +94,5 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
     # This is used to surface DominoJobConfig values necessary to send the request    
     def get_custom(self, settings: SerializationSettings) -> Dict[str, Any]:
         return {
-            "username": self._task_config.Username,
-            "projectName": self._task_config.ProjectName,
-            "apiKey": self._task_config.ApiKey,
-            "command": self._task_config.Command,
-            "title": self._task_config.Title,
-            "commitId": self._task_config.CommitId,
-            "hardwareTierId": self._task_config.HardwareTierId,
-            "environmentId": self._task_config.EnvironmentId,
-            "externalVolumeMounts": self.task_config.ExternalVolumeMounts,
+            "jobConfig": json.dumps(asdict(self._task_config))
         }
