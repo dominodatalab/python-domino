@@ -220,8 +220,9 @@ class _Routes:
     ):
         return (
             self.host +
-            f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}&resumableChunkNumber={chunk_number}" +
-            f"&resumableIdentifier={quote(identifier)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+            f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}"
+            f"&resumableChunkNumber={chunk_number}&resumableIdentifier={quote(identifier)}"
+            f"&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
         )
 
     def datasets_upload_chunk(
@@ -239,8 +240,9 @@ class _Routes:
         return (
             self.host +
             f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}" +
-            f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
-            f"&resumableRelativePath={quote(resumable_relative_path)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+            f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}"
+            f"&resumableIdentifier={quote(identifier)}&resumableRelativePath={quote(resumable_relative_path)}"
+            f"&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
         )
 
     def datasets_cancel_upload(self, dataset_id, upload_key):
@@ -270,7 +272,7 @@ class _Routes:
 
     # Custom Metrics URLs
     def metric_alerts(self):
-        return self.host + "/api/metricAlerts/v1";
+        return self.host + "/api/metricAlerts/v1"
 
     def log_metrics(self):
         return self.host + f"/api/metricValues/v1"

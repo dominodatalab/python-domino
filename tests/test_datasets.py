@@ -105,7 +105,7 @@ def test_datasets_upload(default_domino_client):
     response = default_domino_client.datasets_upload_file(datasets_id, local_path_to_file)
 
     assert response.status_code == 200
-    assert response.json()["path"] == "test_file.py"
+    assert response.json()["path"] == "/test_file.py"
 
 
 @pytest.mark.skipif(
