@@ -48,7 +48,7 @@ class Uploader:
             self,
             csrf_no_check_header: {str, str},
             dataset_id: str,
-            local_path_to_file: str,
+            local_path_to_file_or_directory: str,
             log: Logger,
             request_manager: _HttpRequestManager,
             routes: _Routes,
@@ -61,7 +61,7 @@ class Uploader:
     ):
         self.csrf_no_check_header = csrf_no_check_header
         self.dataset_id = dataset_id
-        self.local_path_file = local_path_to_file
+        self.local_path_file_or_directory = local_path_to_file_or_directory
         self.log = log
         self.request_manager = request_manager
         self.routes = routes
@@ -101,15 +101,31 @@ class Uploader:
         return self.request_manager.get(url)
 
     def _create_chunk_queue(self) -> [UploadChunk]:
-        file_size = os.path.getsize(self.local_path_file)
-        file_name = os.path.basename(self.local_path_file)
+        if os.path.isfile(self.local_path_file_or_directory):
+            return self._create_chunk(self.local_path_file_or_directory)
+        else:
+            nested_q = []
+            for dirpath, dirnames, filenames in os.walk(self.local_path_file_or_directory):
+                for filename in filenames:
+                    # construct the relative path for each file
+                    relative_path_to_file = os.path.join(dirpath, filename)
+                    # append chunk to queue
+                    nested_q.append(self._create_chunk(relative_path_to_file))
+            # flattening list of chunks
+            return [chunk for chunks in nested_q for chunk in chunks]
+
+
+    def _create_chunk(self, local_path_file, starting_index=1):
+        file_size = os.path.getsize(local_path_file)
+        file_name = os.path.basename(local_path_file)
         total_chunks = max(int(math.ceil(float(file_size) / self.target_chunk_size)), 1)
-        return [UploadChunk(absolute_path=os.path.abspath(self.local_path_file),  chunk_number=chunk_num,
+        return [UploadChunk(absolute_path=os.path.abspath(local_path_file), chunk_number=chunk_num,
                             dataset_id=self.dataset_id, file_name=file_name, file_size=file_size,
-                            identifier=f"{file_size}-{file_name}", relative_path=self.local_path_file,
+                            identifier=f"{file_size}-{file_name}", relative_path=local_path_file,
                             target_chunk_size=self.target_chunk_size, total_chunks=total_chunks,
                             upload_key=self.upload_key)
-                for chunk_num in range(1, total_chunks + 1)]
+                for chunk_num in range(starting_index, total_chunks + 1)]
+
 
     def _upload_chunk(self, chunk: UploadChunk):
         # read the file chunk

@@ -1050,7 +1050,7 @@ class Domino:
     def datasets_upload_file(
         self,
         dataset_id: str,
-        local_path_to_file: str,
+        local_path_to_file_or_directory: str,
         file_upload_setting: str = None,
         max_workers: int = None,
         target_chunk_size: int = None,
@@ -1060,7 +1060,7 @@ class Domino:
 
         Args:
             dataset_id: id of dataset whose rw snapshot the file will be uploaded to
-            local_path_to_file: path to file in local machine
+            local_path_to_file_or_directory: path to file in local machine
             file_upload_setting: setting to resolve naming conflict, one of Ignore, Rename, Overwrite (default)
             max_workers: max amount of threads (default: 10)
             target_chunk_size: max chunk size for multipart upload (default: 8MB)
@@ -1070,7 +1070,7 @@ class Domino:
         uploader = datasets.Uploader(
             csrf_no_check_header=self._csrf_no_check_header,
             dataset_id=dataset_id,
-            local_path_to_file=local_path_to_file,
+            local_path_to_file_or_directory=local_path_to_file_or_directory,
             log=self.log,
             request_manager=self.request_manager,
             routes=self._routes,
@@ -1086,9 +1086,10 @@ class Domino:
             uploader.upload()
             return uploader.end_upload_session()
         except Exception as e:
-            self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file} failed, canceling session. "
-                           f"Please try again.")
+            self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file_or_directory} failed, "
+                           f"canceling session. Please try again.")
             uploader.cancel_upload_session()
+            raise e
 
     def model_version_export(
         self,
