@@ -9,6 +9,7 @@ from typing import AnyStr
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
 
+FILE_UPLOAD_SETTING_DEFAULT = "Overwrite"
 MAX_WORKERS = 10
 MAX_UPLOAD_ATTEMPTS = 10
 MB = 2 ** 20  # 2^20 bytes - 1 Megabyte
@@ -52,9 +53,9 @@ class Uploader:
             request_manager: _HttpRequestManager,
             routes: _Routes,
 
-            file_upload_setting: str = "Overwrite",
-            max_workers: int = MAX_WORKERS,
-            target_chunk_size: int = 8 * MB,
+            file_upload_setting: str,
+            max_workers: int,
+            target_chunk_size: int,
 
     ):
         self.csrf_no_check_header = csrf_no_check_header
@@ -63,9 +64,9 @@ class Uploader:
         self.log = log
         self.request_manager = request_manager
         self.routes = routes
-        self.target_chunk_size = target_chunk_size
-        self.file_upload_setting = file_upload_setting
-        self.max_workers = max_workers
+        self.target_chunk_size = target_chunk_size or 8 * MB
+        self.file_upload_setting = file_upload_setting or FILE_UPLOAD_SETTING_DEFAULT
+        self.max_workers = max_workers or MAX_WORKERS
         self.upload_key = None  # this will be set once the session is started
 
     def start_upload_session(self):
@@ -83,7 +84,9 @@ class Uploader:
             raise RuntimeError(f"upload key for {self.dataset_id} not found. Please start session before uploading.")
         q = self._create_chunk_queue()
         with ThreadPoolExecutor(self.max_workers) as executor:
-            executor.map(self._upload_chunk, q)
+            # list ensures all the threads are complete before returning results
+            results = list(executor.map(self._upload_chunk, q))
+        return results
 
     def cancel_upload_session(self):
         url = self.routes.datasets_cancel_upload(self.dataset_id, self.upload_key)

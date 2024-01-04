@@ -1080,7 +1080,7 @@ class Domino:
 
         try:
             uploader.start_upload_session()
-            uploader.upload()  # TODO: ensure this finishes before ending upload
+            uploader.upload()
             return uploader.end_upload_session()
         except Exception as e:
             self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file} failed, canceling session. "
