@@ -14,7 +14,7 @@ import polling2
 import requests
 from bs4 import BeautifulSoup
 
-from domino import exceptions, helpers
+from domino import exceptions, helpers, datasets
 from domino._version import __version__
 from domino.authentication import get_auth_by_type
 from domino.constants import (
@@ -1051,130 +1051,171 @@ class Domino:
             url = self._routes.datasets_details(dataset_id)
             self.request_manager.delete(url)
 
-    def _upload_chunk(
+    # def _upload_chunk(
+    #     self,
+    #     dataset_id,
+    #     file_name,
+    #     upload_key,
+    #     total_chunks,
+    #     chunk_num,
+    #     target_chunk_size,
+    #     file_size,
+    #     path_to_local_file
+    # ):
+    #     return {
+    #         "dataset_id": dataset_id,
+    #         "file_name": file_name,
+    #         "upload_key": upload_key,
+    #         "total_chunks": total_chunks,
+    #         "chunk_number": chunk_num,
+    #         "target_chunk_size": target_chunk_size,
+    #         "file_size": file_size,
+    #         "identifier": f"{file_size}-{file_name}",
+    #         "relative_path": path_to_local_file,
+    #         "absolute_path": os.path.abspath(path_to_local_file),
+    #     }
+
+    def datasets_upload_file(
         self,
-        dataset_id,
-        file_name,
-        upload_key,
-        total_chunks,
-        chunk_num,
-        target_chunk_size,
-        file_size,
-        path_to_local_file
-    ):
-        return {
-            "dataset_id": dataset_id,
-            "file_name": file_name,
-            "upload_key": upload_key,
-            "total_chunks": total_chunks,
-            "chunk_number": chunk_num,
-            "target_chunk_size": target_chunk_size,
-            "file_size": file_size,
-            "identifier": f"{file_size}-{file_name}",
-            "relative_path": path_to_local_file,
-            "absolute_path": os.path.abspath(path_to_local_file),
-        }
+        dataset_id: str,
+        local_path_to_file: str,
+        file_upload_setting: str = None,
+        max_workers: int = None,
+        target_chunk_size: int = None
+    ) -> str:
+        """Upload file to dataset with multithreaded support.
 
-    def dataset_create_upload_session_for_file(
-        self,
-        dataset_id,
-        path_to_local_file,
-        target_chunk_size=16 * 1024,  # consider moving to configurable constants
-        file_upload_setting="Overwrite"
-    ):
-        if not os.path.exists(path_to_local_file):
-            raise FileNotFoundError(f"local file with path #{path_to_local_file} not found")
-        # checks permissions and if dataset is active, then creates and persists upload key, and instantiates tmp folder
-        start_upload_url = self._routes.datasets_start_upload(dataset_id)
-        start_upload_body = {
-            "filePaths": [],
-            "fileCollisionSetting": file_upload_setting
-        }
-        upload_key = self.request_manager.post(start_upload_url, json=start_upload_body).json()
-        if not upload_key:
-            raise RuntimeError(f"upload key for {dataset_id} not found")
+        Args:
+            dataset_id: id of dataset whose rw snapshot the file will be uploaded to
+            local_path_to_file: path to file in local machine
+            file_upload_setting: setting to resolve naming conflict, one of Ignore, Rename, Overwrite (default)
+            max_workers: max amount of threads (default: 10)
+            target_chunk_size: max chunk size for multipart upload (default: 8MB)
+        Returns local path to uploaded file
+        """
+        uploader = datasets.Uploader(
+            csrf_no_check_header=self._csrf_no_check_header,
+            dataset_id=dataset_id,
+            local_path_to_file=local_path_to_file,
+            log=self.log,
+            request_manager=self.request_manager,
+            routes=self._routes,
 
-        # get specifics of the file
-        file_size = os.path.getsize(path_to_local_file)
-        file_name = os.path.basename(path_to_local_file)
-        total_chunks = max(int(math.ceil(float(file_size) / target_chunk_size)), 1)
-        chunk_q = [self._upload_chunk(dataset_id, file_name, upload_key, total_chunks, chunk_num, target_chunk_size,
-                                      file_size, path_to_local_file) for chunk_num in range(1, total_chunks + 1)]
+            file_upload_setting=file_upload_setting,
+            max_workers=max_workers,
+            target_chunk_size=target_chunk_size
+        )
 
-        # return chunk queue for user to parallelize
-        return json.dumps(chunk_q, indent=4)
+        try:
+            uploader.start_upload_session()
+            uploader.upload()  # TODO: ensure this finishes before ending upload
+            return uploader.end_upload_session()
+        except Exception as e:
+            self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file} failed, canceling session. "
+                           f"Please try again.")
+            uploader.cancel_upload_session()
+            raise e
 
-    def datasets_upload_file_chunk(self, chunk_map):
-        MAX_UPLOAD_ATTEMPTS = 10  # consider moving to configurable constants
-        UPLOAD_READ_TIMEOUT_IN_SEC = 30  # consider moving to configurable constants
-
-        dataset_id = chunk_map["dataset_id"]
-        file_name = chunk_map["file_name"]
-        upload_key = chunk_map["upload_key"]
-        total_chunks = chunk_map["total_chunks"]
-        identifier = chunk_map["identifier"]
-        target_chunk_size = chunk_map["target_chunk_size"]
-        chunk_number = chunk_map["chunk_number"]
-        chunk_relative_path = chunk_map["relative_path"]
-        chunk_absolute_path = chunk_map["absolute_path"]
-
-        # read the file chunk
-        starting_skip = target_chunk_size * (chunk_number - 1)
-        with open(chunk_absolute_path, 'rb') as file:
-            file.seek(starting_skip)
-            chunk_data = file.read(target_chunk_size)
-
-        # computing the MD5 checksum
-        digest = hashlib.md5()
-        digest.update(chunk_data)
-        chunk_checksum = digest.hexdigest().upper()
-
-        # testing chunk
-        actual_chunk_size = len(chunk_data)
-        test_chunk_url = self._routes.datasets_test_chunk(dataset_id, upload_key, chunk_number, total_chunks,
-                                                          identifier, chunk_checksum)
-        # test chunk returns no content if it should upload
-        should_upload = self.request_manager.get(test_chunk_url).status_code == 204
-
-        if should_upload:
-            upload_try = 1
-            uploaded = False
-            while upload_try <= MAX_UPLOAD_ATTEMPTS and not uploaded:
-                try:
-                    # uploading chunk
-                    self.log.info(f"Uploading chunk {chunk_number} of {total_chunks} for {file_name}")
-                    upload_chunk_url = self._routes.datasets_upload_chunk(dataset_id, upload_key, chunk_number,
-                                                                          total_chunks, target_chunk_size, actual_chunk_size,
-                                                                          identifier, chunk_relative_path, chunk_checksum)
-                    file_object = io.BytesIO(chunk_data)
-                    # files to pass in post's **kwargs
-                    files = {
-                        chunk_relative_path: (file_name, chunk_data, 'application/octet-stream')
-                    }
-                    start_time_ns = time.time_ns()
-                    # uploading!
-                    self.request_manager.post(upload_chunk_url, files=files, timeout=UPLOAD_READ_TIMEOUT_IN_SEC, headers=self._csrf_no_check_header)
-                    end_time_ns = time.time_ns()
-                    duration_ns = end_time_ns - start_time_ns
-                    bandwidth_bytes_per_second = actual_chunk_size / duration_ns * 1000000000.0
-                    self.log.info(f"Uploaded chunk {chunk_number} of {total_chunks} for {file_name} "
-                                  f"in {duration_ns / 1_000_000:.1f}ms ({bandwidth_bytes_per_second:.1f} B/s)")
-                    uploaded = True
-                except Exception as e:
-                    if upload_try > MAX_UPLOAD_ATTEMPTS:
-                        raise RuntimeError(f"Uploading chunk {chunk_number} of {total_chunks} for {file_name} "
-                                           f"failed. Please try again")
-                    else:
-                        self.log.info(f"Failed to upload chunk {chunk_number} of {total_chunks} for {file_name}. "
-                                      f"Retrying...")
-                        time.sleep(5 * upload_try)  # sleep time should be a constant
-                        upload_try += 1
-        else:
-            self.log.info(f"Skipping chunk {chunk_number} of {total_chunks} for {file_name}")
-
-    def datasets_end_upload(self, dataset_id, upload_key):
-        url = self._routes.datasets_end_upload(dataset_id, upload_key)
-        return self._get(url)
+    # def dataset_create_upload_session_for_file(
+    #     self,
+    #     dataset_id,
+    #     path_to_local_file,
+    #     target_chunk_size=16 * 1024,  # consider moving to configurable constants
+    #     file_upload_setting="Overwrite"
+    # ):
+    #     if not os.path.exists(path_to_local_file):
+    #         raise FileNotFoundError(f"local file with path #{path_to_local_file} not found")
+    #     # checks permissions and if dataset is active, then creates and persists upload key, and instantiates tmp folder
+    #     start_upload_url = self._routes.datasets_start_upload(dataset_id)
+    #     start_upload_body = {
+    #         "filePaths": [],
+    #         "fileCollisionSetting": file_upload_setting
+    #     }
+    #     upload_key = self.request_manager.post(start_upload_url, json=start_upload_body).json()
+    #     if not upload_key:
+    #         raise RuntimeError(f"upload key for {dataset_id} not found")
+    #
+    #     # get specifics of the file
+    #     file_size = os.path.getsize(path_to_local_file)
+    #     file_name = os.path.basename(path_to_local_file)
+    #     total_chunks = max(int(math.ceil(float(file_size) / target_chunk_size)), 1)
+    #     chunk_q = [self._upload_chunk(dataset_id, file_name, upload_key, total_chunks, chunk_num, target_chunk_size,
+    #                                   file_size, path_to_local_file) for chunk_num in range(1, total_chunks + 1)]
+    #
+    #     # return chunk queue for user to parallelize
+    #     return json.dumps(chunk_q, indent=4)
+    #
+    # def datasets_upload_file_chunk(self, chunk_map):
+    #     MAX_UPLOAD_ATTEMPTS = 10  # consider moving to configurable constants
+    #     UPLOAD_READ_TIMEOUT_IN_SEC = 30  # consider moving to configurable constants
+    #
+    #     dataset_id = chunk_map["dataset_id"]
+    #     file_name = chunk_map["file_name"]
+    #     upload_key = chunk_map["upload_key"]
+    #     total_chunks = chunk_map["total_chunks"]
+    #     identifier = chunk_map["identifier"]
+    #     target_chunk_size = chunk_map["target_chunk_size"]
+    #     chunk_number = chunk_map["chunk_number"]
+    #     chunk_relative_path = chunk_map["relative_path"]
+    #     chunk_absolute_path = chunk_map["absolute_path"]
+    #
+    #     # read the file chunk
+    #     starting_skip = target_chunk_size * (chunk_number - 1)
+    #     with open(chunk_absolute_path, 'rb') as file:
+    #         file.seek(starting_skip)
+    #         chunk_data = file.read(target_chunk_size)
+    #
+    #     # computing the MD5 checksum
+    #     digest = hashlib.md5()
+    #     digest.update(chunk_data)
+    #     chunk_checksum = digest.hexdigest().upper()
+    #
+    #     # testing chunk
+    #     actual_chunk_size = len(chunk_data)
+    #     test_chunk_url = self._routes.datasets_test_chunk(dataset_id, upload_key, chunk_number, total_chunks,
+    #                                                       identifier, chunk_checksum)
+    #     # test chunk returns no content if it should upload
+    #     should_upload = self.request_manager.get(test_chunk_url).status_code == 204
+    #
+    #     if should_upload:
+    #         upload_try = 1
+    #         uploaded = False
+    #         while upload_try <= MAX_UPLOAD_ATTEMPTS and not uploaded:
+    #             try:
+    #                 # uploading chunk
+    #                 self.log.info(f"Uploading chunk {chunk_number} of {total_chunks} for {file_name}")
+    #                 upload_chunk_url = self._routes.datasets_upload_chunk(dataset_id, upload_key, chunk_number,
+    #                                                                       total_chunks, target_chunk_size, actual_chunk_size,
+    #                                                                       identifier, chunk_relative_path, chunk_checksum)
+    #                 file_object = io.BytesIO(chunk_data)
+    #                 # files to pass in post's **kwargs
+    #                 files = {
+    #                     chunk_relative_path: (file_name, chunk_data, 'application/octet-stream')
+    #                 }
+    #                 start_time_ns = time.time_ns()
+    #                 # uploading!
+    #                 self.request_manager.post(upload_chunk_url, files=files, timeout=UPLOAD_READ_TIMEOUT_IN_SEC, headers=self._csrf_no_check_header)
+    #                 end_time_ns = time.time_ns()
+    #                 duration_ns = end_time_ns - start_time_ns
+    #                 bandwidth_bytes_per_second = actual_chunk_size / duration_ns * 1000000000.0
+    #                 self.log.info(f"Uploaded chunk {chunk_number} of {total_chunks} for {file_name} "
+    #                               f"in {duration_ns / 1_000_000:.1f}ms ({bandwidth_bytes_per_second:.1f} B/s)")
+    #                 uploaded = True
+    #             except Exception as e:
+    #                 if upload_try > MAX_UPLOAD_ATTEMPTS:
+    #                     raise RuntimeError(f"Uploading chunk {chunk_number} of {total_chunks} for {file_name} "
+    #                                        f"failed. Please try again")
+    #                 else:
+    #                     self.log.info(f"Failed to upload chunk {chunk_number} of {total_chunks} for {file_name}. "
+    #                                   f"Retrying...")
+    #                     time.sleep(5 * upload_try)  # sleep time should be a constant
+    #                     upload_try += 1
+    #     else:
+    #         self.log.info(f"Skipping chunk {chunk_number} of {total_chunks} for {file_name}")
+    #
+    # def datasets_end_upload(self, dataset_id, upload_key):
+    #     url = self._routes.datasets_end_upload(dataset_id, upload_key)
+    #     return self._get(url)
 
     def model_version_export(
         self,

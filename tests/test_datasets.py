@@ -97,6 +97,20 @@ def test_datasets_details(default_domino_client, random_seq):
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
+def test_datasets_upload(default_domino_client):
+    datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
+        1
+    ]
+    local_path_to_file = "/test_file.py"
+    response = default_domino_client.datasets_upload_file(datasets_id, local_path_to_file)
+
+    assert response.status_code == 200
+    assert response.json()["path"] == "test_file.py"
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
 def test_datasets_remove(default_domino_client):
     datasets_ids = default_domino_client.datasets_ids(default_domino_client.project_id)
     default_domino_client.datasets_remove(datasets_ids[1:])

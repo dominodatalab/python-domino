@@ -210,38 +210,41 @@ class _Routes:
         return self.host + f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/start"
 
     def datasets_test_chunk(
-            self,
-            dataset_id,
-            upload_key,
-            chunk_number,
-            total_chunks,
-            identifier,
-            checksum
+        self,
+        dataset_id,
+        upload_key,
+        chunk_number,
+        total_chunks,
+        identifier,
+        checksum
     ):
         return (
-                self.host +
-                f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}&resumableChunkNumber={chunk_number}" +
-                f"&resumableIdentifier={quote(identifier)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+            self.host +
+            f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}&resumableChunkNumber={chunk_number}" +
+            f"&resumableIdentifier={quote(identifier)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
         )
 
     def datasets_upload_chunk(
-            self,
-            dataset_id,
-            key,
-            chunk_number,
-            total_chunks,
-            target_chunk_size,
-            current_chunk_size,
-            identifier,
-            resumable_relative_path,
-            checksum
+        self,
+        dataset_id,
+        key,
+        chunk_number,
+        total_chunks,
+        target_chunk_size,
+        current_chunk_size,
+        identifier,
+        resumable_relative_path,
+        checksum
     ):
         return (
-                self.host +
-                f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}" +
-                f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
-                f"&resumableRelativePath={quote(resumable_relative_path)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+            self.host +
+            f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}" +
+            f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}&resumableIdentifier={quote(identifier)}" +
+            f"&resumableRelativePath={quote(resumable_relative_path)}&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
         )
+
+    def datasets_cancel_upload(self, dataset_id, upload_key):
+        return self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/cancel/{upload_key}"
 
     def datasets_end_upload(self, dataset_id, upload_key):
         return self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/end/{upload_key}"
