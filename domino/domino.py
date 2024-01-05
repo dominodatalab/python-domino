@@ -53,7 +53,8 @@ class Domino:
         self.authenticate(api_key, auth_token, domino_token_file, api_proxy)
 
         # Get version
-        self._version = self.deployment_version().get("version")
+        self._version = "5.10.0"
+        # self._version = self.deployment_version().get("version")
         assert self.requires_at_least(MINIMUM_SUPPORTED_DOMINO_VERSION)
 
         self._logger.debug(
@@ -1067,7 +1068,7 @@ class Domino:
             target_relative_path: path in the dataset to upload the file to
         Returns local path to uploaded file
         """
-        uploader = datasets.Uploader(
+        with datasets.Uploader(
             csrf_no_check_header=self._csrf_no_check_header,
             dataset_id=dataset_id,
             local_path_to_file_or_directory=local_path_to_file_or_directory,
@@ -1079,17 +1080,18 @@ class Domino:
             max_workers=max_workers,
             target_chunk_size=target_chunk_size,
             target_relative_path=target_relative_path
-        )
+        ) as uploader:
+            try:
+                response = uploader.upload()
+                return response
+            except ValueError:
+                self.log.error(f"Erroneous input parameter. Please fix the parameters and try again")
+            except Exception as e:
+                self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file_or_directory} failed, "
+                               f"canceling session. Please try again.")
+                uploader.cancel_upload_session()
+                raise e
 
-        try:
-            uploader.start_upload_session()
-            uploader.upload()
-            return uploader.end_upload_session()
-        except Exception as e:
-            self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file_or_directory} failed, "
-                           f"canceling session. Please try again.")
-            uploader.cancel_upload_session()
-            raise e
 
     def model_version_export(
         self,

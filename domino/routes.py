@@ -12,11 +12,11 @@ class _Routes:
     # URL builders
     def _build_project_url(self):
         return (
-                self.host
-                + "/v1/projects/"
-                + self._owner_username
-                + "/"
-                + self._project_name
+            self.host
+            + "/v1/projects/"
+            + self._owner_username
+            + "/"
+            + self._project_name
         )
 
     def _build_project_url_private_api(self):
@@ -101,12 +101,12 @@ class _Routes:
     # API Endpoint URLs
     def _build_endpoint_url(self):
         return (
-                self.host
-                + "/v1/"
-                + self._owner_username
-                + "/"
-                + self._project_name
-                + "/endpoint"
+            self.host
+            + "/v1/"
+            + self._owner_username
+            + "/"
+            + self._project_name
+            + "/endpoint"
         )
 
     def endpoint(self):
@@ -133,30 +133,30 @@ class _Routes:
 
     def model_version_export(self, model_id, model_version_id):
         return (
-                self._build_models_v4_url()
-                + "/"
-                + model_id
-                + "/"
-                + model_version_id
-                + "/exportImageToRegistry"
+            self._build_models_v4_url()
+            + "/"
+            + model_id
+            + "/"
+            + model_version_id
+            + "/exportImageToRegistry"
         )
 
     def model_version_sagemaker_export(self, model_id, model_version_id):
         return (
-                self._build_models_v4_url()
-                + "/"
-                + model_id
-                + "/"
-                + model_version_id
-                + "/exportImageForSagemaker"
+            self._build_models_v4_url()
+            + "/"
+            + model_id
+            + "/"
+            + model_version_id
+            + "/exportImageForSagemaker"
         )
 
     def model_version_export_status(self, model_export_id):
         return (
-                self._build_models_v4_url()
-                + "/"
-                + model_export_id
-                + "/getExportImageStatus"
+            self._build_models_v4_url()
+            + "/"
+            + model_export_id
+            + "/getExportImageStatus"
         )
 
     def model_version_export_logs(self, model_export_id):

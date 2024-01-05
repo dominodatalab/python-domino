@@ -3,8 +3,11 @@ import math
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from logging import Logger
 from typing import AnyStr
+
+from retry import retry
 
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
@@ -13,11 +16,24 @@ FILE_UPLOAD_SETTING_DEFAULT = "Overwrite"
 MAX_WORKERS = 10
 MAX_UPLOAD_ATTEMPTS = 10
 MB = 2 ** 20  # 2^20 bytes - 1 Megabyte
-SLEEP_TIME_IN_SEC = 5
+SLEEP_TIME_IN_SEC = 3
 UPLOAD_READ_TIMEOUT_IN_SEC = 30
 
 
+@dataclass
 class UploadChunk:
+    """ Class for keeping track of a dataset upload chunk."""
+    absolute_path: str
+    chunk_number: int
+    dataset_id: str
+    file_name: str
+    file_size: int
+    upload_key: str
+    identifier: str
+    relative_path: str
+    target_chunk_size: int
+    total_chunks: int
+
     def __init__(
             self,
             absolute_path: str,
@@ -25,11 +41,11 @@ class UploadChunk:
             dataset_id: str,
             file_name: str,
             file_size: int,
-            upload_key: str,
             identifier: str,
             relative_path: str,
             target_chunk_size: int,
             total_chunks: int,
+            upload_key: str,
     ):
         self.absolute_path = absolute_path
         self.chunk_number = chunk_number
@@ -71,7 +87,7 @@ class Uploader:
         self.target_relative_path = target_relative_path
         self.upload_key = None  # this will be set once the session is started
 
-    def start_upload_session(self):
+    def __enter__(self):
         start_upload_body = {
             "filePaths": [],
             "fileCollisionSetting": self.file_upload_setting
@@ -80,6 +96,14 @@ class Uploader:
         self.upload_key = self.request_manager.post(start_upload_url, json=start_upload_body).json()
         if not self.upload_key:
             raise RuntimeError(f"upload key for {self.dataset_id} not found. Session could not start.")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self.upload_key:
+            raise RuntimeError(f"upload key for {self.dataset_id} not found. Could not end session.")
+        url = self.routes.datasets_end_upload(self.dataset_id, self.upload_key, self.target_relative_path)
+        response = self.request_manager.get(url)
+        return response
 
     def upload(self):
         if not self.upload_key:
@@ -88,34 +112,28 @@ class Uploader:
         with ThreadPoolExecutor(self.max_workers) as executor:
             # list ensures all the threads are complete before returning results
             results = list(executor.map(self._upload_chunk, q))
-        return results
+        return (self.local_path_file_or_directory)
 
     def cancel_upload_session(self):
         url = self.routes.datasets_cancel_upload(self.dataset_id, self.upload_key)
         return self.request_manager.get(url)
 
-    def end_upload_session(self):
-        if not self.upload_key:
-            raise RuntimeError(f"upload key for {self.dataset_id} not found. Could not end session.")
-        url = self.routes.datasets_end_upload(self.dataset_id, self.upload_key, self.target_relative_path)
-        return self.request_manager.get(url)
-
-    def _create_chunk_queue(self) -> [UploadChunk]:
+    def _create_chunk_queue(self) -> list[UploadChunk]:
+        if not os.path.exists(self.local_path_file_or_directory):
+            self.log.error(f"path {self.local_path_file_or_directory} does not exist")
+            raise ValueError()
         if os.path.isfile(self.local_path_file_or_directory):
-            return self._create_chunk(self.local_path_file_or_directory)
-        else:
-            nested_q = []
-            for dirpath, dirnames, filenames in os.walk(self.local_path_file_or_directory):
-                for filename in filenames:
-                    # construct the relative path for each file
-                    relative_path_to_file = os.path.join(dirpath, filename)
-                    # append chunk to queue
-                    nested_q.append(self._create_chunk(relative_path_to_file))
-            # flattening list of chunks
-            return [chunk for chunks in nested_q for chunk in chunks]
+            return self._create_chunks(self.local_path_file_or_directory)
+        chunk_q = []
+        for dirpath, _, filenames in os.walk(self.local_path_file_or_directory):
+            for filename in filenames:
+                # construct the relative path for each file
+                relative_path_to_file = os.path.join(dirpath, filename)
+                # append chunk to queue
+                chunk_q.extend(self._create_chunks(relative_path_to_file))
+        return chunk_q
 
-
-    def _create_chunk(self, local_path_file, starting_index=1):
+    def _create_chunks(self, local_path_file, starting_index=1) -> list[UploadChunk]:
         file_size = os.path.getsize(local_path_file)
         file_name = os.path.basename(local_path_file)
         total_chunks = max(int(math.ceil(float(file_size) / self.target_chunk_size)), 1)
@@ -126,8 +144,7 @@ class Uploader:
                             upload_key=self.upload_key)
                 for chunk_num in range(starting_index, total_chunks + 1)]
 
-
-    def _upload_chunk(self, chunk: UploadChunk):
+    def _upload_chunk(self, chunk: UploadChunk) -> None:
         # read the file chunk
         starting_skip = chunk.target_chunk_size * (chunk.chunk_number - 1)
         with open(chunk.absolute_path, 'rb') as file:
@@ -139,43 +156,33 @@ class Uploader:
 
         # uploading chunk
         if should_upload:
-            upload_try = 1
-            uploaded = False
-            while upload_try <= MAX_UPLOAD_ATTEMPTS and not uploaded:
-                try:
-                    actual_chunk_size = len(chunk_data)
-                    # uploading chunk
-                    self.log.info(f"Uploading chunk {chunk.chunk_number} of {chunk.total_chunks} for {chunk.file_name}")
-                    upload_chunk_url = self.routes.datasets_upload_chunk(chunk.dataset_id, chunk.upload_key,
-                                                                         chunk.chunk_number, chunk.total_chunks,
-                                                                         chunk.target_chunk_size, actual_chunk_size,
-                                                                         chunk.identifier, chunk.relative_path,
-                                                                         checksum)
-                    # files to pass in post's **kwargs
-                    files = {
-                        chunk.relative_path: (chunk.file_name, chunk_data, 'application/octet-stream')
-                    }
-                    start_time_ns = time.time_ns()
-                    # making call to upload
-                    self.request_manager.post(upload_chunk_url, files=files, timeout=UPLOAD_READ_TIMEOUT_IN_SEC,
-                                              headers=self.csrf_no_check_header)
-                    end_time_ns = time.time_ns()
-                    duration_ns = end_time_ns - start_time_ns
-                    bandwidth_bytes_per_second = actual_chunk_size / duration_ns * 1000000000.0
-                    self.log.info(f"Uploaded chunk {chunk.chunk_number} of {chunk.total_chunks} for {chunk.file_name} "
-                                  f"in {duration_ns / 1_000_000:.1f}ms ({bandwidth_bytes_per_second:.1f} B/s)")
-                    uploaded = True
-                except Exception:
-                    if upload_try > MAX_UPLOAD_ATTEMPTS:
-                        raise Exception(f"Uploading chunk {chunk.chunk_number} of {chunk.total_chunks} "
-                                           f"for {chunk.file_name} failed. Please try again")
-                    else:
-                        self.log.info(f"Failed to upload chunk {chunk.chunk_number} of {chunk.total_chunks} "
-                                      f"for {chunk.file_name}. Retrying...")
-                        time.sleep(SLEEP_TIME_IN_SEC * upload_try)
-                        upload_try += 1
+            self._upload_chunk_retry(checksum, chunk, chunk_data)
         else:
             self.log.info(f"Skipping chunk {chunk.chunk_number} of {chunk.total_chunks} for {chunk.file_name}")
+
+    @retry(tries=MAX_UPLOAD_ATTEMPTS, delay=SLEEP_TIME_IN_SEC, backoff=2)
+    def _upload_chunk_retry(self, checksum: str, chunk: UploadChunk, chunk_data):
+        actual_chunk_size = len(chunk_data)
+        # uploading chunk
+        self.log.info(f"Uploading chunk {chunk.chunk_number} of {chunk.total_chunks} for {chunk.file_name}")
+        upload_chunk_url = self.routes.datasets_upload_chunk(chunk.dataset_id, chunk.upload_key,
+                                                             chunk.chunk_number, chunk.total_chunks,
+                                                             chunk.target_chunk_size, actual_chunk_size,
+                                                             chunk.identifier, chunk.relative_path,
+                                                             checksum)
+        # files to pass in post's **kwargs
+        files = {
+            chunk.relative_path: (chunk.file_name, chunk_data, 'application/octet-stream')
+        }
+        start_time_ns = time.time_ns()
+        # making call to upload
+        self.request_manager.post(upload_chunk_url, files=files, timeout=UPLOAD_READ_TIMEOUT_IN_SEC,
+                                  headers=self.csrf_no_check_header)
+        end_time_ns = time.time_ns()
+        duration_ns = end_time_ns - start_time_ns
+        bandwidth_bytes_per_second = actual_chunk_size / duration_ns * 1000000000.0
+        self.log.info(f"Uploaded chunk {chunk.chunk_number} of {chunk.total_chunks} for {chunk.file_name} "
+                      f"in {duration_ns / 1_000_000:.1f}ms ({bandwidth_bytes_per_second:.1f} B/s)")
 
     def _test_chunk(self, chunk: UploadChunk, chunk_data: AnyStr) -> (bool, int):
         # computing the MD5 checksum

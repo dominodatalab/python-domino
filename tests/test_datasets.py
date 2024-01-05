@@ -104,9 +104,8 @@ def test_datasets_upload(default_domino_client):
     local_path_to_file = "test_datasets.py"
     response = default_domino_client.datasets_upload_file(datasets_id, local_path_to_file)
 
-    assert response.status_code == 200
-    assert "filecache" in response.json()
-q
+    assert "test_datasets.py" in response.json()
+
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
