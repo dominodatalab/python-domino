@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import Any, Dict, Optional, Type, Tuple
+from typing import Any, Dict, Optional, Type, List
 from datetime import timedelta
 from dataclasses import dataclass, asdict
 from flytekit.configuration import SerializationSettings
@@ -29,6 +29,12 @@ class EnvironmentRevisionSpec(object):
     def __post_init__(self):
         if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision and not self.EnvironmentRevisionId:
             raise ValueError(f"EnvironmentRevisionId must be specified when using type {self.EnvironmentRevisionType}")
+
+    def __str__(self):
+        if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision:
+            return f"{self.EnvironmentRevisionType.value}({self.EnvironmentRevisionId})"
+        else:
+            return self.EnvironmentRevisionType.value
 
 
 # Must inherit from str for json serialization to work
@@ -68,7 +74,7 @@ class DominoJobConfig(object):
     EnvironmentRevisionSpec: Optional[EnvironmentRevisionSpec] = None
     ComputeClusterProperties: Optional[ClusterProperties] = None
     VolumeSizeGiB: Optional[float] = None
-    ExternalVolumeMounts: Optional[Tuple[str]] = None
+    ExternalVolumeMounts: Optional[List[str]] = None
 
 
 class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
