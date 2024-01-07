@@ -1080,17 +1080,10 @@ class Domino:
             max_workers=max_workers,
             target_chunk_size=target_chunk_size,
             target_relative_path=target_relative_path
-        ) as uploader:
-            try:
-                response = uploader.upload()
-                return response
-            except ValueError:
-                self.log.error(f"Erroneous input parameter. Please fix the parameters and try again")
-            except Exception as e:
-                self.log.error(f"Upload for dataset {dataset_id} and file {local_path_to_file_or_directory} failed, "
-                               f"canceling session. Please try again.")
-                uploader.cancel_upload_session()
-                raise e
+        ) as path:
+            if path:
+                self.log.info(f"Uploading chunks for file/directory `{path}` to dataset {dataset_id} completed. "
+                              f"Now ending upload session.")
 
 
     def model_version_export(
