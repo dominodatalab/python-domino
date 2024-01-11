@@ -1083,6 +1083,7 @@ class Domino:
         ) as path:
             self.log.info(f"Uploading chunks for file or directory `{path}` to dataset {dataset_id} completed. "
                           f"Now attempting to end upload session.")
+            return path
 
 
     def model_version_export(
