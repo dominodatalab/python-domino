@@ -73,30 +73,22 @@ class Uploader:
         self.upload_key = self.request_manager.post(start_upload_url, json=start_upload_body).json()
         if not self.upload_key:
             raise RuntimeError(f"upload key for {self.dataset_id} not found. Session could not start.")
-        # starting uploads
-        try:
-            paths = self._upload()
-            return paths
-        except Exception as e:
-            self.log.error("Upload failed. See error for details.")
-            raise e
+        return self._upload()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # catching errors
-        if not self.upload_key:
-            raise RuntimeError(f"upload key for {self.dataset_id} not found. Could not end session.")
-        if exc_type != None:
+        if exc_type is not None:
             self.log.error(f"Upload for dataset {self.dataset_id} and file {self.local_path_file_or_directory} failed, "
                            f"attempting to cancel session. Please try again.")
             self.log.error(f"Error type: {exc_val}. Error message: {exc_tb}.")
             if not isinstance(exc_type, ValueError):
-                self._cancel_upload_session() # is it is a ValueError, canceling session would fail
+                self._cancel_upload_session()  # is it is a ValueError, canceling session would fail
             return
-        # ending snapshot uplaod
+        # ending snapshot upload
         try:
             url = self.routes.datasets_end_upload(self.dataset_id, self.upload_key, self.target_relative_path)
             self.request_manager.get(url)
-            self.log.info("Upload session completed successfully.")
+            self.log.info("Upload session ended successfully.")
         except Exception as e:
             self.log.error("Ending snapshot upload failed. See error for details. Attempting to cancel "
                            "upload session.")
@@ -104,16 +96,12 @@ class Uploader:
 
     def _cancel_upload_session(self):
         url = self.routes.datasets_cancel_upload(self.dataset_id, self.upload_key)
-        try:
-            self.request_manager.get(url)
-            self.log.info("Upload session cancelled successfully.")
-        except Exception as e:
-            self.log.info("Cancelling upload session failed. See error for details.")
-            raise e
+        self.request_manager.get(url)
+        self.log.info("Upload session cancelled successfully.")
 
     def _create_chunk_queue(self) -> list[UploadChunk]:
         if not os.path.exists(self.local_path_file_or_directory):
-            raise ValueError(f"Path {self.local_path_file_or_directory} does not exist.")
+            raise ValueError(f"local file or directory {self.local_path_file_or_directory} does not exist.")
         if os.path.isfile(self.local_path_file_or_directory):
             return self._create_chunks(self.local_path_file_or_directory)
         chunk_q = []
@@ -143,7 +131,7 @@ class Uploader:
         with ThreadPoolExecutor(self.max_workers) as executor:
             # list ensures all the threads are complete before returning results
             results = list(executor.map(self._upload_chunk, q))
-        return (self.local_path_file_or_directory)
+        return self.local_path_file_or_directory
 
     def _upload_chunk(self, chunk: UploadChunk) -> None:
         # read the file chunk

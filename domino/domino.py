@@ -1081,9 +1081,8 @@ class Domino:
             target_chunk_size=target_chunk_size,
             target_relative_path=target_relative_path
         ) as path:
-            if path:
-                self.log.info(f"Uploading chunks for file/directory `{path}` to dataset {dataset_id} completed. "
-                              f"Now ending upload session.")
+            self.log.info(f"Uploading chunks for file or directory `{path}` to dataset {dataset_id} completed. "
+                          f"Now attempting to end upload session.")
 
 
     def model_version_export(
