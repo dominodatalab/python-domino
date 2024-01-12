@@ -1061,11 +1061,11 @@ class Domino:
 
         Args:
             dataset_id: id of dataset whose rw snapshot the file will be uploaded to
-            local_path_to_file_or_directory: path to file in local machine
+            local_path_to_file_or_directory: path to file or directory in local machine
             file_upload_setting: setting to resolve naming conflict, one of Ignore, Rename, Overwrite (default)
             max_workers: max amount of threads (default: 10)
             target_chunk_size: max chunk size for multipart upload (default: 8MB)
-            target_relative_path: path in the dataset to upload the file to
+            target_relative_path: path in the dataset to upload the file or directory to
         Returns local path to uploaded file
         """
         with datasets.Uploader(
