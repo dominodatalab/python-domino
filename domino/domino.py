@@ -1048,7 +1048,7 @@ class Domino:
             url = self._routes.datasets_details(dataset_id)
             self.request_manager.delete(url)
 
-    def datasets_upload_file(
+    def datasets_upload_files(
         self,
         dataset_id: str,
         local_path_to_file_or_directory: str,

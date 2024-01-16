@@ -292,9 +292,17 @@ For example: `f = open("authors.txt","rb")`
 
 ==== blobs_get(key)
 
-Retrieve a file from the Domino server by blob key.
-
+*_Deprecated_* Use get_blobs_v2. Retrieve a file from the Domino server by blob key.
+ 
 * _key:_ The key of the file to fetch from the blob server.
+
+==== blobs_get_v2(path, commit_id, project_id)
+
+Retrieve a file from the Domino server in a project from its path and commit id.
+
+* _path:_ The path to the file in the Domino project.
+* _commit_id:_ ID of the commit to retrieve the file from.
+* _project_id:_ ID of the project to retrieve the file from.
 
 === Apps
 
@@ -444,6 +452,18 @@ Delete a set of datasets.
 * _dataset_ids (list[string]):_ List of IDs of the datasets to delete.
 NOTE: Datasets are first marked for deletion, then deleted after a grace period (15 minutes, configurable).
 A Domino admin may also need to complete this process before the name can be reused.
+
+==== datasets_upload_files(dataset_id, local_path_to_file_or_directory, file_upload_setting, max_workers, target_chunk_size, target_relative_path)
+
+Uploads a file or entire directory to a dataset.
+
+* _dataset_id:_ The dataset identifier.
+* _local_path_to_file_or_directory:_ The path to the file or directory in local machine.
+* _file_upload_setting:_ (Optional) The setting to resolve naming conflict, must be one of `Ignore`, `Rename`, `Overwrite` (default).
+* _max_workers:_ (Optional) The max amount of threads (default: 10).
+* _target_chunk_size:_ (Optional) The max chunk size for multipart upload (default: 8MB).
+* _target_relative_path:_ (Optional) The path on the dataset to upload the file or directory to. Note that the path must exist or the upload will fail.
+    
 
 == Example
 

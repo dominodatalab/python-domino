@@ -102,7 +102,7 @@ def test_datasets_upload(default_domino_client):
         1
     ]
     local_path_to_file = "test_datasets.py"
-    response = default_domino_client.datasets_upload_file(datasets_id, local_path_to_file)
+    response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file)
 
     assert "test_datasets.py" in response
 
@@ -114,7 +114,7 @@ def test_datasets_upload_with_sub_dir(default_domino_client):
         1
     ]
     local_path_to_file = "test_datasets.py"
-    response = default_domino_client.datasets_upload_file(datasets_id, local_path_to_file, target_relative_path="sub_d")
+    response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file, target_relative_path="sub_d")
 
     assert "test_datasets.py" in response
 
@@ -127,7 +127,7 @@ def test_datasets_upload_non_existing_file(default_domino_client):
     ]
     local_path_to_file = "non_existing_file.py"
     try:
-        default_domino_client.datasets_upload_file(datasets_id, local_path_to_file)
+        default_domino_client.datasets_upload_files(datasets_id, local_path_to_file)
         assert False
     except ValueError:
         assert True
