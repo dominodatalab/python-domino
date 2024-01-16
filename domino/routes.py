@@ -1,5 +1,8 @@
 import warnings
 
+from urllib.parse import quote
+
+
 class _Routes:
     def __init__(self, host, owner_username, project_name):
         self.host = host
@@ -203,6 +206,54 @@ class _Routes:
     def datasets_details(self, dataset_id):
         return self.host + "/dataset" + "/" + str(dataset_id)
 
+    def datasets_start_upload(self, dataset_id):
+        return self.host + f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/start"
+
+    def datasets_test_chunk(
+        self,
+        dataset_id,
+        upload_key,
+        chunk_number,
+        total_chunks,
+        identifier,
+        checksum
+    ):
+        return (
+            self.host +
+            f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}"
+            f"&resumableChunkNumber={chunk_number}&resumableIdentifier={quote(identifier)}"
+            f"&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+        )
+
+    def datasets_upload_chunk(
+        self,
+        dataset_id,
+        key,
+        chunk_number,
+        total_chunks,
+        target_chunk_size,
+        current_chunk_size,
+        identifier,
+        resumable_relative_path,
+        checksum
+    ):
+        return (
+            self.host +
+            f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}" +
+            f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}"
+            f"&resumableIdentifier={quote(identifier)}&resumableRelativePath={quote(resumable_relative_path)}"
+            f"&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
+        )
+
+    def datasets_cancel_upload(self, dataset_id, upload_key):
+        return self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/cancel/{upload_key}"
+
+    def datasets_end_upload(self, dataset_id, upload_key, target_relative_path=None):
+        url = self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/end/{upload_key}"
+        if target_relative_path:
+            url += f"?targetRelativePath={target_relative_path}"
+        return url
+
     def app_list(self, project_id):
         return self.host + f"/v4/modelProducts?projectId={project_id}"
 
@@ -224,7 +275,7 @@ class _Routes:
 
     # Custom Metrics URLs
     def metric_alerts(self):
-        return self.host + "/api/metricAlerts/v1";
+        return self.host + "/api/metricAlerts/v1"
 
     def log_metrics(self):
         return self.host + f"/api/metricValues/v1"

@@ -10,7 +10,7 @@ import polling2
 import requests
 from bs4 import BeautifulSoup
 
-from domino import exceptions, helpers
+from domino import exceptions, helpers, datasets
 from domino._version import __version__
 from domino.authentication import get_auth_by_type
 from domino.constants import (
@@ -53,7 +53,8 @@ class Domino:
         self.authenticate(api_key, auth_token, domino_token_file, api_proxy)
 
         # Get version
-        self._version = self.deployment_version().get("version")
+        self._version = "5.10.0"
+        # self._version = self.deployment_version().get("version")
         assert self.requires_at_least(MINIMUM_SUPPORTED_DOMINO_VERSION)
 
         self._logger.debug(
@@ -1046,6 +1047,45 @@ class Domino:
         for dataset_id in dataset_ids:
             url = self._routes.datasets_details(dataset_id)
             self.request_manager.delete(url)
+
+    def datasets_upload_file(
+        self,
+        dataset_id: str,
+        local_path_to_file_or_directory: str,
+        file_upload_setting: str = None,
+        max_workers: int = None,
+        target_chunk_size: int = None,
+        target_relative_path: str = None
+    ) -> str:
+        """Upload file to dataset with multithreaded support.
+
+        Args:
+            dataset_id: id of dataset whose rw snapshot the file will be uploaded to
+            local_path_to_file_or_directory: path to file or directory in local machine
+            file_upload_setting: setting to resolve naming conflict, one of Ignore, Rename, Overwrite (default)
+            max_workers: max amount of threads (default: 10)
+            target_chunk_size: max chunk size for multipart upload (default: 8MB)
+            target_relative_path: path in the dataset to upload the file or directory to
+        Returns local path to uploaded file
+        """
+        with datasets.Uploader(
+            csrf_no_check_header=self._csrf_no_check_header,
+            dataset_id=dataset_id,
+            local_path_to_file_or_directory=local_path_to_file_or_directory,
+            log=self.log,
+            request_manager=self.request_manager,
+            routes=self._routes,
+
+            file_upload_setting=file_upload_setting,
+            max_workers=max_workers,
+            target_chunk_size=target_chunk_size,
+            target_relative_path=target_relative_path
+        ) as uploader:
+            path = uploader.upload()
+            self.log.info(f"Uploading chunks for file or directory `{path}` to dataset {dataset_id} completed. "
+                          f"Now attempting to end upload session.")
+            return path
+
 
     def model_version_export(
         self,

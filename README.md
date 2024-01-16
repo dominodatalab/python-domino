@@ -297,9 +297,17 @@ required.
 
 ### blobs_get(key)
 
-Retrieve a file from the Domino server by blob key.
+*_Deprecated_* Retrieve a file from the Domino server by blob key. Use blobs_get_v2(path, commit_id, project_id) instead.
 
 -   *key:* The key of the file to fetch from the blob server.
+
+### blobs_get_v2(path, commit_id, project_id)
+
+Retrieve a file from the Domino server in a project from its path and commit id.
+
+-   *path:* The path to the file in the Domino project.
+-   *commit_id:* ID of the commit to retrieve the file from.
+-   *project_id:* ID of the project to retrieve the file from.
 
 ## Apps
 
@@ -475,6 +483,18 @@ Delete a set of datasets.
     delete. NOTE: Datasets are first marked for deletion, then deleted
     after a grace period (15 minutes, configurable). A Domino admin may
     also need to complete this process before the name can be reused.
+
+### datasets_upload_file(dataset_id, local_path_to_file_or_directory, file_upload_setting, max_workers, target_chunk_size, target_relative_path)
+
+Uploads a file or entire directory to a dataset.
+
+-   *dataset_id:* The dataset identifier.
+-   *local_path_to_file_or_directory:* The path to the file or directory in local machine.
+-   *file_upload_setting:* The setting to resolve naming conflict, must be one of `Ignore`, `Rename`, `Overwrite` (default).
+-   *max_workers:* The max amount of threads (default: 10).
+-   *target_chunk_size:* The max chunk size for multipart upload (default: 8MB).
+-   *target_relative_path:* The path on the dataset to upload the file or directory to. Note that the path must exist or the upload will fail.
+    
 
 # Airflow
 
