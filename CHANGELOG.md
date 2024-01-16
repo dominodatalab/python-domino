@@ -14,6 +14,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 * Updated Apps documentation
 * Added get_blobs_v2 endpoint plus tests
+* Added datasets_upload_files endpoint plus tests
+* Updated Projects and Datasets documentation 
 
 ### Changed
 * Marked get_blobs endpoint as deprecated
