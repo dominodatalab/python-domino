@@ -6,6 +6,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 * Updated Apps documentation
 * Added get_blobs_v2 endpoint plus tests
+* Updated version checker
 
 ### Changed
 * Marked get_blobs endpoint as deprecated
