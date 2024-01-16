@@ -484,7 +484,7 @@ Delete a set of datasets.
     after a grace period (15 minutes, configurable). A Domino admin may
     also need to complete this process before the name can be reused.
 
-### datasets_upload_file(dataset_id, local_path_to_file_or_directory, file_upload_setting, max_workers, target_chunk_size, target_relative_path)
+### datasets_upload_files(dataset_id, local_path_to_file_or_directory, file_upload_setting, max_workers, target_chunk_size, target_relative_path)
 
 Uploads a file or entire directory to a dataset.
 
