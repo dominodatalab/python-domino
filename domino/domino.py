@@ -1,6 +1,7 @@
 import functools
 import logging
 import os
+from packaging import version
 import re
 import time
 from typing import List, Optional, Tuple
@@ -1294,10 +1295,9 @@ class Domino:
             )
 
     def requires_at_least(self, at_least_version):
-        if at_least_version > self._version:
+        if version.parse(at_least_version) > version.parse(self._version):
             raise Exception(
-                f"You need at least version {at_least_version} but your deployment \
-                            seems to be running {self._version}"
+                f"You need at least version {at_least_version} but your deployment seems to be running {self._version}"
             )
         return True
 
