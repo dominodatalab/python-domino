@@ -73,26 +73,38 @@ class Uploader:
         self.upload_key = self.request_manager.post(start_upload_url, json=start_upload_body).json()
         if not self.upload_key:
             raise RuntimeError(f"upload key for {self.dataset_id} not found. Session could not start.")
-        return self._upload()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # catching errors
         if exc_type is not None:
-            self.log.error(f"Upload for dataset {self.dataset_id} and file {self.local_path_file_or_directory} failed, "
-                           f"attempting to cancel session. Please try again.")
+            self.log.error(f"Upload for dataset {self.dataset_id} and file or directory "
+                           f"`{self.local_path_file_or_directory}` failed, attempting to cancel session. "
+                           f"Please try again.")
             self.log.error(f"Error type: {exc_val}. Error message: {exc_tb}.")
             if not isinstance(exc_type, ValueError):
                 self._cancel_upload_session()  # is it is a ValueError, canceling session would fail
-            return
+            return False
         # ending snapshot upload
         try:
             url = self.routes.datasets_end_upload(self.dataset_id, self.upload_key, self.target_relative_path)
             self.request_manager.get(url)
             self.log.info("Upload session ended successfully.")
-        except Exception as e:
+            return True
+        except:
             self.log.error("Ending snapshot upload failed. See error for details. Attempting to cancel "
                            "upload session.")
             self._cancel_upload_session()
+            return False
+
+    def upload(self):
+        if not self.upload_key:
+            raise RuntimeError(f"upload key for {self.dataset_id} not found. Please start session before uploading.")
+        q = self._create_chunk_queue()
+        with ThreadPoolExecutor(self.max_workers) as executor:
+            # list ensures all the threads are complete before returning results
+            results = list(executor.map(self._upload_chunk, q))
+        return self.local_path_file_or_directory
 
     def _cancel_upload_session(self):
         url = self.routes.datasets_cancel_upload(self.dataset_id, self.upload_key)
@@ -123,15 +135,6 @@ class Uploader:
                             target_chunk_size=self.target_chunk_size, total_chunks=total_chunks,
                             upload_key=self.upload_key)
                 for chunk_num in range(starting_index, total_chunks + 1)]
-
-    def _upload(self):
-        if not self.upload_key:
-            raise RuntimeError(f"upload key for {self.dataset_id} not found. Please start session before uploading.")
-        q = self._create_chunk_queue()
-        with ThreadPoolExecutor(self.max_workers) as executor:
-            # list ensures all the threads are complete before returning results
-            results = list(executor.map(self._upload_chunk, q))
-        return self.local_path_file_or_directory
 
     def _upload_chunk(self, chunk: UploadChunk) -> None:
         # read the file chunk

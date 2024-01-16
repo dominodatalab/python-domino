@@ -1080,7 +1080,8 @@ class Domino:
             max_workers=max_workers,
             target_chunk_size=target_chunk_size,
             target_relative_path=target_relative_path
-        ) as path:
+        ) as uploader:
+            path = uploader.upload()
             self.log.info(f"Uploading chunks for file or directory `{path}` to dataset {dataset_id} completed. "
                           f"Now attempting to end upload session.")
             return path
