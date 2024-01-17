@@ -49,11 +49,12 @@ class Uploader:
             file_upload_setting: str,
             max_workers: int,
             target_chunk_size: int,
+            interrupted: bool = False
 
     ):
         self.csrf_no_check_header = csrf_no_check_header
         self.dataset_id = dataset_id
-        self.local_path_file_or_directory = local_path_to_file_or_directory
+        self.local_path_file_or_directory = os.path.relpath(local_path_to_file_or_directory, start=os.curdir)
         self.log = log
         self.request_manager = request_manager
         self.routes = routes
@@ -61,6 +62,7 @@ class Uploader:
         self.file_upload_setting = file_upload_setting or FILE_UPLOAD_SETTING_DEFAULT
         self.max_workers = max_workers or MAX_WORKERS
         self.target_relative_path = target_relative_path
+        self.interrupted = interrupted
         self.upload_key = None  # this will be set once the session is started
 
     def __enter__(self):
@@ -98,13 +100,17 @@ class Uploader:
             return False
 
     def upload(self):
-        if not self.upload_key:
-            raise RuntimeError(f"upload key for {self.dataset_id} not found. Please start session before uploading.")
-        q = self._create_chunk_queue()
-        with ThreadPoolExecutor(self.max_workers) as executor:
-            # list ensures all the threads are complete before returning results
-            results = list(executor.map(self._upload_chunk, q))
-        return self.local_path_file_or_directory
+        try:
+            if not self.upload_key:
+                raise RuntimeError(f"upload key for {self.dataset_id} not found. Please start session before uploading.")
+            q = self._create_chunk_queue()
+            with ThreadPoolExecutor(self.max_workers) as executor:
+                # list ensures all the threads are complete before returning results
+                results = list(executor.map(self._upload_chunk, q))
+            return self.local_path_file_or_directory
+        except KeyboardInterrupt:
+            self.interrupted = True  # this will allow the threads to stop properly
+            raise
 
     def _cancel_upload_session(self):
         url = self.routes.datasets_cancel_upload(self.dataset_id, self.upload_key)
@@ -137,6 +143,8 @@ class Uploader:
                 for chunk_num in range(starting_index, total_chunks + 1)]
 
     def _upload_chunk(self, chunk: UploadChunk) -> None:
+        if self.interrupted:
+            return
         # read the file chunk
         starting_skip = chunk.target_chunk_size * (chunk.chunk_number - 1)
         with open(chunk.absolute_path, 'rb') as file:
@@ -154,6 +162,8 @@ class Uploader:
 
     @retry(tries=MAX_UPLOAD_ATTEMPTS, delay=SLEEP_TIME_IN_SEC, backoff=2)
     def _upload_chunk_retry(self, checksum: str, chunk: UploadChunk, chunk_data):
+        if self.interrupted:
+            return
         actual_chunk_size = len(chunk_data)
         # uploading chunk
         self.log.info(f"Uploading chunk {chunk.chunk_number} of {chunk.total_chunks} for {chunk.file_name}")

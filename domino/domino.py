@@ -1,7 +1,6 @@
 import functools
 import logging
 import os
-from packaging import version
 import re
 import time
 from typing import List, Optional, Tuple
@@ -1060,6 +1059,9 @@ class Domino:
     ) -> str:
         """Upload file to dataset with multithreaded support.
 
+        Note: in the case of a KeyboardInterrupt, it may take a few seconds for all the threads to stop and for the
+        upload session to be properly cancelled.
+
         Args:
             dataset_id: id of dataset whose rw snapshot the file will be uploaded to
             local_path_to_file_or_directory: path to file or directory in local machine
@@ -1295,9 +1297,10 @@ class Domino:
             )
 
     def requires_at_least(self, at_least_version):
-        if version.parse(at_least_version) > version.parse(self._version):
+        if at_least_version > self._version:
             raise Exception(
-                f"You need at least version {at_least_version} but your deployment seems to be running {self._version}"
+                f"You need at least version {at_least_version} but your deployment \
+                            seems to be running {self._version}"
             )
         return True
 
