@@ -1078,7 +1078,7 @@ class Domino:
         if interactive:
             user_selection = None
             while user_selection != "Y":
-                if not file_upload_setting or file_upload_setting == "Overwrite":
+                if file_upload_setting is None or file_upload_setting == "Overwrite":
                     text = "Overwrite setting selected - note that any existing file with naming conflict " \
                            "will be overridden."
                 elif file_upload_setting == "Rename":
