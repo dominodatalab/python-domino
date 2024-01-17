@@ -62,6 +62,7 @@ setup(
             "pyspark==3.3.0",
             "pytest==6.2.2",
             "requests_mock==1.9.3",
+            "retry==0.9.2",
             "tox==3.25.1",
             "frozendict==2.3.4",
         ],
