@@ -12,7 +12,7 @@ from retry import retry
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
 
-FILE_UPLOAD_SETTING_DEFAULT = "Overwrite"
+FILE_UPLOAD_SETTING_DEFAULT = "Ignore"
 MAX_WORKERS = 10
 MAX_UPLOAD_ATTEMPTS = 10
 MB = 2 ** 20  # 2^20 bytes - 1 Megabyte

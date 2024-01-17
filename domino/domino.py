@@ -1054,7 +1054,6 @@ class Domino:
         dataset_id: str,
         local_path_to_file_or_directory: str,
         file_upload_setting: str = None,
-        interactive: bool = True,
         max_workers: int = None,
         target_chunk_size: int = None,
         target_relative_path: str = None
@@ -1067,35 +1066,28 @@ class Domino:
         Args:
             dataset_id: id of dataset whose rw snapshot the file will be uploaded to
             local_path_to_file_or_directory: path to file or directory in local machine
-            file_upload_setting: setting to resolve naming conflict, one of Ignore, Rename (only files), Overwrite
-            interactive: boolean to enable or disable interactivity for upload settings
+            file_upload_setting: setting to resolve naming conflict, one of Rename, Overwrite, or Ignore (default).
+                - Rename: renames the conflicting file being uploaded by appending "_n" where n is an integer.
+                - Overwrite: overrides the existing conflicting files.
+                - Ignore (default): skips the upload for any conflicting file.
             max_workers: max amount of threads (default: 10)
             target_chunk_size: max chunk size for multipart upload (default: 8MB)
             target_relative_path: path in the dataset to upload the file or directory to
         Returns local path to uploaded file
         """
-        # interactive part to warn user about setting selected
-        if interactive:
-            user_selection = None
-            while user_selection != "Y":
-                if file_upload_setting is None or file_upload_setting == "Overwrite":
-                    text = "Overwrite setting selected - note that any existing file with naming conflict " \
-                           "will be overridden."
-                elif file_upload_setting == "Rename":
-                    text = "Rename setting selected - note that naming conflicts will be resolved by appending " \
-                           "an increasing integer at the end of the uploaded files. In case of a directory with " \
-                           "numerous conflicts, this will cause severe file proliferation."
-                elif file_upload_setting == "Ignore":
-                    text = "Ignore setting selected - any file with naming conflict will not be uploaded."
-                else:
-                    raise ValueError(f"input file_upload_setting {file_upload_setting} not allowed. Please use "
-                                     f"`Overwrite`, `Rename`, or `Ignore` only.")
-                text += "\nWould you like to proceed (Y/N)? "
-                user_selection = input(text)
-                if user_selection == "N":
-                    raise InterruptedError("Upload interrupted by user")
-                elif user_selection != "Y":
-                    print(f"Selection `{user_selection}` not allowed. Please input Y or N only")
+        if file_upload_setting is None or file_upload_setting == "Ignore":
+            text = "Ignore setting selected - any file with naming conflict will not be uploaded."
+        elif file_upload_setting == "Overwrite":
+            text = "Overwrite setting selected - note that any existing file with naming conflict " \
+                   "will be overridden."
+        elif file_upload_setting == "Rename":
+            text = "Rename setting selected - note that naming conflicts will be resolved by appending " \
+                   "an increasing integer at the end of the uploaded files. In case of a directory with " \
+                   "numerous conflicts, this will cause severe file proliferation."
+        else:
+            raise ValueError(f"input file_upload_setting {file_upload_setting} not allowed. Please use "
+                             f"`Overwrite`, `Rename`, or `Ignore` only.")
+        self.log.warning(text)
 
         with datasets.Uploader(
             csrf_no_check_header=self._csrf_no_check_header,

@@ -1,5 +1,4 @@
 import random
-from unittest.mock import patch
 
 import pytest
 
@@ -76,7 +75,6 @@ def test_datasets_update_details_and_name(default_domino_client, random_seq):
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
 def test_datasets_details(default_domino_client, random_seq):
-
     new_dataset_name = "My-New-Integration-Test-Dataset-3" + random_seq
     new_dataset_description = "My New Integration Test Dataset Description 4"
 
@@ -103,9 +101,10 @@ def test_datasets_upload(default_domino_client):
         1
     ]
     local_path_to_file = "test_datasets.py"
-    response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file, interactive=False)
+    response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file)
 
     assert "test_datasets.py" in response
+
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
@@ -116,9 +115,10 @@ def test_datasets_upload_with_sub_dir(default_domino_client):
     ]
     local_path_to_file = "test_datasets.py"
     response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file,
-                                                           target_relative_path="sub_d", interactive=False)
+                                                           target_relative_path="sub_d")
 
     assert "test_datasets.py" in response
+
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
@@ -129,38 +129,11 @@ def test_datasets_upload_non_existing_file(default_domino_client):
     ]
     local_path_to_file = "non_existing_file.py"
     try:
-        default_domino_client.datasets_upload_files(datasets_id, local_path_to_file, interactive=False)
+        default_domino_client.datasets_upload_files(datasets_id, local_path_to_file)
         assert False
     except ValueError:
         assert True
 
-@pytest.mark.skipif(
-    not domino_is_reachable(), reason="No access to a live Domino deployment"
-)
-def test_datasets_upload_interactivity(default_domino_client):
-    datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
-        1
-    ]
-    local_path_to_file = "test_datasets.py"
-    with patch('builtins.input', return_value="Y"):
-        response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file, interactive=True)
-
-        assert "test_datasets.py" in response
-
-@pytest.mark.skipif(
-    not domino_is_reachable(), reason="No access to a live Domino deployment"
-)
-def test_datasets_upload_interactivity_error(default_domino_client):
-    datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
-        1
-    ]
-    local_path_to_file = "test_datasets.py"
-    with patch('builtins.input', return_value="N"):
-        try:
-            default_domino_client.datasets_upload_files(datasets_id, local_path_to_file, interactive=True)
-            assert False
-        except InterruptedError:
-            assert True
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
