@@ -490,8 +490,7 @@ Uploads a file or entire directory to a dataset.
 
 -   *dataset_id:* The dataset identifier.
 -   *local_path_to_file_or_directory:* The path to the file or directory in local machine.
--   *file_upload_setting:* The setting to resolve naming conflict, must be one of `Ignore`, `Rename`, `Overwrite` (default).
--   *interactive:* Boolean to enable or disable interactivity for upload settings (default: True).
+-   *file_upload_setting:* The setting to resolve naming conflict, must be one of `Overwrite`, `Rename`, `Ignore` (default).
 -   *max_workers:* The max amount of threads (default: 10).
 -   *target_chunk_size:* The max chunk size for multipart upload (default: 8MB).
 -   *target_relative_path:* The path on the dataset to upload the file or directory to. Note that the path must exist or the upload will fail.
