@@ -47,7 +47,8 @@ setup(
     keywords=["Domino Data Lab", "API"],
     python_requires='>=3.7.0',
     install_requires=["packaging", "requests>=2.4.2", "beautifulsoup4~=4.11", "polling2~=0.5.0",
-                      "urllib3~=1.26.12", "typing-extensions~=4.4.0", "frozendict~=2.3.4", "python-dateutil~=2.8.2"],
+                      "urllib3~=1.26.12", "typing-extensions~=4.4.0", "frozendict~=2.3.4", "python-dateutil~=2.8.2",
+                      "retry==0.9.2"],
     extras_require={
         "airflow": ["apache-airflow==2.2.4"],
         "data": ["dominodatalab-data>=0.1.0"],
@@ -62,7 +63,6 @@ setup(
             "pyspark==3.3.0",
             "pytest==6.2.2",
             "requests_mock==1.9.3",
-            "retry==0.9.2",
             "tox==3.25.1",
             "frozendict==2.3.4",
         ],
