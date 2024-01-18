@@ -182,9 +182,6 @@ class _Routes:
 
     def default_spark_setting(self, project_id):
         return f"{self.host}/v4/jobs/project/{project_id}/defaultSparkSettings"
-    
-    def job_logs(self, job_id):
-        return f"{self.host}/v4/jobs/{job_id}/logsWithProblemSuggestions"
 
     def useable_environments_list(self, project_id):
         return f"{self.host}/v4/projects/{project_id}/useableEnvironments"
