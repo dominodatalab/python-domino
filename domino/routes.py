@@ -170,6 +170,9 @@ class _Routes:
     # Job URLs
     def job_start(self):
         return f"{self.host}/v4/jobs/start"
+    
+    def pipeline_job_start(self):
+        return f"{self.host}/v4/jobs/startPipelineJob"
 
     def job_stop(self):
         return f"{self.host}/v4/jobs/stop"

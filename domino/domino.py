@@ -605,6 +605,42 @@ class Domino:
             self._logger.info(
                 f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}/relogin?redirectPath=/"
             )
+    
+
+    # TODO: Do we want to bring over some of the validation that job_start has?
+    def pipeline_job_start(
+        self,
+        command: str,
+        commit_id: str,
+        hardware_tier_id: str,
+        environment_id: str,
+        environment_revision_spec: str,
+        volume_size_gib: float,
+        external_volume_mounts: List[str],
+        title: Optional[str] = None,
+        main_repo_git_ref: Optional[dict] = None,
+        compute_cluster_properties: Optional[dict] = None,
+    ) -> dict:
+        url = self._routes.pipeline_job_start()
+
+        payload = {
+            "projectId": self.project_id,
+            "commandToRun": command,
+            "commitId": commit_id,
+            "overrideHardwareTierId": hardware_tier_id,
+            "environmentId": environment_id,
+            "volumeSizeGiB": volume_size_gib,
+            "environmentRevisionSpec": environment_revision_spec,
+            "externalVolumeMounts": external_volume_mounts,
+            "title": title,
+            "mainRepoGitRef": main_repo_git_ref,
+            "computeClusterProperties": compute_cluster_properties,
+            "overrideVolumeSizeGiB": volume_size_gib,
+        }
+
+        response = self.request_manager.post(url, json=payload)
+        return response.json()
+    
 
     def job_stop(self, job_id: str, commit_results: bool = True):
         """
