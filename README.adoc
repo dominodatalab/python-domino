@@ -123,10 +123,10 @@ Domino looks for the authentication method in the following order and uses the f
 The API proxy is the preferred method of authentication.
 See
 ifdef::env-github[]
-https://docs.dominodatalab.com/en/latest/api_guide/ddf8eb[Use the API Proxy to Authenticate Calls to the Domino API].
+https://docs.dominodatalab.com/en/latest/user_guide/40b91f/domino-api/[Use the API Proxy to Authenticate Calls to the Domino API].
 endif::[]
 ifndef::env-github[]
-link:ddf8eb[Use the API Proxy to Authenticate Calls to the Domino API].
+link:40b91f[Use the API Proxy to Authenticate Calls to the Domino API].
 endif::[]
 
 === Additional environment variables

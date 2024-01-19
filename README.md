@@ -16,11 +16,11 @@ Domino:
 
 | Domino Versions |                                    Python-Domino                                    |
 |-----------------|:-----------------------------------------------------------------------------------:|
-| 3.6.x or lower  |      [0.3.5](http://github.com/dominodatalab/python-domino/archive/0.3.5.zip)       |
-| 4.1.0 or higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/1.0.0.zip) or Higher |
-| 5.3.0 or higher | [1.2.0](https://github.com/dominodatalab/python-domino/archive/1.2.1.zip) or Higher |
-| 5.5.0 or higher | [1.2.2](https://github.com/dominodatalab/python-domino/archive/1.2.2.zip) or Higher |
-| 5.10.0 or higher | [1.3.0](https://github.com/dominodatalab/python-domino/archive/1.3.0.zip) or Higher |
+| 3.6.x or lower  |      [0.3.5](https://github.com/dominodatalab/python-domino/archive/0.3.5.zip)       |
+| 4.1.0 or higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/1.0.0.zip) or Higher |
+| 5.3.0 or higher | [1.2.0]https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.2.0.zip) or Higher |
+| 5.5.0 or higher | [1.2.2](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.2.2.zip) or Higher |
+| 5.10.0 or higher | [1.3.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.3.0.zip) or Higher |
 
 # Development
 
@@ -85,7 +85,7 @@ Domino looks for the authentication method in the following order and uses the f
 
 The API proxy is the preferred method of authentication.
 See 
-[Use the API Proxy to Authenticate Calls to the Domino API](https://docs.dominodatalab.com/en/latest/api_guide/ddf8eb).
+[Use the API Proxy to Authenticate Calls to the Domino API](https://docs.dominodatalab.com/en/latest/user_guide/40b91f/domino-api/).
 
 ## Additional environment variables
 
