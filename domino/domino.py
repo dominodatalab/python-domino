@@ -617,6 +617,7 @@ class Domino:
         environment_revision_spec: str,
         volume_size_gib: float,
         external_volume_mounts: List[str],
+        pipeline_config: dict,
         title: Optional[str] = None,
         main_repo_git_ref: Optional[dict] = None,
         compute_cluster_properties: Optional[dict] = None,
@@ -632,10 +633,11 @@ class Domino:
             "volumeSizeGiB": volume_size_gib,
             "environmentRevisionSpec": environment_revision_spec,
             "externalVolumeMounts": external_volume_mounts,
+            "overrideVolumeSizeGiB": volume_size_gib,
+            "pipelineConfig": pipeline_config,
             "title": title,
             "mainRepoGitRef": main_repo_git_ref,
             "computeClusterProperties": compute_cluster_properties,
-            "overrideVolumeSizeGiB": volume_size_gib,
         }
 
         response = self.request_manager.post(url, json=payload)
