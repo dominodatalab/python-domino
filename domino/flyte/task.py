@@ -9,6 +9,8 @@ from flytekit.configuration import SerializationSettings
 from flytekit.core.base_task import PythonTask, TaskMetadata
 from flytekit.core.interface import Interface
 from flytekit.extend.backend.base_agent import AsyncAgentExecutorMixin
+from flytekit.loggers import logger
+
 
 @dataclass
 class GitRef(object):
@@ -63,7 +65,7 @@ class ClusterProperties(object):
 @dataclass
 class DominoJobConfig(object):
     ### Auth ###
-    Username: str
+    OwnerName: str
     ProjectName: str
     ApiKey: str
     ### Job Config ###
@@ -82,20 +84,20 @@ class DominoJobConfig(object):
 @dataclass
 class ResolvedDominoJobConfig(object):
     ### Auth ###
-    Username: str
+    OwnerName: str
     ProjectName: str
     ApiKey: str
     ### Job Config ###
     Command: str
-    Title: Optional[str] = None
     CommitId: str
-    MainRepoGitRef: Optional[GitRef] = None
     HardwareTierId: str
     EnvironmentId: str
     EnvironmentRevisionSpec: EnvironmentRevisionSpec
-    ComputeClusterProperties: Optional[ClusterProperties] = None
     VolumeSizeGiB: float
     ExternalVolumeMounts: List[str]
+    Title: Optional[str] = None
+    MainRepoGitRef: Optional[GitRef] = None
+    ComputeClusterProperties: Optional[ClusterProperties] = None
 
 class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
     def __init__(
@@ -131,11 +133,17 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             domino_job_config.ExternalVolumeMounts is None
             # TODO: Compute cluster validation
         ):
-            url = f"{os.environ["DOMINO_API_PROXY"]}/v4/jobs/{domino_job_config.OwnerName}/{domino_job_config.ProjectName}/resolveJobDefaults"
+            logger.info("Retrieving default properties for job")
+            url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{domino_job_config.OwnerName}/{domino_job_config.ProjectName}/resolveJobDefaults"
             response = requests.post(url, json=json.dumps(asdict(domino_job_config)))
-            response.raise_for_status()
+            response.raise_for_status() # TODO: Catch and sanitize error message
+            job_config_dict = json.loads(response.json)
+            # Set some values that are not resolved in the response
+            job_config_dict["OwnerName"] = domino_job_config.OwnerName
+            job_config_dict["ProjectName"] = domino_job_config.ProjectName
+            job_config_dict["ApiKey"] = domino_job_config.ApiKey
             
-            return DominoJobConfig(**json.loads(response.json()))
+            return DominoJobConfig(**job_config_dict)
         else:
             return domino_job_config
         
