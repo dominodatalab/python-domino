@@ -5,6 +5,7 @@ from enum import Enum
 from typing import Any, Dict, Optional, Type, List
 from datetime import timedelta
 from dataclasses import dataclass, asdict
+import base64
 from flytekit.configuration import SerializationSettings
 from flytekit.core.base_task import PythonTask, TaskMetadata
 from flytekit.core.interface import Interface
@@ -65,7 +66,14 @@ class ClusterProperties(object):
 
 
 @dataclass
+class PipelineConfig:
+    InputInterfaceBase64: Optional[str] = None
+    InputOutputInterfaceBase64: Optional[str] = None
+
+
+@dataclass
 class DominoJobConfig(object):
+    PipelineConfig: PipelineConfig
     ### Auth ###
     OwnerName: str
     ProjectName: str
@@ -97,6 +105,7 @@ class DominoJobConfig(object):
             "title": self.Title,
             "mainRepoGitRef": asdict(self.MainRepoGitRef) if self.MainRepoGitRef else None,
             "computeClusterProperties": self.ComputeClusterProperties,  # TODO:
+            "pipelineConfig": asdict(self.PipelineConfig),
         }
 
 
@@ -112,16 +121,28 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
 
         resolved_job_config = self._resolve_job_properties(domino_job_config)
 
-        super().__init__(
+        task = super().__init__(
             name=name,
             task_type="domino_job",
             task_config=resolved_job_config,
-            interface=Interface(),
+            interface=Interface(inputs=inputs, outputs=outputs),
             inputs=inputs,
             outputs=outputs,
             metadata=TaskMetadata(retries=0, timeout=timedelta(hours=3)),
             **kwargs,
         )
+        # the flyte init container (which downloads inputs) and flyte sidecar (which uploads outputs) require these
+        # base64 string encodings of the input/output interfaces as args to their container startup commands
+        # TODO: can detect "empty interfaces" here and omit the interface args so dont even create the init/sidecar containers if not needed
+        serialized_input_interface = task._interface.to_flyte_idl().inputs.SerializeToString()
+        serialized_input_output_interface = job._interface.to_flyte_idl().SerializeToString()
+        pipelineConfig = PipelineConfig(
+            InputInterfaceBase64=base64.b64encode(serialized_input_interface),
+            InputOutputInterfaceBase64=base64.b64encode(serialized_input_output_interface),
+        )
+        domino_job_config.PipelineConfig = pipelineConfig
+
+        return task
 
 
     def _resolve_job_properties(self, domino_job_config: DominoJobConfig) -> Dict[str, Any]:
@@ -149,6 +170,7 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             resolved_job_config["apiKey"] = domino_job_config.ApiKey
             resolved_job_config["command"] = domino_job_config.Command
             resolved_job_config["title"] = domino_job_config.Title
+            resolved_job_config["pipelineConfig"] = asdict(PipelineConfig())
 
             return resolved_job_config            
         else:
