@@ -140,7 +140,7 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             InputInterfaceBase64=base64.b64encode(serialized_input_interface),
             InputOutputInterfaceBase64=base64.b64encode(serialized_input_output_interface),
         )
-        domino_job_config.PipelineConfig = pipelineConfig
+        task.task_config.PipelineConfig = pipelineConfig
 
         return task
 
