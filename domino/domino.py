@@ -3,7 +3,7 @@ import logging
 import os
 import re
 import time
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Any
 import warnings
 
 import polling2
@@ -596,7 +596,7 @@ class Domino:
             "environmentRevisionSpec": environment_revision_spec,
             "computeClusterProperties": validated_compute_cluster_properties,
             "overrideVolumeSizeGiB": volume_size_gib,
-            "externalVolumeMounts": external_volume_mounts,
+            "externalVolumeMountIds": external_volume_mount_ids,
         }
         try:
             response = self.request_manager.post(url, json=payload)
@@ -614,9 +614,9 @@ class Domino:
         commit_id: str,
         hardware_tier_id: str,
         environment_id: str,
-        environment_revision_spec: str,
+        environment_revision_spec: Any,
         volume_size_gib: float,
-        external_volume_mounts: List[str],
+        external_volume_mount_ids: List[str],
         pipeline_config: dict,
         title: Optional[str] = None,
         main_repo_git_ref: Optional[dict] = None,
@@ -628,12 +628,11 @@ class Domino:
             "projectId": self.project_id,
             "commandToRun": command,
             "commitId": commit_id,
-            "overrideHardwareTierId": hardware_tier_id,
+            "hardwareTierId": hardware_tier_id,
             "environmentId": environment_id,
-            "volumeSizeGiB": volume_size_gib,
             "environmentRevisionSpec": environment_revision_spec,
-            "externalVolumeMounts": external_volume_mounts,
-            "overrideVolumeSizeGiB": volume_size_gib,
+            "externalVolumeMountIds": external_volume_mount_ids,
+            "volumeSizeGiB": volume_size_gib,
             "pipelineConfig": pipeline_config,
             "title": title,
             "mainRepoGitRef": main_repo_git_ref,

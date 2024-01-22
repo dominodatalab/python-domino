@@ -17,6 +17,7 @@ class GitRef(object):
     type: str
     value: Optional[str] = None
 
+
 # Must inherit from str for json serialization to work
 class EnvironmentRevisionType(str, Enum):
     ActiveRevision = "ActiveRevision"
@@ -34,9 +35,9 @@ class EnvironmentRevisionSpec(object):
         if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision and not self.EnvironmentRevisionId:
             raise ValueError(f"EnvironmentRevisionId must be specified when using type {self.EnvironmentRevisionType}")
 
-    def __str__(self):
+    def toJson(self):
         if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision:
-            return f"{self.EnvironmentRevisionType.value}({self.EnvironmentRevisionId})"
+            return { "revisionId": self.EnvironmentRevisionId }
         else:
             return self.EnvironmentRevisionType.value
 
@@ -49,6 +50,7 @@ class ComputeClusterType(str, Enum):
     MPI = "MPI"
 
 
+# TODO: Define toJson here
 @dataclass
 class ClusterProperties(object):
     ClusterType: ComputeClusterType
@@ -78,26 +80,25 @@ class DominoJobConfig(object):
     EnvironmentRevisionSpec: Optional[EnvironmentRevisionSpec] = None
     ComputeClusterProperties: Optional[ClusterProperties] = None
     VolumeSizeGiB: Optional[float] = None
-    ExternalVolumeMounts: Optional[List[str]] = None
+    ExternalVolumeMountIds: Optional[List[str]] = None
 
+    def toJson(self) -> Dict[str, Any]:
+        return {
+            "ownerName": self.OwnerName,
+            "projectName": self.ProjectName,
+            "apiKey": self.ApiKey,
+            "command": self.Command,
+            "commitId": self.CommitId,
+            "hardwareTierId": self.HardwareTierId,
+            "environmentId": self.EnvironmentId,
+            "environmentRevisionSpec": self.EnvironmentRevisionSpec.toJson() if self.EnvironmentRevisionSpec else None,
+            "externalVolumeMountIds": self.ExternalVolumeMountIds,
+            "volumeSizeGiB": self.VolumeSizeGiB,
+            "title": self.Title,
+            "mainRepoGitRef": asdict(self.MainRepoGitRef) if self.MainRepoGitRef else None,
+            "computeClusterProperties": self.ComputeClusterProperties,  # TODO:
+        }
 
-@dataclass
-class ResolvedDominoJobConfig(object):
-    ### Auth ###
-    OwnerName: str
-    ProjectName: str
-    ApiKey: str
-    ### Job Config ###
-    Command: str
-    CommitId: str
-    HardwareTierId: str
-    EnvironmentId: str
-    EnvironmentRevisionSpec: EnvironmentRevisionSpec
-    VolumeSizeGiB: float
-    ExternalVolumeMounts: List[str]
-    Title: Optional[str] = None
-    MainRepoGitRef: Optional[GitRef] = None
-    ComputeClusterProperties: Optional[ClusterProperties] = None
 
 class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
     def __init__(
@@ -123,33 +124,37 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
         )
 
 
-    def _resolve_job_properties(self, domino_job_config: DominoJobConfig) -> ResolvedDominoJobConfig:
+    def _resolve_job_properties(self, domino_job_config: DominoJobConfig) -> Dict[str, Any]:
         if (
             domino_job_config.CommitId is None or
             domino_job_config.HardwareTierId is None or
             domino_job_config.EnvironmentId is None or
             domino_job_config.EnvironmentRevisionSpec is None or
             domino_job_config.VolumeSizeGiB is None or
-            domino_job_config.ExternalVolumeMounts is None
+            domino_job_config.ExternalVolumeMountIds is None
             # TODO: Compute cluster validation
         ):
             logger.info("Retrieving default properties for job")
             url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{domino_job_config.OwnerName}/{domino_job_config.ProjectName}/resolveJobDefaults"
-            response = requests.post(url, json=json.dumps(asdict(domino_job_config)))
+            payload = domino_job_config.toJson()
+
+            response = requests.post(url, json=payload)
             response.raise_for_status() # TODO: Catch and sanitize error message
-            job_config_dict = json.loads(response.json)
-            # Set some values that are not resolved in the response
-            job_config_dict["OwnerName"] = domino_job_config.OwnerName
-            job_config_dict["ProjectName"] = domino_job_config.ProjectName
-            job_config_dict["ApiKey"] = domino_job_config.ApiKey
             
-            return DominoJobConfig(**job_config_dict)
+            resolved_job_config = response.json()
+
+            # Set some values that are not resolved in the response
+            resolved_job_config["ownerName"] = domino_job_config.OwnerName
+            resolved_job_config["projectName"] = domino_job_config.ProjectName
+            resolved_job_config["apiKey"] = domino_job_config.ApiKey
+            resolved_job_config["command"] = domino_job_config.Command
+            resolved_job_config["title"] = domino_job_config.Title
+
+            return resolved_job_config            
         else:
-            return domino_job_config
+            return domino_job_config.toJson()
         
 
-    # This is used to surface ResolvedDominoJobConfig values necessary to send the request    
+    # This is used to surface job config values necessary for the agent to send requests
     def get_custom(self, settings: SerializationSettings) -> Dict[str, Any]:
-        return {
-            "jobConfig": json.dumps(asdict(self._task_config))
-        }
+        return self._task_config
