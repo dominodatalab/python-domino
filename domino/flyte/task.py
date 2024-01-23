@@ -66,14 +66,7 @@ class ClusterProperties(object):
 
 
 @dataclass
-class PipelineConfig:
-    InputInterfaceBase64: Optional[str] = None
-    InputOutputInterfaceBase64: Optional[str] = None
-
-
-@dataclass
 class DominoJobConfig(object):
-    PipelineConfig: PipelineConfig
     ### Auth ###
     OwnerName: str
     ProjectName: str
@@ -89,6 +82,11 @@ class DominoJobConfig(object):
     ComputeClusterProperties: Optional[ClusterProperties] = None
     VolumeSizeGiB: Optional[float] = None
     ExternalVolumeMountIds: Optional[List[str]] = None
+    # we want to provide the following to the flyte agent, but these are set by the DominoJobTask constructor 
+    # and so would never be expected to be passed into a DominoJobConfig constructor by a user.
+    # they are included here for completeness documenting what task config values are sent to/read by the flyte agent.
+    _InputInterfaceBase64: Optional[str] = None
+    _InputOutputInterfaceBase64: Optional[str] = None
 
     def toJson(self) -> Dict[str, Any]:
         return {
@@ -105,7 +103,8 @@ class DominoJobConfig(object):
             "title": self.Title,
             "mainRepoGitRef": asdict(self.MainRepoGitRef) if self.MainRepoGitRef else None,
             "computeClusterProperties": self.ComputeClusterProperties,  # TODO:
-            "pipelineConfig": asdict(self.PipelineConfig),
+            "inputInterfaceBase64": None,
+            "inputOutputInterfaceBase64": None,
         }
 
 
@@ -121,7 +120,7 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
 
         resolved_job_config = self._resolve_job_properties(domino_job_config)
 
-        task = super().__init__(
+        super().__init__(
             name=name,
             task_type="domino_job",
             task_config=resolved_job_config,
@@ -131,18 +130,14 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             metadata=TaskMetadata(retries=0, timeout=timedelta(hours=3)),
             **kwargs,
         )
+        # Interface class doesn't have to_flyte_idl() so can't seem to get the correct base64 vals before instantiating the task
         # the flyte init container (which downloads inputs) and flyte sidecar (which uploads outputs) require these
         # base64 string encodings of the input/output interfaces as args to their container startup commands
         # TODO: can detect "empty interfaces" here and omit the interface args so dont even create the init/sidecar containers if not needed
-        serialized_input_interface = task._interface.to_flyte_idl().inputs.SerializeToString()
-        serialized_input_output_interface = job._interface.to_flyte_idl().SerializeToString()
-        pipelineConfig = PipelineConfig(
-            InputInterfaceBase64=base64.b64encode(serialized_input_interface),
-            InputOutputInterfaceBase64=base64.b64encode(serialized_input_output_interface),
-        )
-        task.task_config.PipelineConfig = pipelineConfig
-
-        return task
+        serialized_input_interface = self._interface.to_flyte_idl().inputs.SerializeToString()
+        serialized_input_output_interface = self._interface.to_flyte_idl().SerializeToString()
+        self.task_config["inputInterfaceBase64"] = base64.b64encode(serialized_input_interface).decode("ascii")
+        self.task_config["inputOutputInterfaceBase64"] = base64.b64encode(serialized_input_output_interface).decode("ascii")
 
 
     def _resolve_job_properties(self, domino_job_config: DominoJobConfig) -> Dict[str, Any]:
@@ -170,7 +165,8 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             resolved_job_config["apiKey"] = domino_job_config.ApiKey
             resolved_job_config["command"] = domino_job_config.Command
             resolved_job_config["title"] = domino_job_config.Title
-            resolved_job_config["pipelineConfig"] = asdict(PipelineConfig())
+            resolved_job_config["inputInterfaceBase64"] = None
+            resolved_job_config["inputOutputInterfaceBase64"] = None
 
             return resolved_job_config            
         else:
