@@ -82,11 +82,6 @@ class DominoJobConfig(object):
     ComputeClusterProperties: Optional[ClusterProperties] = None
     VolumeSizeGiB: Optional[float] = None
     ExternalVolumeMountIds: Optional[List[str]] = None
-    # we want to provide the following to the flyte agent, but these are set by the DominoJobTask constructor 
-    # and so would never be expected to be passed into a DominoJobConfig constructor by a user.
-    # they are included here for completeness documenting what task config values are sent to/read by the flyte agent.
-    _InputInterfaceBase64: Optional[str] = None
-    _InputOutputInterfaceBase64: Optional[str] = None
 
     def toJson(self) -> Dict[str, Any]:
         return {
@@ -165,8 +160,6 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             resolved_job_config["apiKey"] = domino_job_config.ApiKey
             resolved_job_config["command"] = domino_job_config.Command
             resolved_job_config["title"] = domino_job_config.Title
-            resolved_job_config["inputInterfaceBase64"] = None
-            resolved_job_config["inputOutputInterfaceBase64"] = None
 
             return resolved_job_config            
         else:
