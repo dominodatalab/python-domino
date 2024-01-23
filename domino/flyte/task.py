@@ -125,12 +125,13 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             metadata=TaskMetadata(retries=0, timeout=timedelta(hours=3)),
             **kwargs,
         )
-        # Interface class doesn't have to_flyte_idl() so can't seem to get the correct base64 vals before instantiating the task
-        # the flyte init container (which downloads inputs) and flyte sidecar (which uploads outputs) require these
-        # base64 string encodings of the input/output interfaces as args to their container startup commands
+        # Interface class passed into task constructor doesn't have to_flyte_idl() so can't seem to get the correct base64 vals before instantiating the task.
+        # The flyte init container (which downloads inputs) and flyte sidecar (which uploads outputs) require these
+        #   base64 string encodings of the input/output interfaces as args to their container startup commands.
         # TODO: can detect "empty interfaces" here and omit the interface args so dont even create the init/sidecar containers if not needed
-        serialized_input_interface = self._interface.to_flyte_idl().inputs.SerializeToString()
-        serialized_input_output_interface = self._interface.to_flyte_idl().SerializeToString()
+        flyte_idl_interface = self._interface.to_flyte_idl()
+        serialized_input_interface = flyte_idl_interface.inputs.SerializeToString()  # just inputs  -- for init/downloader
+        serialized_input_output_interface = flyte_idl_interface.SerializeToString()  # inputs and outputs -- for sidecar/uploader
         self.task_config["inputInterfaceBase64"] = base64.b64encode(serialized_input_interface).decode("ascii")
         self.task_config["inputOutputInterfaceBase64"] = base64.b64encode(serialized_input_output_interface).decode("ascii")
 
