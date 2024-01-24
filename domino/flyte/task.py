@@ -108,7 +108,7 @@ class DominoJobConfig(object):
             self.HardwareTierId and
             self.EnvironmentId and
             self.EnvironmentRevisionSpec and
-            self.ComputeClusterProperties.isResolved() and
+            (not self.ComputeClusterProperties or self.ComputeClusterProperties.isResolved()) and
             self.VolumeSizeGiB and
             self.ExternalVolumeMountIds
         )
