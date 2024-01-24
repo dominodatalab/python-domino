@@ -65,6 +65,24 @@ class ClusterProperties(object):
     ExtraConfigs: Optional[Dict[str, str]] = None
 
 
+    def isResolved(self):
+        return self.ComputeEnvironmentRevisionSpec and (self.MasterHardwareTierId or self.ClusterType == ComputeClusterType.MPI)
+
+
+    def toJson(self) -> dict:
+        return {
+            "clusterType": self.ClusterType,
+            "computeEnvironmentId": self.ComputeEnvironmentId,
+            "computeEnvironmentRevisionSpec": self.ComputeEnvironmentRevisionSpec,  # Should always be resolved before toJson is called
+            "masterHardwareTierId": self.MasterHardwareTierId,
+            "workerCount": self.WorkerCount,
+            "maxWorkerCount": self.MaxWorkerCount,
+            "workerHardwareTierId": self.WorkerHardareTierId,
+            "workerStorage": { "value": self.WorkerStorageGiB, "unit": "GiB"} if self.WorkerStorageGiB else None,
+            "extraConfigs": self.ExtraConfigs,
+        }
+
+
 @dataclass
 class DominoJobConfig(object):
     ### Auth ###
@@ -83,6 +101,19 @@ class DominoJobConfig(object):
     VolumeSizeGiB: Optional[float] = None
     ExternalVolumeMountIds: Optional[List[str]] = None
 
+
+    def isResolved(self):
+        return (
+            self.CommitId and
+            self.HardwareTierId and
+            self.EnvironmentId and
+            self.EnvironmentRevisionSpec and
+            self.ComputeClusterProperties.isResolved() and
+            self.VolumeSizeGiB and
+            self.ExternalVolumeMountIds
+        )
+        
+
     def toJson(self) -> Dict[str, Any]:
         return {
             "ownerName": self.OwnerName,
@@ -97,7 +128,7 @@ class DominoJobConfig(object):
             "volumeSizeGiB": self.VolumeSizeGiB,
             "title": self.Title,
             "mainRepoGitRef": asdict(self.MainRepoGitRef) if self.MainRepoGitRef else None,
-            "computeClusterProperties": self.ComputeClusterProperties,  # TODO:
+            "computeClusterProperties": self.ComputeClusterProperties.toJson() if self.ComputeClusterProperties else None,
             "inputInterfaceBase64": None,
             "inputOutputInterfaceBase64": None,
         }
@@ -137,34 +168,27 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
 
 
     def _resolve_job_properties(self, domino_job_config: DominoJobConfig) -> Dict[str, Any]:
-        if (
-            domino_job_config.CommitId is None or
-            domino_job_config.HardwareTierId is None or
-            domino_job_config.EnvironmentId is None or
-            domino_job_config.EnvironmentRevisionSpec is None or
-            domino_job_config.VolumeSizeGiB is None or
-            domino_job_config.ExternalVolumeMountIds is None
-            # TODO: Compute cluster validation
-        ):
-            logger.info("Retrieving default properties for job")
-            url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{domino_job_config.OwnerName}/{domino_job_config.ProjectName}/resolveJobDefaults"
-            payload = domino_job_config.toJson()
-
-            response = requests.post(url, json=payload)
-            response.raise_for_status() # TODO: Catch and sanitize error message
-            
-            resolved_job_config = response.json()
-
-            # Set some values that are not resolved in the response
-            resolved_job_config["ownerName"] = domino_job_config.OwnerName
-            resolved_job_config["projectName"] = domino_job_config.ProjectName
-            resolved_job_config["apiKey"] = domino_job_config.ApiKey
-            resolved_job_config["command"] = domino_job_config.Command
-            resolved_job_config["title"] = domino_job_config.Title
-
-            return resolved_job_config            
-        else:
+        if domino_job_config.isResolved():
             return domino_job_config.toJson()
+        
+        logger.info("Retrieving default properties for job")
+        # TODO: Can we make this work outside of runs?
+        url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{domino_job_config.OwnerName}/{domino_job_config.ProjectName}/resolveJobDefaults"
+        payload = domino_job_config.toJson()
+
+        response = requests.post(url, json=payload)
+        response.raise_for_status() # TODO: Catch and sanitize error message
+        
+        resolved_job_config = response.json()
+
+        # Set some values that are not resolved in the response
+        resolved_job_config["ownerName"] = domino_job_config.OwnerName
+        resolved_job_config["projectName"] = domino_job_config.ProjectName
+        resolved_job_config["apiKey"] = domino_job_config.ApiKey
+        resolved_job_config["command"] = domino_job_config.Command
+        resolved_job_config["title"] = domino_job_config.Title
+
+        return resolved_job_config            
         
 
     # This is used to surface job config values necessary for the agent to send requests
