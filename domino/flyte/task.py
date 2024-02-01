@@ -51,7 +51,6 @@ class ComputeClusterType(str, Enum):
     MPI = "MPI"
 
 
-# TODO: Define toJson here
 @dataclass
 class ClusterProperties(object):
     ClusterType: ComputeClusterType
@@ -83,6 +82,13 @@ class ClusterProperties(object):
         }
 
 
+# Names here are lowercase to make serialization easier
+@dataclass
+class DatasetSnapshot(object):
+    datasetId: str
+    snapshotVersion: int
+
+
 @dataclass
 class DominoJobConfig(object):
     ### Auth ###
@@ -99,6 +105,7 @@ class DominoJobConfig(object):
     EnvironmentRevisionSpec: Optional[EnvironmentRevisionSpec] = None
     ComputeClusterProperties: Optional[ClusterProperties] = None
     VolumeSizeGiB: Optional[float] = None
+    DatasetSnapshots: Optional[List[DatasetSnapshot]] = None
     ExternalVolumeMountIds: Optional[List[str]] = None
 
 
@@ -110,6 +117,7 @@ class DominoJobConfig(object):
             self.EnvironmentRevisionSpec and
             (not self.ComputeClusterProperties or self.ComputeClusterProperties.isResolved()) and
             self.VolumeSizeGiB and
+            self.DatasetSnapshots and
             self.ExternalVolumeMountIds
         )
         
@@ -124,6 +132,7 @@ class DominoJobConfig(object):
             "hardwareTierId": self.HardwareTierId,
             "environmentId": self.EnvironmentId,
             "environmentRevisionSpec": self.EnvironmentRevisionSpec.toJson() if self.EnvironmentRevisionSpec else None,
+            "datasetSnapshots": self.DatasetSnapshots,
             "externalVolumeMountIds": self.ExternalVolumeMountIds,
             "volumeSizeGiB": self.VolumeSizeGiB,
             "title": self.Title,
