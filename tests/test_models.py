@@ -33,9 +33,10 @@ def test_publish_a_model(default_domino_client):
     env_id = ""
     model_name = "Model Name"
     model_description = "Model Description"
+    log_http_request_response = "true"
 
     model = default_domino_client.model_publish(
-        filename, function, env_id, model_name, model_description
+        filename, function, env_id, model_name, model_description, log_http_request_response
     )
 
     assert model["data"]["name"] == model_name

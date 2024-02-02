@@ -40,6 +40,7 @@ published_model = domino.model_publish(
     environment_id=chosen_environment_id,
     name="Model published from API!",
     description="v1",
+    logHttpRequestResponse="true",
 )
 published_model_id = published_model.get("data", {}).get("_id")
 print("Model {} published, details below:".format(published_model_id))
