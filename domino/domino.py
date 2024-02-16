@@ -608,7 +608,7 @@ class Domino:
     
 
     # TODO: Do we want to bring over some of the validation that job_start has?
-    def pipeline_job_start(
+    def workflow_job_start(
         self,
         command: str,
         commit_id: str,
@@ -618,12 +618,12 @@ class Domino:
         volume_size_gib: float,
         dataset_snapshots: List[dict],
         external_volume_mount_ids: List[str],
-        pipeline_config: dict,
+        workflow_config: dict,
         title: Optional[str] = None,
         main_repo_git_ref: Optional[dict] = None,
         compute_cluster_properties: Optional[dict] = None,
     ) -> dict:
-        url = self._routes.pipeline_job_start()
+        url = self._routes.workflow_job_start()
 
         payload = {
             "projectId": self.project_id,
@@ -635,7 +635,7 @@ class Domino:
             "datasetSnapshots": dataset_snapshots,
             "externalVolumeMountIds": external_volume_mount_ids,
             "volumeSizeGiB": volume_size_gib,
-            "pipelineConfig": pipeline_config,
+            "workflowConfig": workflow_config,
             "title": title,
             "mainRepoGitRef": main_repo_git_ref,
             "computeClusterProperties": compute_cluster_properties,

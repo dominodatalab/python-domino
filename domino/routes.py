@@ -171,8 +171,8 @@ class _Routes:
     def job_start(self):
         return f"{self.host}/v4/jobs/start"
     
-    def pipeline_job_start(self):
-        return f"{self.host}/v4/jobs/startPipelineJob"
+    def workflow_job_start(self):
+        return f"{self.host}/v4/jobs/startWorkflowJob"
 
     def job_stop(self):
         return f"{self.host}/v4/jobs/stop"
