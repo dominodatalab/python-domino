@@ -596,7 +596,7 @@ class Domino:
             "environmentRevisionSpec": environment_revision_spec,
             "computeClusterProperties": validated_compute_cluster_properties,
             "overrideVolumeSizeGiB": volume_size_gib,
-            "externalVolumeMountIds": external_volume_mount_ids,
+            "externalVolumeMountIds": external_volume_mounts,
         }
         try:
             response = self.request_manager.post(url, json=payload)
