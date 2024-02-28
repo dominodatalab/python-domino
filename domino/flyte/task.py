@@ -1,4 +1,3 @@
-import json
 import os
 import requests
 from enum import Enum
@@ -15,32 +14,48 @@ from flytekit.loggers import logger
 
 @dataclass
 class GitRef(object):
-    type: str
-    value: Optional[str] = None
+    Type: str
+    Value: Optional[str] = None
+
+
+    @classmethod
+    def from_json(cls, json: dict[str, str]):
+        cls(
+            Type=json["type"],
+            Value=json.get("value")
+        )
 
 
 # Must inherit from str for json serialization to work
 class EnvironmentRevisionType(str, Enum):
-    ActiveRevision = "ActiveRevision"
-    LatestRevision = "LatestRevision"
     SomeRevision = "SomeRevision"
     RestrictedRevision = "RestrictedRevision"
 
 
 @dataclass 
-class EnvironmentRevisionSpec(object):
+class EnvironmentRevisionSpecification(object):
     EnvironmentRevisionType: EnvironmentRevisionType
     EnvironmentRevisionId: Optional[str] = None
+
 
     def __post_init__(self):
         if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision and not self.EnvironmentRevisionId:
             raise ValueError(f"EnvironmentRevisionId must be specified when using type {self.EnvironmentRevisionType}")
 
-    def toJson(self):
+
+    def to_json(self):
         if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision:
             return { "revisionId": self.EnvironmentRevisionId }
         else:
             return self.EnvironmentRevisionType.value
+
+
+    @classmethod
+    def from_json(cls, json: dict[str, str]):
+        return cls(
+            EnvironmentRevisionType=EnvironmentRevisionType.SomeRevision if "SomeRevision" in json["_type"] else EnvironmentRevisionType.RestrictedRevision,
+            EnvironmentRevisionId=json.get("revisionId")
+        )
 
 
 # Must inherit from str for json serialization to work
@@ -59,27 +74,43 @@ class ClusterProperties(object):
     WorkerCount: int
     WorkerStorageGiB: Optional[float] = None
     MaxWorkerCount: Optional[int] = None
-    ComputeEnvironmentRevisionSpec: Optional[EnvironmentRevisionSpec] = None
+    ComputeEnvironmentRevisionSpec: Optional[EnvironmentRevisionSpecification] = None
     MasterHardwareTierId: Optional[str] = None
     ExtraConfigs: Optional[Dict[str, str]] = None
 
 
-    def isResolved(self):
+    def is_resolved(self):
         return self.ComputeEnvironmentRevisionSpec and (self.MasterHardwareTierId or self.ClusterType == ComputeClusterType.MPI)
 
 
-    def toJson(self) -> dict:
+    def to_json(self) -> dict:
         return {
             "clusterType": self.ClusterType,
             "computeEnvironmentId": self.ComputeEnvironmentId,
             "computeEnvironmentRevisionSpec": self.ComputeEnvironmentRevisionSpec,  # Should always be resolved before toJson is called
-            "masterHardwareTierId": self.MasterHardwareTierId,
+            "masterHardwareTierId": {"value": self.MasterHardwareTierId} if self.MasterHardwareTierId else None,
             "workerCount": self.WorkerCount,
             "maxWorkerCount": self.MaxWorkerCount,
-            "workerHardwareTierId": self.WorkerHardareTierId,
+            "workerHardwareTierId": { "value": self.WorkerHardareTierId },
             "workerStorage": { "value": self.WorkerStorageGiB, "unit": "GiB"} if self.WorkerStorageGiB else None,
             "extraConfigs": self.ExtraConfigs,
         }
+    
+
+    @classmethod
+    def from_json(cls, json: dict[str, Any]):
+        return cls(
+            ClusterType=json["clusterType"],
+            ComputeEnvironmentId=json["computeEnvironmentId"],
+            WorkerHardwareTierId=json["workerHardwareTierId"]["value"],
+            WorkerCount=json["workerCount"],
+            WorkerStorageGiB=json.get("workerStorageGiB"),
+            MaxWorkerCount=json("maxWorkerCount"),
+            ComputeEnvironmentRevisionSpec=EnvironmentRevisionSpecification.from_json(json["computeEnvironmentRevisionSpec"]),
+            MasterHardwareTierId=json["masterHardwareTierId"]["value"] if json.get("masterHardwareTierId") else None,
+            ExtraConfigs=json.get("extraConfigs")
+        )    
+
 
 
 # Names here are lowercase to make serialization easier
@@ -102,42 +133,84 @@ class DominoJobConfig(object):
     MainRepoGitRef: Optional[GitRef] = None
     HardwareTierId: Optional[str] = None
     EnvironmentId: Optional[str] = None
-    EnvironmentRevisionSpec: Optional[EnvironmentRevisionSpec] = None
+    EnvironmentRevisionSpec: Optional[EnvironmentRevisionSpecification] = None
     ComputeClusterProperties: Optional[ClusterProperties] = None
     VolumeSizeGiB: Optional[float] = None
     DatasetSnapshots: Optional[List[DatasetSnapshot]] = None
     ExternalVolumeMountIds: Optional[List[str]] = None
 
 
-    def isResolved(self):
+    def is_resolved(self):
         return (
             self.CommitId and
             self.HardwareTierId and
             self.EnvironmentId and
             self.EnvironmentRevisionSpec and
-            (not self.ComputeClusterProperties or self.ComputeClusterProperties.isResolved()) and
+            (not self.ComputeClusterProperties or self.ComputeClusterProperties.is_resolved()) and
             self.VolumeSizeGiB and
             self.DatasetSnapshots and
             self.ExternalVolumeMountIds
         )
-        
+    
 
-    def toJson(self) -> Dict[str, Any]:
+    def unresolved_fields(self) -> List[str]:
+        unresolved_fields = []
+        if not self.CommitId: unresolved_fields += "commitId"
+        if not self.HardwareTierId: unresolved_fields += "hardwareTierId"
+        if not self.EnvironmentId: unresolved_fields += "environmentId"
+        if not self.EnvironmentRevisionSpec: unresolved_fields += "environmentRevisionSpec"
+        if self.ComputeClusterProperties and not self.ComputeClusterProperties.is_resolved(): unresolved_fields += "computeClusterProperties"
+        if not self.VolumeSizeGiB: unresolved_fields += "volumeSizeGiB"
+        if not self.DatasetSnapshots: unresolved_fields += "datasetSnapshots"
+        if not self.ExternalVolumeMountIds: unresolved_fields += "externalVolumeMountIds"
+
+        return unresolved_fields
+    
+
+    def resolve_job_properties(self):
+        if self.is_resolved():
+            logger.info("Job properties are already fully resolved")
+            return
+        
+        logger.info("Retrieving default properties for job")
+        # TODO: Can we make this work outside of runs? Also can we modify this so we don't need owner/project in the config?
+        url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{self.OwnerName}/{self.ProjectName}/resolveJobDefaults"
+        payload = self.toJson()
+
+        response = requests.post(url, json=payload)
+        response.raise_for_status() # TODO: Catch and sanitize error message
+        
+        resolved_job_config = response.json()
+
+        self.CommitId = resolved_job_config["commitId"]
+        self.MainRepoGitRef = GitRef.from_json(resolved_job_config["mainRepoGitRef"])
+        self.HardwareTierId = resolved_job_config["hardwareTierId"]["value"]
+        self.EnvironmentId = resolved_job_config["environmentId"]
+        self.EnvironmentRevisionSpec = EnvironmentRevisionSpecification.from_json(resolved_job_config)
+        self.ComputeClusterProperties = ClusterProperties.from_json(resolved_job_config["computeClusterProperties"]) if resolved_job_config["computeClusterProperties"] else None,
+        self.VolumeSizeGiB = resolved_job_config["volumeSizeGiB"]
+        # self.DatasetSnapshots = resolved_job_config["datasetSnapshots"] # TODO add once nucleus code can handle this
+        self.ExternalVolumeMountIds = resolved_job_config["externalVolumeMountIds"]
+
+        logger.info(f"Resolved job properties: {self.to_json()}")
+
+
+    def to_json(self) -> Dict[str, Any]:
         return {
             "ownerName": self.OwnerName,
             "projectName": self.ProjectName,
             "apiKey": self.ApiKey,
             "command": self.Command,
             "commitId": self.CommitId,
-            "hardwareTierId": self.HardwareTierId,
+            "hardwareTierId": { "value": self.HardwareTierId },
             "environmentId": self.EnvironmentId,
-            "environmentRevisionSpec": self.EnvironmentRevisionSpec.toJson() if self.EnvironmentRevisionSpec else None,
+            "environmentRevisionSpec": self.EnvironmentRevisionSpec.to_json() if self.EnvironmentRevisionSpec else None,
             "datasetSnapshots": self.DatasetSnapshots,
             "externalVolumeMountIds": self.ExternalVolumeMountIds,
             "volumeSizeGiB": self.VolumeSizeGiB,
             "title": self.Title,
             "mainRepoGitRef": asdict(self.MainRepoGitRef) if self.MainRepoGitRef else None,
-            "computeClusterProperties": self.ComputeClusterProperties.toJson() if self.ComputeClusterProperties else None,
+            "computeClusterProperties": self.ComputeClusterProperties.to_json() if self.ComputeClusterProperties else None,
             "inputInterfaceBase64": None,
             "inputOutputInterfaceBase64": None,
         }
@@ -148,12 +221,26 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
         self,
         name: str,
         domino_job_config: DominoJobConfig,
+        use_latest = False,
         inputs: Optional[Dict[str, Type]] = None,
         outputs: Optional[Dict[str, Type]] = None,
         **kwargs,
     ):       
-
-        resolved_job_config = self._resolve_job_properties(domino_job_config)
+        resolved_job_config = None
+        if use_latest:
+            logger.warn(
+                "Creating task using latest values. This is not recommended, as values not explicitly defined may " 
+                "change between subsequent executions of this task"
+            )
+            resolved_job_config = domino_job_config.resolve_job_properties(domino_job_config)
+        elif not domino_job_config.is_resolved():
+            unresolved_fields = domino_job_config.unresolved_fields()
+            raise Exception(
+                f"The following fields are not defined: {unresolved_fields}. Use resolve_job_properties to lookup default values for these "
+                "fields or run with 'use_latest' to implicitly use the latest default values for this task."
+            )
+        else:
+            resolved_job_config = domino_job_config.to_json()
 
         super().__init__(
             name=name,
@@ -176,30 +263,6 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
             if outputs:
                 serialized_input_output_interface = flyte_idl_interface.SerializeToString()  # inputs and outputs -- for sidecar/uploader
                 self.task_config["inputOutputInterfaceBase64"] = base64.b64encode(serialized_input_output_interface).decode("ascii")
-
-
-    def _resolve_job_properties(self, domino_job_config: DominoJobConfig) -> Dict[str, Any]:
-        if domino_job_config.isResolved():
-            return domino_job_config.toJson()
-        
-        logger.info("Retrieving default properties for job")
-        # TODO: Can we make this work outside of runs?
-        url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{domino_job_config.OwnerName}/{domino_job_config.ProjectName}/resolveJobDefaults"
-        payload = domino_job_config.toJson()
-
-        response = requests.post(url, json=payload)
-        response.raise_for_status() # TODO: Catch and sanitize error message
-        
-        resolved_job_config = response.json()
-
-        # Set some values that are not resolved in the response
-        resolved_job_config["ownerName"] = domino_job_config.OwnerName
-        resolved_job_config["projectName"] = domino_job_config.ProjectName
-        resolved_job_config["apiKey"] = domino_job_config.ApiKey
-        resolved_job_config["command"] = domino_job_config.Command
-        resolved_job_config["title"] = domino_job_config.Title
-
-        return resolved_job_config            
         
 
     # This is used to surface job config values necessary for the agent to send requests
