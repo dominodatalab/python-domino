@@ -11,7 +11,6 @@ from flytekit.core.interface import Interface
 from flytekit.extend.backend.base_agent import AsyncAgentExecutorMixin
 from flytekit.loggers import logger
 
-
 @dataclass
 class GitRef(object):
     Type: str
@@ -45,7 +44,10 @@ class EnvironmentRevisionSpecification(object):
 
     def to_json(self):
         if self.EnvironmentRevisionType == EnvironmentRevisionType.SomeRevision:
-            return { "revisionId": self.EnvironmentRevisionId }
+            return { 
+                "_type": "domino.environments.api.SomeRevision",
+                "revisionId": self.EnvironmentRevisionId 
+            }
         else:
             return self.EnvironmentRevisionType.value
 
@@ -87,8 +89,8 @@ class ClusterProperties(object):
         return {
             "clusterType": self.ClusterType,
             "computeEnvironmentId": self.ComputeEnvironmentId,
-            "computeEnvironmentRevisionSpec": self.ComputeEnvironmentRevisionSpec,  # Should always be resolved before toJson is called
-            "masterHardwareTierId": {"value": self.MasterHardwareTierId} if self.MasterHardwareTierId else None,
+            "computeEnvironmentRevisionSpec": self.ComputeEnvironmentRevisionSpec.to_json() if self.ComputeEnvironmentRevisionSpec else None,
+            "masterHardwareTierId": { "value": self.MasterHardwareTierId } if self.MasterHardwareTierId else None,
             "workerCount": self.WorkerCount,
             "maxWorkerCount": self.MaxWorkerCount,
             "workerHardwareTierId": { "value": self.WorkerHardareTierId },
@@ -148,21 +150,21 @@ class DominoJobConfig(object):
             self.EnvironmentRevisionSpec and
             (not self.ComputeClusterProperties or self.ComputeClusterProperties.is_resolved()) and
             self.VolumeSizeGiB and
-            self.DatasetSnapshots and
-            self.ExternalVolumeMountIds
+            # self.DatasetSnapshots and
+            self.ExternalVolumeMountIds != None
         )
     
 
     def unresolved_fields(self) -> List[str]:
         unresolved_fields = []
-        if not self.CommitId: unresolved_fields += "commitId"
-        if not self.HardwareTierId: unresolved_fields += "hardwareTierId"
-        if not self.EnvironmentId: unresolved_fields += "environmentId"
-        if not self.EnvironmentRevisionSpec: unresolved_fields += "environmentRevisionSpec"
-        if self.ComputeClusterProperties and not self.ComputeClusterProperties.is_resolved(): unresolved_fields += "computeClusterProperties"
-        if not self.VolumeSizeGiB: unresolved_fields += "volumeSizeGiB"
-        if not self.DatasetSnapshots: unresolved_fields += "datasetSnapshots"
-        if not self.ExternalVolumeMountIds: unresolved_fields += "externalVolumeMountIds"
+        if not self.CommitId: unresolved_fields.append("commitId")
+        if not self.HardwareTierId: unresolved_fields.append("hardwareTierId")
+        if not self.EnvironmentId: unresolved_fields.append("environmentId")
+        if not self.EnvironmentRevisionSpec: unresolved_fields.append("environmentRevisionSpec")
+        if self.ComputeClusterProperties and not self.ComputeClusterProperties.is_resolved(): unresolved_fields.append("computeClusterProperties")
+        if not self.VolumeSizeGiB: unresolved_fields.append("volumeSizeGiB")
+        # if not self.DatasetSnapshots: unresolved_fields.append("datasetSnapshots")  # TODO: Enable this once 
+        if self.ExternalVolumeMountIds == None: unresolved_fields.append("externalVolumeMountIds")
 
         return unresolved_fields
     
@@ -175,7 +177,7 @@ class DominoJobConfig(object):
         logger.info("Retrieving default properties for job")
         # TODO: Can we make this work outside of runs? Also can we modify this so we don't need owner/project in the config?
         url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{self.OwnerName}/{self.ProjectName}/resolveJobDefaults"
-        payload = self.toJson()
+        payload = self.to_json()
 
         response = requests.post(url, json=payload)
         response.raise_for_status() # TODO: Catch and sanitize error message
@@ -183,16 +185,16 @@ class DominoJobConfig(object):
         resolved_job_config = response.json()
 
         self.CommitId = resolved_job_config["commitId"]
-        self.MainRepoGitRef = GitRef.from_json(resolved_job_config["mainRepoGitRef"])
+        self.MainRepoGitRef = GitRef.from_json(resolved_job_config["mainRepoGitRef"]) if resolved_job_config.get("mainRepoGitRef") else None
         self.HardwareTierId = resolved_job_config["hardwareTierId"]["value"]
         self.EnvironmentId = resolved_job_config["environmentId"]
-        self.EnvironmentRevisionSpec = EnvironmentRevisionSpecification.from_json(resolved_job_config)
-        self.ComputeClusterProperties = ClusterProperties.from_json(resolved_job_config["computeClusterProperties"]) if resolved_job_config["computeClusterProperties"] else None,
+        self.EnvironmentRevisionSpec = EnvironmentRevisionSpecification.from_json(resolved_job_config["environmentRevisionSpec"])
+        self.ComputeClusterProperties = ClusterProperties.from_json(resolved_job_config["computeClusterProperties"]) if resolved_job_config.get("computeClusterProperties") else None
         self.VolumeSizeGiB = resolved_job_config["volumeSizeGiB"]
         # self.DatasetSnapshots = resolved_job_config["datasetSnapshots"] # TODO add once nucleus code can handle this
         self.ExternalVolumeMountIds = resolved_job_config["externalVolumeMountIds"]
 
-        logger.info(f"Resolved job properties: {self.to_json()}")
+        logger.info(f"Resolved job properties: {self}")
 
 
     def to_json(self) -> Dict[str, Any]:
@@ -202,7 +204,7 @@ class DominoJobConfig(object):
             "apiKey": self.ApiKey,
             "command": self.Command,
             "commitId": self.CommitId,
-            "hardwareTierId": { "value": self.HardwareTierId },
+            "hardwareTierId": { "value": self.HardwareTierId } if self.HardwareTierId else None,
             "environmentId": self.EnvironmentId,
             "environmentRevisionSpec": self.EnvironmentRevisionSpec.to_json() if self.EnvironmentRevisionSpec else None,
             "datasetSnapshots": self.DatasetSnapshots,
@@ -226,21 +228,22 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
         outputs: Optional[Dict[str, Type]] = None,
         **kwargs,
     ):       
-        resolved_job_config = None
         if use_latest:
             logger.warn(
                 "Creating task using latest values. This is not recommended, as values not explicitly defined may " 
                 "change between subsequent executions of this task"
             )
-            resolved_job_config = domino_job_config.resolve_job_properties(domino_job_config)
-        elif not domino_job_config.is_resolved():
+            domino_job_config.resolve_job_properties()
+
+
+        if not domino_job_config.is_resolved():
             unresolved_fields = domino_job_config.unresolved_fields()
             raise Exception(
-                f"The following fields are not defined: {unresolved_fields}. Use resolve_job_properties to lookup default values for these "
+                f"The following fields are not defined: {unresolved_fields}. Use DominoJobConfig.resolve_job_properties to lookup default values for these "
                 "fields or run with 'use_latest' to implicitly use the latest default values for this task."
             )
-        else:
-            resolved_job_config = domino_job_config.to_json()
+
+        resolved_job_config = domino_job_config.to_json()
 
         super().__init__(
             name=name,
