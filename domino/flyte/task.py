@@ -226,15 +226,17 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
         use_latest = False,
         inputs: Optional[Dict[str, Type]] = None,
         outputs: Optional[Dict[str, Type]] = None,
+        log_level: int = 20,  # 20 is info, 30 is warning, etc
         **kwargs,
-    ):       
+    ):
+        logger.setLevel(20)
+
         if use_latest:
             logger.warn(
                 "Creating task using latest values. This is not recommended, as values not explicitly defined may " 
                 "change between subsequent executions of this task"
             )
             domino_job_config.resolve_job_properties()
-
 
         if not domino_job_config.is_resolved():
             unresolved_fields = domino_job_config.unresolved_fields()
