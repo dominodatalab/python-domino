@@ -859,7 +859,7 @@ class Domino:
     def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
         if unpublishRunningApps:
             self.app_unpublish()
-        app_id = self._app_id
+        app_id = self.app_id()
         if app_id is None:
             # No App Exists creating one
             app_id = self.__app_create(hardware_tier_id=hardwareTierId)
@@ -869,23 +869,46 @@ class Domino:
         return response
 
     def app_unpublish(self):
-        app_id = self._app_id
+        app_id = self.app_id()
         if app_id is None:
             return
-        status = self.__app_get_status(app_id)
+        status = self.app_get_status(app_id)
         self.log.debug(f"App {app_id} status={status}")
         if status and status != "Stopped" and status != "Failed":
             url = self._routes.app_stop(app_id)
             response = self.request_manager.post(url)
             return response
 
-    def __app_get_status(self, id) -> Optional[str]:
-        app_id = self._app_id
+    def app_id(self):
+        url = self._routes.app_list(self.project_id)
+        response = self._get(url)
+        if len(response) != 0:
+            app = response[0]
+        else:
+            return None
+        key = "id"
+        if key in app.keys():
+            app_id = app[key]
+        else:
+            app_id = None
+        return app_id
+
+    @property
+    def _app_id(self):
+        # for backwards compatibility, we keep this property
+        return self.app_id()
+
+    def app_get_status(self, id) -> Optional[str]:
+        app_id = self.app_id()
         if app_id is None:
             return None
         url = self._routes.app_get(app_id)
         response = self.request_manager.get(url).json()
         return response.get("status", None)
+
+    def __app_get_status(self, id) -> Optional[str]:
+        # for backwards compatibility, we keep this method
+        return self.__app_get_status()
 
     def __app_create(self, name: str = "", hardware_tier_id: str = None) -> str:
         """
@@ -1330,21 +1353,5 @@ class Domino:
         response = self._get(url)
         if key in response.keys():
             return response[key]
-
-    # This will fetch app_id of app in current project
-    @property
-    def _app_id(self):
-        url = self._routes.app_list(self.project_id)
-        response = self._get(url)
-        if len(response) != 0:
-            app = response[0]
-        else:
-            return None
-        key = "id"
-        if key in app.keys():
-            app_id = app[key]
-        else:
-            app_id = None
-        return app_id
 
     _csrf_no_check_header = {"Csrf-Token": "nocheck"}
