@@ -10,8 +10,8 @@ from flytekit.core.base_task import PythonTask, TaskMetadata
 from flytekit.core.interface import Interface
 from flytekit.extend.backend.base_agent import AsyncAgentExecutorMixin
 from flytekit.loggers import logger
+import rich_click as click
 
-logger.setLevel(20)
 
 @dataclass
 class GitRef(object):
@@ -180,10 +180,10 @@ class DominoJobConfig(object):
 
     def resolve_job_properties(self):
         if self.is_resolved():
-            logger.info("Job properties are already fully resolved")
+            click.secho("Job properties are already fully resolved")
             return
         
-        logger.info("Retrieving default properties for job")
+        click.secho("Retrieving default properties for job")
         # TODO: Can we make this work outside of runs? Also can we modify this so we don't need owner/project in the config?
         url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{self.OwnerName}/{self.ProjectName}/resolveJobDefaults"
         payload = self.to_json()
@@ -204,7 +204,7 @@ class DominoJobConfig(object):
         # self.DatasetSnapshots = resolved_job_config["datasetSnapshots"] # TODO add once nucleus code can handle this
         self.ExternalVolumeMountIds = resolved_job_config["externalVolumeMountIds"]
 
-        logger.info(f"Resolved job properties: {self}")
+        click.secho(f"Resolved job properties: {self}", fg="cyan")
 
 
     def to_json(self) -> Dict[str, Any]:
@@ -240,9 +240,9 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
         **kwargs,
     ):
         if use_latest:
-            logger.warn(
-                "Creating task using latest values. This is not recommended, as values not explicitly defined may " 
-                "change between subsequent executions of this task"
+            click.secho(
+                "Creating task using latest values. This is not recommended, as values not explicitly defined may change between subsequent executions of this task",
+                fg="yellow"
             )
             domino_job_config.resolve_job_properties()
 
