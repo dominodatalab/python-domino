@@ -124,11 +124,28 @@ class ClusterProperties(object):
 
 
 
-# Names here are lowercase to make serialization easier
 @dataclass
 class DatasetSnapshot(object):
-    datasetId: str
-    snapshotVersion: int
+    DatasetId: str
+    SnapshotVersion: int
+    DatasetName: Optional[str] = None  # Only used for convenience to make it easier to track datasets. Does not impact api calls
+
+
+    def to_json(self) -> dict:
+        return {
+            "datasetId": self.DatasetId,
+            "snapshotVersion": self.SnapshotVersion,
+            "datasetName": self.DatasetName
+        }
+
+
+    @classmethod
+    def from_json(cls, json: dict[str, Any]):
+        return cls(
+            DatasetId = json["datasetId"],
+            SnapshotVersion = json["snapshotVersion"],
+            DatasetName = json.get("datasetName"),
+        )
 
 
 @dataclass
@@ -159,7 +176,7 @@ class DominoJobConfig(object):
             self.EnvironmentRevisionSpec and
             (not self.ComputeClusterProperties or self.ComputeClusterProperties.is_resolved()) and
             self.VolumeSizeGiB and
-            # self.DatasetSnapshots and
+            self.DatasetSnapshots and
             self.ExternalVolumeMountIds != None
         )
     
@@ -172,7 +189,7 @@ class DominoJobConfig(object):
         if not self.EnvironmentRevisionSpec: unresolved_fields.append("environmentRevisionSpec")
         if self.ComputeClusterProperties and not self.ComputeClusterProperties.is_resolved(): unresolved_fields.append("computeClusterProperties")
         if not self.VolumeSizeGiB: unresolved_fields.append("volumeSizeGiB")
-        # if not self.DatasetSnapshots: unresolved_fields.append("datasetSnapshots")  # TODO: Enable this once 
+        if not self.DatasetSnapshots: unresolved_fields.append("datasetSnapshots")
         if self.ExternalVolumeMountIds == None: unresolved_fields.append("externalVolumeMountIds")
 
         return unresolved_fields
@@ -201,7 +218,7 @@ class DominoJobConfig(object):
         self.EnvironmentRevisionSpec = EnvironmentRevisionSpecification.from_json(resolved_job_config["environmentRevisionSpec"])
         self.ComputeClusterProperties = ClusterProperties.from_json(resolved_job_config["computeClusterProperties"]) if resolved_job_config.get("computeClusterProperties") else None
         self.VolumeSizeGiB = resolved_job_config["volumeSizeGiB"]
-        # self.DatasetSnapshots = resolved_job_config["datasetSnapshots"] # TODO add once nucleus code can handle this
+        self.DatasetSnapshots = [DatasetSnapshot.from_json(snapshot_json) for snapshot_json in resolved_job_config["datasetSnapshots"]]
         self.ExternalVolumeMountIds = resolved_job_config["externalVolumeMountIds"]
 
         click.secho(f"Resolved job properties: {self}", fg="cyan")
@@ -217,7 +234,7 @@ class DominoJobConfig(object):
             "hardwareTierId": { "value": self.HardwareTierId } if self.HardwareTierId else None,
             "environmentId": self.EnvironmentId,
             "environmentRevisionSpec": self.EnvironmentRevisionSpec.to_json() if self.EnvironmentRevisionSpec else None,
-            "datasetSnapshots": self.DatasetSnapshots,
+            "datasetSnapshots": [snapshot.to_json() for snapshot in self.DatasetSnapshots],
             "externalVolumeMountIds": self.ExternalVolumeMountIds,
             "volumeSizeGiB": self.VolumeSizeGiB,
             "title": self.Title,
