@@ -11,15 +11,24 @@ from flytekit.core.interface import Interface
 from flytekit.extend.backend.base_agent import AsyncAgentExecutorMixin
 from flytekit.loggers import logger
 
+logger.setLevel(20)
+
 @dataclass
 class GitRef(object):
     Type: str
     Value: Optional[str] = None
 
 
+    def to_json(self):
+        return {
+            "type": self.Type,
+            "value": self.Value
+        }
+
+
     @classmethod
     def from_json(cls, json: dict[str, str]):
-        cls(
+        return cls(
             Type=json["type"],
             Value=json.get("value")
         )
@@ -180,7 +189,8 @@ class DominoJobConfig(object):
         payload = self.to_json()
 
         response = requests.post(url, json=payload)
-        response.raise_for_status() # TODO: Catch and sanitize error message
+        if response.status_code != 200:
+            raise Exception(f"Failed to resolve job properties (StatusCode {response.status_code}): {response.text})")
         
         resolved_job_config = response.json()
 
@@ -211,7 +221,7 @@ class DominoJobConfig(object):
             "externalVolumeMountIds": self.ExternalVolumeMountIds,
             "volumeSizeGiB": self.VolumeSizeGiB,
             "title": self.Title,
-            "mainRepoGitRef": asdict(self.MainRepoGitRef) if self.MainRepoGitRef else None,
+            "mainRepoGitRef": self.MainRepoGitRef.to_json() if self.MainRepoGitRef else None,
             "computeClusterProperties": self.ComputeClusterProperties.to_json() if self.ComputeClusterProperties else None,
             "inputInterfaceBase64": None,
             "inputOutputInterfaceBase64": None,
@@ -229,8 +239,6 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
         log_level: int = 20,  # 20 is info, 30 is warning, etc
         **kwargs,
     ):
-        logger.setLevel(20)
-
         if use_latest:
             logger.warn(
                 "Creating task using latest values. This is not recommended, as values not explicitly defined may " 
