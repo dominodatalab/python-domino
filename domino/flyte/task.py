@@ -171,12 +171,13 @@ class DominoJobConfig(object):
     def is_resolved(self):
         return (
             self.CommitId and
+            (self.MainRepoGitRef or os.getenv("DOMINO_IS_GIT_BASED") != "true") and
             self.HardwareTierId and
             self.EnvironmentId and
             self.EnvironmentRevisionSpec and
             (not self.ComputeClusterProperties or self.ComputeClusterProperties.is_resolved()) and
             self.VolumeSizeGiB and
-            self.DatasetSnapshots and
+            self.DatasetSnapshots != None and
             self.ExternalVolumeMountIds != None
         )
     
@@ -184,12 +185,13 @@ class DominoJobConfig(object):
     def unresolved_fields(self) -> List[str]:
         unresolved_fields = []
         if not self.CommitId: unresolved_fields.append("commitId")
+        if not self.MainRepoGitRef and os.getenv("DOMINO_IS_GIT_BASED") == "true": unresolved_fields.append("mainRepoGitRef")
         if not self.HardwareTierId: unresolved_fields.append("hardwareTierId")
         if not self.EnvironmentId: unresolved_fields.append("environmentId")
         if not self.EnvironmentRevisionSpec: unresolved_fields.append("environmentRevisionSpec")
         if self.ComputeClusterProperties and not self.ComputeClusterProperties.is_resolved(): unresolved_fields.append("computeClusterProperties")
         if not self.VolumeSizeGiB: unresolved_fields.append("volumeSizeGiB")
-        if not self.DatasetSnapshots: unresolved_fields.append("datasetSnapshots")
+        if self.DatasetSnapshots == None: unresolved_fields.append("datasetSnapshots")
         if self.ExternalVolumeMountIds == None: unresolved_fields.append("externalVolumeMountIds")
 
         return unresolved_fields
@@ -234,7 +236,7 @@ class DominoJobConfig(object):
             "hardwareTierId": { "value": self.HardwareTierId } if self.HardwareTierId else None,
             "environmentId": self.EnvironmentId,
             "environmentRevisionSpec": self.EnvironmentRevisionSpec.to_json() if self.EnvironmentRevisionSpec else None,
-            "datasetSnapshots": [snapshot.to_json() for snapshot in self.DatasetSnapshots],
+            "datasetSnapshots": [snapshot.to_json() for snapshot in self.DatasetSnapshots] if self.DatasetSnapshots != None else None,
             "externalVolumeMountIds": self.ExternalVolumeMountIds,
             "volumeSizeGiB": self.VolumeSizeGiB,
             "title": self.Title,
@@ -266,7 +268,7 @@ class DominoJobTask(AsyncAgentExecutorMixin, PythonTask[DominoJobConfig]):
         if not domino_job_config.is_resolved():
             unresolved_fields = domino_job_config.unresolved_fields()
             raise Exception(
-                f"The following fields are not defined: {unresolved_fields}. Use DominoJobConfig.resolve_job_properties to lookup default values for these "
+                f"The following fields are not defined: {unresolved_fields}. Use DominoJobConfig.resolve_job_properties() to lookup default values for these "
                 "fields or run with 'use_latest' to implicitly use the latest default values for this task."
             )
 
