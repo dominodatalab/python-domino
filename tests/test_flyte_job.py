@@ -4,8 +4,7 @@ from dataclasses import asdict
 
 def test_job_config_serialization():
     job_config = DominoJobConfig(
-        Username="user",
-        ProjectName="project",
+        ProjectId="projectId",
         ApiKey="apiKey", 
         Command="command", 
         Title="title", 
