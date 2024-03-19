@@ -151,8 +151,6 @@ class DatasetSnapshot(object):
 @dataclass
 class DominoJobConfig(object):
     ### Auth ###
-    OwnerName: str
-    ProjectName: str
     ApiKey: str
     ### Job Config ###
     Command: str
@@ -202,9 +200,8 @@ class DominoJobConfig(object):
             click.secho("Job properties are already fully resolved")
             return
         
-        click.secho("Retrieving default properties for job")
-        # TODO: Can we make this work outside of runs? Also can we modify this so we don't need owner/project in the config?
-        url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{self.OwnerName}/{self.ProjectName}/resolveJobDefaults"
+        click.secho(f"Retrieving default properties for job against project {os.environ['FLYTE_DEFAULT_PROJECT']}")
+        url = f"{os.environ['DOMINO_API_PROXY']}/v4/jobs/{os.environ['FLYTE_DEFAULT_PROJECT']}/resolveJobDefaults"
         payload = self.to_json()
 
         response = requests.post(url, json=payload)
@@ -228,8 +225,6 @@ class DominoJobConfig(object):
 
     def to_json(self) -> Dict[str, Any]:
         return {
-            "ownerName": self.OwnerName,
-            "projectName": self.ProjectName,
             "apiKey": self.ApiKey,
             "command": self.Command,
             "commitId": self.CommitId,
