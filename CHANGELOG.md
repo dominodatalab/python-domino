@@ -7,6 +7,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Updated request with retry to avoid long down time during Gateway timeout or pool connection drops
 
 ## 1.3.0
 
