@@ -40,7 +40,7 @@ class _HttpRequestManager:
         retries = Retry(
             total=int(os.getenv("DOMINO_MAX_RETRIES", str(R_SESSION_MAX_RETRIES))),
             backoff_factor=1,  # retry seconds
-            status_forcelist=[502, 503, 504],
+            status_forcelist=[408, 502, 503, 504],
         )
 
         if os.environ.get(DOMINO_VERIFY_CERTIFICATE, None) in ["false", "f", "n", "no"]:
