@@ -12,7 +12,7 @@ from .constants import DOMINO_VERIFY_CERTIFICATE
 from .exceptions import ReloginRequiredException
 
 
-DOMINO_API_RETRIES = 5
+R_SESSION_MAX_RETRIES = 4
 
 class _SessionInitializer:
     def __initialize__(self, session):
@@ -34,11 +34,11 @@ class _HttpRequestManager:
 
     def _set_session(self):
         """
-        Initialize a request session with retry.
+        Initialize a request session with retry to help manage connections drop.
         """
         self.session = requests.Session()
         retries = Retry(
-            total=DOMINO_API_RETRIES,
+            total=int(os.getenv("DOMINO_MAX_RETRIES", str(R_SESSION_MAX_RETRIES))),
             backoff_factor=1,  # retry seconds
             status_forcelist=[502, 503, 504],
         )
