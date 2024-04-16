@@ -33,8 +33,7 @@ def test_request_session():
      start_time = time.time()
      try:
          response = request_manager.request_session.get(
-             'https://httpbin.org/delay/10',
-             timeout=1
+             'https://localhost:9999' # ConnectionError
          )
      except Exception as ex:
          print('It failed :(', ex.__class__.__name__)
@@ -43,4 +42,4 @@ def test_request_session():
      finally:
          end_time = time.time()
          total_time = end_time - start_time
-         assert(total_time > 10) # actual value should be around 10.62....
+         assert(total_time > 5) # actual value should be around 6.0210....

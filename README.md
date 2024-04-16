@@ -99,6 +99,12 @@ See
     For testing purposes and issues with SSL certificates, set `DOMINO_VERIFY_CERTIFICATE` to `false`. 
     Be sure to unset this variable when not in use.
 
+- `DOMINO_MAX_RETRIES`
+    
+    Default Retry is set to 4 
+    Determines the number of attempts for the request session in case of a ConnectionError
+    Get more info on request max timeout/error durations based on Retry and backoff factors [here](https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry)
+
 # Methods
 
 ## Projects
