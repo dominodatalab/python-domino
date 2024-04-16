@@ -4,11 +4,15 @@ from http import HTTPStatus
 
 import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter, Retry
 from requests.auth import AuthBase
 
 from ._version import __version__
 from .constants import DOMINO_VERIFY_CERTIFICATE
 from .exceptions import ReloginRequiredException
+
+
+DOMINO_API_RETRIES = 5
 
 class _SessionInitializer:
     def __initialize__(self, session):
@@ -23,17 +27,31 @@ class _HttpRequestManager:
     def __init__(self, auth: AuthBase):
         self.auth = auth
         self._logger = logging.getLogger(__name__)
-        self.request_session = requests.Session()
-        self.request_session.headers["User-Agent"] = f"python-domino/{__version__}"
+        self.request_session = self._set_session()
 
         if isinstance(self.auth, _SessionInitializer):
-            self.auth.__initialize__(self.request_session)
+            self.auth.__initialize__(self._set_session())
+
+    def _set_session(self):
+        """
+        Initialize a request session with retry.
+        """
+        self.session = requests.Session()
+        retries = Retry(
+            total=DOMINO_API_RETRIES,
+            backoff_factor=1,  # retry seconds
+            status_forcelist=[502, 503, 504],
+        )
 
         if os.environ.get(DOMINO_VERIFY_CERTIFICATE, None) in ["false", "f", "n", "no"]:
             warning = "InsecureRequestWarning: Bypassing certificate verification is strongly ill-advised"
             logging.warning(warning)
             print(warning)
-            self.request_session.verify = False
+            self.session.verify = False
+
+        retry_adapter = HTTPAdapter(max_retries=retries)
+        self.session.mount("https://", retry_adapter)
+        return self.session
 
     def post(self, url, data=None, json=None, **kwargs):
         return self._raise_for_status(

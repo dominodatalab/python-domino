@@ -34,11 +34,12 @@ def test_invalid_token_file_error():
     invalid_file = "non_existent_token_file.txt"
 
     with pytest.raises(FileNotFoundError):
-        Domino(
+        test_domino = Domino(
             host=dummy_host,
             project="anyuser/quick-start",
             domino_token_file=invalid_file,
         )
+        test_domino.runs_list()["data"]
 
 
 def test_malformed_project_input_error(caplog):
@@ -97,7 +98,7 @@ def test_object_creation_with_api_proxy():
     dummy_host = "http://domino.somefakecompany.com"
     dummy_api_proxy = "localhost:1234"
 
-    d = Domino(host=dummy_host, project="anyuser/quick-start", api_key=dummy_api_proxy)
+    d = Domino(host=dummy_host, project="anyuser/quick-start", api_proxy=dummy_api_proxy)
     assert isinstance(
         d.request_manager.auth, domino.authentication.ProxyAuth
     ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"
@@ -111,7 +112,7 @@ def test_object_creation_with_api_proxy_with_scheme():
     dummy_host = "http://domino.somefakecompany.com"
     dummy_api_proxy = "https://localhost:1234"
 
-    d = Domino(host=dummy_host, project="anyuser/quick-start", api_key=dummy_api_proxy)
+    d = Domino(host=dummy_host, project="anyuser/quick-start", api_proxy=dummy_api_proxy)
     assert isinstance(
         d.request_manager.auth, domino.authentication.ProxyAuth
     ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"
