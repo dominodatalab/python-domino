@@ -131,7 +131,7 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     )
     assert job_status["statuses"]["isCompleted"] is True
     job_red = default_domino_client.job_runtime_execution_details(job_status["id"])
-    assert job_red["hardwareTier"]['id'] == override_hardware_tier_id
+    assert job_red["hardwareTier"]["id"] == override_hardware_tier_id
 
 
 # deprecated but ensuring it still works for now
@@ -157,7 +157,7 @@ def test_job_start_override_hardware_tier_name(default_domino_client):
 
     assert job_status["statuses"]["isCompleted"] is True
     job_red = default_domino_client.job_runtime_execution_details(job_status["id"])
-    assert job_red["hardwareTier"]['name'] == override_hardware_tier_name
+    assert job_red["hardwareTier"]["name"] == override_hardware_tier_name
 
 
 @pytest.mark.skipif(
