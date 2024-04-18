@@ -18,7 +18,7 @@ from domino.helpers import domino_is_reachable
 TEST_PROJECT = os.environ.get("DOMINO_SPARK_TEST_PROJECT")
 dag_id = "test_spark_operator"
 
-
+@pytest.mark.skipif(os.getenv("SPARK_DEP") != "yes", reason="Extra dependency required")
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
@@ -36,7 +36,7 @@ def test_spark_operator_no_cluster():
     ti = TaskInstance(task=task, execution_date=execution_dt)
     task.execute(ti.get_template_context())
 
-
+@pytest.mark.skipif(os.getenv("SPARK_DEP") != "yes", reason="Extra dependency required")
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
@@ -58,7 +58,7 @@ def test_spark_operator_with_cluster(spark_cluster_env_id):
     ti = TaskInstance(task=task, execution_date=execution_dt)
     task.execute(ti.get_template_context())
 
-
+@pytest.mark.skipif(os.getenv("SPARK_DEP") != "yes", reason="Extra dependency required")
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
@@ -83,7 +83,7 @@ def test_spark_operator_with_compute_cluster_properties(spark_cluster_env_id):
     ti = TaskInstance(task=task, execution_date=execution_dt)
     task.execute(ti.get_template_context())
 
-
+@pytest.mark.skipif(os.getenv("SPARK_DEP") != "yes", reason="Extra dependency required")
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )

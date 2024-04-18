@@ -120,7 +120,7 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     """
     hardware_tiers = default_domino_client.hardware_tiers_list()
     non_default_hardware_tiers = [
-        hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["isDefault"]
+        hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["hwtFlags"]["isDefault"]
     ]
     if len(non_default_hardware_tiers) == 0:
         pytest.xfail("No non-default hardware tiers found: cannot run test")
@@ -131,7 +131,7 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     )
     assert job_status["statuses"]["isCompleted"] is True
     job_red = default_domino_client.job_runtime_execution_details(job_status["id"])
-    assert job_red["hardwareTierId"] == override_hardware_tier_id
+    assert job_red["hardwareTier"]['id'] == override_hardware_tier_id
 
 
 # deprecated but ensuring it still works for now
@@ -143,8 +143,9 @@ def test_job_start_override_hardware_tier_name(default_domino_client):
     Confirm that we can start a job using the v4 API and override the hardware tier via hardware_tier_name
     """
     hardware_tiers = default_domino_client.hardware_tiers_list()
+
     non_default_hardware_tiers = [
-        hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["isDefault"]
+        hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["hwtFlags"]["isDefault"]
     ]
     if len(non_default_hardware_tiers) == 0:
         pytest.xfail("No non-default hardware tiers found: cannot run test")
@@ -156,7 +157,7 @@ def test_job_start_override_hardware_tier_name(default_domino_client):
 
     assert job_status["statuses"]["isCompleted"] is True
     job_red = default_domino_client.job_runtime_execution_details(job_status["id"])
-    assert job_red["hardwareTier"] == override_hardware_tier_name
+    assert job_red["hardwareTier"]['name'] == override_hardware_tier_name
 
 
 @pytest.mark.skipif(
