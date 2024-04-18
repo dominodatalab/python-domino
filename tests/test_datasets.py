@@ -1,3 +1,4 @@
+import os
 import random
 
 import pytest
@@ -98,9 +99,9 @@ def test_datasets_details(default_domino_client, random_seq):
 )
 def test_datasets_upload(default_domino_client):
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
-        1
+        0
     ]
-    local_path_to_file = "test_datasets.py"
+    local_path_to_file = "tests/test_datasets.py"
     response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file)
 
     assert "test_datasets.py" in response
@@ -111,9 +112,10 @@ def test_datasets_upload(default_domino_client):
 )
 def test_datasets_upload_with_sub_dir(default_domino_client):
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
-        1
+        0
     ]
-    local_path_to_file = "test_datasets.py"
+    assert "test_datasets.py" in os.listdir("tests")
+    local_path_to_file = "tests/test_datasets.py"
     response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file,
                                                            target_relative_path="sub_d")
 

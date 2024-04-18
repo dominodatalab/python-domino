@@ -1175,7 +1175,7 @@ class Domino:
         url = self._routes.hardware_tiers_list(self.project_id)
         return self._get(url)
 
-    def get_hardware_tier_id_from_name(self, hardware_tier_name):
+    def get_hardware_tier_id_from_name(self, hardware_tier_name: str):
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_name == hardware_tier["hardwareTier"]["name"]:
                 return hardware_tier["hardwareTier"]["id"]
@@ -1216,7 +1216,7 @@ class Domino:
             "environments"
         ]
 
-    def _validate_environment_id(self, environment_id):
+    def _validate_environment_id(self, environment_id) -> bool:
         self.log.debug(f"Validating environment id: {environment_id}")
         for environment in self._useable_environments_list():
             if environment_id == environment["id"]:
@@ -1225,7 +1225,7 @@ class Domino:
             f"{environment_id} environment not found"
         )
 
-    def _validate_hardware_tier_id(self, hardware_tier_id):
+    def _validate_hardware_tier_id(self, hardware_tier_id: str) -> bool:
         self.log.debug(f"Validating hardware tier id: {hardware_tier_id}")
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_id == hardware_tier["hardwareTier"]["id"]:
@@ -1234,7 +1234,7 @@ class Domino:
             f"{hardware_tier_id} hardware tier Id not found"
         )
 
-    def _validate_hardware_tier_name(self, hardware_tier_name):
+    def _validate_hardware_tier_name(self, hardware_tier_name: str) -> bool:
         self.log.debug(f"Validating hardware tier name: {hardware_tier_name}")
         count = 0
         for hardware_tier in self.hardware_tiers_list():
