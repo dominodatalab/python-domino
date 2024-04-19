@@ -1,3 +1,17 @@
+from enum import Enum
+
+
+class BudgetLabel(Enum):
+    PROJECT = "Project"
+    ORGANIZATION = "Organization"
+    BILLINGTAG = "BillingTag"
+
+
+class BillingTagSettingMode(Enum):
+    OPTIONAL = "Optional"
+    DISABLED = "Disabled"
+    REQUIRED = "Required"
+
 """
 Minimum Domino version supported by this python-domino library
 """
