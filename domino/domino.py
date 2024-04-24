@@ -31,7 +31,7 @@ from domino._custom_metrics import _CustomMetricsClientBase, _CustomMetricsClien
 
 class Domino:
     def __init__(
-            self, project, api_key=None, host=None, domino_token_file=None, auth_token=None, api_proxy=None,
+        self, project, api_key=None, host=None, domino_token_file=None, auth_token=None, api_proxy=None,
     ):
 
         self._configure_logging()
@@ -110,13 +110,13 @@ class Domino:
         return self._get(url)
 
     def runs_start(
-            self,
-            command,
-            isDirect=False,
-            commitId=None,
-            title=None,
-            tier=None,
-            publishApiEndpoint=None,
+        self,
+        command,
+        isDirect=False,
+        commitId=None,
+        title=None,
+        tier=None,
+        publishApiEndpoint=None,
     ):
 
         url = self._routes.runs_start()
@@ -138,16 +138,16 @@ class Domino:
             )
 
     def runs_start_blocking(
-            self,
-            command,
-            isDirect=False,
-            commitId=None,
-            title=None,
-            tier=None,
-            publishApiEndpoint=None,
-            poll_freq=5,
-            max_poll_time=6000,
-            retry_count=5,
+        self,
+        command,
+        isDirect=False,
+        commitId=None,
+        title=None,
+        tier=None,
+        publishApiEndpoint=None,
+        poll_freq=5,
+        max_poll_time=6000,
+        retry_count=5,
     ):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
@@ -210,8 +210,8 @@ class Domino:
                     )
                 current_retry_count = 0
             except (
-                    requests.exceptions.RequestException,
-                    exceptions.RunNotFoundException,
+                requests.exceptions.RequestException,
+                exceptions.RunNotFoundException,
             ) as e:
                 current_retry_count += 1
                 self.log.warning(f"Failed to get run info for runId: {run_id} : {e}")
@@ -309,23 +309,23 @@ class Domino:
 
         stdout = (
             re.sub(html_end_tags, "", re.sub(span_regex, "", raw_stdout))
-                .replace(html_start_tags, "")
-                .replace(returns, "\n")
+            .replace(html_start_tags, "")
+            .replace(returns, "\n")
         )
 
         return stdout
 
     def job_start(
-            self,
-            command: str,
-            commit_id: Optional[str] = None,
-            hardware_tier_id: Optional[str] = None,
-            hardware_tier_name: Optional[str] = None,
-            environment_id: Optional[str] = None,
-            on_demand_spark_cluster_properties: Optional[dict] = None,
-            compute_cluster_properties: Optional[dict] = None,
-            external_volume_mounts: Optional[List[str]] = None,
-            title: Optional[str] = None,
+        self,
+        command: str,
+        commit_id: Optional[str] = None,
+        hardware_tier_id: Optional[str] = None,
+        hardware_tier_name: Optional[str] = None,
+        environment_id: Optional[str] = None,
+        on_demand_spark_cluster_properties: Optional[dict] = None,
+        compute_cluster_properties: Optional[dict] = None,
+        external_volume_mounts: Optional[List[str]] = None,
+        title: Optional[str] = None,
     ) -> dict:
         """
         Starts a Domino Job via V4 API
@@ -469,7 +469,7 @@ class Domino:
                     )
 
             if not helpers.is_cluster_type_supported(
-                    self._version, compute_cluster_properties["clusterType"]
+                self._version, compute_cluster_properties["clusterType"]
             ):
                 supported_types = [
                     ct
@@ -501,8 +501,8 @@ class Domino:
                 )
 
             if (
-                    "maxWorkerCount" in compute_cluster_properties
-                    and not helpers.is_comute_cluster_autoscaling_supported(self._version)
+                "maxWorkerCount" in compute_cluster_properties
+                and not helpers.is_comute_cluster_autoscaling_supported(self._version)
             ):
                 raise exceptions.UnsupportedFieldException(
                     f"'maxWorkerCount' is not supported in Domino {self._version}."
@@ -580,7 +580,7 @@ class Domino:
             }
 
         resolved_hardware_tier_id = (
-                hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
+            hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
         )
         url = self._routes.job_start()
         payload = {
@@ -636,11 +636,11 @@ class Domino:
         ).json()
 
     def job_start_blocking(
-            self,
-            poll_freq: int = 5,
-            max_poll_time: int = 6000,
-            ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
-            **kwargs,
+        self,
+        poll_freq: int = 5,
+        max_poll_time: int = 6000,
+        ignore_exceptions: Tuple = (requests.exceptions.RequestException,),
+        **kwargs,
     ) -> dict:
         """
         Starts a job in a blocking loop, periodically polling for status of job
@@ -736,15 +736,15 @@ class Domino:
         return self._get(url)
 
     def project_create_v4(
-            self,
-            project_name: str,
-            owner_id: Optional[str] = None,
-            owner_username: Optional[str] = None,
-            description: Optional[str] = "",
-            collaborators: Optional[list] = None,
-            tags: Optional[list] = None,
-            billing_tag: Optional[str] = None,
-            visibility: Optional[ProjectVisibility] = ProjectVisibility.PUBLIC,
+        self,
+        project_name: str,
+        owner_id: Optional[str] = None,
+        owner_username: Optional[str] = None,
+        description: Optional[str] = "",
+        collaborators: Optional[list] = None,
+        tags: Optional[list] = None,
+        billing_tag: Optional[str] = None,
+        visibility: Optional[ProjectVisibility] = ProjectVisibility.PUBLIC,
     ):
         owner = (
             owner_id if owner_id else self.get_user_id(owner_username) if owner_username
@@ -971,7 +971,7 @@ class Domino:
         return self._get(url)
 
     def model_publish(
-            self, file, function, environment_id, name, description, files_to_exclude=None
+        self, file, function, environment_id, name, description, files_to_exclude=None
     ):
         if files_to_exclude is None:
             files_to_exclude = []
@@ -995,13 +995,13 @@ class Domino:
         return self._get(url)
 
     def model_version_publish(
-            self,
-            model_id,
-            file,
-            function,
-            environment_id,
-            description,
-            files_to_exclude=None,
+        self,
+        model_id,
+        file,
+        function,
+        environment_id,
+        description,
+        files_to_exclude=None,
     ):
         if files_to_exclude is None:
             files_to_exclude = []
@@ -1052,7 +1052,7 @@ class Domino:
         return self._get(url)
 
     def datasets_update_details(
-            self, dataset_id, dataset_name=None, dataset_description=None
+        self, dataset_id, dataset_name=None, dataset_description=None
     ):
         url = self._routes.datasets_details(dataset_id)
         request = {}
@@ -1083,13 +1083,13 @@ class Domino:
             self.request_manager.delete(url)
 
     def datasets_upload_files(
-            self,
-            dataset_id: str,
-            local_path_to_file_or_directory: str,
-            file_upload_setting: str = None,
-            max_workers: int = None,
-            target_chunk_size: int = None,
-            target_relative_path: str = None
+        self,
+        dataset_id: str,
+        local_path_to_file_or_directory: str,
+        file_upload_setting: str = None,
+        max_workers: int = None,
+        target_chunk_size: int = None,
+        target_relative_path: str = None
     ) -> str:
         """Upload file to dataset with multithreaded support.
 
@@ -1123,17 +1123,17 @@ class Domino:
         self.log.warning(text)
 
         with datasets.Uploader(
-                csrf_no_check_header=self._csrf_no_check_header,
-                dataset_id=dataset_id,
-                local_path_to_file_or_directory=local_path_to_file_or_directory,
-                log=self.log,
-                request_manager=self.request_manager,
-                routes=self._routes,
+            csrf_no_check_header=self._csrf_no_check_header,
+            dataset_id=dataset_id,
+            local_path_to_file_or_directory=local_path_to_file_or_directory,
+            log=self.log,
+            request_manager=self.request_manager,
+            routes=self._routes,
 
-                file_upload_setting=file_upload_setting,
-                max_workers=max_workers,
-                target_chunk_size=target_chunk_size,
-                target_relative_path=target_relative_path
+            file_upload_setting=file_upload_setting,
+            max_workers=max_workers,
+            target_chunk_size=target_chunk_size,
+            target_relative_path=target_relative_path
         ) as uploader:
             path = uploader.upload()
             self.log.info(f"Uploading chunks for file or directory `{path}` to dataset {dataset_id} completed. "
@@ -1141,14 +1141,14 @@ class Domino:
             return path
 
     def model_version_export(
-            self,
-            model_id,
-            model_version_id,
-            registry_host,
-            registry_username,
-            registry_password,
-            repository_name,
-            image_tag,
+        self,
+        model_id,
+        model_version_id,
+        registry_host,
+        registry_username,
+        registry_password,
+        repository_name,
+        image_tag,
     ):
         self.requires_at_least("4.1.0")
 
@@ -1345,15 +1345,15 @@ class Domino:
         return self.request_manager.delete(url).json()
 
     def projects_by_billing_tag(
-            self,
-            billing_tag: Optional[str] = None,
-            offset: Optional[int] = 0,
-            page_size: Optional[int] = 10,
-            checkpoint_project_id: Optional[str] = None,
-            name_filter: Optional[str] = None,
-            sort_by: Optional[str] = None,
-            sort_order: Optional[str] = None,
-            missing_tag_only: bool = False,
+        self,
+        billing_tag: Optional[str] = None,
+        offset: Optional[int] = 0,
+        page_size: Optional[int] = 10,
+        checkpoint_project_id: Optional[str] = None,
+        name_filter: Optional[str] = None,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = None,
+        missing_tag_only: bool = False,
     ):
         parameters = {
             "offset": offset,
