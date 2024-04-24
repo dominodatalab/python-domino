@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from domino import exceptions, helpers, datasets
 from domino._version import __version__
 from domino.authentication import get_auth_by_type
-from domino.domino_enums import BillingTagSettingMode, BudgetLabel, ProjectVisibility
+from domino.domino_enums import BillingTagSettingMode, BudgetLabel, BudgetType, ProjectVisibility
 from domino.constants import (
     CLUSTER_TYPE_MIN_SUPPORT,
     DOMINO_HOST_KEY_NAME,
@@ -1166,14 +1166,14 @@ class Domino:
         return response.json()
 
     def model_version_sagemaker_export(
-            self,
-            model_id,
-            model_version_id,
-            registry_host,
-            registry_username,
-            registry_password,
-            repository_name,
-            image_tag,
+        self,
+        model_id,
+        model_version_id,
+        registry_host,
+        registry_username,
+        registry_password,
+        repository_name,
+        image_tag,
     ):
         self.requires_at_least("4.2.0")
 
@@ -1236,7 +1236,7 @@ class Domino:
         updated_budget = {"budgetLabel": budget_label.value, "budgetType": "Default", "limit": budget_limit,
                           "window": "monthly"}
         data = json.dumps(updated_budget)
-        return self.request_manager.put(url, data=data, headers={'Content-Type': 'application/json'}).json()
+        return self.request_manager.put(url, data=data, headers={"Content-Type": "application/json"}).json()
 
     def budget_overrides_list(self):
         url = self._routes.budget_overrides()
@@ -1246,13 +1246,13 @@ class Domino:
         url = self._routes.budget_overrides()
         new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
-        return self.request_manager.post(url, data=data, headers={'Content-Type': 'application/json'}).json()
+        return self.request_manager.post(url, data=data, headers={"Content-Type": "application/json"}).json()
 
     def budget_override_update(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float):
         url = self._routes.budget_overrides(budget_id)
         new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
-        return self.request_manager.put(url, data=data, headers={'Content-Type': 'application/json'}).json()
+        return self.request_manager.put(url, data=data, headers={"Content-Type": "application/json"}).json()
 
     def budget_override_delete(self, budget_id: str):
         url = self._routes.budget_overrides(budget_id)
@@ -1270,8 +1270,8 @@ class Domino:
         current_settings = self.budget_alerts_settings()
 
         optional_fields = {
-            'alertsEnabled': alerts_enabled,
-            'notifyOrgOwner': notify_org_owner
+            "alertsEnabled": alerts_enabled,
+            "notifyOrgOwner": notify_org_owner
         }
 
         updated_settings = self._update_if_set(current_settings, optional_fields)
@@ -1283,17 +1283,17 @@ class Domino:
     def budget_alerts_targets_update(self, targets: dict[BudgetLabel.PROJECT.value, list]):
         budget_settings = self.budget_alerts_settings()
 
-        current_targets = budget_settings['alertTargets']
+        current_targets = budget_settings["alertTargets"]
 
         updated_targets = []
 
         for target in current_targets:
-            if target['label'] in targets:
-                updated_targets.append({'label': target['label'], 'emails': targets[target['label']]})
+            if target["label"] in targets:
+                updated_targets.append({"label": target["label"], "emails": targets[target["label"]]})
             else:
                 updated_targets.append(target)
 
-        budget_settings['alertTargets'] = updated_targets
+        budget_settings["alertTargets"] = updated_targets
 
         payload = json.dumps(budget_settings)
         url = self._routes.budget_settings()
@@ -1306,7 +1306,7 @@ class Domino:
     def billing_tags_create(self, tags_list: list):
         url = self._routes.billing_tags()
         payload = json.dumps({"billingTags": tags_list})
-        return self.request_manager.post(url, data=payload, headers={'Content-Type': 'application/json'}).json()
+        return self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"}).json()
 
     def active_billing_tag_by_name(self, name: str):
         url = self._routes.billing_tags(name)
@@ -1327,7 +1327,7 @@ class Domino:
     def billing_tag_settings_mode_update(self, mode: BillingTagSettingMode):
         url = self._routes.billing_tags_settings(mode_only=True)
         payload = json.dumps({"mode": mode.value})
-        return self.request_manager.put(url, data=payload, headers={'Content-Type': 'application/json'}).json()
+        return self.request_manager.put(url, data=payload, headers={"Content-Type": "application/json"}).json()
 
     def project_billing_tag(self, project_id: Optional[str] = None):
         url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
@@ -1514,11 +1514,11 @@ class Domino:
     @staticmethod
     def _generate_budget(budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
         return {
-            'limit': budget_limit,
-            'labelId': budget_id,
-            'window': 'monthly',
-            'budgetLabel': budget_label.value,
-            'budgetType': 'Override'
+            "limit": budget_limit,
+            "labelId": budget_id,
+            "window": "monthly",
+            "budgetLabel": budget_label.value,
+            "budgetType": BudgetType.OVERRIDE.value
         }
 
     @staticmethod

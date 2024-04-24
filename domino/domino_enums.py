@@ -7,6 +7,11 @@ class BudgetLabel(Enum):
     PROJECT = "Project"
 
 
+class BudgetType(Enum):
+    OVERRIDE = "Override"
+    DEFAULT = "Default"
+
+
 class BillingTagSettingMode(Enum):
     DISABLED = "Disabled"
     OPTIONAL = "Optional"

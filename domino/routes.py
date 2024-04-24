@@ -41,15 +41,8 @@ class _Routes:
     def project_v4(self, project_id: Optional[str] = None) -> str:
         return self.host + "/v4/projects" + (f"/{project_id}" if project_id else "")
 
-    # def project_archive(self, project_id):
-    #     return f"{self.host}/v4/projects/{project_id}"
-
     def projects_list(self):
         return f"{self.host}/v4/gateway/projects"
-
-    # tags URLs
-    # def tags_list(self, project_id):
-    #     return f"{self.host}/v4/projects/{project_id}"
 
     def tag_details(self, tag_id):
         return f"{self.host}/projectTags/{tag_id}"
