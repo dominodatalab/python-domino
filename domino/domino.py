@@ -15,9 +15,8 @@ from bs4 import BeautifulSoup
 from domino import exceptions, helpers, datasets
 from domino._version import __version__
 from domino.authentication import get_auth_by_type
+from domino.domino_enums import BillingTagSettingMode, BudgetLabel, ProjectVisibility
 from domino.constants import (
-    BillingTagSettingMode,
-    BudgetLabel,
     CLUSTER_TYPE_MIN_SUPPORT,
     DOMINO_HOST_KEY_NAME,
     DOMINO_LOG_LEVEL_KEY_NAME,
@@ -28,16 +27,6 @@ from domino.constants import (
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
 from domino._custom_metrics import _CustomMetricsClientBase, _CustomMetricsClientGen, _CustomMetricsClient
-
-
-def _generate_budget(budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
-    return {
-        'limit': budget_limit,
-        'labelId': budget_id,
-        'window': 'monthly',
-        'budgetLabel': budget_label.value,
-        'budgetType': 'Override'
-    }
 
 
 class Domino:
@@ -55,8 +44,8 @@ class Domino:
         host = helpers.clean_host_url(_host)
 
         try:
-            owner_username, project_name = project.split("/")
-            self._routes = _Routes(host, owner_username, project_name)
+            self._owner_username, self._project_name = project.split("/")
+            self._routes = _Routes(host, self._owner_username, self._project_name)
         except ValueError:
             self._logger.error(
                 f"Project {project} must be given in the form username/projectname"
@@ -746,13 +735,41 @@ class Domino:
         url = self._routes.deployment_version()
         return self._get(url)
 
-    def project_create(self, project_name: str, owner_username: Optional[str] = None,
-                       billing_tag: Optional[str] = None):
-        url = self._routes.project_create()
-        data = {"projectName": project_name,
-                "ownerOverrideUsername": owner_username}
+    def project_create_v4(
+            self,
+            project_name: str,
+            owner_id: Optional[str] = None,
+            owner_username: Optional[str] = None,
+            description: Optional[str] = "",
+            collaborators: Optional[list] = None,
+            tags: Optional[list] = None,
+            billing_tag: Optional[str] = None,
+            visibility: Optional[ProjectVisibility] = ProjectVisibility.PUBLIC,
+    ):
+        owner = (
+            owner_id if owner_id else self.get_user_id(owner_username) if owner_username
+            else self.get_user_id(self._owner_username)
+        )
+        data = {
+            "name": project_name,
+            "visibility": visibility.value,
+            "ownerId": owner,
+            "description": description,
+            "collaborators": collaborators if collaborators is not None else [],
+            "tags": {"tagNames": tags if tags is not None else []},
+        }
+
         if billing_tag:
-            data.update({"billingTag": billing_tag})
+            data.update({"billingTag": {"tag": billing_tag}})
+
+        url = self._routes.project_v4()
+        payload = json.dumps(data)
+        response = self.request_manager.post(url, data=payload, headers={'Content-Type': 'application/json'})
+        return response.json()
+
+    def project_create(self, project_name, owner_username=None):
+        url = self._routes.project_create()
+        data = {"projectName": project_name, "ownerOverrideUsername": owner_username}
         response = self.request_manager.post(
             url, data=data, headers=self._csrf_no_check_header
         )
@@ -763,7 +780,7 @@ class Domino:
         all_owned_projects = self.projects_list(show_completed=True)
         for p in all_owned_projects:
             if p["name"] == project_name:
-                url = self._routes.project_archive(project_id=p["id"])
+                url = self._routes.project_v4(project_id=p["id"])
                 self.request_manager.delete(url)
                 break
         else:
@@ -787,7 +804,7 @@ class Domino:
 
     def tags_list(self, project_id=None):
         project_id = project_id if project_id else self.project_id
-        url = self._routes.tags_list(project_id)
+        url = self._routes.project_v4(project_id)
         return self._get(url)["tags"]
 
     def tag_details(self, tag_id):
@@ -1210,97 +1227,172 @@ class Domino:
                 else:
                     self.log.info(text)
 
-    # GET     /budgets/defaults
-    def get_budget_defaults(self):
+    def budget_defaults_list(self):
         url = self._routes.budgets_default()
         return self.request_manager.get(url).json()
 
-    # PUT     /budgets/defaults/:budgetLabel
-    def update_budget_defaults(self, budget_label: BudgetLabel, budget_limit: float):
+    def budget_defaults_update(self, budget_label: BudgetLabel, budget_limit: float):
         url = self._routes.budgets_default(budget_label.value)
         updated_budget = {"budgetLabel": budget_label.value, "budgetType": "Default", "limit": budget_limit,
                           "window": "monthly"}
         data = json.dumps(updated_budget)
         return self.request_manager.put(url, data=data, headers={'Content-Type': 'application/json'}).json()
 
-    # GET     /budgets/overrides
-    def get_budget_overrides(self):
+    def budget_overrides_list(self):
         url = self._routes.budget_overrides()
         return self.request_manager.get(url).json()
 
-    # POST    /budgets/overrides
-    def create_budget_override(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float):
+    def budget_override_create(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float):
         url = self._routes.budget_overrides()
-        new_budget: dict = _generate_budget(budget_label, budget_id, budget_limit)
+        new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
         return self.request_manager.post(url, data=data, headers={'Content-Type': 'application/json'}).json()
 
-    # PUT     /budgets/overrides/:labelId
-    def update_budget_override(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float):
+    def budget_override_update(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float):
         url = self._routes.budget_overrides(budget_id)
-        new_budget: dict = _generate_budget(budget_label, budget_id, budget_limit)
+        new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
         return self.request_manager.put(url, data=data, headers={'Content-Type': 'application/json'}).json()
 
-    # DELETE  /budgets/overrides/:labelId
-    def delete_budget_override(self, budget_id: str):
+    def budget_override_delete(self, budget_id: str):
         url = self._routes.budget_overrides(budget_id)
         return self.request_manager.delete(url).json()
 
-    # GET     /budgets/global/alertsSettings
-    def get_budget_alerts_settings(self) -> dict:
+    def budget_alerts_settings(self) -> dict:
         url = self._routes.budget_settings()
         return self.request_manager.get(url).json()
 
-    # PUT     /budgets/global/alertsSettings
-    def update_budget_alerts_settings(self, alerts_enabled: Optional[bool], notify_org_owner: Optional[bool], alert_targets: Optional[list]):
-        current_settings = self.get_budget_alerts_settings()
-        if alerts_enabled:
-            current_settings.update({'alertsEnabled': alerts_enabled})
-        if notify_org_owner:
-            current_settings.update({'notifyOrgOwner': notify_org_owner})
-        if alert_targets:
-            current_settings.update({'alertTargets': notify_org_owner})
-        data = json.dumps(current_settings)
-        url = self._routes.budget_settings()
-        return self.request_manager.put(url, data=data).json()
+    def budget_alerts_settings_update(
+        self,
+        alerts_enabled: Optional[bool] = None,
+        notify_org_owner: Optional[bool] = None
+    ):
+        current_settings = self.budget_alerts_settings()
 
-    # GET     /billingtags
-    def get_active_billing_tags(self):
+        optional_fields = {
+            'alertsEnabled': alerts_enabled,
+            'notifyOrgOwner': notify_org_owner
+        }
+
+        updated_settings = self._update_if_set(current_settings, optional_fields)
+
+        payload = json.dumps(updated_settings)
+        url = self._routes.budget_settings()
+        return self.request_manager.put(url, data=payload).json()
+
+    def budget_alerts_targets_update(self, targets: dict[BudgetLabel.PROJECT.value, list]):
+        budget_settings = self.budget_alerts_settings()
+
+        current_targets = budget_settings['alertTargets']
+
+        updated_targets = []
+
+        for target in current_targets:
+            if target['label'] in targets:
+                updated_targets.append({'label': target['label'], 'emails': targets[target['label']]})
+            else:
+                updated_targets.append(target)
+
+        budget_settings['alertTargets'] = updated_targets
+
+        payload = json.dumps(budget_settings)
+        url = self._routes.budget_settings()
+        return self.request_manager.put(url, data=payload).json()
+
+    def active_billing_tags_list(self):
         url = self._routes.billing_tags()
         return self.request_manager.get(url).json()
 
-    # POST    /billingtags
-    def create_billing_tags(self, tags_list: list):
+    def billing_tags_create(self, tags_list: list):
         url = self._routes.billing_tags()
         payload = json.dumps({"billingTags": tags_list})
         return self.request_manager.post(url, data=payload, headers={'Content-Type': 'application/json'}).json()
 
-    # GET     /billingtags/:name
-    def get_active_billing_tag_by_name(self, name:str):
+    def active_billing_tag_by_name(self, name: str):
         url = self._routes.billing_tags(name)
         return self.request_manager.get(url).json()
 
-    # DELETE  /billingtags/:name
-    def archive_billing_tag(self, name:str):
+    def billing_tag_archive(self, name: str):
         url = self._routes.billing_tags(name)
         return self.request_manager.delete(url).json()
 
-    # GET     /billingtagSettings
-    def get_billing_tag_settings(self) -> dict:
+    def billing_tag_settings(self) -> dict:
         url = self._routes.billing_tags_settings()
         return self.request_manager.get(url).json()
 
-    # GET     /billingtagSettings/mode
-    def get_billing_tag_settings_mode(self):
+    def billing_tag_settings_mode(self):
         url = self._routes.billing_tags_settings(mode_only=True)
         return self.request_manager.get(url).json()
 
-    # PUT     /billingtagSettings/mode
-    def update_billing_tag_settings_mode(self, mode: BillingTagSettingMode):
+    def billing_tag_settings_mode_update(self, mode: BillingTagSettingMode):
         url = self._routes.billing_tags_settings(mode_only=True)
         payload = json.dumps({"mode": mode.value})
         return self.request_manager.put(url, data=payload, headers={'Content-Type': 'application/json'}).json()
+
+    def project_billing_tag(self, project_id: Optional[str] = None):
+        url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
+        return self.request_manager.get(url).json()
+
+    def project_billing_tag_update(self, billing_tag: str, project_id: Optional[str] = None):
+        url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
+        data = {
+            "tag": billing_tag
+        }
+        return self.request_manager.post(url, data=json.dumps(data)).json()
+
+    def project_billing_tag_reset(self, project_id: Optional[str] = None):
+        url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
+        return self.request_manager.delete(url).json()
+
+    def projects_by_billing_tag(
+            self,
+            billing_tag: Optional[str] = None,
+            offset: Optional[int] = 0,
+            page_size: Optional[int] = 10,
+            checkpoint_project_id: Optional[str] = None,
+            name_filter: Optional[str] = None,
+            sort_by: Optional[str] = None,
+            sort_order: Optional[str] = None,
+            missing_tag_only: bool = False,
+    ):
+        parameters = {
+            "offset": offset,
+            "pageSize": page_size,
+            "missingBillingTagOnly": str(missing_tag_only).lower()
+        }
+
+        optional_params = {
+            "billingTag": billing_tag,
+            "nameFilter": name_filter,
+            "checkpointProjectId": checkpoint_project_id,
+            "sortBy": sort_by,
+            "sortOrder": sort_order,
+        }
+
+        updated_params = self._update_if_set(parameters, optional_params)
+
+        url = self._routes.projects_billing_tags()
+
+        return self.request_manager.get(url, params=updated_params).json()
+
+    def project_billing_tag_bulk_update(self, projects_tag: dict[str, str]):
+        value_list = []
+        for key, value in projects_tag.items():
+            value_list.append(
+                {
+                    "projectId": key,
+                    "billingTag": {
+                        "tag": value
+                    }
+                }
+            )
+
+        data = {
+            "projectsBillingTags": value_list
+        }
+
+        url = self._routes.projects_billing_tags()
+        return self.request_manager.post(url, data=json.dumps(data)).json()
 
     _CUSTOM_METRICS_USE_GEN = True
 
@@ -1418,6 +1510,23 @@ class Domino:
                 + f" Allowed units: {', '.join(accepted_units.keys())}"
                 + " Example: { 'unit': 'GiB', 'value': 5 }"
             )
+
+    @staticmethod
+    def _generate_budget(budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
+        return {
+            'limit': budget_limit,
+            'labelId': budget_id,
+            'window': 'monthly',
+            'budgetLabel': budget_label.value,
+            'budgetType': 'Override'
+        }
+
+    @staticmethod
+    def _update_if_set(update_dict: dict, new_dict: dict) -> dict:
+        for key, value in new_dict.items():
+            if value is not None:
+                update_dict[key] = value
+        return update_dict
 
     def requires_at_least(self, at_least_version):
         if version.parse(at_least_version) > version.parse(self._version):

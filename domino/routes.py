@@ -36,16 +36,19 @@ class _Routes:
     # Project URLs
     def project_create(self):
         return self.host + "/project"
+    
+    def project_v4(self, project_id: Optional[str] = None) -> str:
+        return self.host + "/v4/projects" + (f"/{project_id}" if project_id else "")
 
-    def project_archive(self, project_id):
-        return f"{self.host}/v4/projects/{project_id}"
+    # def project_archive(self, project_id):
+    #     return f"{self.host}/v4/projects/{project_id}"
 
     def projects_list(self):
         return f"{self.host}/v4/gateway/projects"
 
     # tags URLs
-    def tags_list(self, project_id):
-        return f"{self.host}/v4/projects/{project_id}"
+    # def tags_list(self, project_id):
+    #     return f"{self.host}/v4/projects/{project_id}"
 
     def tag_details(self, tag_id):
         return f"{self.host}/projectTags/{tag_id}"
@@ -296,7 +299,7 @@ class _Routes:
         return self.host + "/v4/users"
 
     # Budgets and Billing Tags
-    def budget_settings(self):
+    def budget_settings(self) -> str:
         return self.host + "/v4/cost/budgets/global/alertsSettings"
 
     def budgets_default(self, budget_label: Optional[str] = None) -> str:
@@ -315,14 +318,8 @@ class _Routes:
         optional_name = f"/{name}" if name else ""
         return self.host + "/v4/cost/billingtags" + optional_name
 
-    def create_billing_tags(self):
-        pass
+    def project_billing_tag(self, project_id: Optional[str] = None) -> str:
+        return self.host + f"/v4/projects/{project_id}/billingtag"
 
-    def update_billing_tags(self):
-        pass
-
-    def get_projects_by_billing_tag(self):
-        pass
-
-    def update_projects_billing_tags(self):
-        pass
+    def projects_billing_tags(self):
+        return self.host + "/v4/projects/billingtags/projects"
