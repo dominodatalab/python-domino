@@ -7,10 +7,15 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+
+## 1.3.1
+### Added
+
+### Changed
 * Updated request with retry to avoid long down time during Gateway timeout or pool connection drops
+* Updated jobs tests cases
 
 ## 1.3.0
-
 ### Added
 * Added datasets_upload_files endpoint plus tests
 * Updated Projects and Datasets documentation 
