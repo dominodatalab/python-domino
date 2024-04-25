@@ -107,11 +107,205 @@ See
 
 # Methods
 
+# Budgets and Billing Tags
+
+See
+[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.3.1/examples/example_budget_manager.py)
+for example code.
+
+### budget_defaults_list()
+
+Get a list of the available default budgets with the assigned (if any) limits
+Requires Admin permission
+
+### budget_defaults_update(budget_label, budget_limit)
+
+Update default budgets by BudgetLabel
+Requires Admin roles
+
+-   *budget_label:* (required) label of budget to be updated ex: `BillingTag`, `Organization`
+
+-   *budget_limit:* (required) new budget quota to assign to default label
+
+### budget_overrides_list()
+
+Get a list of the available budgets overrides with the assigned limits.
+Requires Admin permission
+
+### budget_override_create(budget_label, budget_id, budget_limit)
+
+Create Budget overrides based on BudgetLabels, ie BillingTags, Organization, or Projects
+the object id is used as budget ids
+Requires Admin roles
+
+-   *budget_label:* label of budget to be updated
+
+-   *budget_id:* id of project or organization to be used as new budget override id.
+
+-   *budget_limit:* budget quota to assign to override
+
+### budget_override_update(budget_label, budget_id, budget_limit)
+
+Update Budget overrides based on BudgetLabel and budget id
+Requires Admin roles
+
+-   *budget_label:* label of budget to be updated
+
+-   *budget_id:* id of budget override to be updated.
+
+-   *budget_limit:* new budget quota to assign to override
+
+### budget_override_delete(budget_id)
+
+Delete an existing budget override
+Requires Admin roles
+
+-   *budget_id:* id of budget override to be deleted.
+
+### budget_alerts_settings()
+
+Get the current budget alerts settings
+Requires Admin permission
+
+### budget_alerts_settings_update(alerts_enabled, notify_org_owner)
+
+Update the current budget alerts settings to enable/disable budget notifications
+and whether to notify org owners on projects notifications
+Requires Admin permission
+
+-   *alerts_enabled:* whether to enable or disable notifications.
+
+-   *notify_org_owner:* whether to notify organizations owners on projects reaching threshold.
+
+### budget_alerts_targets_update(targets)
+
+Update the current budget alerts settings with additional email targets per budget label
+Requires Admin permission
+
+-   *targets:* dictionary of budget labels and list of email addresses
+
+### active_billing_tags_list()
+
+Get a list of active billing tags
+Requires Admin permission
+
+### billing_tags_create(tags_list)
+
+Create a list of active billing tags
+Requires Admin permission
+
+-   *tags_list:* list of billing tags names to be created
+
+### active_billing_tag_by_name(name)
+
+Get detailed info on active or archived billing tag
+Requires Admin permission
+
+-   *name:* name of existing billing tag
+
+### billing_tag_archive(name)
+
+Archive an active billing tag
+Requires Admin permission
+
+-   *name:* name of existing billing tag to archive
+
+### billing_tag_settings()
+
+Get the current billing tag settings
+Requires Admin permission
+
+### billing_tag_settings_mode()
+
+Get the current billing tag settings mode
+Requires Admin permission
+
+### billing_tag_settings_mode_update(mode)
+
+Update the current billing tag settings mode
+Requires Admin permission
+
+-   *mode:* new mode to set the billing tag settings (see BillingTagSettingMode)
+
+### project_billing_tag(project_id)
+
+Get a billing tag assigned to a particular project by project id
+Requires Admin permission
+
+-   *project_id:* id of the project to find assigned billing tag
+
+###  project_billing_tag_update(billing_tag, project_id)
+
+Update project's billing tag with new billing tag.
+Requires Admin permission
+
+-   *billing_tag:* billing tag to assign to a project
+
+-   *project_id:* id of the project to assign a billing tag
+
+### project_billing_tag_reset(project_id)
+
+Remove a billing tag from a specified project
+Requires Admin permission
+
+-   *project_id:* id of the project to reset billing tag field
+
+### projects_by_billing_tag( billing_tag, offset, page_size, checkpoint_project_id, name_filter, sort_by, sort_order, missing_tag_only=False)
+
+Remove a billing tag from a specified project
+Requires Admin permission
+
+-   *billing_tag:* billing tag string to filter projects by
+
+-   *offset:* The index of the start of the page, where checkpointProjectId is index 0.
+If the offset is negative the project it points to will be the end of the page.
+-   *page_size:* The number of record to return per page.
+
+-   *checkpoint_project_id:* (Optional) project id that marks the start of where to look for the desired page from
+
+-   *name_filter:* matches projects by name substring
+
+-   *sort_by:* (Optional) field to sort the projects on
+
+-   *sort_order:* (Optional) Whether to sort in asc or desc order
+
+-   *missing_tag_only:* (Optional) determine whether to only return projects with missing tag
+
+### project_billing_tag_bulk_update(projects_tag)
+
+Update project's billing tags in bulk
+Requires Admin permission
+
+-   *projects_tag:* dictionary of project_id and billing_tags
+
+
 ## Projects
 
 See
 [`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/release-1.3.1/examples/example_projects_usage.py)
 for example code.
+
+### project_create_v4(project_name, owner_id, owner_username, description, collaborators, tags, billing_tag, visibility=PUBLIC)
+
+Newer version of projects creation using the v4 endpoints which allows more optional fields.
+
+-   *project_name:* (required) The name of the project.
+
+-   *owner_id:* (Optional) user id of the owner of the new project to be created (must be admin to create projects for other users)
+  owner_id or owner_username can be used, both are not needed (Defaults to current owner_username)
+
+-   *owner_username:* (Optional) username of the owner of the new project to be created (must be admin to create projects for other users)
+  owner_id or owner_username can be used, both are not needed (Defaults to current owner_username)
+
+-   *description:* (Optional) description of the project
+
+-   *collaborators:* (Optional) list of collaborators to be added to the project
+
+-   *tags:* (Optional) list of tags to add to project
+
+-   *billing_tag:* (Optional unless billingTag settings mode is Required) active billing tag to be added to projects for governance
+
+-   *visibility:* (Optional) (Defaults to Public) project visibility 
 
 ### project_create(project_name, owner_username=None)
 

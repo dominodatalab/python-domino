@@ -1227,11 +1227,26 @@ class Domino:
                 else:
                     self.log.info(text)
 
-    def budget_defaults_list(self):
+    def budget_defaults_list(self) -> list:
+        """
+        Get a list of the available default budgets with the assigned (if any) limits
+        Requires Admin permission
+
+        :return: Returns a list of default budgets with details
+        """
         url = self._routes.budgets_default()
         return self.request_manager.get(url).json()
 
-    def budget_defaults_update(self, budget_label: BudgetLabel, budget_limit: float):
+    def budget_defaults_update(self, budget_label: BudgetLabel, budget_limit: float) -> dict:
+        """
+        Update default budgets limits (or quota) by BudgetLabel
+        Requires Admin permission
+
+        :param budget_label: label of budget to be updated ex: `BillingTag`, `Organization`
+        :param budget_limit: new budget quota to assign to default label
+
+        :return: Returns the updated budget with the newly assigned limit.
+        """
         url = self._routes.budgets_default(budget_label.value)
         updated_budget = {"budgetLabel": budget_label.value, "budgetType": "Default", "limit": budget_limit,
                           "window": "monthly"}
@@ -1239,26 +1254,67 @@ class Domino:
         return self.request_manager.put(url, data=data, headers={"Content-Type": "application/json"}).json()
 
     def budget_overrides_list(self):
+        """
+        Get a list of the available budgets overrides with the assigned limits.
+        Requires Admin permission
+
+        :return: Returns a list of budgets overrides with details
+        """
         url = self._routes.budget_overrides()
         return self.request_manager.get(url).json()
 
-    def budget_override_create(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float):
+    def budget_override_create(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
+        """
+        Create Budget overrides based on BudgetLabels, ie BillingTags, Organization, or Projects
+        the object id is used as budget ids
+        Requires Admin roles
+
+        :param budget_label: label of budget to be updated
+        :param budget_id: id of project or organization to be used as new budget override id.
+        :param budget_limit: budget quota to assign to override
+
+        :return: Returns the newly created budget override
+        """
         url = self._routes.budget_overrides()
         new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
         return self.request_manager.post(url, data=data, headers={"Content-Type": "application/json"}).json()
 
-    def budget_override_update(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float):
+    def budget_override_update(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
+        """
+        Update Budget overrides based on BudgetLabel and budget id
+        Requires Admin roles
+
+        :param budget_label: label of budget to be updated
+        :param budget_id: id of budget override to be updated.
+        :param budget_limit: new budget quota to assign to override
+
+        :return: Returns the updated budget override
+        """
         url = self._routes.budget_overrides(budget_id)
         new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
         return self.request_manager.put(url, data=data, headers={"Content-Type": "application/json"}).json()
 
-    def budget_override_delete(self, budget_id: str):
+    def budget_override_delete(self, budget_id: str) -> list:
+        """
+        Delete an existing budget override
+        Requires Admin roles
+
+        :param budget_id: id of budget override to be deleted.
+
+        :return: Returns list of messages confirming the budget override deletion
+        """
         url = self._routes.budget_overrides(budget_id)
         return self.request_manager.delete(url).json()
 
     def budget_alerts_settings(self) -> dict:
+        """
+        Get the current budget alerts settings
+        Requires Admin permission
+
+        :return: Returns the current budget alert setting
+        """
         url = self._routes.budget_settings()
         return self.request_manager.get(url).json()
 
@@ -1266,7 +1322,17 @@ class Domino:
         self,
         alerts_enabled: Optional[bool] = None,
         notify_org_owner: Optional[bool] = None
-    ):
+    ) -> dict:
+        """
+        Update the current budget alerts settings to enable/disable budget notifications
+        and whether to notify org owners on projects notifications
+        Requires Admin permission
+
+        :param alerts_enabled: whether to enable or disable notifications.
+        :param notify_org_owner: whether to notify organizations owners on projects reaching threshold.
+
+        :return: Returns the updated budget alert setting
+        """
         current_settings = self.budget_alerts_settings()
 
         optional_fields = {
@@ -1280,7 +1346,16 @@ class Domino:
         url = self._routes.budget_settings()
         return self.request_manager.put(url, data=payload).json()
 
-    def budget_alerts_targets_update(self, targets: dict[BudgetLabel.PROJECT.value, list]):
+    def budget_alerts_targets_update(self, targets: dict[BudgetLabel, list]) -> dict:
+        """
+        Update the current budget alerts settings with additional email targets per budget label
+        Requires Admin permission
+
+        :param targets: dictionary of budget labels and list of email addresses
+
+        :return: Returns the updated budget alert setting
+        """
+
         budget_settings = self.budget_alerts_settings()
 
         current_targets = budget_settings["alertTargets"]
@@ -1299,48 +1374,125 @@ class Domino:
         url = self._routes.budget_settings()
         return self.request_manager.put(url, data=payload).json()
 
-    def active_billing_tags_list(self):
+    def active_billing_tags_list(self) -> dict:
+        """
+        Get a list of active billing tags
+        Requires Admin permission
+
+        :return: Returns a dictionary containing the list active billing tags
+        """
+        self.requires_at_least("5.11.0")
         url = self._routes.billing_tags()
         return self.request_manager.get(url).json()
 
-    def billing_tags_create(self, tags_list: list):
+    def billing_tags_create(self, tags_list: list) -> dict:
+        """
+        Create a list of active billing tags
+        Requires Admin permission
+
+        :param tags_list: list of billing tags names to be created
+
+        :return: Returns a dictionary containing the list newly created billing tags
+        """
+        self.requires_at_least("5.11.0")
         url = self._routes.billing_tags()
         payload = json.dumps({"billingTags": tags_list})
         return self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"}).json()
 
-    def active_billing_tag_by_name(self, name: str):
+    def active_billing_tag_by_name(self, name: str) -> dict:
+        """
+        Get detailed info on active or archived billing tag
+        Requires Admin permission
+
+        :param name: name of existing billing tag
+
+        :return: Returns a dictionary containing the list newly created billing tags
+        """
         url = self._routes.billing_tags(name)
         return self.request_manager.get(url).json()
 
-    def billing_tag_archive(self, name: str):
+    def billing_tag_archive(self, name: str) -> dict:
+        """
+        Archive an active billing tag
+        Requires Admin permission
+
+        :param name: name of existing billing tag to archive
+
+        :return: Returns a dictionary containing the updated billing tag
+        """
         url = self._routes.billing_tags(name)
         return self.request_manager.delete(url).json()
 
     def billing_tag_settings(self) -> dict:
+        """
+        Get the current billing tag settings
+        Requires Admin permission
+
+        :return: Returns the current billing tag settings
+        """
         url = self._routes.billing_tags_settings()
         return self.request_manager.get(url).json()
 
-    def billing_tag_settings_mode(self):
+    def billing_tag_settings_mode(self) -> dict:
+        """
+        Get the current billing tag settings mode
+        Requires Admin permission
+
+        :return: Returns the current billing tag settings mode
+        """
         url = self._routes.billing_tags_settings(mode_only=True)
         return self.request_manager.get(url).json()
 
-    def billing_tag_settings_mode_update(self, mode: BillingTagSettingMode):
+    def billing_tag_settings_mode_update(self, mode: BillingTagSettingMode) -> dict[str, BillingTagSettingMode]:
+        """
+        Update the current billing tag settings mode
+        Requires Admin permission
+
+        :param mode: new mode to set the billing tag settings (see BillingTagSettingMode)
+
+        :return: Returns the updated billing tag settings mode
+        """
         url = self._routes.billing_tags_settings(mode_only=True)
         payload = json.dumps({"mode": mode.value})
         return self.request_manager.put(url, data=payload, headers={"Content-Type": "application/json"}).json()
 
-    def project_billing_tag(self, project_id: Optional[str] = None):
+    def project_billing_tag(self, project_id: Optional[str] = None) -> Optional[dict]:
+        """
+        Get a billing tag assigned to a particular project by project id
+        Requires Admin permission
+
+        :param project_id: id of the project to find assigned billing tag
+
+        :return: Returns the billing tag if assigned or None
+        """
         url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
         return self.request_manager.get(url).json()
 
-    def project_billing_tag_update(self, billing_tag: str, project_id: Optional[str] = None):
+    def project_billing_tag_update(self, billing_tag: str, project_id: Optional[str] = None) -> dict:
+        """
+        Update project's billing tag with new billing tag.
+        Requires Admin permission
+
+        :param billing_tag: billing tag to assign to a project
+        :param project_id: id of the project to assign a billing tag
+
+        :return: Returns the project details including the new billing tag
+        """
         url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
         data = {
             "tag": billing_tag
         }
         return self.request_manager.post(url, data=json.dumps(data)).json()
 
-    def project_billing_tag_reset(self, project_id: Optional[str] = None):
+    def project_billing_tag_reset(self, project_id: Optional[str] = None) -> dict:
+        """
+        Remove a billing tag from a specified project
+        Requires Admin permission
+
+        :param project_id: id of the project to reset billing tag field
+
+        :return: Returns the project details
+        """
         url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
         return self.request_manager.delete(url).json()
 
@@ -1354,7 +1506,25 @@ class Domino:
         sort_by: Optional[str] = None,
         sort_order: Optional[str] = None,
         missing_tag_only: bool = False,
-    ):
+    ) -> dict:
+        """
+        Remove a billing tag from a specified project
+        Requires Admin permission
+
+        :param billing_tag: billing tag string to filter projects by
+        :param offset: The index of the start of the page, where checkpointProjectId is index 0.
+                        If the offset is negative the project it points to will be the end of the page.
+        :param page_size: The number of record to return per page.
+        :param checkpoint_project_id: (Optional) project id that marks the start of where to look for the desired page from
+        :param name_filter: matches projects by name substring
+        :param sort_by: (Optional) field to sort the projects on
+        :param sort_order: (Optional) Whether to sort in asc or desc order
+        :param missing_tag_only: (Optional) determine whether to only return projects with missing tag
+
+        :return: Returns a dictionary containing a page with the projects matching the query based on the page_size,
+                 and to total count of projects aching the query
+        """
+
         parameters = {
             "offset": offset,
             "pageSize": page_size,
@@ -1375,7 +1545,15 @@ class Domino:
 
         return self.request_manager.get(url, params=updated_params).json()
 
-    def project_billing_tag_bulk_update(self, projects_tag: dict[str, str]):
+    def project_billing_tag_bulk_update(self, projects_tag: dict[str, str]) -> dict:
+        """
+        Update project's billing tags in bulk
+        Requires Admin permission
+
+        :param projects_tag: dictionary of project_id and billing_tags
+
+        :return: Returns the updated projects detail summary
+        """
         value_list = []
         for key, value in projects_tag.items():
             value_list.append(

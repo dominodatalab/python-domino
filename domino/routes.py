@@ -37,7 +37,7 @@ class _Routes:
     # Project URLs
     def project_create(self):
         return self.host + "/project"
-    
+
     def project_v4(self, project_id: Optional[str] = None) -> str:
         return self.host + "/v4/projects" + (f"/{project_id}" if project_id else "")
 
