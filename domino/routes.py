@@ -2,6 +2,8 @@ import warnings
 
 from urllib.parse import quote
 
+from typing import Optional
+
 
 class _Routes:
     def __init__(self, host, owner_username, project_name):
@@ -36,15 +38,11 @@ class _Routes:
     def project_create(self):
         return self.host + "/project"
 
-    def project_archive(self, project_id):
-        return f"{self.host}/v4/projects/{project_id}"
+    def project_v4(self, project_id: Optional[str] = None) -> str:
+        return self.host + "/v4/projects" + (f"/{project_id}" if project_id else "")
 
     def projects_list(self):
         return f"{self.host}/v4/gateway/projects"
-
-    # tags URLs
-    def tags_list(self, project_id):
-        return f"{self.host}/v4/projects/{project_id}"
 
     def tag_details(self, tag_id):
         return f"{self.host}/projectTags/{tag_id}"
@@ -291,5 +289,31 @@ class _Routes:
         )
 
     # User URLs
-    def users_get(self):
+    def users_get(self) -> str:
         return self.host + "/v4/users"
+
+    # Budgets and Billing Tags
+    def budget_settings(self) -> str:
+        return self.host + "/v4/cost/budgets/global/alertsSettings"
+
+    def budgets_default(self, budget_label: Optional[str] = None) -> str:
+        label = f"/{budget_label}" if budget_label else ""
+        return self.host + f"/v4/cost/budgets/defaults{label}"
+
+    def budget_overrides(self, override_id: Optional[str] = None) -> str:
+        override = f"/{override_id}" if override_id else ""
+        return self.host + f"/v4/cost/budgets/overrides{override}"
+
+    def billing_tags_settings(self, mode_only: Optional[bool] = False) -> str:
+        mode_str = "/mode" if mode_only else ""
+        return self.host + "/v4/cost/billingtagSettings" + mode_str
+
+    def billing_tags(self, name: Optional[str] = None) -> str:
+        optional_name = f"/{name}" if name else ""
+        return self.host + "/v4/cost/billingtags" + optional_name
+
+    def project_billing_tag(self, project_id: Optional[str] = None) -> str:
+        return self.host + f"/v4/projects/{project_id}/billingtag"
+
+    def projects_billing_tags(self):
+        return self.host + "/v4/projects/billingtags/projects"

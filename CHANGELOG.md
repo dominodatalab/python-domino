@@ -5,6 +5,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+* Added budgets and billing tag features to enable creating and updating budgets and billing tags as well as creating projects with billing tags
+* Added projects creation using v4 to allow more fields to be configurable, including billing_tag
 
 ### Changed
 
