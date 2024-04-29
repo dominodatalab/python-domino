@@ -184,7 +184,7 @@ Requires Admin permission
 
 -   *targets:* dictionary of budget labels and list of email addresses
 
-### active_billing_tags_list()
+### billing_tags_list_active()
 
 Get a list of active billing tags
 Requires Admin permission
@@ -250,7 +250,7 @@ Requires Admin permission
 
 -   *project_id:* id of the project to reset billing tag field
 
-### projects_by_billing_tag( billing_tag, offset, page_size, checkpoint_project_id, name_filter, sort_by, sort_order, missing_tag_only=False)
+### projects_by_billing_tag( billing_tag, offset, page_size, name_filter, sort_by, sort_order, missing_tag_only=False)
 
 Remove a billing tag from a specified project
 Requires Admin permission
@@ -259,9 +259,7 @@ Requires Admin permission
 
 -   *offset:* The index of the start of the page, where checkpointProjectId is index 0.
 If the offset is negative the project it points to will be the end of the page.
--   *page_size:* The number of record to return per page.
-
--   *checkpoint_project_id:* (Optional) project id that marks the start of where to look for the desired page from
+-   *page_size:* The number of records to return per page.
 
 -   *name_filter:* matches projects by name substring
 

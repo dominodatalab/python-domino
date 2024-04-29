@@ -92,12 +92,12 @@ pprint(bt_setting_mode)
 
 # billingtags crud
 # get list of active billingtags
-active_billing_tags = domino.active_billing_tags_list()
+active_billing_tags = domino.billing_tags_list_active()
 pprint(active_billing_tags)
 
 # create new or unarchive existing billingtags
 new_billing_tags = domino.billing_tags_create(["BTExample003", "BTExample04", "BTExample06"])
-active_billing_tags = domino.active_billing_tags_list()
+active_billing_tags = domino.billing_tags_list_active()
 pprint(active_billing_tags)
 
 # get billingtags info by name

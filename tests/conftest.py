@@ -2,6 +2,7 @@ import os
 
 import pytest
 import requests_mock
+from requests.auth import AuthBase
 
 from domino import Domino
 from domino.constants import (
@@ -11,6 +12,15 @@ from domino.constants import (
     DOMINO_USER_NAME_KEY_NAME,
 )
 
+
+version_info = {
+    "buildId": "12345",
+    "buildUrl": "https://server.somefakecompany.com/domino/12345",
+    "commitId": "123deadbeef456",
+    "commitUrl": "https://repo.somefakecompany.com/domino/commit/123deadbeef456",
+    "timestamp": "2021-06-14T16:50:02Z",
+    "version": "9.9.9",
+}
 
 @pytest.fixture
 def dummy_hostname():
@@ -86,20 +96,41 @@ def spark_cluster_env_id():
 
 
 @pytest.fixture
+def mock_proxy_response_https():
+    """
+    Simulate a valid response to an authenticated /version GET request using api proxy with schema
+    """
+
+    dummy_url = "https://localhost:1234"
+    with requests_mock.Mocker() as mock_endpoint:
+        response = mock_endpoint.get(
+            f"{dummy_url}/version", json=version_info, status_code=200
+        )
+        yield response
+
+
+@pytest.fixture
+def mock_proxy_response():
+    """
+    Simulate a valid response to an authenticated /version GET request using api proxy
+    """
+
+    dummy_url = "http://localhost:1234"
+    with requests_mock.Mocker() as mock_endpoint:
+        response = mock_endpoint.get(
+            f"{dummy_url}/version", json=version_info, status_code=200
+        )
+        yield response
+
+
+
+@pytest.fixture
 def mock_domino_version_response():
     """
     Simulate a valid response to an authenticated /version GET request.
 
     Assumes the target endpoint is domino.somefakecompany.com/version.
     """
-    version_info = {
-        "buildId": "12345",
-        "buildUrl": "https://server.somefakecompany.com/domino/12345",
-        "commitId": "123deadbeef456",
-        "commitUrl": "https://repo.somefakecompany.com/domino/commit/123deadbeef456",
-        "timestamp": "2021-06-14T16:50:02Z",
-        "version": "9.9.9",
-    }
 
     dummy_url = "http://domino.somefakecompany.com"
     with requests_mock.Mocker() as mock_endpoint:
@@ -150,3 +181,12 @@ def clear_api_key_from_env():
 
     # Restore original pre-test environment
     os.environ.update(saved_environment)
+
+
+@pytest.fixture
+def test_auth_base():
+    class TestAuth(AuthBase):
+        def __init__(self, *args, **kwargs):
+            super(TestAuth, self).__init__(*args, **kwargs)
+            self.header = None
+    return TestAuth()

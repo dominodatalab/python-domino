@@ -59,11 +59,11 @@ class _Routes:
     def runs_start(self):
         return self._build_project_url() + "/runs"
 
-    def runs_status(self, run_id):
-        return self._build_project_url() + "/runs/" + run_id
+    def runs_status(self, runId):
+        return self._build_project_url() + "/runs/" + runId
 
-    def runs_stdout(self, run_id):
-        return self._build_project_url() + "/run/" + run_id + "/stdout"
+    def runs_stdout(self, runId):
+        return self._build_project_url() + "/run/" + runId + "/stdout"
 
     def files_list(self, commitId, path):
         return self._build_project_url() + "/files/" + commitId + "/" + path

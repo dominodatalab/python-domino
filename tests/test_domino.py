@@ -1,17 +1,11 @@
 import os
 import pytest
 import time
-from requests.auth import AuthBase
 
 from domino import Domino
 from domino.http_request_manager import _HttpRequestManager
 
 os.environ["DOMINO_MAX_RETRIES"] = "3"
-
-class TestAuth(AuthBase):
-     def __init__(self, *args, **kwargs):
-         super(TestAuth, self).__init__(*args, **kwargs)
-         self.header = None
 
 
 def test_versioning(requests_mock, dummy_hostname):
@@ -28,8 +22,8 @@ def test_versioning(requests_mock, dummy_hostname):
     with pytest.raises(Exception):
         dom.requires_at_least("5.11.0")
 
-def test_request_session():
-     request_manager = _HttpRequestManager(auth=TestAuth())
+def test_request_session(test_auth_base):
+     request_manager = _HttpRequestManager(auth=test_auth_base)
      start_time = time.time()
      try:
          response = request_manager.request_session.get(

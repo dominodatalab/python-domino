@@ -1374,7 +1374,7 @@ class Domino:
         url = self._routes.budget_settings()
         return self.request_manager.put(url, data=payload).json()
 
-    def active_billing_tags_list(self) -> dict:
+    def billing_tags_list_active(self) -> dict:
         """
         Get a list of active billing tags
         Requires Admin permission
@@ -1501,7 +1501,6 @@ class Domino:
         billing_tag: Optional[str] = None,
         offset: Optional[int] = 0,
         page_size: Optional[int] = 10,
-        checkpoint_project_id: Optional[str] = None,
         name_filter: Optional[str] = None,
         sort_by: Optional[str] = None,
         sort_order: Optional[str] = None,
@@ -1515,7 +1514,6 @@ class Domino:
         :param offset: The index of the start of the page, where checkpointProjectId is index 0.
                         If the offset is negative the project it points to will be the end of the page.
         :param page_size: The number of record to return per page.
-        :param checkpoint_project_id: (Optional) project id that marks the start of where to look for the desired page from
         :param name_filter: matches projects by name substring
         :param sort_by: (Optional) field to sort the projects on
         :param sort_order: (Optional) Whether to sort in asc or desc order
@@ -1534,7 +1532,6 @@ class Domino:
         optional_params = {
             "billingTag": billing_tag,
             "nameFilter": name_filter,
-            "checkpointProjectId": checkpoint_project_id,
             "sortBy": sort_by,
             "sortOrder": sort_order,
         }
