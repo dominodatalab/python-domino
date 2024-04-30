@@ -1,6 +1,6 @@
 = python-domino
 
-:latest-version: 1.3.1
+:latest-version: 1.4.0
 :python-domino-repo: https://github.com/dominodatalab/python-domino
 
 This library provides bindings for the Domino APIs.  It ships with the Domino Standard Environment (DSE).
@@ -35,6 +35,9 @@ The `python-domino` library is compatible with different versions of Domino:
 
 | 5.10.0 or higher
 | {python-domino-repo}/archive/1.3.1.zip[1.3.1] or Higher
+
+| 5.11.0 or higher
+| {python-domino-repo}/archive/1.4.0.zip[1.4.0] or Higher
 |===
 
 == Development
