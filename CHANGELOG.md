@@ -7,6 +7,11 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+
+## 1.4.1
+### Added
+
+### Changed
 * updated type-extensions dependency to 4.5.0
 
 ## 1.4.0
