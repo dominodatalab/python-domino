@@ -7,21 +7,21 @@ See this documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `1.4.0`.
+The latest released version of `python-domino` is `1.4.1`.
 
 # Version compatibility matrix
 
 The `python-domino` library is compatible with different versions of
 Domino:
 
-| Domino Versions |                                    Python-Domino                                    |
-|-----------------|:-----------------------------------------------------------------------------------:|
-| 3.6.x or lower  |      [0.3.5](https://github.com/dominodatalab/python-domino/archive/0.3.5.zip)       |
-| 4.1.0 or higher | [1.0.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/1.0.0.zip) or Higher |
-| 5.3.0 or higher | [1.2.0]https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.2.0.zip) or Higher |
+| Domino Versions |                                             Python-Domino                                             |
+|-----------------|:-----------------------------------------------------------------------------------------------------:|
+| 3.6.x or lower  |               [0.3.5](https://github.com/dominodatalab/python-domino/archive/0.3.5.zip)               |
+| 4.1.0 or higher |     [1.0.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/1.0.0.zip) or Higher     |
+| 5.3.0 or higher | [1.2.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.2.0.zip) or Higher |
 | 5.5.0 or higher | [1.2.2](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.2.2.zip) or Higher |
 | 5.10.0 or higher | [1.3.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.3.1.zip) or Higher |
-| 5.11.0 or higher | [1.4.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.0.zip) or Higher |
+| 5.11.0 or higher | [1.4.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.1.zip) or Higher |
 
 # Development
 
