@@ -37,20 +37,19 @@ class UploadChunk:
 
 class Uploader:
     def __init__(
-            self,
-            csrf_no_check_header: {str, str},
-            dataset_id: str,
-            local_path_to_file_or_directory: str,
-            log: Logger,
-            request_manager: _HttpRequestManager,
-            routes: _Routes,
-            target_relative_path: str,
+        self,
+        csrf_no_check_header: {str, str},
+        dataset_id: str,
+        local_path_to_file_or_directory: str,
+        log: Logger,
+        request_manager: _HttpRequestManager,
+        routes: _Routes,
+        target_relative_path: str,
 
-            file_upload_setting: str,
-            max_workers: int,
-            target_chunk_size: int,
-            interrupted: bool = False
-
+        file_upload_setting: str,
+        max_workers: int,
+        target_chunk_size: int,
+        interrupted: bool = False
     ):
         self.csrf_no_check_header = csrf_no_check_header
         self.dataset_id = dataset_id
