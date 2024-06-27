@@ -126,6 +126,22 @@ def test_datasets_upload_with_sub_dir(default_domino_client):
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
 @patch('os.path.exists')
+def test_datasets_upload_mixed_slash_path(mock_exists, default_domino_client):
+    # Simulating windows style-path for an existent file
+    mock_exists.return_value = True
+    datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
+        0
+    ]
+    local_path_to_file = "tests/assets/back\slash.txt"
+    response  = default_domino_client.datasets_upload_files(datasets_id, 
+                                                            local_path_to_file)
+    assert "back\slash.txt" in response
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
+@patch('os.path.exists')
 def test_datasets_upload_windows_path(mock_exists, default_domino_client):
     # Simulating windows style-path for an existent file
     mock_exists.return_value = True
