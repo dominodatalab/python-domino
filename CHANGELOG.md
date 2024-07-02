@@ -7,12 +7,13 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Fixed issue with using `datasets_upload_files` function to upload files to a snapshot on Windows
 
 ## 1.4.1
 ### Added
 
 ### Changed
-* updated type-extensions dependency to 4.5.0
+* Updated type-extensions dependency to 4.5.0
 
 ## 1.4.0
 ### Added
