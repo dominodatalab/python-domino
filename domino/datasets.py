@@ -37,24 +37,28 @@ class UploadChunk:
 
 class Uploader:
     def __init__(
-            self,
-            csrf_no_check_header: {str, str},
-            dataset_id: str,
-            local_path_to_file_or_directory: str,
-            log: Logger,
-            request_manager: _HttpRequestManager,
-            routes: _Routes,
-            target_relative_path: str,
+        self,
+        csrf_no_check_header: {str, str},
+        dataset_id: str,
+        local_path_to_file_or_directory: str,
+        log: Logger,
+        request_manager: _HttpRequestManager,
+        routes: _Routes,
+        target_relative_path: str,
 
-            file_upload_setting: str,
-            max_workers: int,
-            target_chunk_size: int,
-            interrupted: bool = False
-
+        file_upload_setting: str,
+        max_workers: int,
+        target_chunk_size: int,
+        interrupted: bool = False
     ):
+        # When running on Windows, converts paths to Unix-style paths, which the upload chunk API expects
+        cleaned_relative_local_path = os.path.relpath(os.path.normpath(local_path_to_file_or_directory), start=os.curdir)
+        if os.sep != '/':
+            cleaned_relative_local_path = cleaned_relative_local_path.replace(os.sep, '/')        
+
         self.csrf_no_check_header = csrf_no_check_header
         self.dataset_id = dataset_id
-        self.local_path_file_or_directory = os.path.relpath(local_path_to_file_or_directory, start=os.curdir)
+        self.local_path_file_or_directory = cleaned_relative_local_path
         self.log = log
         self.request_manager = request_manager
         self.routes = routes
