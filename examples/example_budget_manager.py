@@ -5,7 +5,6 @@ import uuid
 from domino import Domino
 from domino.domino_enums import BudgetLabel, BillingTagSettingMode
 
-
 def get_uuid() -> str:
     return str(uuid.uuid4())[:8]
 
