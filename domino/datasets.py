@@ -51,10 +51,9 @@ class Uploader:
         target_chunk_size: int,
         interrupted: bool = False
     ):
-        # When running on Windows, converts paths to Unix-style paths, which the upload chunk API expects
         cleaned_relative_local_path = os.path.relpath(os.path.normpath(local_path_to_file_or_directory), start=os.curdir)
-        if os.sep != '/':
-            cleaned_relative_local_path = cleaned_relative_local_path.replace(os.sep, '/')        
+        # in case running on windows
+        cleaned_relative_local_path = self._get_unix_style_path(cleaned_relative_local_path)        
 
         self.csrf_no_check_header = csrf_no_check_header
         self.dataset_id = dataset_id
@@ -131,8 +130,12 @@ class Uploader:
             for filename in filenames:
                 # construct the relative path for each file
                 relative_path_to_file = os.path.join(dirpath, filename)
+
+                # in case running on windows
+                cleaned_relative_path = self._get_unix_style_path(relative_path_to_file)
+                
                 # append chunk to queue
-                chunk_q.extend(self._create_chunks(relative_path_to_file))
+                chunk_q.extend(self._create_chunks(cleaned_relative_path))
         return chunk_q
 
     def _create_chunks(self, local_path_file, starting_index=1) -> list[UploadChunk]:
@@ -201,3 +204,9 @@ class Uploader:
                                                          chunk.total_chunks, chunk.identifier, chunk_checksum)
         # test chunk returns no content if it should upload
         return self.request_manager.get(test_chunk_url).status_code == 204, chunk_checksum
+
+    def _get_unix_style_path(self, path: str) -> str:
+        # when running on Windows, converts path to Unix-style path, which the upload chunk API expects
+        if os.sep != '/':
+            path = path.replace(os.sep, '/')
+        return path

@@ -179,6 +179,23 @@ def test_datasets_upload_with_sub_dir_windows_path(mock_exists, default_domino_c
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
+@patch('os.path.exists')
+def test_datasets_upload_directory_windows_path(mock_exists, default_domino_client):
+    # Simulating windows style-path for an existent file
+    mock_exists.return_value = True
+    datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
+        0
+    ]
+    assert os.path.isdir("tests/assets")
+    windows_local_path_to_dir = "tests/assets"
+    response  = default_domino_client.datasets_upload_files(datasets_id, 
+                                                            windows_local_path_to_dir)
+    assert "tests/assets" in response
+
+
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
 def test_datasets_upload_non_existing_file(default_domino_client):
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
         1
