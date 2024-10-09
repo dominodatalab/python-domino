@@ -51,8 +51,10 @@ class Uploader:
         target_chunk_size: int,
         interrupted: bool = False
     ):
-        # When running on Windows, converts paths to Unix-style paths, which the upload chunk API expects
+        # when running on Windows, converts path to Unix-style path, which the upload chunk API expects
         cleaned_relative_local_path = os.path.relpath(os.path.normpath(local_path_to_file_or_directory), start=os.curdir)
+        if os.path.isdir(local_path_to_file_or_directory) and not cleaned_relative_local_path.endswith('/'):
+            cleaned_relative_local_path += '/'
         if os.sep != '/':
             cleaned_relative_local_path = cleaned_relative_local_path.replace(os.sep, '/')        
 
