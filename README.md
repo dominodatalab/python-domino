@@ -112,7 +112,7 @@ See
 # Budgets and Billing Tags
 
 See
-[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.4.5/examples/example_budget_manager.py)
+[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.4.4/examples/example_budget_manager.py)
 for example code.
 
 ### budget_defaults_list()
@@ -604,39 +604,11 @@ Stop the Job (execution) in the project.
 -   *commit_results (boolean):* (Defaults to `true`) If `false`, the
     job results are not committed.
 
-### jobs_list(project_id, page_size=None):
-
-Lists job history for a given project_id
-
--   *project_id (string):* The project to query.
-
--   *sort_by (string):* Sort "desc" (default) or "asc".
-
--   *order_by (string):* Field on which sort has to be applied– e.g. "title" (default "number").
-
--   *page_size (string):* How many results to return (default: 3).
-
--   *page_no (int):* Page number to fetch (default: 1).
-
--   *show_archived (string):* Show archived jobs in results (default: false).
-
--   *status (string):* Status of jobs to fetch– e.g. "completed" (default: "all").
-
--   *tag (string):* (Optional) Tag filter.
-
 ### job_status(job_id):
 
 Get the status of a job.
 
 -   *job_id (string):* Job identifier.
-
-### job_restart(job_id, should_use_original_input_commit=True):
-
-Restart a previous job
-
--   *job_id (string):* ID of the original job. This can be obtained with `jobs_list()`.
-
--   *should_use_original_input_commit (bool):* Should the new job run use the original code, or the current version?
 
 ### job_start_blocking(poll_freq=5, max_poll_time=6000, \*\*kwargs):
 
