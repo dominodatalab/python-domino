@@ -175,8 +175,14 @@ class _Routes:
     def job_stop(self):
         return f"{self.host}/v4/jobs/stop"
 
+    def jobs_list(self, project_id):
+        return f"{self.host}/v4/jobs?projectId={project_id}"
+
     def job_status(self, job_id):
         return f"{self.host}/v4/jobs/{job_id}"
+
+    def job_restart(self):
+        return f"{self.host}/v4/jobs/restart"
 
     def job_runtime_execution_details(self, job_id):
         return f"{self.host}/v4/jobs/{job_id}/runtimeExecutionDetails"
