@@ -175,8 +175,9 @@ class _Routes:
     def job_stop(self):
         return f"{self.host}/v4/jobs/stop"
 
-    def jobs_list(self, project_id):
-        return f"{self.host}/v4/jobs?projectId={project_id}"
+    def jobs_list(self, project_id, page_size: Optional[str]):
+        page_size_query = f"&page_size={page_size}" if page_size else ""
+        return f"{self.host}/v4/jobs?projectId={project_id}{page_size_query}"
 
     def job_status(self, job_id):
         return f"{self.host}/v4/jobs/{job_id}"
