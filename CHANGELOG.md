@@ -15,7 +15,6 @@ All notable changes to the `python-domino` library will be documented in this fi
 * PS-13958 `job_restart()` function allows re-running a previous job
 
 ### Changed
-* DOM-65441: Loosen frozendict restrictions to allow version 2.4.6
 
 ## 1.4.4
 
