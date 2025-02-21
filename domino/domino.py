@@ -617,6 +617,17 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    def jobs_list(self, project_id: str, page_size=None):
+        """
+        Lists job history for a given project_id
+        :param project_id: The project to query
+        :param page_size: The number of jobs to return (default: 3)
+        :return: The details
+        """
+        url = self._routes.jobs_list(project_id, page_size)
+        return self._get(url)
+
+
     def job_status(self, job_id: str) -> dict:
         """
         Gets the status of job with given job_id
@@ -624,6 +635,24 @@ class Domino:
         :return: The details
         """
         return self.request_manager.get(self._routes.job_status(job_id)).json()
+
+    def job_restart(
+            self,
+            job_id:str,
+            should_use_original_input_commit: bool = True
+        ):
+        """
+        Restarts a previous job
+        :param job_id:                              ID of the original job that should be restarted
+        :param should_use_original_input_commit:    Should the new job run use the original code, or the current version?
+        """
+        url = self._routes.job_restart()
+        request = {
+            "jobId": job_id,
+            "shouldUseOriginalInputCommit": should_use_original_input_commit
+        }
+        response = self.request_manager.post(url, json=request)
+        return response
 
     def job_runtime_execution_details(self, job_id: str) -> dict:
         """

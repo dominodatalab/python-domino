@@ -8,6 +8,14 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## 1.4.5
+
+### Added
+* PS-13958 `jobs_list()` function lists recent jobs in a project
+* PS-13958 `job_restart()` function allows re-running a previous job
+
+### Changed
+
 ## 1.4.4
 
 ### Added
