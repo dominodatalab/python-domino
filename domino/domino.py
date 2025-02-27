@@ -656,8 +656,8 @@ class Domino:
         """
         Lists job history for a given project_id
         :param project_id: The project to query
-        :param sort_by: Sort "desc" (default) or "asc"
         :param order_by: Field on which sort has to be applied– e.g. "title" (default "number")
+        :param sort_by: Sort "desc" (default) or "asc"
         :param page_size: The number of jobs to return (default: 3)
         :param page_no: Page number to fetch (default: 1).
         :param show_archived: Show archived jobs in results (default: false)
@@ -665,7 +665,7 @@ class Domino:
         :param tag: Optional tag filter
         :return: The details
         """
-        url = self._routes.jobs_list(project_id, sort_by, order_by, page_size, page_no, show_archived, status, tag)
+        url = self._routes.jobs_list(project_id, order_by, sort_by, page_size, page_no, show_archived, status, tag)
         return self._get(url)
 
     def job_runtime_execution_details(self, job_id: str) -> dict:
