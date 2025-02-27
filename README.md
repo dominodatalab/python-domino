@@ -604,11 +604,27 @@ Stop the Job (execution) in the project.
 -   *commit_results (boolean):* (Defaults to `true`) If `false`, the
     job results are not committed.
 
+### jobs_list(project_id, page_size=None):
+
+Lists job history for a given project_id
+
+-   *project_id (string):* The project to query.
+
+-   *page_size (string):* How many results to return (default: 3).
+
 ### job_status(job_id):
 
 Get the status of a job.
 
 -   *job_id (string):* Job identifier.
+
+### job_restart(job_id, should_use_original_input_commit=True):
+
+Restart a previous job
+
+-   *job_id (string):* ID of the original job. This can be obtained with `jobs_list()`.
+
+-   *should_use_original_input_commit (bool):* Should the new job run use the original code, or the current version?
 
 ### job_start_blocking(poll_freq=5, max_poll_time=6000, \*\*kwargs):
 
