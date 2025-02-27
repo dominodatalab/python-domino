@@ -610,7 +610,19 @@ Lists job history for a given project_id
 
 -   *project_id (string):* The project to query.
 
+-   *sort_by (string):* Sort "desc" (default) or "asc".
+
+-   *order_by (string):* Field on which sort has to be applied– e.g. "title" (default "number").
+
 -   *page_size (string):* How many results to return (default: 3).
+
+-   *page_no (int):* Page number to fetch (default: 1).
+
+-   *show_archived (string):* Show archived jobs in results (default: false).
+
+-   *status (string):* Status of jobs to fetch– e.g. "completed" (default: "all").
+
+-   *tag (string):* (Optional) Tag filter.
 
 ### job_status(job_id):
 
