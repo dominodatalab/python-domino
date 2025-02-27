@@ -112,7 +112,7 @@ See
 # Budgets and Billing Tags
 
 See
-[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.4.4/examples/example_budget_manager.py)
+[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.4.6/examples/example_budget_manager.py)
 for example code.
 
 ### budget_defaults_list()
