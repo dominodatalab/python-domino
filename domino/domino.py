@@ -641,6 +641,7 @@ class Domino:
         url = self._routes.jobs_list(project_id, order_by, sort_by, page_size, page_no, show_archived, status, tag)
         return self._get(url)
 
+
     def job_status(self, job_id: str) -> dict:
         """
         Gets the status of job with given job_id
