@@ -617,6 +617,30 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
+    def jobs_list(self,
+                  project_id: str,
+                  order_by: str = "number",
+                  sort_by: str = "desc",
+                  page_size: int = 3,
+                  page_no: int = 1,
+                  show_archived: str = "false",
+                  status: str = "all",
+                  tag: Optional[str] = None):
+        """
+        Lists job history for a given project_id
+        :param project_id: The project to query
+        :param order_by: Field on which sort has to be applied– e.g. "title" (default "number")
+        :param sort_by: Sort "desc" (default) or "asc"
+        :param page_size: The number of jobs to return (default: 3)
+        :param page_no: Page number to fetch (default: 1).
+        :param show_archived: Show archived jobs in results (default: false)
+        :param status: Status of jobs to fetch– e.g. "completed" (default: "all")
+        :param tag: Optional tag filter
+        :return: The details
+        """
+        url = self._routes.jobs_list(project_id, order_by, sort_by, page_size, page_no, show_archived, status, tag)
+        return self._get(url)
+
     def job_status(self, job_id: str) -> dict:
         """
         Gets the status of job with given job_id
@@ -643,30 +667,6 @@ class Domino:
         }
         response = self.request_manager.post(url, json=request)
         return response
-
-    def jobs_list(self,
-                  project_id: str,
-                  order_by: str = "number",
-                  sort_by: str = "desc",
-                  page_size: int = 3,
-                  page_no: int = 1,
-                  show_archived: str = "false",
-                  status: str = "all",
-                  tag: Optional[str] = None):
-        """
-        Lists job history for a given project_id
-        :param project_id: The project to query
-        :param order_by: Field on which sort has to be applied– e.g. "title" (default "number")
-        :param sort_by: Sort "desc" (default) or "asc"
-        :param page_size: The number of jobs to return (default: 3)
-        :param page_no: Page number to fetch (default: 1).
-        :param show_archived: Show archived jobs in results (default: false)
-        :param status: Status of jobs to fetch– e.g. "completed" (default: "all")
-        :param tag: Optional tag filter
-        :return: The details
-        """
-        url = self._routes.jobs_list(project_id, order_by, sort_by, page_size, page_no, show_archived, status, tag)
-        return self._get(url)
 
     def job_runtime_execution_details(self, job_id: str) -> dict:
         """
