@@ -13,11 +13,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
-* PS-13958 Extended search options for `jobs_list()`
-* Updated package dependencies to patch vulnerabilities
-  * certifi 2023.7.22 > 2024.7.4
-  * requests 2.31.0 > 2.32.0
-  * setuptools 68.2.2 > 70.0.0
+* QE-17483: Loosen urllib3 version
 
 ## 1.4.5
 

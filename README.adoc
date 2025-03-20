@@ -40,7 +40,7 @@ The `python-domino` library is compatible with different versions of Domino:
 | {python-domino-repo}/archive/1.4.1.zip[1.4.1] or Higher
 
 | 6.0.0 or higher
-| {python-domino-repo}/archive/1.4.5.zip[1.4.5] or Higher
+| {python-domino-repo}/archive/1.4.6.zip[1.4.6] or Higher
 |===
 
 == Development
