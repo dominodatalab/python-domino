@@ -8,6 +8,13 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## 1.4.6
+
+### Added
+
+### Changed
+* QE-17483: Loosen urllib3 version
+
 ## 1.4.5
 
 ### Added
