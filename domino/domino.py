@@ -656,7 +656,6 @@ class Domino:
         """
         Lists job history for a given project_id
         :param project_id: The project to query
-        :param sort_by: Sort "desc" (default) or "asc"
         :param order_by: Field on which sort has to be applied– e.g. "title" (default "number")
         :param sort_by: Sort "desc" (default) or "asc"
         :param page_size: The number of jobs to return (default: 3)
