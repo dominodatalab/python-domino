@@ -7,7 +7,7 @@ See this documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `1.4.6`.
+The latest released version of `python-domino` is `1.4.7`.
 
 # Version compatibility matrix
 
@@ -22,7 +22,7 @@ Domino:
 | 5.5.0 or higher | [1.2.2](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.2.2.zip) or Higher |
 | 5.10.0 or higher | [1.3.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.3.1.zip) or Higher |
 | 5.11.0 or higher | [1.4.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.1.zip) or Higher |
-| 6.0.0 or higher | [1.4.6](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.6.zip) or Higher |
+| 6.0.0 or higher | [1.4.7](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.7.zip) or Higher |
 
 # Development
 
@@ -112,7 +112,7 @@ See
 # Budgets and Billing Tags
 
 See
-[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.4.6/examples/example_budget_manager.py)
+[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.4.7/examples/example_budget_manager.py)
 for example code.
 
 ### budget_defaults_list()
@@ -604,13 +604,25 @@ Stop the Job (execution) in the project.
 -   *commit_results (boolean):* (Defaults to `true`) If `false`, the
     job results are not committed.
 
-### jobs_list(project_id, page_size=None):
+### jobs_list(self, project_id: str, order_by: str = "number", sort_by: str = "desc", page_size: Optional[int] = None, page_no: int = 1, show_archived: str = "false", status: str = "all", tag: Optional[str] = None):
 
 Lists job history for a given project_id
 
--   *project_id (string):* The project to query.
+-   *project_id (string):* The project to query
 
--   *page_size (string):* How many results to return (default: 3).
+-   *order_by (string):* Field on which sort has to be applied– e.g. "title" (default "number")
+
+-   *sort_by (string):* Sort "desc" (default) or "asc"
+
+-   *page_size (integer):* The number of jobs to return (default: 3)
+
+-   *page_no (integer):* Page number to fetch (default: 1).
+
+-   *show_archived (string):* Show archived jobs in results (default: false)
+
+-   *status (string):* Status of jobs to fetch– e.g. "completed" (default: "all")
+
+-   *tag (string):* Optional tag filter
 
 ### job_status(job_id):
 

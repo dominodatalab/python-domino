@@ -8,6 +8,13 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## 1.4.7
+
+### Added
+
+### Changed
+* PS-13958 - Extend options for listing jobs
+
 ## 1.4.6
 
 ### Added
