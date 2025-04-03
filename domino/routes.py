@@ -187,7 +187,7 @@ class _Routes:
 
         order_by_query = f"&order_by={order_by}"
         sort_by_query = f"&sort_by={sort_by}"
-        page_size_query = f"&page_size={page_size}"
+        page_size_query = f"&page_size={page_size}" if page_size else ""
         page_no_query = f"&page_no={page_no}"
         show_archived_query = "&show_archived=" + show_archived.lower()
         status_from_query = "&status=" + status.lower()

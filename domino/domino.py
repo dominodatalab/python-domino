@@ -621,7 +621,7 @@ class Domino:
                   project_id: str,
                   order_by: str = "number",
                   sort_by: str = "desc",
-                  page_size: int = 3,
+                  page_size = None,
                   page_no: int = 1,
                   show_archived: str = "false",
                   status: str = "all",
