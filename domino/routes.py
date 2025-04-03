@@ -175,9 +175,24 @@ class _Routes:
     def job_stop(self):
         return f"{self.host}/v4/jobs/stop"
 
-    def jobs_list(self, project_id, page_size: Optional[str]):
+    def jobs_list(self,
+                  project_id,
+                  order_by,
+                  sort_by,
+                  page_size,
+                  page_no,
+                  show_archived,
+                  status,
+                  tag):
+
+        order_by_query = f"&order_by={order_by}"
+        sort_by_query = f"&sort_by={sort_by}"
         page_size_query = f"&page_size={page_size}" if page_size else ""
-        return f"{self.host}/v4/jobs?projectId={project_id}{page_size_query}"
+        page_no_query = f"&page_no={page_no}"
+        show_archived_query = "&show_archived=" + show_archived.lower()
+        status_from_query = "&status=" + status.lower()
+        tag_query = f"&tag={tag}" if tag else ""
+        return f"{self.host}/v4/jobs?projectId={project_id}{order_by_query}{sort_by_query}{page_size_query}{page_no_query}{show_archived_query}{status_from_query}{tag_query}"
 
     def job_status(self, job_id):
         return f"{self.host}/v4/jobs/{job_id}"
