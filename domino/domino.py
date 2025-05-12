@@ -443,83 +443,6 @@ class Domino:
                     f"Minimum support version {MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION}"
                 )
 
-        def validate_distributed_compute_cluster_properties():
-            if not helpers.is_compute_cluster_properties_supported(self._version):
-                raise exceptions.UnsupportedFieldException(
-                    f"'compute_cluster_properties' is not supported in Domino {self._version}."
-                )
-
-            required_keys = [
-                "clusterType",
-                "computeEnvironmentId",
-                "masterHardwareTierId",
-                "workerHardwareTierId",
-                "workerCount",
-            ]
-            required_key_overrides = {("masterHardwareTierId", "MPI"): False}
-
-            for key in required_keys:
-                key_required = required_key_overrides.get(
-                    (key, compute_cluster_properties["clusterType"]), True
-                )
-
-                if key_required and (key not in compute_cluster_properties):
-                    raise exceptions.MissingRequiredFieldException(
-                        f"{key} is required in compute_cluster_properties"
-                    )
-
-            if not helpers.is_cluster_type_supported(
-                self._version, compute_cluster_properties["clusterType"]
-            ):
-                supported_types = [
-                    ct
-                    for ct, min_version in CLUSTER_TYPE_MIN_SUPPORT
-                    if helpers.is_cluster_type_supported(self._version, ct)
-                ]
-                supported_types_str = ", ".join(supported_types)
-                raise exceptions.MalformedInputException(
-                    f"Domino {self._version} does not support cluster type {compute_cluster_properties['clusterType']}."
-                    + f" This version of Domino supports the following cluster types: {supported_types_str}"
-                )
-
-            def throw_if_information_invalid(key: str, info: dict) -> bool:
-                try:
-                    self._validate_information_data_type(info)
-                except Exception as e:
-                    raise exceptions.MalformedInputException(
-                        f"{key} in compute_cluster_properties failed validation: {e}"
-                    )
-
-            if "workerStorage" in compute_cluster_properties:
-                throw_if_information_invalid(
-                    "workerStorage", compute_cluster_properties["workerStorage"]
-                )
-
-            if compute_cluster_properties["workerCount"] < 1:
-                raise exceptions.MalformedInputException(
-                    "compute_cluster_properties.workerCount must be greater than 0"
-                )
-
-            if (
-                "maxWorkerCount" in compute_cluster_properties
-                and not helpers.is_comute_cluster_autoscaling_supported(self._version)
-            ):
-                raise exceptions.UnsupportedFieldException(
-                    f"'maxWorkerCount' is not supported in Domino {self._version}."
-                )
-
-            if "masterHardwareTierId" in compute_cluster_properties:
-                self._validate_hardware_tier_id(compute_cluster_properties["masterHardwareTierId"])
-
-            self._validate_hardware_tier_id(compute_cluster_properties["workerHardwareTierId"])
-
-        def validate_is_external_volume_mounts_supported():
-            if not helpers.is_external_volume_mounts_supported(self._version):
-                raise exceptions.ExternalVolumeMountsNotSupportedException(
-                    f"Your domino deployment version {self._version} does not support external volume mounts. "
-                    f"Minimum support version {MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION}"
-                )
-
         spark_cluster_properties = None
         validated_compute_cluster_properties = None
 
@@ -532,9 +455,9 @@ class Domino:
         if environment_id is not None:
             self._validate_environment_id(environment_id)
         if external_volume_mounts is not None:
-            validate_is_external_volume_mounts_supported()
+            self._validate_is_external_volume_mounts_supported(self)
         if compute_cluster_properties is not None:
-            validate_distributed_compute_cluster_properties()
+            self._validate_distributed_compute_cluster_properties(compute_cluster_properties)
 
             validated_compute_cluster_properties = compute_cluster_properties.copy()
 
@@ -1666,6 +1589,77 @@ class Domino:
             )
         return True
 
+    def _validate_distributed_compute_cluster_properties(self, compute_cluster_properties: dict):
+        if not helpers.is_compute_cluster_properties_supported(self._version):
+            raise exceptions.UnsupportedFieldException(
+                f"'compute_cluster_properties' is not supported in Domino {self._version}."
+            )
+
+        required_keys = [
+            "clusterType",
+            "computeEnvironmentId",
+            "masterHardwareTierId",
+            "workerHardwareTierId",
+            "workerCount",
+        ]
+        required_key_overrides = {("masterHardwareTierId", "MPI"): False}
+
+        for key in required_keys:
+            key_required = required_key_overrides.get(
+                (key, compute_cluster_properties["clusterType"]), True
+            )
+
+            if key_required and (key not in compute_cluster_properties):
+                raise exceptions.MissingRequiredFieldException(
+                    f"{key} is required in compute_cluster_properties"
+                )
+
+        if not helpers.is_cluster_type_supported(
+                self._version, compute_cluster_properties["clusterType"]
+        ):
+            supported_types = [
+                ct
+                for ct, min_version in CLUSTER_TYPE_MIN_SUPPORT
+                if helpers.is_cluster_type_supported(self._version, ct)
+            ]
+            supported_types_str = ", ".join(supported_types)
+            raise exceptions.MalformedInputException(
+                f"Domino {self._version} does not support cluster type {compute_cluster_properties['clusterType']}."
+                + f" This version of Domino supports the following cluster types: {supported_types_str}"
+            )
+
+        def throw_if_information_invalid(key: str, info: dict) -> bool:
+            try:
+                self._validate_information_data_type(info)
+            except Exception as e:
+                raise exceptions.MalformedInputException(
+                    f"{key} in compute_cluster_properties failed validation: {e}"
+                )
+
+        if "workerStorage" in compute_cluster_properties:
+            throw_if_information_invalid(
+                "workerStorage", compute_cluster_properties["workerStorage"]
+            )
+
+        if compute_cluster_properties["workerCount"] < 1:
+            raise exceptions.MalformedInputException(
+                "compute_cluster_properties.workerCount must be greater than 0"
+            )
+
+        if (
+                "maxWorkerCount" in compute_cluster_properties
+                and not helpers.is_comute_cluster_autoscaling_supported(self._version)
+        ):
+            raise exceptions.UnsupportedFieldException(
+                f"'maxWorkerCount' is not supported in Domino {self._version}."
+            )
+
+        if "masterHardwareTierId" in compute_cluster_properties:
+            self._validate_hardware_tier_id(compute_cluster_properties["masterHardwareTierId"])
+
+        self._validate_hardware_tier_id(compute_cluster_properties["workerHardwareTierId"])
+
+
     def _validate_commit_id(self, commit_id):
         self.log.debug(f"Validating commit id: {commit_id}")
         for commit in self.commits_list():
@@ -1745,6 +1739,15 @@ class Domino:
             if value is not None:
                 update_dict[key] = value
         return update_dict
+
+    @staticmethod
+    def _validate_is_external_volume_mounts_supported(self):
+        if not helpers.is_external_volume_mounts_supported(self._version):
+            raise exceptions.ExternalVolumeMountsNotSupportedException(
+                f"Your domino deployment version {self._version} does not support external volume mounts. "
+                f"Minimum support version {MINIMUM_EXTERNAL_VOLUME_MOUNTS_SUPPORT_DOMINO_VERSION}"
+            )
+        return True
 
     def requires_at_least(self, at_least_version):
         if version.parse(at_least_version) > version.parse(self._version):
