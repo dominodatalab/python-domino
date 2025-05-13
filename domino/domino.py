@@ -324,6 +324,7 @@ class Domino:
         environment_id: Optional[str] = None,
         on_demand_spark_cluster_properties: Optional[dict] = None,
         compute_cluster_properties: Optional[dict] = None,
+        mainRepoGitRef: Optional[dict] = None,
         external_volume_mounts: Optional[List[str]] = None,
         title: Optional[str] = None,
     ) -> dict:
@@ -593,6 +594,7 @@ class Domino:
             "environmentId": environment_id,
             "externalVolumeMounts": external_volume_mounts,
             "title": title,
+            "mainRepoGitRef": mainRepoGitRef
         }
         try:
             response = self.request_manager.post(url, json=payload)
