@@ -8,6 +8,15 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## 1.4.8
+
+### Added
+
+### Changed
+* Pin typing-extensions to compatible version
+
+### Changed
+
 ## 1.4.7
 
 ### Added
