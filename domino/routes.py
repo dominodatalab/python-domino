@@ -161,8 +161,86 @@ class _Routes:
         return self._build_models_v4_url() + "/" + model_export_id + "/getExportLogs"
 
     # Environment URLs
+    def _build_environments_url(self) -> str:
+        return self.host + "/api/environments/v1/environments"
+
+    def _build_beta_environments_url(self) -> str:
+        return self.host + "/api/environments/beta/environments"
+
+    def _build_v4_environments_url(self) -> str:
+        return self.host + "/v4/environments"
+
     def environments_list(self):
         return self.host + "/v1/environments"
+
+    # def environments_self_list(self):
+    #     return self._build_environments_url() + "/self"
+    #
+    def environment_default_get(self):
+        return self._build_v4_environments_url() + "/defaultEnvironment"
+    #
+    # def environment_default_set(self):
+    #     return self._build_environments_url() + "/setDefaultEnvironment"
+    #
+    def environment_create(self):
+        return self._build_beta_environments_url()
+
+    def environment_get(self, environment_id):
+        return self._build_environments_url() + f"/{environment_id}"
+    #
+    # def environment_available_tools_get(self, environment_id):
+    #     return self._build_environments_url() + f"/{environment_id}/availableTools"
+    #
+    # def environment_duplicate(self, environment_id):
+    #     return self._build_environments_url() + f"/{environment_id}/duplicate"
+    #
+    # def environment_set_active(self, environment_id):
+    #     return self._build_environments_url() + f"/{environment_id}/setactive"
+    #
+    # def environment_visibility_post(self, environment_id):
+    #     return self._build_environments_url() + f"/{environment_id}/visibility"
+    #
+    # def environment_project_usage_get(self, environment_id, page_number, page_size):
+    #     return self._build_environments_url() + f"/{environment_id}/projectUsageSummaries/page/{page_number}/pageSize/{page_size}"
+    #
+    # def environment_compatible_tools(self):
+    #     return self._build_environments_url() + "/customImage/dominoCompatibleTools"
+    #
+    # def environment_permissions_get(self):
+    #     return self._build_environments_url() + "/permissions/all"
+    #
+    # # Environment Revision URLs
+    def revision_get(self, revision_id):
+        return self._build_v4_environments_url() + f"/environmentRevision/{revision_id}"
+    #
+    def revision_create(self, environment_id):
+        return self._build_beta_environments_url() + f"/{environment_id}/revisions"
+
+    def revision_patch(self, environment_id, revision_id):
+        return self._build_beta_environments_url() + f"/{environment_id}/revisions/{revision_id}"
+    #
+    # def revision_overview_get(self, environment_id, revision_id):
+    #     return self._build_environments_url() + f"/{environment_id}/environmentRevision/{revision_id}"
+    #
+    # def revision_cancel(self, environment_id, revision_id):
+    #     return self._build_environments_url() + f"/{environment_id}/environmentRevision/{revision_id}/cancel"
+    #
+    # def revision_rebuild(self):
+    #     return self._build_environments_url() + "/rebuildrevision"
+    #
+    # def revision_summaries_get(self, environment_id, page, page_size):
+    #     return self._build_environments_url() + f"/{environment_id}/page/{page}/pageSize/{page_size}/revisions"
+    #
+    # def revision_download(self, environment_id, revision_id):
+    #     return (
+    #             self.host
+    #             + f"/v1/environments/{environment_id}/revisions/{revision_id}/dockerImageSourceProjectWeb"
+    #     )
+    #
+    # def build_logs(self, build_logs_url: str):
+    #     return (
+    #             self.host + build_logs_url.replace("/logs","/fetchBuildLogsSince")
+    #     )
 
     # Deployment URLs
     def deployment_version(self):
