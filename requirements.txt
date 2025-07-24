@@ -1,12 +1,12 @@
 urllib3>=1.26.19,<3
-pytest~=7.4.3
+pytest~=6.2.2
 polling2~=0.5.0
 requests~=2.31.0
 frozendict~=2.3
 certifi~=2023.7.22
 python-dateutil~=2.8.2
 beautifulsoup4~=4.12.2
-packaging~=23.2
+packaging~=21.3
 retry~=0.9.2
 setuptools~=68.2.2
 typing-extensions~=4.13.0

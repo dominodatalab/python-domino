@@ -46,7 +46,7 @@ setup(
     long_description_content_type="text/markdown",
     keywords=["Domino Data Lab", "API"],
     python_requires='>=3.9.0',
-    install_requires=["packaging", "requests>=2.4.2", "beautifulsoup4~=4.11", "polling2~=0.5.0",
+    install_requires=["packaging==21.3", "requests>=2.4.2", "beautifulsoup4~=4.11", "polling2~=0.5.0",
                       "urllib3>=1.26.19,<3", "typing-extensions~=4.13.0", "frozendict~=2.3", "python-dateutil~=2.8.2",
                       "retry==0.9.2"],
     extras_require={
