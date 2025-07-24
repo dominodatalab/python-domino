@@ -1,13 +1,47 @@
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+import functools
+import inspect
+import logging
 import mlflow
 from typing import Optional, Callable, Any
-from .._client import client
-from ..logging.logging import log_evaluation, add_domino_tags
+from uuid import uuid4
 
-"""
-When a user initializes Domino Logging, we will set this active model ID.
-"""
-global active_model_id
-active_model_id = None
+from .._client import client
+from .inittracing import init_tracing
+from ..logging.logging import log_evaluation, add_domino_tags
+from .._util import get_is_production, verify_domino_support, validate_label
+
+@dataclass
+class SpanSummary:
+    id: str
+    name: str
+    trace_id: str
+    inputs: Any
+    outputs: Any
+
+@dataclass
+class TraceSummary:
+    name: str
+    id: str
+    spans: list[SpanSummary]
+
+@dataclass
+class SearchTracesResponse:
+    data: list[TraceSummary]
+    page_token: str
+
+def _datetime_to_ms(dt: datetime) -> int:
+    return dt.timestamp() * 1000
+
+def _make_span_summary(span):
+    return SpanSummary(
+        id=span.span_id,
+        name=span.name,
+        trace_id=span.trace_id,
+        inputs=span.inputs,
+        outputs=span.outputs,
+    )
 
 def _do_evaluation(
         span,
@@ -18,149 +52,11 @@ def _do_evaluation(
             return evaluator(span.inputs, span.outputs)
         return None
 
-# TODO make idemptotent,
-# this is Haran's init domino tracing
-# init the experiment and run in dev before this is called, prod is fine
-# TODO rename to logging
-def _init(frameworks: list[str] = []):
-    """Initialize code based Domino tracing for an AI System component.
-    If in dev mode, it is expected that a run has been intialized. All traces will be linked to that run and a
-    LoggedModel will be created, which represents the AI System component and will contain the configuration
-    defined in the ai_system_config.yaml.
-
-    If in prod mode, a DOMINO_AI_SYSTEM_MODEL_ID is required and represents the production AI System
-    component. All traces will be linked to that model. No run is required.
-
-    Args:
-        frameworks: list[string] of frameworks to autolog
-    """
-
-	# TODO find way to configure, probably not as a function argument
-    ai_system_config_path = "./ai_system_config.yaml"
-    is_production = _is_production()
-
-    # set production environment variable
-    os.environ["DOMINO_EVALUATION_LOGGING_IS_PROD"] = json.dumps(is_production)
-
-
-    # NOTE: user provides the model name if they want to link traces to a
-    # specific AI System. We will recommend this for production, but not for dev
-    # evaluation
-    if is_production:
-        # if no active model, set the active model
-        if not active_model_id:
-            model = _get_prod_logged_model()
-            mlflow.set_active_model(model_id=model.model_id)
-
-            active_model_id = model.model_id
-    else:
-        if not active_model_id:
-            # save configuration file for the AI System
-            params = read_ai_system_config(ai_system_config_path)
-            if mlflow.active_run():
-                run_id = mlflow.active_run().info.run_id
-
-                # TODO get single logged model?
-                logged_models = mlflow.search_logged_models(
-                    filter_string=f"source_run_id='{run_id}'",
-                    output_format="list"
-                )
-
-                active_model_id = None
-                if len(logged_models) > 0:
-                    mlflow.set_active_model(model_id=logged_models[0].model_id)
-                    active_model_id = logged_models[0].model_id
-                else:
-                    model = mlflow.create_external_model(
-                        model_type="AI System",
-                        params=params
-                    )
-                    mlflow.set_active_model(model_id=model.model_id)
-                    active_model_id = model.model_id
-
-    for fw in frameworks:
-        try:
-            getattr(mlflow, fw).autolog()
-        except Exception as e:
-            logging.warning(f"Failed to call mlflow autolog for {fw} ai framework", e)
-
-def start_trace(
+def add_tracing(
         name: str,
-		frameworks: Optional[list[str]] = [],
+        autolog_frameworks: Optional[list[str]] = [],
         evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
-        extract_input_field: Optional[str] = None,
-        extract_output_field: Optional[str] = None
-    ):
-    """A decorator that starts an mlflow trace for the function it decorates.
-    It also enables the user to run an evaluation inline in the code is run in development mode on
-    the inputs and outputs of the wrapped function call.
-    The user can provide input and output formatters for formatting what's on the trace
-    and the evaluation result inputs, which can be used by client's to extract relevant data when
-    analyzing a trace.
-
-    @start_domino_trace(
-        name="assistant_chat_bot",
-        evaluator=evaluate_helpfulness,
-        extract_output_field="answer"
-    )
-    def ask_chat_bot(user_input: str) -> dict:
-        ...
-
-    Args:
-        name: the name of the trace to create
-
-        evaluator: an optional function that takes the inputs and outputs of the wrapped function and returns
-        a dictionary of evaluation results. The evaluation result will be added to the trace as tags.
-
-        extract_input_field: an optional dot separated string that specifies what subfield to access in the trace input
-
-        extract_output_field: an optional dot separated string that specifies what subfield to access in the trace output
-
-    Returns:
-        A decorator that wraps the function to be traced.
-    """
-    def decorator(func):
-
-        def wrapper(*args, **kwargs):
-            _init(frameworks)
-
-            is_production = _is_production()
-            inputs = { 'args': args, 'kwargs': kwargs }
-
-            parent_trace = client.start_trace(name, inputs=inputs)
-            result = func(*args, **kwargs)
-            client.end_trace(parent_trace.trace_id, outputs=result)
-
-            # TODO error handling?
-            trace = client.get_trace(parent_trace.trace_id).data.spans[0]
-
-            eval_result = _do_evaluation(trace, evaluator, is_production)
-            if eval_result:
-                for (k, v) in eval_result.items():
-
-                    # tag trace with the evaluation inputs, outputs, and result
-                    # or maybe assessment?
-                    log_evaluation(
-                        trace,
-                        eval_result_label=k,
-                        eval_result=v,
-                        extract_input_field=extract_input_field,
-                        extract_output_field=extract_output_field
-                    )
-            else:
-                add_domino_tags(trace, is_production, extract_input_field, extract_output_field, is_eval=False)
-
-            return result
-
-        return wrapper
-    return decorator
-
-def append_span(
-        name: str,
-		frameworks: Optional[list[str]] = [],
-        evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
-        extract_input_field: Optional[str] = None,
-        extract_output_field: Optional[str] = None
+        eagerly_evaluate_streamed_results: bool = False,
     ):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
     this span will be appended to it.
@@ -171,53 +67,221 @@ def append_span(
     and the evaluation result inputs, which can be used by client's to extract relevant data when
     analyzing a trace.
 
-    @append_domino_span(
+    This decorator must be used directly on the function to be traced, because it must have access to the
+    arguments.
+
+    @add_tracing(
         name="assistant_chat_bot",
         evaluator=evaluate_helpfulness,
-        extract_output_field="answer"
     )
     def ask_chat_bot(user_input: str) -> dict:
         ...
 
     Args:
-        name: the name of the trace to create
+        name: the name of the span to add to existing trace or create if no trace exists yet.
+
+        autolog_frameworks: an optional list of mlflow supported frameworks to autolog
 
         evaluator: an optional function that takes the inputs and outputs of the wrapped function and returns
         a dictionary of evaluation results. The evaluation result will be added to the trace as tags.
 
-        extract_input_field: an optional dot separated string that specifies what subfield to access in the trace input
-
-        extract_output_field: an optional dot separated string that specifies what subfield to access in the trace output
+        eagerly_evaluate_streamed_results: optional boolean, defaults to false. When decorating a generator, this determines if all
+            yielded values should be aggregated and set as outputs to a single span. This makes evaluation eaiser, but
+            will impact performance if you expect a large number of streamed values. If set to false, each yielded value
+            will generate a new span on the trace, which can be evaluated post-hoc. Inline evaluators won't be executed.
+            Each span will have a group_id set in their attributes to indicate that they are part of the same function call.
 
     Returns:
         A decorator that wraps the function to be traced.
     """
+    verify_domino_support()
+    validate_label(name)
 
     def decorator(func):
+
+        # For Regular Functions (e.g., langgraph_agents.run_agent)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            _init(frameworks)
+            init_tracing(autolog_frameworks)
 
-            is_production = _is_production()
+            is_production = get_is_production()
             with mlflow.start_span(name) as parent_span:
-                inputs = { 'args': args, 'kwargs': kwargs }
+                bound_args = inspect.signature(func).bind(*args, **kwargs)
+                bound_args.apply_defaults()
+                inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
                 parent_span.set_inputs(inputs)
-                result = func(*args, **kwargs)
-                parent_span.set_outputs(result)
 
+                result = func(*args, **kwargs)
+
+                parent_span.set_outputs(result)
                 eval_result = _do_evaluation(parent_span, evaluator, is_production)
 
                 if eval_result:
                     for (k, v) in eval_result.items():
+                        # save the evaluation result for the trace
                         log_evaluation(
-                            parent_span,
-                            eval_result=v,
-                            eval_result_label=k,
-                            extract_input_field=extract_input_field,
-                            extract_output_field=extract_output_field,
+                            parent_span.request_id,
+                            value=v,
+                            name=k,
                         )
-                else:
-                    add_domino_tags(parent_span, is_production, extract_input_field, extract_output_field, is_eval=False)
                 return result
+
+        # for async functions
+        if inspect.iscoroutinefunction(func):
+            @functools.wraps(func)
+            async def async_wrapper(*args, **kwargs):
+                init_tracing(autolog_frameworks)
+
+                is_production = get_is_production()
+                with mlflow.start_span(name) as parent_span:
+                    bound_args = inspect.signature(func).bind(*args, **kwargs)
+                    bound_args.apply_defaults()
+                    inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
+                    parent_span.set_inputs(inputs)
+
+                    result = await func(*args, **kwargs)
+
+                    parent_span.set_outputs(result)
+                    eval_result = _do_evaluation(parent_span, evaluator, is_production)
+
+                    if eval_result:
+                        for (k, v) in eval_result.items():
+                            # save the evaluation result for the trace
+                            log_evaluation(
+                                parent_span.request_id,
+                                value=v,
+                                name=k,
+                            )
+
+                    return result
+
+            return async_wrapper
+
+        # For Generator Functions (e.g., RAGAgent.answer)
+        if inspect.isgeneratorfunction(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                init_tracing(autolog_frameworks)
+
+                is_production = get_is_production()
+                with mlflow.start_span(name) as parent_span:
+                    bound_args = inspect.signature(func).bind(*args, **kwargs)
+                    bound_args.apply_defaults()
+                    inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
+                    parent_span.set_inputs(inputs)
+
+                    result = func(*args, **kwargs)
+
+                    eval_result = None
+
+                    if not eagerly_evaluate_streamed_results:
+                        # make span for each yielded value
+                        group_id = uuid4()
+                        # can't do inline evaluation, so warn if an evaluator is provided
+                        i = -1
+                        for v in result:
+                            i += 1
+                            with mlflow.start_span(name) as gen_span:
+                                gen_span.set_inputs(inputs)
+                                gen_span.set_attributes({"group_id": str(group_id), "index": i})
+                                yield v
+                                gen_span.set_outputs(v)
+                    else:
+                        # get all results and set as outputs
+                        all_results = [v for v in result]
+                        parent_span.set_outputs(all_results)
+                        eval_result = _do_evaluation(parent_span, evaluator, is_production)
+                        if eval_result:
+                            for (k, v) in eval_result.items():
+                                # save the evaluation result for the trace
+                                log_evaluation(
+                                    parent_span.request_id,
+                                    value=v,
+                                    name=k,
+                                )
+
+                        for v in all_results:
+                            yield v
+
+            return wrapper
+
 
         return wrapper
     return decorator
+
+def _build_trace_summaries(traces) -> list[TraceSummary]:
+    trace_summaries = []
+    for trace in traces:
+        # build trace summaries if there is a span location for the trace
+        parent_span = trace.data.spans[0]
+        trace_name = parent_span.name
+        spans = trace.data.spans
+
+        trace_summaries.append(
+            TraceSummary(
+                name=trace_name,
+                id=trace.info.trace_id,
+                spans=[_make_span_summary(s) for s in spans],
+            )
+        )
+
+    return trace_summaries
+
+def search_traces(
+  run_id: str,
+  trace_names: list[str],
+  start_time: Optional[datetime] = None,
+  end_time: Optional[datetime] = None,
+  page_token: Optional[str] = None,
+  max_results: Optional[int] = None,
+) -> SearchTracesResponse:
+    # this depends on mlflow 3 due to the pagination support
+    verify_domino_support()
+    """This allows searching for traces that have a certain name and returns a paginated response of trace summaries that
+    inclued the spans that were requested.
+
+    Args:
+        run_id: string, the ID of the development mode evaluation run to search for traces.
+        trace_names: list of traces to search for.
+        start_time: optional python datetime, defaults to 1 hour ago
+        end_time: optional python datetime, defaults to now
+        page_token: optional page token for pagination. You can use this to request the next page of results and may
+         find a page_token in the response of the previous search_traces call.
+        max_results: optional, defaults to 100
+
+    Returns:
+        SearchTracesReponse: a token based pagination response that contains a list of trace summaries
+            data: list of TraceSummary
+            page_token: the next page's token
+    """
+
+    if not run_id:
+        raise Exception("run_id must be provided to search traces")
+
+    if len(trace_names) == 0:
+        raise Exception("You must provide at least one trace name to search for traces")
+
+    experiment_id = client.get_run(run_id).info.experiment_id
+
+    start_ms = _datetime_to_ms(start_time or datetime.now() - timedelta(hours=1))
+    end_ms = _datetime_to_ms(end_time or datetime.now())
+
+    time_range_filter_clause = f'timestamp_ms > {start_ms} AND timestamp_ms < {end_ms}'
+    trace_name_filter_clause = ' OR '.join([f'trace.name = "{tn}"' for tn in trace_names])
+
+    # get traces made within the time range
+    # get traces with the trace names
+    filter_string = f'{time_range_filter_clause} AND {trace_name_filter_clause}'
+
+    traces = client.search_traces(
+        experiment_ids=[experiment_id],
+        filter_string=filter_string,
+        page_token=page_token,
+        max_results=max_results or 100,
+        order_by=["attributes.timestamp_ms ASC"],
+    )
+
+    trace_summaries = _build_trace_summaries(traces)
+    next_page_token = traces.token
+
+    return SearchTracesResponse(trace_summaries, next_page_token)

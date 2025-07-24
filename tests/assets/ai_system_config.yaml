@@ -1,0 +1,5 @@
+version: 1.0
+chat_assistant:
+  model: gpt-3.5-turbo
+  temperature: 0.7
+  max_tokens: 1500

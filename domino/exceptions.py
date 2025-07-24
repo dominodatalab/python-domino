@@ -75,6 +75,10 @@ class UnsupportedFieldException(DominoException):
 
     pass
 
+class UnsupportedOperationException(DominoException):
+    """Unsupported operation Exception"""
+
+    pass
 
 class MalformedInputException(DominoException):
     """Malformed input Exception"""
@@ -90,5 +94,10 @@ class MissingRequiredFieldException(DominoException):
 
 class ReloginRequiredException(DominoException):
     """Re-login required Exception"""
+
+    pass
+
+class InvalidEvaluationLabelException(DominoException):
+    """Invalid evaluation label Exception"""
 
     pass

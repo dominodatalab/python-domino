@@ -1,5 +1,6 @@
 import os
 
+import docker
 import pytest
 import requests_mock
 from requests.auth import AuthBase
@@ -12,6 +13,11 @@ from domino.constants import (
     DOMINO_USER_NAME_KEY_NAME,
 )
 
+TEST_AI_SYSTEMS_ENV_VARS = {
+    "MLFLOW_TRACKING_URI": "http://localhost:5000",
+    "DOMINO_AI_SYSTEM_CONFIG_PATH": "tests/assets/ai_system_config.yaml",
+    "DOMINO_AI_SYSTEM_IS_PROD": "false"
+}
 
 version_info = {
     "buildId": "12345",
@@ -190,3 +196,7 @@ def test_auth_base():
             super(TestAuth, self).__init__(*args, **kwargs)
             self.header = None
     return TestAuth()
+
+@pytest.fixture(scope="session")
+def docker_client():
+    return docker.from_env()
