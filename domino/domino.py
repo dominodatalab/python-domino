@@ -1018,10 +1018,9 @@ class Domino:
         response = self.request_manager.get(url).json()
         return response
 
-    def get_environment_revision(self, revision_id) -> dict:
-        url=self._routes.revision_get(revision_id)
-        response = self.request_manager.get(url).json()
-        return response
+    def archive_environment(self, environment_id: str) -> None:
+        url = self._routes.environment_get(environment_id)
+        self.request_manager.delete(url)
 
 
     def create_environment(
@@ -1047,11 +1046,11 @@ class Domino:
             organization_owner_id: Optional[str] = None,
     ) -> dict:
         """
-        Create a new Domino environment.
+        Create a new Domino compute environment.
         
         Args:
-            name: Name of the environment
-            visibility: Visibility level ("Private", "Public", or "Searchable")
+            name: Name of the compute environment
+            visibility: Visibility level ("Private" or "Global")
             dockerfile_instructions: Dockerfile instructions to customize the environment
             environment_variables: List of environment variables as dicts with 'name' and 'value' keys
             base_image: Base Docker image (if empty, uses default environment image)
@@ -1061,14 +1060,14 @@ class Domino:
             pre_setup_script: Script to run before environment setup
             skip_cache: Whether to skip Docker layer caching
             summary: Brief description of the environment
-            supported_clusters: List of supported cluster types
+            supported_clusters: List of supported distributed compute cluster types
             tags: List of tags for the environment
-            use_vpn: Whether to use VPN for this environment
-            workspace_tools: List of workspace tools configuration
+            use_vpn: Whether this environment should be able to use VPN
+            workspace_tools: Configuration of IDEs that can be used in workspaces
             add_base_dependencies: Whether to include base dependencies
-            description: Detailed description (can be string or list of strings)
+            description: Detailed description
             is_restricted: Whether the environment is restricted
-            organization_owner_id: ID of the organization owner
+            organization_owner_id: ID of an organization that will own the environment
             
         Returns:
             dict: Created environment details
@@ -1141,7 +1140,7 @@ class Domino:
         Create a new revision of an existing Domino environment.
         
         Args:
-            environment_id: ID of the environment to create a revision for
+            environment_id: ID of the environment for which to create a revision
             dockerfile_instructions: Dockerfile instructions to customize the environment
             environment_variables: List of environment variables as dicts with 'name' and 'value' keys
             base_image: Base Docker image (if None, uses default environment image)
@@ -1212,15 +1211,6 @@ class Domino:
         url=self._routes.revision_patch(environment_id, revision_id)
         payload=json.dumps(data)
         self.request_manager.patch(url, data=payload, headers={"Content-Type": "application/json"})
-
-
-    def archive_environment(self, environment_id: str) -> None:
-        """
-        Archive an environment.
-        """
-
-        url = self._routes.environment_get(environment_id)
-        self.request_manager.delete(url)
 
 
     # Model Manager functions
