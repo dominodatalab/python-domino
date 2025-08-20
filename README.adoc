@@ -41,6 +41,9 @@ The `python-domino` library is compatible with different versions of Domino:
 
 | 6.0.0 or higher
 | {python-domino-repo}/archive/1.4.8.zip[1.4.8] or Higher
+
+| 6.1.0 or higher
+| {python-domino-repo}/archive/1.4.8.zip[1.4.8] or Higher
 |===
 
 == Development
