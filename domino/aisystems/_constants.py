@@ -1,4 +1,4 @@
-
+# TODO update tag names to be prefixed with domino.aisystems in order to make origin clear
 EVALUATION_TAG_PREFIX = "domino.prog"
 DOMINO_INTERNAL_EVAL_TAG = "domino.internal.is_eval"
 MLFLOW_VERSION = "3.2.0"
