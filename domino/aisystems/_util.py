@@ -15,10 +15,6 @@ from ..exceptions import UnsupportedOperationException, InvalidEvaluationLabelEx
 from ..http_request_manager import _HttpRequestManager
 
 VALID_LABEL_PATTERN = r'[a-zA-Z0-9_-]+'
-DOMINO_EVAL_METRIC_TAG_PATTERN = f'domino.prog.metric.({VALID_LABEL_PATTERN})'
-
-def _get_ai_system_config_path() -> str:
-    return os.environ.get("DOMINO_AI_SYSTEM_CONFIG_PATH", "./ai_system_config.yaml")
 
 def _get_version_endpoint() -> str:
     return urljoin(os.environ['DOMINO_API_HOST'], "version")
@@ -30,41 +26,9 @@ def _get_domino_version() -> str:
     version_metadata = req_manager.get(_get_version_endpoint()).json()
     return version_metadata["version"]
 
-def get_metric_tag_name(tag: str) -> Optional[str]:
-    match = re.match(DOMINO_EVAL_METRIC_TAG_PATTERN, tag)
-    if match:
-        return match.group(1)
-    return None
-
-def is_metric_tag(tag: str) -> bool:
-    return re.match(DOMINO_EVAL_METRIC_TAG_PATTERN, tag) is not None
-
 def validate_label(label: str):
     if not re.match(VALID_LABEL_PATTERN, label):
         raise InvalidEvaluationLabelException(f"label '{label}' may contain only alphanumeric characters, underscores and dashes.")
-
-def flatten_dict(d, parent_key='', sep='.'):
-    """Recursively flattens a nested dictionary."""
-    items = []
-    for k, v in d.items():
-        new_key = f"{parent_key}{sep}{k}" if parent_key else k
-        if isinstance(v, dict):
-            items.extend(flatten_dict(v, new_key, sep=sep).items())
-        else:
-            items.append((new_key, v))
-    return dict(items)
-
-def read_ai_system_config(path: Optional[str] = None) -> dict:
-        path = path or _get_ai_system_config_path()
-        params = {}
-        try:
-                with open(path, 'r') as f:
-                        params = yaml.safe_load(f)
-        except Exception as e:
-                logging.warning(f"Failed to read ai system config yaml at path {path}")
-                logging.debug(e)
-
-        return params
 
 def get_is_production() -> bool:
     return os.environ.get("DOMINO_AI_SYSTEM_IS_PROD", "false").lower() == "true"
@@ -72,16 +36,14 @@ def get_is_production() -> bool:
 def build_metric_tag(metric_name: str) -> str:
     return f"{EVALUATION_TAG_PREFIX}.metric.{metric_name}"
 
-def _build_label_tag(label_name: str) -> str:
-    return f"{EVALUATION_TAG_PREFIX}.label.{label_name}"
-
 def build_eval_result_tag(label: str, result) -> str:
     try:
         float(result)
         return build_metric_tag(label)
     except ValueError:
         # this result will be treated as a string
-        return _build_label_tag(label)
+        # build label tag
+        return f"{EVALUATION_TAG_PREFIX}.label.{label}"
 
 def _get_mlflow_version() -> str:
         """

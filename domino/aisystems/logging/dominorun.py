@@ -1,16 +1,27 @@
 import itertools
 import logging
 import mlflow
+import re
 from statistics import median, stdev
 import traceback
 from typing import Literal, Optional, Callable
 
-from .._util import (read_ai_system_config, verify_domino_support, flatten_dict, get_all_traces_for_run,
-    is_metric_tag, build_metric_tag, get_metric_tag_name)
+from .._util import verify_domino_support, get_all_traces_for_run, build_metric_tag, VALID_LABEL_PATTERN
+from ..read_ai_system_config import get_flattened_ai_system_config
 
 TOTAL_DECIMAL_PLACES = 3
+DOMINO_EVAL_METRIC_TAG_PATTERN = f'domino.prog.metric.({VALID_LABEL_PATTERN})'
 
 SummaryStatistic = Literal["mean", "median", "stdev", "max", "min"]
+
+def is_metric_tag(tag: str) -> bool:
+    return re.match(DOMINO_EVAL_METRIC_TAG_PATTERN, tag) is not None
+
+def get_metric_tag_name(tag: str) -> Optional[str]:
+    match = re.match(DOMINO_EVAL_METRIC_TAG_PATTERN, tag)
+    if match:
+        return match.group(1)
+    return None
 
 def _parse_value(v):
     try:
@@ -158,13 +169,12 @@ class DominoRun:
         the AI System's logged model
         """
         try:
-            params = read_ai_system_config(self.config_path)
-            params_flat = flatten_dict(params)
-            mlflow.log_params(params_flat, run_id=run_id)
+            params = get_flattened_ai_system_config(self.config_path)
+            mlflow.log_params(params, run_id=run_id)
 
             mlflow.create_external_model(
                 model_type="AI System",
-                params=params_flat,
+                params=params,
                 source_run_id=run_id,
             )
         except Exception as e:

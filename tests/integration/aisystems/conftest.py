@@ -6,7 +6,7 @@ import shutil
 from unittest.mock import patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
-from domino.aisystems._constants import MLFLOW_VERSION
+from domino.aisystems._constants import MIN_MLFLOW_VERSION
 
 @pytest.fixture
 def tracing():
@@ -41,7 +41,7 @@ def setup_mlflow_tracking_server(docker_client):
 
                 container_name = "test_mlflow_tracking_server"
                 docker_client.containers.run(
-                        f"ghcr.io/mlflow/mlflow:v{MLFLOW_VERSION}",
+                        f"ghcr.io/mlflow/mlflow:v{MIN_MLFLOW_VERSION}",
                         detach=True,
                         name=container_name,
                         ports={5000:5000},
