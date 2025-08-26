@@ -6,13 +6,44 @@ from statistics import median, stdev
 import traceback
 from typing import Literal, Optional, Callable
 
-from .._util import verify_domino_support, get_all_traces_for_run, build_metric_tag, VALID_LABEL_PATTERN
+from .._client import client
+from .._constants import LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG
+from .._util import verify_domino_support, build_metric_tag, VALID_LABEL_PATTERN
 from ..read_ai_system_config import get_flattened_ai_system_config
 
 TOTAL_DECIMAL_PLACES = 3
 DOMINO_EVAL_METRIC_TAG_PATTERN = f'domino.prog.metric.({VALID_LABEL_PATTERN})'
 
 SummaryStatistic = Literal["mean", "median", "stdev", "max", "min"]
+
+def get_all_traces_for_run(experiment_id: str, run_id: str):
+    filter_string = f"metadata.mlflow.sourceRun = '{run_id}' AND tags.{DOMINO_INTERNAL_EVAL_TAG} = 'true'"
+
+    logging.debug(f"Searching for traces with filter: {filter_string}")
+
+    next_page_token = None
+
+    traces = client.search_traces(
+        experiment_ids=[experiment_id],
+        filter_string=filter_string,
+        page_token=next_page_token,
+        max_results=LARGEST_MAX_RESULTS_PAGE_SIZE,
+        order_by=["attributes.timestamp_ms ASC"],
+    )
+    next_page_token = traces.token
+    while next_page_token is not None:
+        next_traces = client.search_traces(
+            experiment_ids=[experiment_id],
+            filter_string=filter_string,
+            page_token=next_page_token,
+            max_results=LARGEST_MAX_RESULTS_PAGE_SIZE,
+            order_by=["attributes.timestamp_ms ASC"],
+        )
+
+        next_page_token = next_traces.token
+        traces.extend(next_traces)
+
+    return traces
 
 def is_metric_tag(tag: str) -> bool:
     return re.match(DOMINO_EVAL_METRIC_TAG_PATTERN, tag) is not None

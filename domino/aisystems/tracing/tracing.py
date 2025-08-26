@@ -10,7 +10,8 @@ from uuid import uuid4
 from .._client import client
 from .inittracing import init_tracing
 from ..logging.logging import log_evaluation, add_domino_tags
-from .._util import get_is_production, verify_domino_support, validate_label
+from ._util import get_is_production
+from .._util import verify_domino_support, validate_label
 
 @dataclass
 class SpanSummary:
