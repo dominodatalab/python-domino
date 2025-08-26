@@ -33,7 +33,6 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
     Args:
         autolog_frameworks: Optional[list[string]] of frameworks to autolog
     """
-    # TODO how to verify that frameworks are initialized only once per file import?
     # TODO when implemnenting prod tracing, must ensure AI System ID is set on trace metadata
 
     is_production = get_is_production()
