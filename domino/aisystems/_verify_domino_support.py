@@ -9,6 +9,9 @@ from ..authentication import get_auth_by_type
 from ._constants import MIN_MLFLOW_VERSION, MIN_DOMINO_VERSION
 from ..http_request_manager import _HttpRequestManager
 
+global supported
+supported = None
+
 def _get_version_endpoint() -> str:
     return urljoin(os.environ['DOMINO_API_HOST'], "version")
 
@@ -25,7 +28,7 @@ def _get_mlflow_version() -> str:
         """
         return mlflow.__version__
 
-def verify_domino_support():
+def _verify_domino_support_impl():
     domino_supported = True
     try:
         # we do our best to get the Domino version. If this code runs in a Domino execution,
@@ -48,3 +51,8 @@ def verify_domino_support():
     if not mlflow_supported:
         raise UnsupportedOperationException(f"This code requires you to install mlflow>={MIN_MLFLOW_VERSION}")
 
+def verify_domino_support():
+    global supported
+    if supported is None:
+        _verify_domino_support_impl()
+        supported = True

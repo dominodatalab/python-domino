@@ -96,7 +96,6 @@ def add_tracing(
     Returns:
         A decorator that wraps the function to be traced.
     """
-    verify_domino_support()
     validate_label(name)
 
     def decorator(func):
