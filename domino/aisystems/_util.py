@@ -9,7 +9,7 @@ import yaml
 
 from ..authentication import get_auth_by_type
 from ._client import client
-from ._constants import (MLFLOW_VERSION, MIN_DOMINO_VERSION, LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG,
+from ._constants import (MIN_MLFLOW_VERSION, MIN_DOMINO_VERSION, LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG,
     EVALUATION_TAG_PREFIX)
 from ..exceptions import UnsupportedOperationException, InvalidEvaluationLabelException
 from ..http_request_manager import _HttpRequestManager
@@ -55,16 +55,16 @@ def flatten_dict(d, parent_key='', sep='.'):
     return dict(items)
 
 def read_ai_system_config(path: Optional[str] = None) -> dict:
-	path = path or _get_ai_system_config_path()
-	params = {}
-	try:
-		with open(path, 'r') as f:
-			params = yaml.safe_load(f)
-	except Exception as e:
-		logging.warning(f"Failed to read ai system config yaml at path {path}")
-		logging.debug(e)
+        path = path or _get_ai_system_config_path()
+        params = {}
+        try:
+                with open(path, 'r') as f:
+                        params = yaml.safe_load(f)
+        except Exception as e:
+                logging.warning(f"Failed to read ai system config yaml at path {path}")
+                logging.debug(e)
 
-	return params
+        return params
 
 def get_is_production() -> bool:
     return os.environ.get("DOMINO_AI_SYSTEM_IS_PROD", "false").lower() == "true"
@@ -101,10 +101,10 @@ def verify_domino_support():
         raise UnsupportedOperationException("This version of Domino doesn’t support the aisystems package.")
 
     # verify mlflow sdk version
-    mlflow_3_installed = semver.Version.parse(mlflow.__version__).compare(MLFLOW_VERSION) > -1
+    mlflow_3_installed = semver.Version.parse(mlflow.__version__).compare(MIN_MLFLOW_VERSION) > -1
 
     if not mlflow_3_installed:
-        raise UnsupportedOperationException(f"This code requires you to install mlflow>={MLFLOW_VERSION}")
+        raise UnsupportedOperationException(f"This code requires you to install mlflow>={MIN_MLFLOW_VERSION}")
 
 def get_all_traces_for_run(experiment_id: str, run_id: str):
     filter_string = f"metadata.mlflow.sourceRun = '{run_id}' AND tags.{DOMINO_INTERNAL_EVAL_TAG} = 'true'"
