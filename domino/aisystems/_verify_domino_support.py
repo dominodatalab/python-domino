@@ -9,6 +9,7 @@ from ..authentication import get_auth_by_type
 from ._constants import MIN_MLFLOW_VERSION, MIN_DOMINO_VERSION
 from ..http_request_manager import _HttpRequestManager
 
+# not thread safe. I am not sure if this will be a problem for users, so am not implementing locking
 global supported
 supported = None
 

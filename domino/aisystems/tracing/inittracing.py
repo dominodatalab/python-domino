@@ -6,6 +6,7 @@ from typing import Optional
 from ._util import get_is_production
 from .._verify_domino_support import verify_domino_support
 
+# not thread safe. this likely won't cause a perf issue, so not implementing locking
 global _active_prod_model_id
 _active_prod_model_id = None
 
