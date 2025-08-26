@@ -4,7 +4,7 @@ import os
 from typing import Optional
 
 from ._util import get_is_production
-from .._util import verify_domino_support
+from .._verify_domino_support import verify_domino_support
 
 global _active_prod_model_id
 _active_prod_model_id = None

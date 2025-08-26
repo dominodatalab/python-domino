@@ -1,7 +1,8 @@
 import json
 
 from .._client import client
-from .._util import build_eval_result_tag, verify_domino_support, validate_label
+from .._util import build_eval_result_tag, validate_label
+from .._verify_domino_support import verify_domino_support
 from .._constants import DOMINO_INTERNAL_EVAL_TAG
 
 def add_domino_tags(trace_id: str):

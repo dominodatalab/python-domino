@@ -8,7 +8,8 @@ from typing import Literal, Optional, Callable
 
 from .._client import client
 from .._constants import LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG
-from .._util import verify_domino_support, build_metric_tag, VALID_LABEL_PATTERN
+from .._util import build_metric_tag, VALID_LABEL_PATTERN
+from .._verify_domino_support import verify_domino_support
 from ..read_ai_system_config import get_flattened_ai_system_config
 
 TOTAL_DECIMAL_PLACES = 3
