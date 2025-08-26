@@ -83,6 +83,12 @@ def build_eval_result_tag(label: str, result) -> str:
         # this result will be treated as a string
         return _build_label_tag(label)
 
+def _get_mlflow_version() -> str:
+        """
+        This makes testing easier
+        """
+        return mlflow.__version__
+
 def verify_domino_support():
     domino_supported = True
     try:
@@ -101,9 +107,9 @@ def verify_domino_support():
         raise UnsupportedOperationException("This version of Domino doesn’t support the aisystems package.")
 
     # verify mlflow sdk version
-    mlflow_3_installed = semver.Version.parse(mlflow.__version__).compare(MIN_MLFLOW_VERSION) > -1
+    mlflow_supported = semver.Version.parse(_get_mlflow_version()).compare(MIN_MLFLOW_VERSION) > -1
 
-    if not mlflow_3_installed:
+    if not mlflow_supported:
         raise UnsupportedOperationException(f"This code requires you to install mlflow>={MIN_MLFLOW_VERSION}")
 
 def get_all_traces_for_run(experiment_id: str, run_id: str):
