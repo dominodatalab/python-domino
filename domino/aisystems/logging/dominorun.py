@@ -192,8 +192,8 @@ class DominoRun:
                 f"Something went wrong while computing summarization metric for run {self._run.info.run_id}: {e}"
             )
             traceback.print_exc()
-
-        mlflow.end_run()
+        finally:
+            mlflow.end_run()
 
     def __log_params(self, run_id: str):
         """
