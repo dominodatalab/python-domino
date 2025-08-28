@@ -173,10 +173,13 @@ class DominoRun:
             eval_tags = sorted([(key, value) for t in traces for (key, value) in t.info.tags.items() if is_metric_tag(key)], key=lambda x: x[0])
             grouped_eval_tags = dict([(k, list(vs)) for (k, vs) in itertools.groupby(eval_tags, key=lambda x: x[0])])
 
-            summary_metric_specs = self.custom_summary_metrics or [(get_metric_tag_name(tag), "mean") for tag, _ in grouped_eval_tags.items()]
-            for (eval_label, summary_statistic) in summary_metric_specs:
+            custom_summary_metrics = None
+            if self.custom_summary_metrics:
+                custom_summary_metrics = [(build_metric_tag(tag), stat) for tag, stat in self.custom_summary_metrics]
+
+            summary_metric_specs = custom_summary_metrics or [(tag, "mean") for tag, _ in grouped_eval_tags.items()]
+            for (tag, summary_statistic) in summary_metric_specs:
                 aggregator = _choose_summarizer(summary_statistic)
-                tag = build_metric_tag(eval_label)
                 found_values = grouped_eval_tags.get(tag, None)
                 if found_values:
                     try:
