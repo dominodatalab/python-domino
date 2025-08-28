@@ -6,7 +6,7 @@ import time
 from unittest.mock import call, patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
-from domino.exceptions import InvalidEvaluationLabelException
+from domino.aisystems._eval_tags import InvalidEvaluationLabelException
 
 def test_init_tracing(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """

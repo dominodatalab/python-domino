@@ -96,8 +96,3 @@ class ReloginRequiredException(DominoException):
     """Re-login required Exception"""
 
     pass
-
-class InvalidEvaluationLabelException(DominoException):
-    """Invalid evaluation label Exception"""
-
-    pass

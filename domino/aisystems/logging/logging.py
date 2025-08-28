@@ -1,7 +1,7 @@
 import json
 
 from .._client import client
-from .._util import build_eval_result_tag, validate_label
+from .._eval_tags import build_eval_result_tag, validate_label
 from .._verify_domino_support import verify_domino_support
 from .._constants import DOMINO_INTERNAL_EVAL_TAG
 

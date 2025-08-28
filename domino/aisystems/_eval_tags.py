@@ -1,9 +1,14 @@
 import re
 
 from ._constants import DOMINO_INTERNAL_EVAL_TAG, EVALUATION_TAG_PREFIX
-from ..exceptions import UnsupportedOperationException, InvalidEvaluationLabelException
+from ..exceptions import DominoException
 
 VALID_LABEL_PATTERN = r'[a-zA-Z0-9_-]+'
+
+class InvalidEvaluationLabelException(DominoException):
+    """Invalid evaluation label Exception"""
+
+    pass
 
 def validate_label(label: str):
     if not re.match(VALID_LABEL_PATTERN, label):

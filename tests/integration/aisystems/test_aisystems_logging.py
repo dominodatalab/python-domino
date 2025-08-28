@@ -1,6 +1,6 @@
 import pytest
 
-from domino.exceptions import InvalidEvaluationLabelException
+from domino.aisystems._eval_tags import InvalidEvaluationLabelException
 from .mlflow_fixtures import fixture_create_traces
 
 def test_log_evaluation_dev(setup_mlflow_tracking_server, mlflow, logging):

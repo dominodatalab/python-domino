@@ -11,7 +11,7 @@ from .._client import client
 from .inittracing import init_tracing
 from ..logging.logging import log_evaluation, add_domino_tags
 from ._util import get_is_production
-from .._util import validate_label
+from .._eval_tags import validate_label
 from .._verify_domino_support import verify_domino_support
 
 @dataclass
