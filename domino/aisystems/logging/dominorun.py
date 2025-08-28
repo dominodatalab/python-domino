@@ -117,7 +117,7 @@ class DominoRun:
                         DOMINO_AI_SYSTEM_CONFIG_PATH environment variable.
 
                 custom_summary_metrics: an optional list of tuples that define what summary statistic to use with what evaluation metric.
-                Valid summary statistics are: "mean", "median", "stddev", "max", "min" e.g. [("hallucination_rate", "max")]
+                Valid summary statistics are: "mean", "median", "stdev", "max", "min" e.g. [("hallucination_rate", "max")]
 
         Returns: DominoRun context manager
         """
