@@ -203,7 +203,7 @@ def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing,
         exp = mlflow.set_experiment("test_add_tracing_works_with_generator")
         experiment_id = exp.experiment_id
 
-        @tracing.add_tracing(name="gen", evaluator=lambda i, o: { 'result': 1 })
+        @tracing.add_tracing(name="gen", evaluator=lambda i, o: { 'result': 1 }, eagerly_evaluate_streamed_results=False)
         def gen():
                 for i in range(3):
                         yield i
@@ -230,7 +230,7 @@ def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_trackin
         exp = mlflow.set_experiment("test_add_tracing_works_with_eagerly_evaluated_generator")
         experiment_id = exp.experiment_id
 
-        @tracing.add_tracing(name="gen_record_all", eagerly_evaluate_streamed_results=True, evaluator=lambda i, o: { 'result': 1 })
+        @tracing.add_tracing(name="gen_record_all", evaluator=lambda i, o: { 'result': 1 })
         def gen_record_all():
                 for i in range(3):
                         yield i
@@ -356,7 +356,7 @@ def test_search_traces_pagination(setup_mlflow_tracking_server, mocker, mlflow, 
         assert [[(s.name, s.inputs['x'], s.outputs) for s in trace.spans] for trace in res2.data] == [[("parent", 2, 2)]]
 
 def test_search_traces_from_lazy_generator(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
-        @tracing.add_tracing(name="parent")
+        @tracing.add_tracing(name="parent", eagerly_evaluate_streamed_results=False)
         def parent():
                 for i in range(3):
                         yield i

@@ -88,7 +88,7 @@ def add_tracing(
         name: str,
         autolog_frameworks: Optional[list[str]] = [],
         evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
-        eagerly_evaluate_streamed_results: bool = False,
+        eagerly_evaluate_streamed_results: bool = True,
     ):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
     this span will be appended to it.
@@ -117,11 +117,12 @@ def add_tracing(
         evaluator: an optional function that takes the inputs and outputs of the wrapped function and returns
         a dictionary of evaluation results. The evaluation result will be added to the trace as tags.
 
-        eagerly_evaluate_streamed_results: optional boolean, defaults to false. When decorating a generator, this determines if all
+        eagerly_evaluate_streamed_results: optional boolean, defaults to true, this determines if all
             yielded values should be aggregated and set as outputs to a single span. This makes evaluation eaiser, but
             will impact performance if you expect a large number of streamed values. If set to false, each yielded value
             will generate a new span on the trace, which can be evaluated post-hoc. Inline evaluators won't be executed.
             Each span will have a group_id set in their attributes to indicate that they are part of the same function call.
+            Each span will have an index to indicate what order they arrived in.
 
     Returns:
         A decorator that wraps the function to be traced.
@@ -179,13 +180,19 @@ def add_tracing(
                     eval_result = None
 
                     if not eagerly_evaluate_streamed_results:
-                        # make span for each yielded value
-                        group_id = uuid4()
                         # can't do inline evaluation, so warn if an evaluator is provided
+                        if evaluator:
+                            logging.warning(
+                                """eagerly_evaluate_streamed_results is false, so inline evaluation is disabled.
+                                You can still do evaluations using log_evaluation post-hoc"""
+                            )
+
+                        group_id = uuid4()
                         i = -1
                         for v in result:
                             i += 1
                             with mlflow.start_span(name) as gen_span:
+                                # make span for each yielded value
                                 gen_span.set_inputs(inputs)
                                 gen_span.set_attributes({"group_id": str(group_id), "index": i})
                                 yield v
