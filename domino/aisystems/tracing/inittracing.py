@@ -6,7 +6,11 @@ from typing import Optional
 from ._util import get_is_production
 from .._verify_domino_support import verify_domino_support
 
-# not thread safe. this likely won't cause a perf issue, so not implementing locking
+# not thread safe. this likely won't cause a perf issue. If data inconsistency is caused with
+# autolog frameworks, then the worst is that we get duplicate autolog calls. These are local to the process
+# so not a big deal
+# because active model is initialized from an env var, we won't get data inconsistency there.
+# so not implementing locking
 global _active_prod_model_id
 _active_prod_model_id = None
 
