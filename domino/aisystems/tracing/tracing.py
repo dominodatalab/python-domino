@@ -54,6 +54,36 @@ def _do_evaluation(
             return evaluator(span.inputs, span.outputs)
         return None
 
+def _log_eval_results(parent_span, evaluator: Optional[Callable[[Any, Any], dict[str, Any]]]):
+    """
+    Saves the evaluation results
+    """
+    is_production = get_is_production()
+    eval_result = _do_evaluation(parent_span, evaluator, is_production)
+
+    if eval_result:
+        for (k, v) in eval_result.items():
+            # save the evaluation result for the trace
+            log_evaluation(
+                parent_span.request_id,
+                value=v,
+                name=k,
+            )
+
+def _set_span_inputs(parent_span, func, args, kwargs):
+    """
+    Sets the inputs on the span. Takes the arguments passed to the decorated function
+    and preserves names of positional arguments, ensures defaults are applied, and excludes
+    'self' and 'cls'  in the case of class methods and instance methods, because the user doesn't
+    explicitly pass these in via the args and we want the arguments to match what the user expects
+    """
+    bound_args = inspect.signature(func).bind(*args, **kwargs)
+    bound_args.apply_defaults()
+    inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
+    parent_span.set_inputs(inputs)
+
+    return inputs
+
 def add_tracing(
         name: str,
         autolog_frameworks: Optional[list[str]] = [],
@@ -105,26 +135,15 @@ def add_tracing(
         def wrapper(*args, **kwargs):
             init_tracing(autolog_frameworks)
 
-            is_production = get_is_production()
             with mlflow.start_span(name) as parent_span:
-                bound_args = inspect.signature(func).bind(*args, **kwargs)
-                bound_args.apply_defaults()
-                inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
-                parent_span.set_inputs(inputs)
+                _set_span_inputs(parent_span, func, args, kwargs)
 
                 result = func(*args, **kwargs)
 
                 parent_span.set_outputs(result)
-                eval_result = _do_evaluation(parent_span, evaluator, is_production)
 
-                if eval_result:
-                    for (k, v) in eval_result.items():
-                        # save the evaluation result for the trace
-                        log_evaluation(
-                            parent_span.request_id,
-                            value=v,
-                            name=k,
-                        )
+                _log_eval_results(parent_span, evaluator)
+
                 return result
 
         # for async functions
@@ -133,26 +152,14 @@ def add_tracing(
             async def async_wrapper(*args, **kwargs):
                 init_tracing(autolog_frameworks)
 
-                is_production = get_is_production()
                 with mlflow.start_span(name) as parent_span:
-                    bound_args = inspect.signature(func).bind(*args, **kwargs)
-                    bound_args.apply_defaults()
-                    inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
-                    parent_span.set_inputs(inputs)
+                    _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = await func(*args, **kwargs)
 
                     parent_span.set_outputs(result)
-                    eval_result = _do_evaluation(parent_span, evaluator, is_production)
 
-                    if eval_result:
-                        for (k, v) in eval_result.items():
-                            # save the evaluation result for the trace
-                            log_evaluation(
-                                parent_span.request_id,
-                                value=v,
-                                name=k,
-                            )
+                    _log_eval_results(parent_span, evaluator)
 
                     return result
 
@@ -164,12 +171,8 @@ def add_tracing(
             def wrapper(*args, **kwargs):
                 init_tracing(autolog_frameworks)
 
-                is_production = get_is_production()
                 with mlflow.start_span(name) as parent_span:
-                    bound_args = inspect.signature(func).bind(*args, **kwargs)
-                    bound_args.apply_defaults()
-                    inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
-                    parent_span.set_inputs(inputs)
+                    inputs = _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = func(*args, **kwargs)
 
@@ -191,15 +194,7 @@ def add_tracing(
                         # get all results and set as outputs
                         all_results = [v for v in result]
                         parent_span.set_outputs(all_results)
-                        eval_result = _do_evaluation(parent_span, evaluator, is_production)
-                        if eval_result:
-                            for (k, v) in eval_result.items():
-                                # save the evaluation result for the trace
-                                log_evaluation(
-                                    parent_span.request_id,
-                                    value=v,
-                                    name=k,
-                                )
+                        _log_eval_results(parent_span, evaluator)
 
                         for v in all_results:
                             yield v
