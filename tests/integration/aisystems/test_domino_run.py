@@ -1,4 +1,5 @@
 import pytest
+import threading
 from unittest.mock import call
 
 def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
@@ -182,3 +183,31 @@ def test_domino_run_should_not_swallow_exceptions(setup_mlflow_tracking_server, 
         with pytest.raises(ZeroDivisionError):
             with logging.DominoRun() as run:
                 1/0
+
+def test_domino_run_parallelized_logic(setup_mlflow_tracking_server, mlflow, logging, tracing):
+        """
+        Logic run in threads should execute normally
+        """
+        mlflow.set_experiment("test_domino_run_parallelized_logic")
+
+        @tracing.add_tracing(name="a")
+        def a(num):
+                return num
+
+        @tracing.add_tracing(name="b")
+        def b(num):
+                return num
+
+        run = None
+        with logging.DominoRun() as run:
+                t1 = threading.Thread(target=a, args=(10,))
+                t2 = threading.Thread(target=b, args=(10,))
+
+                t1.start()
+                t2.start()
+
+                t1.join()
+                t2.join()
+
+        traces_a = mlflow.search_traces(filter_string=f"metadata.sourceRun = '{run.info.run_id}' AND trace.name = 'a'")
+        traces_b = mlflow.search_traces(filter_string=f"metadata.sourceRun = '{run.info.run_id}' AND trace.name = 'b'")
