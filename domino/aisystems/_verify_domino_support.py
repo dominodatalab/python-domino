@@ -31,17 +31,19 @@ def _get_mlflow_version() -> str:
 
 def _verify_domino_support_impl():
     domino_supported = True
+    domino_version = None
     try:
         # we do our best to get the Domino version. If this code runs in a Domino execution,
         # auth environment variables will be available. If they run this against a local mlflow server/not
         # Domino, it is ok if this check fails
-        version = _get_domino_version()
-
-        # verify Domino version is >= min domino version
-        domino_supported = semver.Version.parse(version).compare(MIN_DOMINO_VERSION) > -1
+        domino_version = _get_domino_version()
     except Exception as e:
         # the user may run this outside of Domino, so we log a warning instead of failing
-        logging.debug(f"Failed to get Domino version: {e}")
+        logging.debug(f"Failed to get Domino version. Will continue without version info: {e}")
+
+    if domino_version is not None:
+        # verify Domino version is >= min domino version
+        domino_supported = semver.Version.parse(domino_version).compare(MIN_DOMINO_VERSION) > -1
 
     if not domino_supported:
         raise UnsupportedOperationException("This version of Domino doesn’t support the aisystems package.")

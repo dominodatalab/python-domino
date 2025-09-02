@@ -36,7 +36,7 @@ class SearchTracesResponse:
 def _datetime_to_ms(dt: datetime) -> int:
     return dt.timestamp() * 1000
 
-def _make_span_summary(span):
+def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
     return SpanSummary(
         id=span.span_id,
         name=span.name,
@@ -46,7 +46,7 @@ def _make_span_summary(span):
     )
 
 def _do_evaluation(
-        span,
+        span: mlflow.entities.Span,
         evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
         is_production: bool = False) -> Optional[dict]:
 
@@ -54,7 +54,7 @@ def _do_evaluation(
             return evaluator(span.inputs, span.outputs)
         return None
 
-def _log_eval_results(parent_span, evaluator: Optional[Callable[[Any, Any], dict[str, Any]]]):
+def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Callable[[Any, Any], dict[str, Any]]]):
     """
     Saves the evaluation results
     """

@@ -37,7 +37,8 @@ def setup_mlflow_tracking_server(docker_client):
         pytest.importorskip("mlflow")
         from mlflow import MlflowClient
 
-        with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True):
+        with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True), patch("domino.aisystems._verify_domino_support", clear=True) as mock_verify_domino_support:
+                mock_verify_domino_support.return_value = None
 
                 container_name = "test_mlflow_tracking_server"
                 docker_client.containers.run(
