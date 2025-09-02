@@ -92,6 +92,9 @@ Average metrics are computed by default, but the user can provide a custom list 
 This is intended to be used in development mode for AI System evaluation.
 Context manager docs: https://docs.python.org/3/library/contextlib.html
 
+Parallelism: DominoRun is not thread-safe. Runs in different threads will work correctly. This is due to
+Mlflow's architecture. Parallelizing operations within a single DominoRun context however, is supported.
+
 Example:
     import mlflow
 
