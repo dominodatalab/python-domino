@@ -198,8 +198,7 @@ def test_domino_run_parallelized_logic(setup_mlflow_tracking_server, mlflow, log
         def b(num):
                 return num
 
-        run = None
-        with logging.DominoRun() as run:
+        with logging.DominoRun():
                 t1 = threading.Thread(target=a, args=(10,))
                 t2 = threading.Thread(target=b, args=(10,))
 
@@ -209,5 +208,11 @@ def test_domino_run_parallelized_logic(setup_mlflow_tracking_server, mlflow, log
                 t1.join()
                 t2.join()
 
-        traces_a = mlflow.search_traces(filter_string=f"metadata.sourceRun = '{run.info.run_id}' AND trace.name = 'a'")
-        traces_b = mlflow.search_traces(filter_string=f"metadata.sourceRun = '{run.info.run_id}' AND trace.name = 'b'")
+        traces_a = mlflow.search_traces(filter_string="trace.name = 'a'", return_type='list')
+        traces_b = mlflow.search_traces(filter_string="trace.name = 'b'", return_type='list')
+        def get_run_id(trace):
+                return trace.info.trace_metadata.get('mlflow.sourceRun')
+
+        assert len(traces_a) == 1, "There should be one trace for a"
+        assert len(traces_b) == 1, "There should be one trace for b"
+        assert get_run_id(traces_a[0]) == get_run_id(traces_b[0]), "The a and b traces should belong to the same run"
