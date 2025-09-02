@@ -10,6 +10,7 @@ from ._constants import MIN_MLFLOW_VERSION, MIN_DOMINO_VERSION
 from ..http_request_manager import _HttpRequestManager
 
 # not thread safe. I am not sure if this will be a problem for users, so am not implementing locking
+# it is ok if multiple requests are sent to verify Domino version support
 global supported
 supported = None
 
