@@ -232,7 +232,7 @@ def _build_trace_summaries(traces) -> list[TraceSummary]:
 
 def search_traces(
   run_id: str,
-  trace_names: list[str],
+  trace_name: Optional[str] = None,
   start_time: Optional[datetime] = None,
   end_time: Optional[datetime] = None,
   page_token: Optional[str] = None,
@@ -245,7 +245,7 @@ def search_traces(
 
     Args:
         run_id: string, the ID of the development mode evaluation run to search for traces.
-        trace_names: list of traces to search for.
+        trace_name: optinoal, the name of the traces to search for
         start_time: optional python datetime, defaults to 1 hour ago
         end_time: optional python datetime, defaults to now
         page_token: optional page token for pagination. You can use this to request the next page of results and may
@@ -261,20 +261,20 @@ def search_traces(
     if not run_id:
         raise Exception("run_id must be provided to search traces")
 
-    if len(trace_names) == 0:
-        raise Exception("You must provide at least one trace name to search for traces")
-
     experiment_id = client.get_run(run_id).info.experiment_id
 
     start_ms = _datetime_to_ms(start_time or datetime.now() - timedelta(hours=1))
     end_ms = _datetime_to_ms(end_time or datetime.now())
-
     time_range_filter_clause = f'timestamp_ms > {start_ms} AND timestamp_ms < {end_ms}'
-    trace_name_filter_clause = ' OR '.join([f'trace.name = "{tn}"' for tn in trace_names])
+
+    trace_name_filter_clause = None
+    if trace_name:
+        trace_name_filter_clause = f'trace.name = "{trace_name}"'
 
     # get traces made within the time range
     # get traces with the trace names
-    filter_string = f'{time_range_filter_clause} AND {trace_name_filter_clause}'
+    filter_clauses = [time_range_filter_clause, trace_name_filter_clause]
+    filter_string = ' AND '.join([x for x in filter_clauses if x])
 
     traces = client.search_traces(
         experiment_ids=[experiment_id],
