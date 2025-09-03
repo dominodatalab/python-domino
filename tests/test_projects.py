@@ -89,6 +89,9 @@ def test_upload_file_to_project(default_domino_client):
     assert response.json()["path"] == "test_file.py"
 
 
+@pytest.mark.skipif(
+    not domino_is_reachable(), reason="No access to a live Domino deployment"
+)
 def test_upload_file_to_project_without_forward_slash(default_domino_client):
     """
     Confirm that the python-domino client can upload a file to a project.

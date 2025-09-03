@@ -26,18 +26,18 @@ Domino:
 
 # Development
 
-The current `python-domino` is based on Python 3.9, which is therefore recommended for development. `Pipenv` is also recommended to manage the dependencies.
+The current `python-domino` is based on Python 3.10, which is therefore recommended for development. `Pipenv` is also recommended to manage the dependencies.
 
 To use the Python binding in a Domino workbook session, include `dominodatalab` in your project's requirements.txt file.
 This makes the Python binding available for each new workbook session (or batch run) started within the project.
 
 To install dependencies from `setup.py` for development:
 
-    pipenv install -e ".[dev]"
+    pipenv --python 3.10 install -e ".[dev]"
 
-Use the same process for Airflow and data:
+Use the same process for Airflow, aisystems, and data:
 
-    pipenv install -e ".[data]" ".[airflow]"
+    pipenv --python 3.10 install -e ".[data]" ".[airflow]" ".[aisystems]"
 
 # Set up the connection
 
@@ -106,6 +106,20 @@ See
     Default Retry is set to 4 
     Determines the number of attempts for the request session in case of a ConnectionError
     Get more info on request max timeout/error durations based on Retry and backoff factors [here](https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry)
+
+- `MLFLOW_TRACKING_URI`
+
+    Must be set for the `domino.aisystems` package to work properly. This will be set automatically in executions, e.g. Jobs, Workspaces, Scheduled Jobs, etc.
+    For testing, the value must be set on the command line to "http://localhost:5000".
+
+- `DOMINO_AI_SYSTEM_CONFIG_PATH`
+
+    Used by the `domino.aisystems` package. May be set to point to the location of the `ai_system_config.yaml`.
+
+- `DOMINO_AI_SYSTEM_IS_PROD`
+
+    Used by the `domino.aisystems` package. Indicates that an AI System is running in production or development mode.
+
 
 # Methods
 

@@ -45,7 +45,7 @@ The `python-domino` library is compatible with different versions of Domino:
 
 == Development
 
-The current `python-domino` is based on Python 3.9, which is therefore recommended for development.
+The current `python-domino` is based on Python 3.10, which is therefore recommended for development.
 `Pipenv` is also recommended to manage the dependencies.
 
 To use the Python binding in a Domino workbook session, include `dominodatalab` in your project's
@@ -61,14 +61,14 @@ To install dependencies from `setup.py` for development:
 
 [source,shell]
 ----
-pipenv install -e ".[dev]"
+pipenv --python 3.10 install -e ".[dev]"
 ----
 
 Use the same process for Airflow and data:
 
 [source,shell]
 ----
-pipenv install -e ".[data]" ".[airflow]"
+pipenv --python 3.10 install -e ".[data]" ".[airflow]"
 ----
 
 == Set up the connection
@@ -151,9 +151,23 @@ Be sure to unset this variable when not in use.
 
 * `DOMINO_MAX_RETRIES`
 +
-Default Retry is set to 4 
+Default Retry is set to 4
 Determines the number of attempts for the request session in case of a ConnectionError
 https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urllib3.util.retry[Get more info on request max timeout/error durations based on Retry and backoff factors]
+
+* `MLFLOW_TRACKING_URI`
++
+Must be set for the `domino.aisystems` package to work properly. This will be set automatically in executions, e.g. Jobs, Workspaces, Scheduled Jobs, etc.
+For testing, the value must be set on the command line to "http://localhost:5000".
+
+* `DOMINO_AI_SYSTEM_CONFIG_PATH`
++
+Used by the `domino.aisystems` package. May be set to point to the location of the `ai_system_config.yaml`.
+
+* `DOMINO_AI_SYSTEM_IS_PROD`
++
+Used by the `domino.aisystems` package. Indicates that an AI System is running in production or development mode.
+
 
 == Methods
 
@@ -504,7 +518,7 @@ For example: `f = open("authors.txt","rb")`
 ==== blobs_get(key)
 
 *_Deprecated_* Use get_blobs_v2. Retrieve a file from the Domino server by blob key.
- 
+
 * _key:_ The key of the file to fetch from the blob server.
 
 ==== blobs_get_v2(path, commit_id, project_id)
@@ -688,7 +702,7 @@ Uploads a file or entire directory to a dataset.
 * _max_workers:_ (Optional) The max amount of threads (default: 10).
 * _target_chunk_size:_ (Optional) The max chunk size for multipart upload (default: 8MB).
 * _target_relative_path:_ (Optional) The path on the dataset to upload the file or directory to. Note that the path must exist or the upload will fail.
-    
+
 
 == Example
 
