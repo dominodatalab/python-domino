@@ -11,7 +11,7 @@ from .._client import client
 from .inittracing import init_tracing
 from ..logging.logging import log_evaluation, add_domino_tags
 from ._util import get_is_production
-from .._eval_tags import validate_label
+from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
 @dataclass
@@ -27,6 +27,18 @@ class TraceSummary:
     name: str
     id: str
     spans: list[SpanSummary]
+
+@dataclass
+class EvaluationResult:
+    name: str
+    value: float | str
+
+@dataclass
+class TraceSummary:
+    name: str
+    id: str
+    spans: list[SpanSummary]
+    evaluation_results: list[EvaluationResult]
 
 @dataclass
 class SearchTracesResponse:
@@ -212,6 +224,15 @@ def add_tracing(
         return wrapper
     return decorator
 
+def _build_evaluation_result(tag_key: str, tag_value: str) -> EvaluationResult:
+    value = tag_value
+    try:
+        value = float(tag_value)
+    except:
+        pass
+
+    return EvaluationResult(name=get_eval_tag_name(tag_key), value=value)
+
 def _build_trace_summaries(traces) -> list[TraceSummary]:
     trace_summaries = []
     for trace in traces:
@@ -225,6 +246,7 @@ def _build_trace_summaries(traces) -> list[TraceSummary]:
                 name=trace_name,
                 id=trace.info.trace_id,
                 spans=[_make_span_summary(s) for s in spans],
+                evaluation_results=[_build_evaluation_result(key, value) for (key, value) in trace.info.tags.items() if get_eval_tag_name(key) is not None],
             )
         )
 
