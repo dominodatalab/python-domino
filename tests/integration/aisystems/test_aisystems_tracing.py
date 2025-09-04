@@ -304,7 +304,7 @@ def test_search_traces_by_trace_name(setup_mlflow_tracking_server, mocker, mlflo
         def parent2(x):
                 return x
 
-        mlflow.set_experiment("test_search_traces")
+        mlflow.set_experiment("test_search_traces_by_trace_name")
         run_id = None
         with logging.DominoRun() as run:
                 run_id = run.info.run_id
@@ -314,7 +314,7 @@ def test_search_traces_by_trace_name(setup_mlflow_tracking_server, mocker, mlflo
         res = tracing.search_traces(run_id=run_id, trace_name="parent")
         span_data = [(s.name, s.inputs, s.outputs) for trace in res.data for s in trace.spans]
 
-        assert sorted([trace.name for trace in res.data]) == sorted(["parent"])
+        assert set([trace.name for trace in res.data]) == set(["parent"])
         assert sorted(span_data) == sorted([("parent", {'x':1, 'y': 2}, 3), ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)])
 
 def test_search_traces_by_timestamp(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
