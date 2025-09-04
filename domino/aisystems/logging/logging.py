@@ -20,27 +20,28 @@ def add_domino_tags(trace_id: str):
 def log_evaluation(
         trace_id: str,
         name: str,
-        value,
+        value: float | str,
     ):
     """This logs evaluation data and metdata to a parent trace. This is used to log the evaluation of a span
     after it was created. This is useful for analyzing past performance of an AI System component.
 
     Args:
         trace_id: the ID of the trace to evaluate
-
-        value: the evaluation result to log. This must be a primitive type in order to enable
-        more powerful data analysis
-
         name: an label for the evaluation result. This is used to identify the evaluation result
+        value: the evaluation result to log. This must be a float or string
     """
     verify_domino_support()
     validate_label(name)
 
     if value is not None:
+        formatted_value = value
+        if not isinstance(value, (str)):
+            formatted_value = json.dumps(value)
+
         client.set_trace_tag(
             trace_id,
             build_eval_result_tag(name, value),
-            json.dumps(value),
+            formatted_value,
         )
         add_domino_tags(trace_id)
 

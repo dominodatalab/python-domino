@@ -268,7 +268,7 @@ def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, lo
         def unit(x):
                 return x
 
-        @tracing.add_tracing(name="parent")
+        @tracing.add_tracing(name="parent", evaluator=lambda i, o: {'mymetric': 1, 'mylabel': 'category'})
         def parent(x, y):
                 return unit(x) + unit(y)
 
@@ -287,6 +287,8 @@ def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, lo
         span_data = [(s.name, s.inputs, s.outputs) for trace in res.data for s in trace.spans]
 
         assert sorted([trace.name for trace in res.data]) == sorted(["parent", "parent2"])
+        assert sorted([(t.name, t.value) for trace in res.data for t in trace.evaluation_results if trace.name == "parent"]) \
+                == sorted([("mylabel", "category"), ("mymetric", 1.0)])
         assert sorted(span_data) == sorted([("parent", {'x':1, 'y': 2}, 3), \
                 ("parent2", {'x':1}, 1), ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)
         ])
@@ -304,7 +306,7 @@ def test_search_traces_by_trace_name(setup_mlflow_tracking_server, mocker, mlflo
         def parent2(x):
                 return x
 
-        mlflow.set_experiment("test_search_traces")
+        mlflow.set_experiment("test_search_traces_by_trace_name")
         run_id = None
         with logging.DominoRun() as run:
                 run_id = run.info.run_id
@@ -314,7 +316,7 @@ def test_search_traces_by_trace_name(setup_mlflow_tracking_server, mocker, mlflo
         res = tracing.search_traces(run_id=run_id, trace_name="parent")
         span_data = [(s.name, s.inputs, s.outputs) for trace in res.data for s in trace.spans]
 
-        assert sorted([trace.name for trace in res.data]) == sorted(["parent"])
+        assert [trace.name for trace in res.data] == ["parent"]
         assert sorted(span_data) == sorted([("parent", {'x':1, 'y': 2}, 3), ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)])
 
 def test_search_traces_by_timestamp(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
