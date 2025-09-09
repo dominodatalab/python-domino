@@ -381,6 +381,31 @@ def test_search_traces_with_traces_made_2hrs_ago(setup_mlflow_tracking_server, m
         )
         assert recent_res.data == []
 
+def test_search_traces_multiple_runs_in_exp(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+        exp = mlflow.set_experiment("test_search_traces_multiple_runs_in_exp")
+
+        @tracing.add_tracing(name="unit1")
+        def unit1(x):
+                return x
+
+        @tracing.add_tracing(name="unit2")
+        def unit2(x):
+                return x
+
+        run_1_id = None
+        with logging.DominoRun() as run:
+                run_1_id = run.info.run_id
+                unit1(1)
+
+        run_2_id = None
+        with logging.DominoRun() as run:
+                run_2_id = run.info.run_id
+                unit2(1)
+
+        res = tracing.search_traces(run_id=run_1_id)
+
+        assert [trace.name for trace in res.data] == ["unit1"]
+
 
 def test_search_traces_pagination(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
