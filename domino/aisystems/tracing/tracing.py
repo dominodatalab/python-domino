@@ -268,7 +268,7 @@ def search_traces(
     Args:
         run_id: string, the ID of the development mode evaluation run to search for traces.
         trace_name: optinoal, the name of the traces to search for
-        start_time: optional python datetime, defaults to 1 hour ago
+        start_time: optional python datetime
         end_time: optional python datetime, defaults to now
         page_token: optional page token for pagination. You can use this to request the next page of results and may
          find a page_token in the response of the previous search_traces call.
@@ -285,9 +285,14 @@ def search_traces(
 
     experiment_id = client.get_run(run_id).info.experiment_id
 
-    start_ms = _datetime_to_ms(start_time or datetime.now() - timedelta(hours=1))
-    end_ms = _datetime_to_ms(end_time or datetime.now())
-    time_range_filter_clause = f'timestamp_ms > {start_ms} AND timestamp_ms < {end_ms}'
+    time_range_filter_clause = ''
+    if start_time:
+        start_ms = _datetime_to_ms(start_time)
+        time_range_filter_clause += f'timestamp_ms > {start_ms}'
+
+    if end_time:
+        end_ms = _datetime_to_ms(end_time)
+        time_range_filter_clause += f' AND timestamp_ms < {end_ms}'
 
     trace_name_filter_clause = None
     if trace_name:
