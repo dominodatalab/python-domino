@@ -351,6 +351,37 @@ def test_search_traces_by_timestamp(setup_mlflow_tracking_server, mocker, mlflow
         assert [trace.name for trace in res.data] == ["parent"]
         assert [[(s.name, s.inputs['x'], s.outputs) for s in trace.spans] for trace in res.data] == [[("parent", 2, 2)]]
 
+def test_search_traces_with_traces_made_2hrs_ago(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+        exp = mlflow.set_experiment("test_search_traces_with_traces_made_2hrs_ago")
+
+        def parent(x):
+                dt = datetime.now() - timedelta(hours=2)
+                ns = int(dt.timestamp() * 1e9)
+                span = mlflow.start_span_no_context(name="parent",  inputs=1, experiment_id=exp.experiment_id, start_time_ns=ns)
+                span.end()
+                return x
+
+        run_id = None
+        with logging.DominoRun() as run:
+                run_id = run.info.run_id
+                parent(1)
+
+        res = tracing.search_traces(
+                run_id=run_id,
+                trace_name="parent",
+        )
+
+        assert [trace.name for trace in res.data] == ["parent"]
+
+        # If i shorten the time filter, I get no results
+        recent_res = tracing.search_traces(
+                run_id=run_id,
+                trace_name="parent",
+                start_time=datetime.now() - timedelta(hours=1),
+        )
+        assert recent_res.data == []
+
+
 def test_search_traces_pagination(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
         The api should provide a page token in if the total number of results is bigger than the max results
