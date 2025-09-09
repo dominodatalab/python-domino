@@ -407,6 +407,7 @@ def test_search_traces_multiple_runs_in_exp(setup_mlflow_tracking_server, mocker
         assert [trace.name for trace in res.data] == ["unit1"]
 
 
+
 def test_search_traces_pagination(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
         The api should provide a page token in if the total number of results is bigger than the max results

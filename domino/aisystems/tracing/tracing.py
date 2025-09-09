@@ -300,7 +300,8 @@ def search_traces(
 
     # get traces made within the time range
     # get traces with the trace names
-    filter_clauses = [time_range_filter_clause, trace_name_filter_clause]
+    run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
+    filter_clauses = [run_filter_clause, time_range_filter_clause, trace_name_filter_clause]
     filter_string = ' AND '.join([x for x in filter_clauses if x])
 
     traces = client.search_traces(
