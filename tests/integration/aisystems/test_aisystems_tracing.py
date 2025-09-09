@@ -397,15 +397,77 @@ def test_search_traces_multiple_runs_in_exp(setup_mlflow_tracking_server, mocker
                 run_1_id = run.info.run_id
                 unit1(1)
 
-        run_2_id = None
         with logging.DominoRun() as run:
-                run_2_id = run.info.run_id
                 unit2(1)
 
         res = tracing.search_traces(run_id=run_1_id)
 
         assert [trace.name for trace in res.data] == ["unit1"]
 
+def test_search_traces_filters_should_work_together(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+        """
+        When every filter is specified as well as pagination, the expected results should be returned
+        The test creates multiple differently named traces over the course of a few hours in an experiment
+        with multiple runs
+        """
+        exp = mlflow.set_experiment("test_search_traces_filters_should_work_together")
+
+        @tracing.add_tracing(name="unit1")
+        def unit1(x):
+                return x
+
+        def create_span_at_time(name: str, inputs: int, hours_ago: int):
+                dt = datetime.now() - timedelta(hours=hours_ago)
+                ns = int(dt.timestamp() * 1e9)
+                span = mlflow.start_span_no_context(name=name, inputs=inputs, experiment_id=exp.experiment_id, start_time_ns=ns)
+                span.end()
+
+        @tracing.add_tracing(name="sum1")
+        def sum1(x, y):
+                return x + y
+
+        @tracing.add_tracing(name="unit2")
+        def unit2(x):
+                return x
+
+        run_1_id = None
+        with logging.DominoRun() as run:
+                run_1_id = run.info.run_id
+
+                create_span_at_time(name="sum1", inputs=1, hours_ago=5)
+
+                # search_traces should return the following two spans
+                create_span_at_time(name="sum1", inputs=2, hours_ago=3)
+                create_span_at_time(name="sum1", inputs=3, hours_ago=2)
+
+                unit1(1)
+
+        with logging.DominoRun() as run:
+                unit2(1)
+
+        start_time = datetime.now() - timedelta(hours=4)
+        end_time = datetime.now() - timedelta(hours=1)
+
+        def get_traces(next_page_token):
+                return tracing.search_traces(
+                        run_id=run_1_id,
+                        trace_name="sum1",
+                        start_time=start_time,
+                        end_time=end_time,
+                        page_token=next_page_token,
+                        max_results=1
+                )
+
+        def get_span_data(page):
+                return [(trace.name, [s.inputs for s in trace.spans]) for trace in page.data]
+
+        # should only return the first sum1 call in the run_1_id domino run
+        page1 = get_traces(None)
+        assert get_span_data(page1) == [("sum1", [2])], "Should return first call"
+
+        # should only return the second sum1 call in the run_1_id domino run
+        page2 = get_traces(page1.page_token)
+        assert get_span_data(page2) == [("sum1", [3])], "Should return second call"
 
 
 def test_search_traces_pagination(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
