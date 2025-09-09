@@ -63,7 +63,13 @@ def _do_evaluation(
         is_production: bool = False) -> Optional[dict]:
 
         if not is_production and evaluator:
-            return evaluator(span.inputs, span.outputs)
+            try:
+                return evaluator(span.inputs, span.outputs)
+            except Exception as e:
+                logging.error(
+                    "Inline evaluation failed for evaluator, %s. Error: %s" , evaluator.__name__, e, exc_info=True
+                )
+
         return None
 
 def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Callable[[Any, Any], dict[str, Any]]]):
@@ -99,7 +105,7 @@ def _set_span_inputs(parent_span, func, args, kwargs):
 def add_tracing(
         name: str,
         autolog_frameworks: Optional[list[str]] = [],
-        evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
+        evaluator: Optional[Callable[[Any, Any], dict[str, int | float | str]]] = None,
         eagerly_evaluate_streamed_results: bool = True,
     ):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace

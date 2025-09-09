@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import inspect
+import logging
 import os
 import pytest
 import time
@@ -194,6 +195,23 @@ def test_add_tracing_arguments_passed_to_span(setup_mlflow_tracking_server, trac
 
         d_inputs = get_inputs(fun_with_defaults_trace)
         assert d_inputs == {'x': 10}
+
+def test_add_tracing_failed_inline_evaluator_logs_warning(setup_mlflow_tracking_server, tracing, mlflow, caplog):
+        """
+        if the inline evaluator fails, a warning is logged and the main code still executes
+        """
+        mlflow.set_experiment("test_add_tracing_failed_inline_evaluator_logs_warning")
+
+        def failing_evaluator(i, o):
+                return 1/0
+
+        @tracing.add_tracing(name="unit", evaluator=failing_evaluator)
+        def unit(x):
+                return x
+
+        with mlflow.start_run(), caplog.at_level(logging.WARNING):
+                assert unit(1) == 1
+                assert "Inline evaluation failed for evaluator, failing_evaluator" in caplog.text
 
 def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing, mlflow):
         """
