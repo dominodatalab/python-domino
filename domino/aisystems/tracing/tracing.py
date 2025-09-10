@@ -4,7 +4,7 @@ import functools
 import inspect
 import logging
 import mlflow
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, TypeVar
 from uuid import uuid4
 
 from .._client import client
@@ -13,6 +13,9 @@ from ..logging.logging import log_evaluation, add_domino_tags
 from ._util import get_is_production
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
+
+T = TypeVar('T')
+Evaluator = Callable[[T, T], dict[str, int | float | str]]
 
 @dataclass
 class SpanSummary:
@@ -59,7 +62,7 @@ def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
 
 def _do_evaluation(
         span: mlflow.entities.Span,
-        evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
+        evaluator: OptionalEvaluator] = None,
         is_production: bool = False) -> Optional[dict]:
 
         if not is_production and evaluator:
@@ -72,7 +75,7 @@ def _do_evaluation(
 
         return None
 
-def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Callable[[Any, Any], dict[str, Any]]]):
+def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: OptionalEvaluator]):
     """
     Saves the evaluation results
     """
@@ -105,7 +108,7 @@ def _set_span_inputs(parent_span, func, args, kwargs):
 def add_tracing(
         name: str,
         autolog_frameworks: Optional[list[str]] = [],
-        evaluator: Optional[Callable[[Any, Any], dict[str, int | float | str]]] = None,
+        evaluator: Optional[Evaluator] = None,
         eagerly_evaluate_streamed_results: bool = True,
     ):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
