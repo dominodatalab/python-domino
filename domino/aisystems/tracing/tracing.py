@@ -62,7 +62,7 @@ def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
 
 def _do_evaluation(
         span: mlflow.entities.Span,
-        evaluator: OptionalEvaluator] = None,
+        evaluator: Optional[Evaluator] = None,
         is_production: bool = False) -> Optional[dict]:
 
         if not is_production and evaluator:
@@ -75,7 +75,7 @@ def _do_evaluation(
 
         return None
 
-def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: OptionalEvaluator]):
+def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Evaluator]):
     """
     Saves the evaluation results
     """
