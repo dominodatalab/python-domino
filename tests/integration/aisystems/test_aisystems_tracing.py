@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import inspect
+import logging
 import os
 import pytest
 import time
@@ -195,6 +196,23 @@ def test_add_tracing_arguments_passed_to_span(setup_mlflow_tracking_server, trac
         d_inputs = get_inputs(fun_with_defaults_trace)
         assert d_inputs == {'x': 10}
 
+def test_add_tracing_failed_inline_evaluator_logs_warning(setup_mlflow_tracking_server, tracing, mlflow, caplog):
+        """
+        if the inline evaluator fails, a warning is logged and the main code still executes
+        """
+        mlflow.set_experiment("test_add_tracing_failed_inline_evaluator_logs_warning")
+
+        def failing_evaluator(i, o):
+                return 1/0
+
+        @tracing.add_tracing(name="unit", evaluator=failing_evaluator)
+        def unit(x):
+                return x
+
+        with mlflow.start_run(), caplog.at_level(logging.WARNING):
+                assert unit(1) == 1
+                assert "Inline evaluation failed for evaluator, failing_evaluator" in caplog.text
+
 def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing, mlflow):
         """
         add_tracing should not record all result from a generator if not specified
@@ -350,6 +368,125 @@ def test_search_traces_by_timestamp(setup_mlflow_tracking_server, mocker, mlflow
 
         assert [trace.name for trace in res.data] == ["parent"]
         assert [[(s.name, s.inputs['x'], s.outputs) for s in trace.spans] for trace in res.data] == [[("parent", 2, 2)]]
+
+def test_search_traces_with_traces_made_2hrs_ago(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+        exp = mlflow.set_experiment("test_search_traces_with_traces_made_2hrs_ago")
+
+        def parent(x):
+                dt = datetime.now() - timedelta(hours=2)
+                ns = int(dt.timestamp() * 1e9)
+                span = mlflow.start_span_no_context(name="parent",  inputs=1, experiment_id=exp.experiment_id, start_time_ns=ns)
+                span.end()
+                return x
+
+        run_id = None
+        with logging.DominoRun() as run:
+                run_id = run.info.run_id
+                parent(1)
+
+        res = tracing.search_traces(
+                run_id=run_id,
+                trace_name="parent",
+        )
+
+        assert [trace.name for trace in res.data] == ["parent"]
+
+        # If i shorten the time filter, I get no results
+        recent_res = tracing.search_traces(
+                run_id=run_id,
+                trace_name="parent",
+                start_time=datetime.now() - timedelta(hours=1),
+        )
+        assert recent_res.data == []
+
+def test_search_traces_multiple_runs_in_exp(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+        exp = mlflow.set_experiment("test_search_traces_multiple_runs_in_exp")
+
+        @tracing.add_tracing(name="unit1")
+        def unit1(x):
+                return x
+
+        @tracing.add_tracing(name="unit2")
+        def unit2(x):
+                return x
+
+        run_1_id = None
+        with logging.DominoRun() as run:
+                run_1_id = run.info.run_id
+                unit1(1)
+
+        with logging.DominoRun() as run:
+                unit2(1)
+
+        res = tracing.search_traces(run_id=run_1_id)
+
+        assert [trace.name for trace in res.data] == ["unit1"]
+
+def test_search_traces_filters_should_work_together(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+        """
+        When every filter is specified as well as pagination, the expected results should be returned
+        The test creates multiple differently named traces over the course of a few hours in an experiment
+        with multiple runs
+        """
+        exp = mlflow.set_experiment("test_search_traces_filters_should_work_together")
+
+        @tracing.add_tracing(name="unit1")
+        def unit1(x):
+                return x
+
+        def create_span_at_time(name: str, inputs: int, hours_ago: int):
+                dt = datetime.now() - timedelta(hours=hours_ago)
+                ns = int(dt.timestamp() * 1e9)
+                span = mlflow.start_span_no_context(name=name, inputs=inputs, experiment_id=exp.experiment_id, start_time_ns=ns)
+                span.end()
+
+        @tracing.add_tracing(name="sum1")
+        def sum1(x, y):
+                return x + y
+
+        @tracing.add_tracing(name="unit2")
+        def unit2(x):
+                return x
+
+        run_1_id = None
+        with logging.DominoRun() as run:
+                run_1_id = run.info.run_id
+
+                create_span_at_time(name="sum1", inputs=1, hours_ago=5)
+
+                # search_traces should return the following two spans
+                create_span_at_time(name="sum1", inputs=2, hours_ago=3)
+                create_span_at_time(name="sum1", inputs=3, hours_ago=2)
+
+                unit1(1)
+
+        with logging.DominoRun() as run:
+                unit2(1)
+
+        start_time = datetime.now() - timedelta(hours=4)
+        end_time = datetime.now() - timedelta(hours=1)
+
+        def get_traces(next_page_token):
+                return tracing.search_traces(
+                        run_id=run_1_id,
+                        trace_name="sum1",
+                        start_time=start_time,
+                        end_time=end_time,
+                        page_token=next_page_token,
+                        max_results=1
+                )
+
+        def get_span_data(page):
+                return [(trace.name, [s.inputs for s in trace.spans]) for trace in page.data]
+
+        # should only return the first sum1 call in the run_1_id domino run
+        page1 = get_traces(None)
+        assert get_span_data(page1) == [("sum1", [2])], "Should return first call"
+
+        # should only return the second sum1 call in the run_1_id domino run
+        page2 = get_traces(page1.page_token)
+        assert get_span_data(page2) == [("sum1", [3])], "Should return second call"
+
 
 def test_search_traces_pagination(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """

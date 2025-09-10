@@ -4,7 +4,7 @@ import functools
 import inspect
 import logging
 import mlflow
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, TypeVar
 from uuid import uuid4
 
 from .._client import client
@@ -13,6 +13,9 @@ from ..logging.logging import log_evaluation, add_domino_tags
 from ._util import get_is_production
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
+
+T = TypeVar('T')
+Evaluator = Callable[[T, T], dict[str, int | float | str]]
 
 @dataclass
 class SpanSummary:
@@ -59,14 +62,20 @@ def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
 
 def _do_evaluation(
         span: mlflow.entities.Span,
-        evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
+        evaluator: Optional[Evaluator] = None,
         is_production: bool = False) -> Optional[dict]:
 
         if not is_production and evaluator:
-            return evaluator(span.inputs, span.outputs)
+            try:
+                return evaluator(span.inputs, span.outputs)
+            except Exception as e:
+                logging.error(
+                    "Inline evaluation failed for evaluator, %s. Error: %s" , evaluator.__name__, e, exc_info=True
+                )
+
         return None
 
-def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Callable[[Any, Any], dict[str, Any]]]):
+def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Evaluator]):
     """
     Saves the evaluation results
     """
@@ -99,7 +108,7 @@ def _set_span_inputs(parent_span, func, args, kwargs):
 def add_tracing(
         name: str,
         autolog_frameworks: Optional[list[str]] = [],
-        evaluator: Optional[Callable[[Any, Any], dict[str, Any]]] = None,
+        evaluator: Optional[Evaluator] = None,
         eagerly_evaluate_streamed_results: bool = True,
     ):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
@@ -268,7 +277,7 @@ def search_traces(
     Args:
         run_id: string, the ID of the development mode evaluation run to search for traces.
         trace_name: optinoal, the name of the traces to search for
-        start_time: optional python datetime, defaults to 1 hour ago
+        start_time: optional python datetime
         end_time: optional python datetime, defaults to now
         page_token: optional page token for pagination. You can use this to request the next page of results and may
          find a page_token in the response of the previous search_traces call.
@@ -285,9 +294,14 @@ def search_traces(
 
     experiment_id = client.get_run(run_id).info.experiment_id
 
-    start_ms = _datetime_to_ms(start_time or datetime.now() - timedelta(hours=1))
-    end_ms = _datetime_to_ms(end_time or datetime.now())
-    time_range_filter_clause = f'timestamp_ms > {start_ms} AND timestamp_ms < {end_ms}'
+    time_range_filter_clause = ''
+    if start_time:
+        start_ms = _datetime_to_ms(start_time)
+        time_range_filter_clause += f'timestamp_ms > {start_ms}'
+
+    if end_time:
+        end_ms = _datetime_to_ms(end_time)
+        time_range_filter_clause += f' AND timestamp_ms < {end_ms}'
 
     trace_name_filter_clause = None
     if trace_name:
@@ -295,7 +309,8 @@ def search_traces(
 
     # get traces made within the time range
     # get traces with the trace names
-    filter_clauses = [time_range_filter_clause, trace_name_filter_clause]
+    run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
+    filter_clauses = [run_filter_clause, time_range_filter_clause, trace_name_filter_clause]
     filter_string = ' AND '.join([x for x in filter_clauses if x])
 
     traces = client.search_traces(
