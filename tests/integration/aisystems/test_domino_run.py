@@ -216,3 +216,69 @@ def test_domino_run_parallelized_logic(setup_mlflow_tracking_server, mlflow, log
         assert len(traces_a) == 1, "There should be one trace for a"
         assert len(traces_b) == 1, "There should be one trace for b"
         assert get_run_id(traces_a[0]) == get_run_id(traces_b[0]), "The a and b traces should belong to the same run"
+
+def test_domino_run_extend_concluded_run_manual_evals_mean_logged(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        When extending a concluded run, manual log_evaluation calls inside the DominoRun block
+        are summarized and the average metric is logged to the run.
+        """
+        mlflow.set_experiment("test_domino_run_extend_concluded_run_manual_evals_mean_logged")
+
+        @tracing.add_tracing(name="add_numbers")
+        def add_numbers(x, y):
+                return x + y
+
+        # Create and conclude a run with two traces (outputs: 2 and 4)
+        with mlflow.start_run() as parent_run:
+                concluded_run_id = parent_run.info.run_id
+                add_numbers(1, 1)
+                add_numbers(2, 2)
+
+        # Extend the concluded run and log manual evaluations; DominoRun should log mean summary (3)
+        with logging.DominoRun(run_id=concluded_run_id):
+                traces_resp = tracing.search_traces(run_id=concluded_run_id, trace_name="add_numbers")
+                for t in traces_resp.data:
+                        # use the function output as the evaluation value
+                        value = t.spans[0].outputs
+                        logging.log_evaluation(
+                                trace_id=t.id,
+                                name="helpfulness",
+                                value=value,
+                        )
+
+        run = mlflow.get_run(concluded_run_id)
+        # average of 2 + 4 = 3
+        assert run.data.metrics['domino.prog.metric.helpfulness'] == 3, "average of helpfulness should be 3"
+
+def test_domino_run_extend_concluded_run_manual_evals_custom_aggregator_logged(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        When extending a concluded run, with a custom aggregator, manual log_evaluation calls inside the
+        DominoRun block are summarized using the custom aggregator and logged to the run.
+        """
+        mlflow.set_experiment("test_domino_run_extend_concluded_run_manual_evals_custom_aggregator_logged")
+
+        @tracing.add_tracing(name="add_numbers")
+        def add_numbers(x, y):
+                return x + y
+
+        # Create and conclude a run with two traces (outputs: 2 and 4)
+        with mlflow.start_run() as parent_run:
+                concluded_run_id = parent_run.info.run_id
+                add_numbers(1, 1)
+                add_numbers(2, 2)
+
+        # Extend the concluded run and log manual evaluations; DominoRun should log custom summary (max -> 4)
+        custom_summary_metrics = [("helpfulness", "max")]
+        with logging.DominoRun(run_id=concluded_run_id, custom_summary_metrics=custom_summary_metrics):
+                traces_resp = tracing.search_traces(run_id=concluded_run_id, trace_name="add_numbers")
+                for t in traces_resp.data:
+                        value = t.spans[0].outputs
+                        logging.log_evaluation(
+                                trace_id=t.id,
+                                name="helpfulness",
+                                value=value,
+                        )
+
+        run = mlflow.get_run(concluded_run_id)
+        # max of 2 and 4 is 4
+        assert run.data.metrics['domino.prog.metric.helpfulness'] == 4, "max of helpfulness should be 4"
