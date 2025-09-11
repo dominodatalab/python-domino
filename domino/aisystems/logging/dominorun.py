@@ -188,7 +188,17 @@ class DominoRun:
                     try:
                         values = [_parse_value(v) for (_, v) in found_values]
                         summary = aggregator(values)
-                        mlflow.log_metric(tag, summary, run_id=self._run.info.run_id)
+                        # Derive metric name from tag; fall back to tag with warning if parsing fails
+                        metric_name = get_metric_tag_name(tag)
+                        if metric_name is None:
+                            logging.warning(
+                                f"Could not extract metric name from tag '{tag}'. "
+                                f"Falling back to using the full tag in aggregated metric name."
+                            )
+                            metric_name = tag
+
+                        aggregated_metric_name = f"{summary_statistic}_{metric_name}"
+                        mlflow.log_metric(aggregated_metric_name, summary, run_id=self._run.info.run_id)
                     except Exception as e:
                         logging.error(f"Failed to log summarization metric for {tag}: {e}")
                 else:
