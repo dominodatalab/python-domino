@@ -14,6 +14,7 @@ from ..read_ai_system_config import get_flattened_ai_system_config
 
 TOTAL_DECIMAL_PLACES = 3
 DOMINO_EVAL_METRIC_TAG_PATTERN = f'domino.prog.metric.({VALID_LABEL_PATTERN})'
+AGGREGATED_METRIC_PATTERN = r"^(mean|median|stdev|max|min)_(.+)$"
 
 SummaryStatistic = Literal["mean", "median", "stdev", "max", "min"]
 
@@ -60,12 +61,17 @@ def _parse_aggregated_metric_key(metric_key: str) -> Optional[tuple[str, str]]:
     Parse an aggregated metric key of the form <agg>_<metric_name>.
     Returns (agg, tag) or None
     """
-    m = re.match(r"^(mean|median|stdev|max|min)_(.+)$", metric_key)
+    m = re.match(AGGREGATED_METRIC_PATTERN, metric_key)
     if not m:
         return None
-    agg = m.group(1)
-    tag = m.group(2)
-    return agg, tag
+
+    try:
+        agg = m.group(1)
+        tag = m.group(2)
+        return agg, tag
+    except Exception as e:
+        logging.warning(f"Failed to parse aggregated metric key {metric_key}: {e}")
+        return None
 
 def _parse_value(v):
     try:
@@ -186,10 +192,7 @@ class DominoRun:
         Called when the 'with' block ends
         """
         try:
-            print(self.experiment_id, self._run.info.run_id)
             traces = get_all_traces_for_run(self.experiment_id, self._run.info.run_id)
-            print(len(traces))
-            print([t.info.tags for t in traces])
 
             # group by evaluation name
             eval_tags = sorted([(key, value) for t in traces for (key, value) in t.info.tags.items() if is_metric_tag(key)], key=lambda x: x[0])
@@ -219,12 +222,10 @@ class DominoRun:
 
             # Combine and deduplicate
             summary_metric_specs = list(set(base_summary_metric_specs + recompute_specs))
-            print(summary_metric_specs)
 
             for (tag, summary_statistic) in summary_metric_specs:
                 aggregator = _choose_summarizer(summary_statistic)
                 found_values = grouped_eval_tags.get(tag, None)
-                print(found_values)
                 if found_values:
                     try:
                         values = [_parse_value(v) for (_, v) in found_values]
