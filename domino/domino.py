@@ -1008,7 +1008,7 @@ class Domino:
         url = self._routes.environments_list()
         return self._get(url)
 
-    def get_default_environment(self):
+    def get_default_environment(self) -> Dict[str, Any]:
         url = self._routes.environment_default_get()
         response = self.request_manager.get(url).json()
         return response
