@@ -54,7 +54,7 @@ def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, l
 
         # verify run has summary metrics logged to it
         # average of outputs is 2 + 4/2 = 3
-        assert run.data.metrics['domino.prog.metric.add_numbers'] == 3, "average of add_numbers should be 3"
+        assert run.data.metrics['mean_add_numbers'] == 3, "average of add_numbers should be 3"
 
 def test_domino_run_dev_custom_aggregator(setup_mlflow_tracking_server, mlflow, tracing, logging):
         """
@@ -104,11 +104,11 @@ def test_domino_run_dev_custom_aggregator(setup_mlflow_tracking_server, mlflow, 
         # verify run has summary metrics logged to it
         # mean of outputs is 2 + 4/2 = 3
         # median is 2, 2, 4 = 2
-        assert run.data.metrics['domino.prog.metric.median'] == 3
-        assert run.data.metrics['domino.prog.metric.mean'] == 3
-        assert run.data.metrics['domino.prog.metric.stdev'] == 1.581
-        assert run.data.metrics['domino.prog.metric.min'] == 1
-        assert run.data.metrics['domino.prog.metric.max'] == 5
+        assert run.data.metrics['median_median'] == 3
+        assert run.data.metrics['mean_mean'] == 3
+        assert run.data.metrics['stdev_stdev'] == 1.581
+        assert run.data.metrics['min_min'] == 1
+        assert run.data.metrics['max_max'] == 5
 
 def test_domino_run_dev_bad_custom_aggregator(setup_mlflow_tracking_server, mlflow, tracing, logging):
         """
