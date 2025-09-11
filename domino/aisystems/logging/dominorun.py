@@ -55,6 +55,18 @@ def get_metric_tag_name(tag: str) -> Optional[str]:
         return match.group(1)
     return None
 
+def _parse_aggregated_metric_key(metric_key: str) -> Optional[tuple[str, str]]:
+    """
+    Parse an aggregated metric key of the form <agg>_<metric_name>.
+    Returns (agg, tag) or None
+    """
+    m = re.match(r"^(mean|median|stdev|max|min)_(.+)$", metric_key)
+    if not m:
+        return None
+    agg = m.group(1)
+    tag = m.group(2)
+    return agg, tag
+
 def _parse_value(v):
     try:
         return float(v)
@@ -180,7 +192,27 @@ class DominoRun:
             if self.custom_summary_metrics:
                 custom_summary_metrics = [(build_metric_tag(tag), stat) for tag, stat in self.custom_summary_metrics]
 
-            summary_metric_specs = custom_summary_metrics or [(tag, "mean") for tag, _ in grouped_eval_tags.items()]
+            # Base specs: either user-provided or default to mean for discovered tags
+            base_summary_metric_specs = custom_summary_metrics or [
+                (tag, "mean") for tag, _ in grouped_eval_tags.items()
+            ]
+
+            # Find previously calculated aggregated metrics and schedule recomputation
+            recompute_specs = []
+            try:
+                existing = mlflow.get_run(self._run.info.run_id)
+                metric_keys = list(existing.data.metrics.keys()) if existing else []
+                for k in metric_keys:
+                    parsed = _parse_aggregated_metric_key(k)
+                    if parsed:
+                        agg, tag = parsed
+                        recompute_specs.append((tag, agg))
+            except Exception as e:
+                logging.warning(f"Unable to inspect existing aggregated metrics for recomputation: {e}")
+
+            # Combine and deduplicate
+            summary_metric_specs = list(set(base_summary_metric_specs + recompute_specs))
+
             for (tag, summary_statistic) in summary_metric_specs:
                 aggregator = _choose_summarizer(summary_statistic)
                 found_values = grouped_eval_tags.get(tag, None)
