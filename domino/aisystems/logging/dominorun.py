@@ -159,10 +159,14 @@ class DominoRun:
         without a user specifying the experiment explicitly.
         """
         if not self._run:
-            if self.experiment_id:
-                self._run = mlflow.start_run(experiment_id=self.experiment_id, run_id=self.run_id)
-            elif self.run_id:
+            if self.run_id:
                 self._run = mlflow.get_run(run_id=self.run_id)
+                experiment_id = self._run.info.experiment_id
+                self._run = mlflow.start_run(experiment_id=experiment_id, run_id=self.run_id)
+
+            elif self.experiment_id:
+                # start the run in this experiment
+                self._run = mlflow.start_run(experiment_id=self.experiment_id)
             else:
                 self._run = mlflow.start_run()
 
@@ -182,7 +186,10 @@ class DominoRun:
         Called when the 'with' block ends
         """
         try:
+            print(self.experiment_id, self._run.info.run_id)
             traces = get_all_traces_for_run(self.experiment_id, self._run.info.run_id)
+            print(len(traces))
+            print([t.info.tags for t in traces])
 
             # group by evaluation name
             eval_tags = sorted([(key, value) for t in traces for (key, value) in t.info.tags.items() if is_metric_tag(key)], key=lambda x: x[0])
@@ -197,7 +204,7 @@ class DominoRun:
                 (tag, "mean") for tag, _ in grouped_eval_tags.items()
             ]
 
-            # Find previously calculated aggregated metrics and schedule recomputation
+            # Find previously calculated aggregated metrics
             recompute_specs = []
             try:
                 existing = mlflow.get_run(self._run.info.run_id)
@@ -206,16 +213,18 @@ class DominoRun:
                     parsed = _parse_aggregated_metric_key(k)
                     if parsed:
                         agg, tag = parsed
-                        recompute_specs.append((tag, agg))
+                        recompute_specs.append((build_metric_tag(tag), agg))
             except Exception as e:
                 logging.warning(f"Unable to inspect existing aggregated metrics for recomputation: {e}")
 
             # Combine and deduplicate
             summary_metric_specs = list(set(base_summary_metric_specs + recompute_specs))
+            print(summary_metric_specs)
 
             for (tag, summary_statistic) in summary_metric_specs:
                 aggregator = _choose_summarizer(summary_statistic)
                 found_values = grouped_eval_tags.get(tag, None)
+                print(found_values)
                 if found_values:
                     try:
                         values = [_parse_value(v) for (_, v) in found_values]
