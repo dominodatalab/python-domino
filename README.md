@@ -119,6 +119,30 @@ See
 
 - `DOMINO_AI_SYSTEM_IS_PROD`
 
+
+## Documentation
+
+Live site (built by GitHub Pages):
+
+- https://dominodatalab.github.io/python-domino/
+
+Versioning
+
+- The docs site includes a version selector. CI builds docs for:
+  - Branches: `main`, `master`
+  - Tags: `vX.Y.Z` (e.g., `v1.2.3`) and `release-*`
+
+Local build
+
+- Install: `pip install sphinx sphinx-rtd-theme sphinx-autodoc-typehints sphinx-multiversion`
+- Build single version: `make html` then open `build/html/index.html`
+- Build multi-version (like CI): `sphinx-multiversion source build/html`
+
+Publishing
+
+- The workflow at `.github/workflows/docs.yml` builds and deploys on pushes to `main/master` and when creating version tags.
+- Ensure the repository’s Settings → Pages has “Source: GitHub Actions” enabled.
+
     Used by the `domino.aisystems` package. Indicates that an AI System is running in production or development mode.
 
 
