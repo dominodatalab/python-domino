@@ -1,7 +1,9 @@
-niole.nelson
-============
+python-domino
+=============
 
 .. toctree::
    :maxdepth: 4
 
-   api_gateway
+   domino
+   setup
+   tests

@@ -5,8 +5,7 @@ import sys
 
 # Make the project importable by Sphinx (repo root on sys.path)
 # This file lives at docs/source/conf.py, so go up two directories.
-# REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "domino"))
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
@@ -19,13 +18,22 @@ release = "0.0.1"
 # -- General configuration ---------------------------------------------------
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon",
-    "sphinx_autodoc_typehints",
+    #"sphinx.ext.napoleon", # Google/NumPy docstrings
+    #"sphinx_autodoc_typehints",
     "sphinx_multiversion",
+    'sphinx.ext.autosummary',
+]
+
+exclude_patterns = [
+    "tests/*",
 ]
 
 # If you want Sphinx to evaluate forward refs safely
 set_type_checking_flag = True
+
+# Auto summary settings
+autosummary_imported_members = True
+autosummary_generate = True
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -43,7 +51,7 @@ autodoc_typehints = "description"
 
 # Mock heavy/optional dependencies to keep autodoc imports lightweight in CI
 autodoc_mock_imports = [
-    "yaml",
+    "attrs", "yaml", "pytest", "numpy",
     "apache_airflow", "airflow",
     "pandas", "numpy", "semver",
     "mlflow", "mlflow_tracing", "mlflow-skinny",
