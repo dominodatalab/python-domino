@@ -4,8 +4,7 @@ domino
 Welcome to the Domino SDK documentation
 =======================================
 
-This documentation is auto-generated from the package's docstrings and
-type hints using Sphinx autodoc.
+This library provides bindings for the Domino APIs.  It ships with the Domino Standard Environment (DSE).
 
 API Reference
 -------------
