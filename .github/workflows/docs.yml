@@ -34,8 +34,7 @@ jobs:
 
       - name: Install doc build deps
         run: |
-          pipenv --python 3.10 install ".[dev]"
-          pipenv --python 3.10 install ".[data,airflow,aisystems]"
+          pipenv --python 3.10 install ".[dev,data,airflow,aisystems]"
 
       - name: Build multi-version docs
         run: |
