@@ -156,3 +156,8 @@ cython_debug/
 
 # mlflow test generated data
 mlruns
+
+# docs
+docs_build
+source/api
+source/generated

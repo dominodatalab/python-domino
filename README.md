@@ -873,8 +873,8 @@ To install a specific version of the library from GitHub, such as
 # Build the docs
 
 - Install the app in dev mode and all dependencies
-- Build: pipenv run sphinx-build -M html source build
-- Open: build/html/index.html
+- Build: pipenv run sphinx-build -M html source docs_build
+- Open: docs_build/html/index.html
 
 # License
 
