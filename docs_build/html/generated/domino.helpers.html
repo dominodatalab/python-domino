@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>domino.helpers &mdash; domino 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            domino
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="domino.html">domino</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">domino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">domino.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/domino.helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-domino.helpers">
+<span id="domino-helpers"></span><h1>domino.helpers<a class="headerlink" href="#module-domino.helpers" title="Permalink to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#domino.helpers.clean_host_url" title="domino.helpers.clean_host_url"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_host_url</span></code></a>(host_url)</p></td>
+<td><p>Helper function to clean 'host_url'.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#domino.helpers.domino_is_reachable" title="domino.helpers.domino_is_reachable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">domino_is_reachable</span></code></a>([url, port])</p></td>
+<td><p>Confirm that a deployment is accessible.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#domino.helpers.is_cluster_type_supported" title="domino.helpers.is_cluster_type_supported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_cluster_type_supported</span></code></a>(version, cluster_type)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#domino.helpers.is_compute_cluster_properties_supported" title="domino.helpers.is_compute_cluster_properties_supported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_compute_cluster_properties_supported</span></code></a>(version)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#domino.helpers.is_comute_cluster_autoscaling_supported" title="domino.helpers.is_comute_cluster_autoscaling_supported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_comute_cluster_autoscaling_supported</span></code></a>(version)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#domino.helpers.is_external_volume_mounts_supported" title="domino.helpers.is_external_volume_mounts_supported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_external_volume_mounts_supported</span></code></a>(version)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#domino.helpers.is_on_demand_spark_cluster_supported" title="domino.helpers.is_on_demand_spark_cluster_supported"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_on_demand_spark_cluster_supported</span></code></a>(version)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#domino.helpers.is_version_compatible" title="domino.helpers.is_version_compatible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_version_compatible</span></code></a>(version)</p></td>
+<td><p>Helper function to check for version compatibility</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_version</span></code>(version)</p></td>
+<td><p>Parse the given version string.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.is_version_compatible">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">is_version_compatible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.is_version_compatible" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to check for version compatibility</p>
+<p>&#64;:param version  Domino version to check version compatibility against
+&#64;:return bool   Boolean representing if version is compatible or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.is_comute_cluster_autoscaling_supported">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">is_comute_cluster_autoscaling_supported</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.is_comute_cluster_autoscaling_supported" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.is_cluster_type_supported">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">is_cluster_type_supported</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_type</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.is_cluster_type_supported" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>version</strong> (<em>str</em>) – </p></li>
+<li><p><strong>cluster_type</strong> (<em>str</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.is_compute_cluster_properties_supported">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">is_compute_cluster_properties_supported</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.is_compute_cluster_properties_supported" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.is_on_demand_spark_cluster_supported">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">is_on_demand_spark_cluster_supported</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.is_on_demand_spark_cluster_supported" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.is_external_volume_mounts_supported">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">is_external_volume_mounts_supported</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.is_external_volume_mounts_supported" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.clean_host_url">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">clean_host_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host_url</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.clean_host_url" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to clean ‘host_url’. This will extract
+hostname (with scheme) from the url</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.helpers.domino_is_reachable">
+<span class="sig-prename descclassname"><span class="pre">domino.helpers.</span></span><span class="sig-name descname"><span class="pre">domino_is_reachable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'443'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.helpers.domino_is_reachable" title="Permalink to this definition"></a></dt>
+<dd><p>Confirm that a deployment is accessible.</p>
+<p>Returns Boolean value.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Domino Data Lab Inc..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

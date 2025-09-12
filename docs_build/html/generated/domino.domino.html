@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>domino.domino &mdash; domino 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="domino.domino_enums" href="domino.domino_enums.html" />
+    <link rel="prev" title="domino.constants" href="domino.constants.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            domino
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="domino.html">domino</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="domino.airflow.html">domino.airflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domino.aisystems.html">domino.aisystems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domino.authentication.html">domino.authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domino.constants.html">domino.constants</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">domino.domino</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domino.domino_enums.html">domino.domino_enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domino.http_request_manager.html">domino.http_request_manager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="domino.routes.html">domino.routes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">domino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="domino.html">domino</a></li>
+      <li class="breadcrumb-item active">domino.domino</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/domino.domino.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-domino.domino">
+<span id="domino-domino"></span><h1>domino.domino<a class="headerlink" href="#module-domino.domino" title="Permalink to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_auth_by_type</span></code>([api_key, auth_token, ...])</p></td>
+<td><p>Return appropriate authentication object for requests.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BillingTagSettingMode</span></code>(value)</p></td>
+<td><p>An enumeration.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BudgetLabel</span></code>(value)</p></td>
+<td><p>An enumeration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">BudgetType</span></code>(value)</p></td>
+<td><p>An enumeration.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#domino.domino.Domino" title="domino.domino.Domino"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Domino</span></code></a>(project[, api_key, host, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProjectVisibility</span></code>(value)</p></td>
+<td><p>An enumeration.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="domino.domino.Domino">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">domino.domino.</span></span><span class="sig-name descname"><span class="pre">Domino</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domino_token_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="domino.domino.Domino.log">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">log</span></span><a class="headerlink" href="#domino.domino.Domino.log" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.authenticate">
+<span class="sig-name descname"><span class="pre">authenticate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domino_token_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.authenticate" title="Permalink to this definition"></a></dt>
+<dd><p>Method to authenticate the request manager. An existing domino client object can
+use this with a new token if the existing credentials expire.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.commits_list">
+<span class="sig-name descname"><span class="pre">commits_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.commits_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.runs_list">
+<span class="sig-name descname"><span class="pre">runs_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.runs_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.runs_start">
+<span class="sig-name descname"><span class="pre">runs_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isDirect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commitId</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publishApiEndpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.runs_start" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.runs_start_blocking">
+<span class="sig-name descname"><span class="pre">runs_start_blocking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">isDirect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commitId</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publishApiEndpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">poll_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_poll_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.runs_start_blocking" title="Permalink to this definition"></a></dt>
+<dd><p>Run a tasks that runs in a blocking loop that periodically checks to
+see if the task is done.  If the task errors an exception is raised.</p>
+<dl class="simple">
+<dt>command<span class="classifier">list of strings</span></dt><dd><p>list that containst the name of the file to run in index 0
+and args in subsequent positions.
+example:
+&gt;&gt; domino.runs_start([“main.py”, “arg1”, “arg2”])</p>
+</dd>
+<dt>isDirect<span class="classifier">boolean (Optional)</span></dt><dd><p>Whether or not this command should be passed directly to
+a shell.</p>
+</dd>
+<dt>commitId<span class="classifier">string (Optional)</span></dt><dd><p>The commitId to launch from. If not provided, will launch
+from latest commit.</p>
+</dd>
+<dt>title<span class="classifier">string (Optional)</span></dt><dd><p>A title for the run</p>
+</dd>
+<dt>tier<span class="classifier">string (Optional)</span></dt><dd><p>The hardware tier to use for the run. Will use project
+default tier if not provided.</p>
+</dd>
+<dt>publishApiEndpoint<span class="classifier">boolean (Optional)</span></dt><dd><p>Whether or not to publish an API endpoint from the
+resulting output.</p>
+</dd>
+<dt>poll_freq<span class="classifier">int (Optional)</span></dt><dd><p>Number of seconds in between polling of the Domino server
+for status of the task that is running.</p>
+</dd>
+<dt>max_poll_time<span class="classifier">int (Optional)</span></dt><dd><p>Maximum number of seconds to wait for a task to
+complete. If this threshold is exceeded, an exception
+is raised.</p>
+</dd>
+<dt>retry_count<span class="classifier">int (Optional)</span></dt><dd><p>Maximum number of retry to do while polling
+(in-case of transient http errors). If this
+threshold exceeds, an exception is raised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.run_stop">
+<span class="sig-name descname"><span class="pre">run_stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saveChanges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.run_stop" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.runs_status">
+<span class="sig-name descname"><span class="pre">runs_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runId</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.runs_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.get_run_log">
+<span class="sig-name descname"><span class="pre">get_run_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">includeSetupLog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.get_run_log" title="Permalink to this definition"></a></dt>
+<dd><p>Get the unified log for a run (setup + stdout).</p>
+<dl class="simple">
+<dt>runId<span class="classifier">string</span></dt><dd><p>the id associated with the run.</p>
+</dd>
+<dt>includeSetupLog<span class="classifier">bool</span></dt><dd><p>whether or not to include the setup log in the output.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.get_run_info">
+<span class="sig-name descname"><span class="pre">get_run_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.get_run_info" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.runs_stdout">
+<span class="sig-name descname"><span class="pre">runs_stdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runId</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.runs_stdout" title="Permalink to this definition"></a></dt>
+<dd><p>Get std out emitted by a particular run.</p>
+<dl class="simple">
+<dt>runId<span class="classifier">string</span></dt><dd><p>the id associated with the run.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.job_start">
+<span class="sig-name descname"><span class="pre">job_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hardware_tier_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hardware_tier_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_demand_spark_cluster_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_cluster_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_volume_mounts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.job_start" title="Permalink to this definition"></a></dt>
+<dd><p>Starts a Domino Job via V4 API
+:param command:                             string</p>
+<blockquote>
+<div><p>Command to execute in Job
+&gt;&gt; domino.job_start(command=”main.py arg1 arg2”)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>commit_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – string (Optional)
+The commitId to launch from. If not provided, will launch
+from latest commit.</p></li>
+<li><p><strong>hardware_tier_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – string (Optional)
+The hardware tier ID to launch job in. If not provided
+it will use the default hardware tier for the project</p></li>
+<li><p><strong>hardware_tier_name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – string (Optional)
+This field is deprecated. Please use hardware_tier_id.
+The hardware tier NAME to launch job in. If not provided
+it will use the default hardware tier for the project</p></li>
+<li><p><strong>environment_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – string (Optional)
+The environment id to launch job with. If not provided
+it will use the default environment for the project</p></li>
+<li><p><strong>on_demand_spark_cluster_properties</strong> (<em>Optional</em><em>[</em><em>dict</em><em>]</em>) – <p>dict (Optional)
+This field is deprecated. Please use compute_cluster_properties.
+The following properties can be provided in spark cluster
+{</p>
+<blockquote>
+<div><p>”computeEnvironmentId”: “&lt;Environment ID configured with spark&gt;”
+“executorCount”: “&lt;Number of Executors in cluster&gt;”</p>
+<blockquote>
+<div><p>(optional defaults to 1)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>”executorHardwareTierId”: “&lt;Hardware tier ID for Spark Executors&gt;”</dt><dd><p>(optional defaults to last used historically if available)</p>
+</dd>
+<dt>”masterHardwareTierId”:  “&lt;Hardware tier ID for Spark master”</dt><dd><p>(optional defaults to last used historically if available)</p>
+</dd>
+<dt>”executorStorageMB”: “&lt;Executor’s storage in MB&gt;”</dt><dd><p>(optional defaults to 0; 1GB is 1000MB Here)</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>}</p>
+</p></li>
+<li><p><strong>compute_cluster_properties</strong> (<em>Optional</em><em>[</em><em>dict</em><em>]</em>) – <p>dict (Optional)
+The compute cluster properties definition contains parameters for
+launching any Domino supported compute cluster for a job. Use this
+to launch a job that uses compute cluster instead of
+the deprecated on_demand_spark_cluster_properties field. If
+on_demand_spark_cluster_properties and compute_cluster_properties
+are both present, on_demand_spark_cluster_properties will be ignored.</p>
+<p>compute_cluster_properties contains the following fields:
+{</p>
+<blockquote>
+<div><p>”clusterType”: &lt;string, one of “Ray”, “Spark”, “Dask”, “MPI”&gt;,
+“computeEnvironmentId”: &lt;string, The environment ID for the cluster’s nodes&gt;,
+“computeEnvironmentRevisionSpec”: &lt;one of “ActiveRevision”, “LatestRevision”,
+{“revisionId”:”&lt;environment_revision_id&gt;”} (optional)&gt;,
+“masterHardwareTierId”: &lt;string, the Hardware tier ID for the cluster’s master node
+(required unless clusterType is MPI)&gt;,
+“workerCount”: &lt;number, the total workers to spawn for the cluster&gt;,
+“workerHardwareTierId”: &lt;string, The Hardware tier ID for the cluster workers&gt;,
+“workerStorage”: &lt;{ “value”: &lt;number&gt;, “unit”: &lt;one of “GiB”, “MB”&gt; },
+The disk storage size for the cluster’s worker nodes (optional)&gt;
+“maxWorkerCount”: &lt;number, The max number of workers allowed. When
+this configuration exists, autoscaling is enabled for the cluster and
+‘workerCount’ is interpreted as the min number of workers allowed in the cluster
+(optional)&gt;</p>
+</div></blockquote>
+<p>}</p>
+</p></li>
+<li><p><strong>external_volume_mounts</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – list of string (Optional)
+External volume mount ids to mount to run. If not provided will launch with
+no external volume mounts mounted.</p></li>
+<li><p><strong>command</strong> (<em>str</em>) – </p></li>
+<li><p><strong>title</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>:param title                                string (Optional)</dt><dd><p>Title for the Job</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns created Job details (number, id etc)</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>command</strong> (<em>str</em>) – </p></li>
+<li><p><strong>commit_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>hardware_tier_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>hardware_tier_name</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>environment_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>on_demand_spark_cluster_properties</strong> (<em>Optional</em><em>[</em><em>dict</em><em>]</em>) – </p></li>
+<li><p><strong>compute_cluster_properties</strong> (<em>Optional</em><em>[</em><em>dict</em><em>]</em>) – </p></li>
+<li><p><strong>external_volume_mounts</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – </p></li>
+<li><p><strong>title</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.job_stop">
+<span class="sig-name descname"><span class="pre">job_stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.job_stop" title="Permalink to this definition"></a></dt>
+<dd><p>Stops the Job with given job_id
+:param job_id: The job identifier
+:param commit_results: Boolean representing to commit results to file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>job_id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>commit_results</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.jobs_list">
+<span class="sig-name descname"><span class="pre">jobs_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'number'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'desc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_no</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_archived</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'false'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.jobs_list" title="Permalink to this definition"></a></dt>
+<dd><p>Lists job history for a given project_id
+:param project_id: The project to query
+:param order_by: Field on which sort has to be applied– e.g. “title” (default “number”)
+:param sort_by: Sort “desc” (default) or “asc”
+:param page_size: The number of jobs to return (default: 3)
+:param page_no: Page number to fetch (default: 1).
+:param show_archived: Show archived jobs in results (default: false)
+:param status: Status of jobs to fetch– e.g. “completed” (default: “all”)
+:param tag: Optional tag filter
+:return: The details</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>order_by</strong> (<em>str</em>) – </p></li>
+<li><p><strong>sort_by</strong> (<em>str</em>) – </p></li>
+<li><p><strong>page_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>page_no</strong> (<em>int</em>) – </p></li>
+<li><p><strong>show_archived</strong> (<em>str</em>) – </p></li>
+<li><p><strong>status</strong> (<em>str</em>) – </p></li>
+<li><p><strong>tag</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.job_status">
+<span class="sig-name descname"><span class="pre">job_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.job_status" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the status of job with given job_id
+:param job_id: The job identifier
+:return: The details</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.job_restart">
+<span class="sig-name descname"><span class="pre">job_restart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">should_use_original_input_commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.job_restart" title="Permalink to this definition"></a></dt>
+<dd><p>Restarts a previous job
+:param job_id:                              ID of the original job that should be restarted
+:param should_use_original_input_commit:    Should the new job run use the original code, or the current version?</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>job_id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>should_use_original_input_commit</strong> (<em>bool</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.job_runtime_execution_details">
+<span class="sig-name descname"><span class="pre">job_runtime_execution_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.job_runtime_execution_details" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the runtime execution details of job with given job_id
+:param job_id: The job identifier
+:return: The details</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>job_id</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.job_start_blocking">
+<span class="sig-name descname"><span class="pre">job_start_blocking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poll_freq=5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_poll_time=6000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_exceptions=(&lt;class</span> <span class="pre">'requests.exceptions.RequestException'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.job_start_blocking" title="Permalink to this definition"></a></dt>
+<dd><p>Starts a job in a blocking loop, periodically polling for status of job
+is complete. Will ignore intermediate request exception.
+:param poll_freq: int (Optional) polling frequency interval in seconds
+:param max_poll_time: int (Optional) max poll time in seconds
+:param ignore_exceptions: tuple (Optional) a tuple of exceptions that can be ignored
+:param kwargs: Additional arguments to be passed to job_start
+:return:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>poll_freq</strong> (<em>int</em>) – </p></li>
+<li><p><strong>max_poll_time</strong> (<em>int</em>) – </p></li>
+<li><p><strong>ignore_exceptions</strong> (<em>Tuple</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.files_list">
+<span class="sig-name descname"><span class="pre">files_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commitId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.files_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.files_upload">
+<span class="sig-name descname"><span class="pre">files_upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.files_upload" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.blobs_get">
+<span class="sig-name descname"><span class="pre">blobs_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.blobs_get" title="Permalink to this definition"></a></dt>
+<dd><p>Deprecated. Use blobs_get_v2(path, commit_id, project_id) instead
+:param key: blob key
+:return: blob content</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.blobs_get_v2">
+<span class="sig-name descname"><span class="pre">blobs_get_v2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.blobs_get_v2" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.fork_project">
+<span class="sig-name descname"><span class="pre">fork_project</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.fork_project" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.endpoint_state">
+<span class="sig-name descname"><span class="pre">endpoint_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.endpoint_state" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.endpoint_unpublish">
+<span class="sig-name descname"><span class="pre">endpoint_unpublish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.endpoint_unpublish" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.endpoint_publish">
+<span class="sig-name descname"><span class="pre">endpoint_publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commitId</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.endpoint_publish" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.deployment_version">
+<span class="sig-name descname"><span class="pre">deployment_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.deployment_version" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_create_v4">
+<span class="sig-name descname"><span class="pre">project_create_v4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner_username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collaborators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">billing_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">ProjectVisibility.PUBLIC</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.project_create_v4" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> (<em>str</em>) – </p></li>
+<li><p><strong>owner_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>owner_username</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>description</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>collaborators</strong> (<em>Optional</em><em>[</em><em>list</em><em>]</em>) – </p></li>
+<li><p><strong>tags</strong> (<em>Optional</em><em>[</em><em>list</em><em>]</em>) – </p></li>
+<li><p><strong>billing_tag</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>visibility</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="domino.domino_enums.html#domino.domino_enums.ProjectVisibility" title="domino.domino_enums.ProjectVisibility"><em>ProjectVisibility</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_create">
+<span class="sig-name descname"><span class="pre">project_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner_username</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.project_create" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_archive">
+<span class="sig-name descname"><span class="pre">project_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.project_archive" title="Permalink to this definition"></a></dt>
+<dd><p>Delete the project with the given name</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.projects_list">
+<span class="sig-name descname"><span class="pre">projects_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relationship</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Owned'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_completed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.projects_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.tags_list">
+<span class="sig-name descname"><span class="pre">tags_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.tags_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.tag_details">
+<span class="sig-name descname"><span class="pre">tag_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.tag_details" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.tags_add">
+<span class="sig-name descname"><span class="pre">tags_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.tags_add" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tags</strong> (<em>list</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.tag_get_id">
+<span class="sig-name descname"><span class="pre">tag_get_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.tag_get_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.tags_remove">
+<span class="sig-name descname"><span class="pre">tags_remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.tags_remove" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.collaborators_get">
+<span class="sig-name descname"><span class="pre">collaborators_get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.collaborators_get" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.get_user_id">
+<span class="sig-name descname"><span class="pre">get_user_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username_or_email</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.get_user_id" title="Permalink to this definition"></a></dt>
+<dd><p>Return the user ID of the the user account matching the given search criteria.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username_or_email (str): the username or email account of a user</p>
+</dd>
+<dt>Return:</dt><dd><p>user_id (str): the matching user ID, or None if not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.collaborators_add">
+<span class="sig-name descname"><span class="pre">collaborators_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username_or_email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.collaborators_add" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.collaborators_remove">
+<span class="sig-name descname"><span class="pre">collaborators_remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username_or_email</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.collaborators_remove" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.app_publish">
+<span class="sig-name descname"><span class="pre">app_publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unpublishRunningApps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hardwareTierId</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.app_publish" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.app_unpublish">
+<span class="sig-name descname"><span class="pre">app_unpublish</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.app_unpublish" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.environments_list">
+<span class="sig-name descname"><span class="pre">environments_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.environments_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.models_list">
+<span class="sig-name descname"><span class="pre">models_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.models_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.model_publish">
+<span class="sig-name descname"><span class="pre">model_publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_to_exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.model_publish" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.model_versions_get">
+<span class="sig-name descname"><span class="pre">model_versions_get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.model_versions_get" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.model_version_publish">
+<span class="sig-name descname"><span class="pre">model_version_publish</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files_to_exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.model_version_publish" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_list">
+<span class="sig-name descname"><span class="pre">datasets_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_ids">
+<span class="sig-name descname"><span class="pre">datasets_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_ids" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_names">
+<span class="sig-name descname"><span class="pre">datasets_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_names" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_create">
+<span class="sig-name descname"><span class="pre">datasets_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_description</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_create" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_details">
+<span class="sig-name descname"><span class="pre">datasets_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_details" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_update_details">
+<span class="sig-name descname"><span class="pre">datasets_update_details</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_update_details" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_remove">
+<span class="sig-name descname"><span class="pre">datasets_remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_ids</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_remove" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset_ids</strong> (<em>list</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.datasets_upload_files">
+<span class="sig-name descname"><span class="pre">datasets_upload_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path_to_file_or_directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_upload_setting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_relative_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.datasets_upload_files" title="Permalink to this definition"></a></dt>
+<dd><p>Upload file to dataset with multithreaded support.</p>
+<p>Note: in the case of a KeyboardInterrupt, it may take a few seconds for all the threads to stop and for the
+upload session to be properly cancelled.</p>
+<dl>
+<dt>Args:</dt><dd><p>dataset_id: id of dataset whose rw snapshot the file will be uploaded to
+local_path_to_file_or_directory: path to file or directory in local machine
+file_upload_setting: setting to resolve naming conflict, one of Rename, Overwrite, or Ignore (default).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Rename: renames the conflicting file being uploaded by appending “_n” where n is an integer.</p></li>
+<li><p>Overwrite: overrides the existing conflicting files.</p></li>
+<li><p>Ignore (default): skips the upload for any conflicting file.</p></li>
+</ul>
+</div></blockquote>
+<p>max_workers: max amount of threads (default: 10)
+target_chunk_size: max chunk size for multipart upload (default: 8MB)
+target_relative_path: path in the dataset to upload the file or directory to</p>
+</dd>
+</dl>
+<p>Returns local path to uploaded file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset_id</strong> (<em>str</em>) – </p></li>
+<li><p><strong>local_path_to_file_or_directory</strong> (<em>str</em>) – </p></li>
+<li><p><strong>file_upload_setting</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+<li><p><strong>max_workers</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>target_chunk_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – </p></li>
+<li><p><strong>target_relative_path</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.model_version_export">
+<span class="sig-name descname"><span class="pre">model_version_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.model_version_export" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.model_version_sagemaker_export">
+<span class="sig-name descname"><span class="pre">model_version_sagemaker_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_version_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_username</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry_password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repository_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.model_version_sagemaker_export" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.model_version_export_status">
+<span class="sig-name descname"><span class="pre">model_version_export_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_export_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.model_version_export_status" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.model_version_export_logs">
+<span class="sig-name descname"><span class="pre">model_version_export_logs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_export_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.model_version_export_logs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.hardware_tiers_list">
+<span class="sig-name descname"><span class="pre">hardware_tiers_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.hardware_tiers_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.get_hardware_tier_id_from_name">
+<span class="sig-name descname"><span class="pre">get_hardware_tier_id_from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hardware_tier_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.get_hardware_tier_id_from_name" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hardware_tier_name</strong> (<em>str</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.process_log">
+<span class="sig-name descname"><span class="pre">process_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.process_log" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>spool out and replay entire log using bs4 to strip the HTML tags</dt><dd><ul class="simple">
+<li><p>html.parser since it’s batteries included</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_defaults_list">
+<span class="sig-name descname"><span class="pre">budget_defaults_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_defaults_list" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of the available default budgets with the assigned (if any) limits
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns a list of default budgets with details</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_defaults_update">
+<span class="sig-name descname"><span class="pre">budget_defaults_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">budget_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_defaults_update" title="Permalink to this definition"></a></dt>
+<dd><p>Update default budgets limits (or quota) by BudgetLabel
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>budget_label</strong> (<a class="reference internal" href="domino.domino_enums.html#domino.domino_enums.BudgetLabel" title="domino.domino_enums.BudgetLabel"><em>BudgetLabel</em></a>) – label of budget to be updated ex: <cite>BillingTag</cite>, <cite>Organization</cite></p></li>
+<li><p><strong>budget_limit</strong> (<em>float</em>) – new budget quota to assign to default label</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the updated budget with the newly assigned limit.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_overrides_list">
+<span class="sig-name descname"><span class="pre">budget_overrides_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_overrides_list" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of the available budgets overrides with the assigned limits.
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns a list of budgets overrides with details</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_override_create">
+<span class="sig-name descname"><span class="pre">budget_override_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">budget_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_override_create" title="Permalink to this definition"></a></dt>
+<dd><p>Create Budget overrides based on BudgetLabels, ie BillingTags, Organization, or Projects
+the object id is used as budget ids
+Requires Admin roles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>budget_label</strong> (<a class="reference internal" href="domino.domino_enums.html#domino.domino_enums.BudgetLabel" title="domino.domino_enums.BudgetLabel"><em>BudgetLabel</em></a>) – label of budget to be updated</p></li>
+<li><p><strong>budget_id</strong> (<em>str</em>) – id of project or organization to be used as new budget override id.</p></li>
+<li><p><strong>budget_limit</strong> (<em>float</em>) – budget quota to assign to override</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the newly created budget override</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_override_update">
+<span class="sig-name descname"><span class="pre">budget_override_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">budget_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_override_update" title="Permalink to this definition"></a></dt>
+<dd><p>Update Budget overrides based on BudgetLabel and budget id
+Requires Admin roles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>budget_label</strong> (<a class="reference internal" href="domino.domino_enums.html#domino.domino_enums.BudgetLabel" title="domino.domino_enums.BudgetLabel"><em>BudgetLabel</em></a>) – label of budget to be updated</p></li>
+<li><p><strong>budget_id</strong> (<em>str</em>) – id of budget override to be updated.</p></li>
+<li><p><strong>budget_limit</strong> (<em>float</em>) – new budget quota to assign to override</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the updated budget override</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_override_delete">
+<span class="sig-name descname"><span class="pre">budget_override_delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">budget_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_override_delete" title="Permalink to this definition"></a></dt>
+<dd><p>Delete an existing budget override
+Requires Admin roles</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>budget_id</strong> (<em>str</em>) – id of budget override to be deleted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns list of messages confirming the budget override deletion</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_alerts_settings">
+<span class="sig-name descname"><span class="pre">budget_alerts_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_alerts_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Get the current budget alerts settings
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns the current budget alert setting</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_alerts_settings_update">
+<span class="sig-name descname"><span class="pre">budget_alerts_settings_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alerts_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">notify_org_owner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_alerts_settings_update" title="Permalink to this definition"></a></dt>
+<dd><p>Update the current budget alerts settings to enable/disable budget notifications
+and whether to notify org owners on projects notifications
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>alerts_enabled</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – whether to enable or disable notifications.</p></li>
+<li><p><strong>notify_org_owner</strong> (<em>Optional</em><em>[</em><em>bool</em><em>]</em>) – whether to notify organizations owners on projects reaching threshold.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the updated budget alert setting</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.budget_alerts_targets_update">
+<span class="sig-name descname"><span class="pre">budget_alerts_targets_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.budget_alerts_targets_update" title="Permalink to this definition"></a></dt>
+<dd><p>Update the current budget alerts settings with additional email targets per budget label
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>targets</strong> (<em>dict</em><em>[</em><a class="reference internal" href="domino.domino_enums.html#domino.domino_enums.BudgetLabel" title="domino.domino_enums.BudgetLabel"><em>domino.domino_enums.BudgetLabel</em></a><em>, </em><em>list</em><em>]</em>) – dictionary of budget labels and list of email addresses</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the updated budget alert setting</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.billing_tags_list_active">
+<span class="sig-name descname"><span class="pre">billing_tags_list_active</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.billing_tags_list_active" title="Permalink to this definition"></a></dt>
+<dd><p>Get a list of active billing tags
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns a dictionary containing the list active billing tags</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.billing_tags_create">
+<span class="sig-name descname"><span class="pre">billing_tags_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tags_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.billing_tags_create" title="Permalink to this definition"></a></dt>
+<dd><p>Create a list of active billing tags
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tags_list</strong> (<em>list</em>) – list of billing tags names to be created</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns a dictionary containing the list newly created billing tags</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.active_billing_tag_by_name">
+<span class="sig-name descname"><span class="pre">active_billing_tag_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.active_billing_tag_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Get detailed info on active or archived billing tag
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – name of existing billing tag</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns a dictionary containing the list newly created billing tags</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.billing_tag_archive">
+<span class="sig-name descname"><span class="pre">billing_tag_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.billing_tag_archive" title="Permalink to this definition"></a></dt>
+<dd><p>Archive an active billing tag
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – name of existing billing tag to archive</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns a dictionary containing the updated billing tag</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.billing_tag_settings">
+<span class="sig-name descname"><span class="pre">billing_tag_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.billing_tag_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Get the current billing tag settings
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns the current billing tag settings</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.billing_tag_settings_mode">
+<span class="sig-name descname"><span class="pre">billing_tag_settings_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.billing_tag_settings_mode" title="Permalink to this definition"></a></dt>
+<dd><p>Get the current billing tag settings mode
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns the current billing tag settings mode</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.billing_tag_settings_mode_update">
+<span class="sig-name descname"><span class="pre">billing_tag_settings_mode_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.billing_tag_settings_mode_update" title="Permalink to this definition"></a></dt>
+<dd><p>Update the current billing tag settings mode
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference internal" href="domino.domino_enums.html#domino.domino_enums.BillingTagSettingMode" title="domino.domino_enums.BillingTagSettingMode"><em>BillingTagSettingMode</em></a>) – new mode to set the billing tag settings (see BillingTagSettingMode)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the updated billing tag settings mode</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <a class="reference internal" href="domino.domino_enums.html#domino.domino_enums.BillingTagSettingMode" title="domino.domino_enums.BillingTagSettingMode">domino.domino_enums.BillingTagSettingMode</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_billing_tag">
+<span class="sig-name descname"><span class="pre">project_billing_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.project_billing_tag" title="Permalink to this definition"></a></dt>
+<dd><p>Get a billing tag assigned to a particular project by project id
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>project_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – id of the project to find assigned billing tag</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the billing tag if assigned or None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Optional</em>[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_billing_tag_update">
+<span class="sig-name descname"><span class="pre">project_billing_tag_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">billing_tag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.project_billing_tag_update" title="Permalink to this definition"></a></dt>
+<dd><p>Update project’s billing tag with new billing tag.
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>billing_tag</strong> (<em>str</em>) – billing tag to assign to a project</p></li>
+<li><p><strong>project_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – id of the project to assign a billing tag</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the project details including the new billing tag</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_billing_tag_reset">
+<span class="sig-name descname"><span class="pre">project_billing_tag_reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.project_billing_tag_reset" title="Permalink to this definition"></a></dt>
+<dd><p>Remove a billing tag from a specified project
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>project_id</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – id of the project to reset billing tag field</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the project details</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.projects_by_billing_tag">
+<span class="sig-name descname"><span class="pre">projects_by_billing_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">billing_tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_tag_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.projects_by_billing_tag" title="Permalink to this definition"></a></dt>
+<dd><p>Remove a billing tag from a specified project
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>billing_tag</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – billing tag string to filter projects by</p></li>
+<li><p><strong>offset</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – The index of the start of the page, where checkpointProjectId is index 0.
+If the offset is negative the project it points to will be the end of the page.</p></li>
+<li><p><strong>page_size</strong> (<em>Optional</em><em>[</em><em>int</em><em>]</em>) – The number of record to return per page.</p></li>
+<li><p><strong>name_filter</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – matches projects by name substring</p></li>
+<li><p><strong>sort_by</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – (Optional) field to sort the projects on</p></li>
+<li><p><strong>sort_order</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – (Optional) Whether to sort in asc or desc order</p></li>
+<li><p><strong>missing_tag_only</strong> (<em>bool</em>) – (Optional) determine whether to only return projects with missing tag</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns a dictionary containing a page with the projects matching the query based on the page_size,
+and to total count of projects aching the query</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_billing_tag_bulk_update">
+<span class="sig-name descname"><span class="pre">project_billing_tag_bulk_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projects_tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.project_billing_tag_bulk_update" title="Permalink to this definition"></a></dt>
+<dd><p>Update project’s billing tags in bulk
+Requires Admin permission</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>projects_tag</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – dictionary of project_id and billing_tags</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns the updated projects detail summary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.custom_metrics_client">
+<span class="sig-name descname"><span class="pre">custom_metrics_client</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.custom_metrics_client" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>_CustomMetricsClientBase</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.domino.Domino.requires_at_least">
+<span class="sig-name descname"><span class="pre">requires_at_least</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">at_least_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.domino.Domino.requires_at_least" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="domino.domino.Domino.project_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">project_id</span></span><a class="headerlink" href="#domino.domino.Domino.project_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="domino.constants.html" class="btn btn-neutral float-left" title="domino.constants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="domino.domino_enums.html" class="btn btn-neutral float-right" title="domino.domino_enums" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Domino Data Lab Inc..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

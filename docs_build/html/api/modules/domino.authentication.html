@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>domino.authentication &mdash; domino 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            domino
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../generated/domino.html">domino</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">domino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">domino.authentication</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/modules/domino.authentication.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-domino.authentication">
+<span id="domino-authentication"></span><h1>domino.authentication<a class="headerlink" href="#module-domino.authentication" title="Permalink to this heading"></a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../generated/domino.authentication.html#domino.authentication.get_auth_by_type" title="domino.authentication.get_auth_by_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_auth_by_type</span></code></a>([api_key, auth_token, ...])</p></td>
+<td><p>Return appropriate authentication object for requests.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">AuthBase</span></code>()</p></td>
+<td><p>Base class that all auth implementations derive from</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../generated/domino.authentication.html#domino.authentication.BearerAuth" title="domino.authentication.BearerAuth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BearerAuth</span></code></a>([auth_token, domino_token_file])</p></td>
+<td><p>Class for authenticating requests by user supplied token.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">HTTPBasicAuth</span></code>(username, password)</p></td>
+<td><p>Attaches HTTP Basic Authentication to the given Request object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../generated/domino.authentication.html#domino.authentication.ProxyAuth" title="domino.authentication.ProxyAuth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProxyAuth</span></code></a>(api_proxy)</p></td>
+<td><p>Class for authenticating requests using the Domino API reverse Proxy.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="domino.authentication.ProxyAuth">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">domino.authentication.</span></span><span class="sig-name descname"><span class="pre">ProxyAuth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_proxy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.authentication.ProxyAuth" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AuthBase</span></code></p>
+<p>Class for authenticating requests using the Domino API reverse Proxy.
+All Domino URLs will use the proxy as host instead.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="domino.authentication.BearerAuth">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">domino.authentication.</span></span><span class="sig-name descname"><span class="pre">BearerAuth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domino_token_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.authentication.BearerAuth" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AuthBase</span></code></p>
+<p>Class for authenticating requests by user supplied token.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="domino.authentication.get_auth_by_type">
+<span class="sig-prename descclassname"><span class="pre">domino.authentication.</span></span><span class="sig-name descname"><span class="pre">get_auth_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domino_token_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_proxy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.authentication.get_auth_by_type" title="Permalink to this definition"></a></dt>
+<dd><p>Return appropriate authentication object for requests.</p>
+<p>If no authentication credential is provided, the call fails with an AssertError</p>
+<dl class="simple">
+<dt>Precedence in the case of multiple credentials is:</dt><dd><ol class="arabic simple">
+<li><p>api_proxy</p></li>
+<li><p>auth_token string</p></li>
+<li><p>domino_token_file</p></li>
+<li><p>api_key</p></li>
+<li><p>api_proxy_from_env</p></li>
+<li><p>domino_token_file_from_env</p></li>
+<li><p>api_key_from_env</p></li>
+</ol>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Domino Data Lab Inc..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

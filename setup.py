@@ -72,7 +72,7 @@ setup(
             "docker>=7.1.0",
             "pytest-mock>=3.14.1",
             "sphinx",
-            "sphinx-multiversion",
+            "sphinx-multiversion>=0.2.4",
             "markupsafe==2.0.1", # added for using Jinja2 with sphinx and python 3.10
         ],
     },

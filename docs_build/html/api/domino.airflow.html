@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>domino.airflow package &mdash; domino 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            domino
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../generated/domino.html">domino</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">domino</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">domino.airflow package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/domino.airflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="domino-airflow-package">
+<h1>domino.airflow package<a class="headerlink" href="#domino-airflow-package" title="Permalink to this heading"></a></h1>
+<section id="module-domino.airflow">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-domino.airflow" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="domino.airflow.DominoOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">domino.airflow.</span></span><span class="sig-name descname"><span class="pre">DominoOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.airflow.DominoOperator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOperator</span></code></p>
+<p>Operator for interacting with Domino Data Lab
+via the python-domino client library w/ some
+additional functionality baked in. Follows the
+same run signature as domino.runs_start with
+some extra arguments.</p>
+<p>Host and API key arguments are optional and can be
+discovered via environment variable, as per the domino
+python client.</p>
+<p>When combining <cite>isDirect=True</cite> with a command, you
+need to pass in the entire command as a single string
+in the command array.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="domino.airflow.DominoOperator.template_fields">
+<span class="sig-name descname"><span class="pre">template_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('command',</span> <span class="pre">'title')</span></em><a class="headerlink" href="#domino.airflow.DominoOperator.template_fields" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="domino.airflow.DominoOperator.ui_color">
+<span class="sig-name descname"><span class="pre">ui_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#5188c7'</span></em><a class="headerlink" href="#domino.airflow.DominoOperator.ui_color" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.airflow.DominoOperator.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.airflow.DominoOperator.execute" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="domino.airflow.DominoSparkOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">domino.airflow.</span></span><span class="sig-name descname"><span class="pre">DominoSparkOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.airflow.DominoSparkOperator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOperator</span></code></p>
+<p>Operator for launching runs via the v4 API with
+an On-Demand Spark Cluster attached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> – string
+Command to execute in Job
+&gt;&gt; domino.job_start(command=”main.py arg1 arg2”)</p></li>
+<li><p><strong>commit_id</strong> – string (Optional)
+The commitId to launch from. If not provided, will launch
+from latest commit.</p></li>
+<li><p><strong>hardware_tier_name</strong> – string (Optional)
+The hardware tier NAME to launch job in. If not provided
+it will use the default hardware tier for the project</p></li>
+<li><p><strong>environment_id</strong> – string (Optional)
+The environment id to launch job with. If not provided
+it will use the default environment for the project</p></li>
+<li><p><strong>on_demand_spark_cluster_properties</strong> – <dl>
+<dt>dict (Optional)</dt><dd><p>This field is deprecated. Please use compute_cluster_properties.
+On demand spark cluster properties. Following properties
+can be provided in spark cluster
+{</p>
+<blockquote>
+<div><p>”computeEnvironmentId”: “&lt;Environment ID configured with spark&gt;”
+“executorCount”: “&lt;Number of Executors in cluster&gt;”</p>
+<blockquote>
+<div><p>(optional defaults to 1)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>”executorHardwareTierId”: “&lt;Hardware tier ID for Spark Executors&gt;”</dt><dd><p>(optional defaults to last used historically if available)</p>
+</dd>
+<dt>”masterHardwareTierId”:  “&lt;Hardware tier ID for Spark master”</dt><dd><p>(optional defaults to last used historically if available)</p>
+</dd>
+<dt>”executorStorageMB”: “&lt;Executor’s storage in MB&gt;”</dt><dd><p>(optional defaults to 0; 1GB is 1000MB Here)</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">param compute_cluster_properties<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict (Optional)
+The compute cluster properties definition contains parameters for
+launching any Domino supported compute cluster for a job. Use this
+to launch a job that uses a compute cluster instead of
+the deprecated on_demand_spark_cluster_properties field. If
+on_demand_spark_cluster_properties and compute_cluster_properties
+are both present, on_demand_spark_cluster_properties will be ignored.</p>
+<p>compute_cluster_properties contains the following fields:
+{</p>
+<blockquote>
+<div><p>”clusterType”: &lt;string, one of “Ray”, “Spark”, “Dask”, “MPI”&gt;,
+“computeEnvironmentId”: &lt;string, The environment ID for the cluster’s nodes&gt;,
+“computeEnvironmentRevisionSpec”: &lt;one of “ActiveRevision”, “LatestRevision”,
+{“revisionId”:”&lt;environment_revision_id&gt;”} (optional)&gt;,
+“masterHardwareTierId”: &lt;string, the Hardware tier ID for the cluster’s master node
+(required unless clusterType is MPI)&gt;,
+“workerCount”: &lt;number, the total workers to spawn for the cluster&gt;,
+“workerHardwareTierId”: &lt;string, The Hardware tier ID for the cluster workers&gt;,
+“workerStorage”: &lt;{ “value”: &lt;number&gt;, “unit”: &lt;one of “GiB”, “MB”&gt; },
+The disk storage size for the cluster’s worker nodes (optional)&gt;
+“maxWorkerCount”: &lt;number, The max number of workers allowed. When
+this configuration exists, autoscaling is enabled for the cluster and
+‘workerCount’ is interpreted as the min number of workers allowed in the cluster
+(optional)&gt;</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>poll_freq</strong> – int polling frequency interval in seconds</p></li>
+<li><p><strong>max_poll_time</strong> – int max poll time in seconds</p></li>
+<li><p><strong>startup_delay</strong> – int (Optional) number of seconds to wait before starting the job</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="domino.airflow.DominoSparkOperator.template_fields">
+<span class="sig-name descname"><span class="pre">template_fields</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('command',)</span></em><a class="headerlink" href="#domino.airflow.DominoSparkOperator.template_fields" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="domino.airflow.DominoSparkOperator.ui_color">
+<span class="sig-name descname"><span class="pre">ui_color</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#6C50AD'</span></em><a class="headerlink" href="#domino.airflow.DominoSparkOperator.ui_color" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="domino.airflow.DominoSparkOperator.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#domino.airflow.DominoSparkOperator.execute" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>context</strong> (<em>Any</em>) – </p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Domino Data Lab Inc..</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
