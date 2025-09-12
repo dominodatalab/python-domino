@@ -5,7 +5,7 @@ import os
 from packaging import version
 import re
 import time
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import warnings
 
 import polling2
@@ -502,7 +502,7 @@ class Domino:
 
             if (
                 "maxWorkerCount" in compute_cluster_properties
-                and not helpers.is_comute_cluster_autoscaling_supported(self._version)
+                and not helpers.is_compute_cluster_autoscaling_supported(self._version)
             ):
                 raise exceptions.UnsupportedFieldException(
                     f"'maxWorkerCount' is not supported in Domino {self._version}."
@@ -1007,6 +1007,211 @@ class Domino:
     def environments_list(self):
         url = self._routes.environments_list()
         return self._get(url)
+
+    def get_default_environment(self) -> Dict[str, Any]:
+        url = self._routes.environment_default_get()
+        response = self.request_manager.get(url).json()
+        return response
+
+    def get_environment(self, environment_id: str):
+        url = self._routes.environment_get(environment_id)
+        response = self.request_manager.get(url).json()
+        return response
+
+    def archive_environment(self, environment_id: str) -> None:
+        url = self._routes.environment_get(environment_id)
+        self.request_manager.delete(url)
+
+
+    def create_environment(
+            self,
+            name: str,
+            visibility: str,
+            dockerfile_instructions: str = "",
+            environment_variables: Optional[List[Dict[str, Any]]] = None,
+            base_image: str = "",
+            post_run_script: str = "",
+            post_setup_script: str = "",
+            pre_run_script: str = "",
+            pre_setup_script: str = "",
+            skip_cache: bool = False,
+            summary: str = "",
+            supported_clusters: Optional[List[str]] = None,
+            tags: Optional[List[str]] = None,
+            use_vpn: bool = False,
+            workspace_tools: Optional[List[Dict[str, Any]]] = None,
+            add_base_dependencies: bool = True,
+            description: str = "",
+            is_restricted: bool = False,
+            organization_owner_id: Optional[str] = None,
+    ) -> dict:
+        """
+        Create a new Domino compute environment.
+        
+        Args:
+            name: Name of the compute environment
+            visibility: Visibility level ("Private" or "Global")
+            dockerfile_instructions: Dockerfile instructions to customize the environment
+            environment_variables: List of environment variables as dicts with 'name' and 'value' keys
+            base_image: Base Docker image (if empty, uses default environment image)
+            post_run_script: Script to run after the main execution
+            post_setup_script: Script to run after environment setup
+            pre_run_script: Script to run before the main execution
+            pre_setup_script: Script to run before environment setup
+            skip_cache: Whether to skip Docker layer caching
+            summary: Brief description of the environment
+            supported_clusters: List of supported distributed compute cluster types
+            tags: List of tags for the environment
+            use_vpn: Whether this environment should be able to use VPN
+            workspace_tools: Configuration of IDEs that can be used in workspaces
+            add_base_dependencies: Whether to include base dependencies
+            description: Detailed description
+            is_restricted: Whether the environment is restricted
+            organization_owner_id: ID of an organization that will own the environment
+            
+        Returns:
+            dict: Created environment details
+        """
+
+        if not base_image:
+            default_environment = self.get_default_environment()
+            base_image = default_environment["latestRevisionDetails"]["dockerImage"]
+
+        # Handle None values for optional parameters
+        if environment_variables is None:
+            environment_variables = []
+        if supported_clusters is None:
+            supported_clusters = []
+        if tags is None:
+            tags = []
+        if workspace_tools is None:
+            workspace_tools = []
+
+        data = {
+            "dockerfileInstructions": dockerfile_instructions,
+            "environmentVariables": environment_variables,
+            "image": base_image,
+            "postRunScript": post_run_script,
+            "postSetupScript": post_setup_script,
+            "preRunScript": pre_run_script,
+            "preSetupScript": pre_setup_script,
+            "skipCache": skip_cache,
+            "summary": summary,
+            "supportedClusters": supported_clusters,
+            "tags": tags,
+            "useVpn": use_vpn,
+            "workspaceTools": workspace_tools,
+            "addBaseDependencies": add_base_dependencies,
+            "description": description,
+            "isRestricted": is_restricted,
+            "name": name,
+            "visibility": visibility
+        }
+
+        if organization_owner_id:
+            data.update({
+                "orgOwnerId": organization_owner_id
+            })
+
+        url = self._routes.environment_create()
+        payload = json.dumps(data)
+        response = self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"})
+        return response.json()
+
+
+    def create_environment_revision(
+            self,
+            environment_id: str,
+            dockerfile_instructions: str = "",
+            environment_variables: Optional[List[Dict[str, Any]]] = None,
+            base_image: Optional[str] = None,
+            post_run_script: str = "",
+            post_setup_script: str = "",
+            pre_run_script: str = "",
+            pre_setup_script: str = "",
+            skip_cache: bool = False,
+            summary: str = "",
+            supported_clusters: Optional[List[str]] = None,
+            tags: Optional[List[str]] = None,
+            use_vpn: bool = False,
+            workspace_tools: Optional[List[Dict[str, Any]]] = None,
+        ) -> dict:
+        """
+        Create a new revision of an existing Domino environment.
+        
+        Args:
+            environment_id: ID of the environment for which to create a revision
+            dockerfile_instructions: Dockerfile instructions to customize the environment
+            environment_variables: List of environment variables as dicts with 'name' and 'value' keys
+            base_image: Base Docker image (if None, uses default environment image)
+            post_run_script: Script to run after the main execution
+            post_setup_script: Script to run after environment setup
+            pre_run_script: Script to run before the main execution
+            pre_setup_script: Script to run before environment setup
+            skip_cache: Whether to skip Docker layer caching
+            summary: Brief description of the environment revision
+            supported_clusters: List of supported cluster types
+            tags: List of tags for the environment
+            use_vpn: Whether to use VPN for this environment
+            workspace_tools: List of workspace tools configuration
+            
+        Returns:
+            dict: Response content from the API
+        """
+
+        if not base_image:
+            default_environment = self.get_default_environment()
+            base_image = default_environment["latestRevisionDetails"]["dockerImage"]
+
+        # Handle None values for optional parameters
+        if environment_variables is None:
+            environment_variables = []
+        if supported_clusters is None:
+            supported_clusters = []
+        if tags is None:
+            tags = []
+        if workspace_tools is None:
+            workspace_tools = []
+
+        data = {
+            "dockerfileInstructions": dockerfile_instructions,
+            "environmentVariables": environment_variables,
+            "image": base_image,
+            "postRunScript": post_run_script,
+            "postSetupScript": post_setup_script,
+            "preRunScript": pre_run_script,
+            "preSetupScript": pre_setup_script,
+            "skipCache": skip_cache,
+            "summary": summary,
+            "supportedClusters": supported_clusters,
+            "tags": tags,
+            "useVpn": use_vpn,
+            "workspaceTools": workspace_tools
+        }
+
+        url=self._routes.revision_create(environment_id)
+        payload=json.dumps(data)
+        response = self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"})
+        return response.json()
+
+
+    def restrict_environment_revision(
+            self,
+            environment_id: str,
+            revision_id: str
+       ) -> None:
+        """
+        Restrict an environment revision.
+        """
+
+        data = {
+            "isRestricted": True
+        }
+
+        url=self._routes.revision_patch(environment_id, revision_id)
+        payload=json.dumps(data)
+        self.request_manager.patch(url, data=payload, headers={"Content-Type": "application/json"})
+
 
     # Model Manager functions
     def models_list(self):

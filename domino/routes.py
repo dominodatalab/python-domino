@@ -161,8 +161,41 @@ class _Routes:
         return self._build_models_v4_url() + "/" + model_export_id + "/getExportLogs"
 
     # Environment URLs
+    def _build_v4_environments_url(self) -> str:
+        return self.host + "/v4/environments"
+
+    def _build_v1_environments_url(self) -> str:
+        return self.host + "/api/environments/v1/environments"
+
+    def _build_beta_environments_url(self) -> str:
+        return self.host + "/api/environments/beta/environments"
+
     def environments_list(self):
         return self.host + "/v1/environments"
+
+    def environment_default_get(self):
+        return self._build_v4_environments_url() + "/defaultEnvironment"
+
+    def environment_default_set(self):
+        return self._build_v4_environments_url() + "/setDefaultEnvironment"
+
+    def environment_create(self):
+        return self._build_beta_environments_url()
+
+    def environment_get(self, environment_id):
+        return self._build_v1_environments_url() + f"/{environment_id}"
+
+
+    # # Environment Revision URLs
+    def revision_get(self, revision_id):
+        return self._build_v4_environments_url() + f"/environmentRevision/{revision_id}"
+
+    def revision_create(self, environment_id):
+        return self._build_beta_environments_url() + f"/{environment_id}/revisions"
+
+    def revision_patch(self, environment_id, revision_id):
+        return self._build_beta_environments_url() + f"/{environment_id}/revisions/{revision_id}"
+
 
     # Deployment URLs
     def deployment_version(self):
