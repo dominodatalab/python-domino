@@ -870,6 +870,17 @@ To install a specific version of the library from GitHub, such as
 
     pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 
+  # How to build docs
+
+  - Sync in docs project: uv sync --group docs
+  - Build: uv run sphinx-build -M html source build
+  - Or use make: make html
+  - Open: docs/build/html/index.html
+
+uv run --project docs pip install -e .
+uv run --project docs sphinx-build -M html docs/source build
+
+
 # License
 
 This library is made available under the Apache 2.0 License. This is an

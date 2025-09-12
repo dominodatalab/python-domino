@@ -12,11 +12,11 @@ import polling2
 import requests
 from bs4 import BeautifulSoup
 
-from domino import exceptions, helpers, datasets
-from domino._version import __version__
-from domino.authentication import get_auth_by_type
-from domino.domino_enums import BillingTagSettingMode, BudgetLabel, BudgetType, ProjectVisibility
-from domino.constants import (
+from . import exceptions, helpers, datasets
+from ._version import __version__
+from .authentication import get_auth_by_type
+from .domino_enums import BillingTagSettingMode, BudgetLabel, BudgetType, ProjectVisibility
+from .constants import (
     CLUSTER_TYPE_MIN_SUPPORT,
     DOMINO_HOST_KEY_NAME,
     DOMINO_LOG_LEVEL_KEY_NAME,
@@ -24,9 +24,9 @@ from domino.constants import (
     MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
     MINIMUM_SUPPORTED_DOMINO_VERSION,
 )
-from domino.http_request_manager import _HttpRequestManager
-from domino.routes import _Routes
-from domino._custom_metrics import _CustomMetricsClientBase, _CustomMetricsClientGen, _CustomMetricsClient
+from .http_request_manager import _HttpRequestManager
+from .routes import _Routes
+from ._custom_metrics import _CustomMetricsClientBase, _CustomMetricsClientGen, _CustomMetricsClient
 
 
 class Domino:

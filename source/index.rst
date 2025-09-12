@@ -1,7 +1,20 @@
 domino documentation
 ====================
 
-Welcome to the documentation. This site is built with Sphinx and published via GitHub Pages.
+Welcome to the Domino SDK documentation
+======================================+
+
+This documentation is auto-generated from the package's docstrings and
+type hints using Sphinx autodoc.
+
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
+   api/modules
 
 .. toctree::
    :maxdepth: 2
@@ -15,4 +28,3 @@ API Reference
    :members:
    :undoc-members:
    :show-inheritance:
-

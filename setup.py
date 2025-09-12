@@ -71,6 +71,10 @@ setup(
             "frozendict==2.4.6",
             "docker>=7.1.0",
             "pytest-mock>=3.14.1",
+            "sphinx",
+            "sphinx-rtd-theme",
+            "sphinx-autodoc-typehints",
+            "sphinx-multiversion",
         ],
     },
 )

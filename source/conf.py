@@ -4,7 +4,11 @@ import os
 import sys
 
 # Make the project importable by Sphinx (repo root on sys.path)
-sys.path.insert(0, os.path.abspath(".."))
+# This file lives at docs/source/conf.py, so go up two directories.
+# REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "domino"))
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
 
 # -- Project information -----------------------------------------------------
 project = "domino"
@@ -39,6 +43,7 @@ autodoc_typehints = "description"
 
 # Mock heavy/optional dependencies to keep autodoc imports lightweight in CI
 autodoc_mock_imports = [
+    "yaml",
     "apache_airflow", "airflow",
     "pandas", "numpy", "semver",
     "mlflow", "mlflow_tracing", "mlflow-skinny",
@@ -55,3 +60,20 @@ html_static_path = ['_static']
 smv_branch_whitelist = r"^(main|master)$"
 smv_tag_whitelist = r"^(v\d+\.\d+\.\d+|(R|r)elease-.*)$"
 smv_remote_whitelist = r"^origin$"
+
+# Auto-generate API docs from the domino package at build time
+def run_apidoc(app):
+    from sphinx.ext.apidoc import main as apidoc_main
+    here = os.path.dirname(__file__)
+    src = REPO_ROOT
+    out = os.path.join(here, "api")
+    os.makedirs(out, exist_ok=True)
+    argv = [
+        "-f",            # overwrite existing files
+        "-o", out,       # output directory
+        src,              # package path
+    ]
+    apidoc_main(argv)
+
+def setup(app):
+    app.connect('builder-inited', run_apidoc)
