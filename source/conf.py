@@ -18,15 +18,19 @@ release = "0.0.1"
 # -- General configuration ---------------------------------------------------
 extensions = [
     "sphinx.ext.autodoc",
-    #"sphinx.ext.napoleon", # Google/NumPy docstrings
-    #"sphinx_autodoc_typehints",
-    "sphinx_multiversion",
     'sphinx.ext.autosummary',
+	"sphinx_multiversion",
 ]
 
 exclude_patterns = [
     "tests/*",
 ]
+
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': False, # Don't show undocumented members
+    'show-inheritance': False,
+}
 
 # If you want Sphinx to evaluate forward refs safely
 set_type_checking_flag = True
