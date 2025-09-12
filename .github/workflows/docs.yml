@@ -44,6 +44,8 @@ jobs:
           git fetch origin
           git fetch origin --tags
 
+          ls
+
           pipenv run sphinx-multiversion source docs_build \
             -D smv_branch_whitelist=$BRANCH smv_released_pattern=$RELEASE_TAG_PATTERN
 
