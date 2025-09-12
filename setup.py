@@ -72,9 +72,8 @@ setup(
             "docker>=7.1.0",
             "pytest-mock>=3.14.1",
             "sphinx",
-            "sphinx-rtd-theme",
-            "sphinx-autodoc-typehints",
             "sphinx-multiversion",
+            "markupsafe==2.0.1", # added for using Jinja2 with sphinx and python 3.10
         ],
     },
 )
