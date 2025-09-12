@@ -876,6 +876,17 @@ To install a specific version of the library from GitHub, such as
 - Build: pipenv run sphinx-build -M html source docs_build
 - Open: docs_build/html/index.html
 
+## build docs for multiple versions
+
+```sh
+BRANCH=niole.DOM-70876.docs
+RELEASE_TAG_PATTERN=niole.DOM-70876.docs
+
+pipenv run sphinx-multiversion source docs_build -D smv_branch_whitelist=$BRANCH smv_released_pattern=RELEASE_TAG_PATTERN
+
+wget "/docs_build/$BRANCH/generated/domino.html#module-domino"
+```
+
 # License
 
 This library is made available under the Apache 2.0 License. This is an

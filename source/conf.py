@@ -22,6 +22,15 @@ extensions = [
 	"sphinx_multiversion",
 ]
 
+templates_path = ["_templates"]
+
+# for sphinx multiversion
+html_sidebars = {
+    '**': [
+        'versioning.html',
+    ],
+}
+
 exclude_patterns = [
     "tests/*",
 ]
@@ -38,15 +47,6 @@ set_type_checking_flag = True
 # Auto summary settings
 autosummary_imported_members = True
 autosummary_generate = True
-
-# Napoleon settings
-napoleon_google_docstring = True
-napoleon_numpy_docstring = True
-napoleon_include_init_with_doc = False
-napoleon_include_private_with_doc = False
-napoleon_include_special_with_doc = True
-napoleon_use_param = True
-napoleon_use_rtype = True
 
 # Autodoc settings
 autoclass_content = "both"

@@ -158,6 +158,6 @@ cython_debug/
 mlruns
 
 # docs
-#docs_build
+docs_build
 source/api
 source/generated

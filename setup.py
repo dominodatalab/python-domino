@@ -74,6 +74,7 @@ setup(
             "sphinx",
             "sphinx-multiversion>=0.2.4",
             "markupsafe==2.0.1", # added for using Jinja2 with sphinx and python 3.10
+            "furo",
         ],
     },
 )
