@@ -54,7 +54,7 @@ def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, l
 
         # verify run has summary metrics logged to it
         # average of outputs is 2 + 4/2 = 3
-        assert run.data.metrics['domino.prog.metric.add_numbers'] == 3, "average of add_numbers should be 3"
+        assert run.data.metrics['mean_add_numbers'] == 3, "average of add_numbers should be 3"
 
 def test_domino_run_dev_custom_aggregator(setup_mlflow_tracking_server, mlflow, tracing, logging):
         """
@@ -104,11 +104,11 @@ def test_domino_run_dev_custom_aggregator(setup_mlflow_tracking_server, mlflow, 
         # verify run has summary metrics logged to it
         # mean of outputs is 2 + 4/2 = 3
         # median is 2, 2, 4 = 2
-        assert run.data.metrics['domino.prog.metric.median'] == 3
-        assert run.data.metrics['domino.prog.metric.mean'] == 3
-        assert run.data.metrics['domino.prog.metric.stdev'] == 1.581
-        assert run.data.metrics['domino.prog.metric.min'] == 1
-        assert run.data.metrics['domino.prog.metric.max'] == 5
+        assert run.data.metrics['median_median'] == 3
+        assert run.data.metrics['mean_mean'] == 3
+        assert run.data.metrics['stdev_stdev'] == 1.581
+        assert run.data.metrics['min_min'] == 1
+        assert run.data.metrics['max_max'] == 5
 
 def test_domino_run_dev_bad_custom_aggregator(setup_mlflow_tracking_server, mlflow, tracing, logging):
         """
@@ -151,28 +151,29 @@ def test_domino_run_extend_current_run(setup_mlflow_tracking_server, mlflow, log
         """
         mlflow.set_experiment("test_domino_run_extend_current_run")
 
-        @tracing.add_tracing(name="unit")
+        @tracing.add_tracing(name="unit", evaluator=lambda inputs, outputs: { 'unit': outputs })
         def unit(x):
                 return x
 
-        run_id = None
-        mlflow_run = None
-        mlflow_run_id = None
-        with mlflow.start_run() as mlflow_run:
-                mlflow_run_id = mlflow_run.info.run_id
-                with logging.DominoRun(run_id=mlflow_run_id) as run:
-                        run_id = run.info.run_id
-                        unit(1)
+        first_run_id = None
+        second_run_id = None
 
+        with logging.DominoRun() as run:
+                first_run_id = run.info.run_id
+                unit(1)
 
-        traces = mlflow.search_traces(experiment_ids=[mlflow_run.info.experiment_id], filter_string=f"trace.name = 'unit'")
+        with logging.DominoRun(run_id=first_run_id) as run:
+                second_run_id = run.info.run_id
+                unit(2)
 
-        assert run_id == mlflow_run_id
-        assert len(traces) == 1
+        traces = mlflow.search_traces(experiment_ids=[run.info.experiment_id], filter_string=f"metadata.mlflow.sourceRun = '{first_run_id}'", return_type='list')
 
-        # should have an external model linked to it
-        models = mlflow.search_logged_models(experiment_ids=[mlflow_run.info.experiment_id], output_format='list')
-        assert [m.source_run_id for m in models] == [mlflow_run_id]
+        assert first_run_id == second_run_id, "Both runs should have the same run_id"
+        assert len(traces) == 2, "There should be two traces for unit"
+
+        # each domino run should have an external model linked to it
+        models = mlflow.search_logged_models(experiment_ids=[run.info.experiment_id], output_format='list')
+        assert [m.source_run_id for m in models] == [first_run_id, first_run_id]
 
 def test_domino_run_should_not_swallow_exceptions(setup_mlflow_tracking_server, mlflow, logging):
         """
@@ -248,7 +249,7 @@ def test_domino_run_extend_concluded_run_manual_evals_mean_logged(setup_mlflow_t
 
         run = mlflow.get_run(concluded_run_id)
         # average of 2 + 4 = 3
-        assert run.data.metrics['domino.prog.metric.helpfulness'] == 3, "average of helpfulness should be 3"
+        assert run.data.metrics['mean_helpfulness'] == 3, "average of helpfulness should be 3"
 
 def test_domino_run_extend_concluded_run_manual_evals_custom_aggregator_logged(setup_mlflow_tracking_server, mlflow, tracing, logging):
         """
@@ -281,4 +282,35 @@ def test_domino_run_extend_concluded_run_manual_evals_custom_aggregator_logged(s
 
         run = mlflow.get_run(concluded_run_id)
         # max of 2 and 4 is 4
-        assert run.data.metrics['domino.prog.metric.helpfulness'] == 4, "max of helpfulness should be 4"
+        assert run.data.metrics['max_helpfulness'] == 4, "max of helpfulness should be 4"
+
+def test_domino_run_recomputes_existing_aggregations(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        When a run already has aggregated metrics (e.g., max_<metric>), a subsequent DominoRun
+        on the same run_id recomputes those aggregations in addition to defaults.
+        """
+        exp = mlflow.set_experiment("test_domino_run_recomputes_existing_aggregations")
+
+        @tracing.add_tracing(name="agg", evaluator=lambda inputs, outputs: { 'agg': outputs })
+        def agg_fn(x):
+                return x
+
+        run_id = None
+        # First run computes both default mean and custom max aggregations
+        with logging.DominoRun(custom_summary_metrics=[('agg', 'mean'), ('agg', 'max')]) as run:
+                run_id = run.info.run_id
+                agg_fn(1)
+                agg_fn(3)
+
+
+        run = mlflow.get_run(run_id)
+        assert run.data.metrics['mean_agg'] == 2, 'mean should be 2'
+        assert run.data.metrics['max_agg'] == 3, 'max should be 3'
+
+        # Second run continues the same run and adds a new value; expects recomputed max (and mean)
+        with logging.DominoRun(run_id=run_id) as run2:
+                agg_fn(5)
+
+        run = mlflow.get_run(run_id)
+        assert run.data.metrics['max_agg'] == 5, 'max should be 5'
+        assert run.data.metrics['mean_agg'] == 3, 'mean should be 3'
