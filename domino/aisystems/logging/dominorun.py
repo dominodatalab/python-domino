@@ -14,6 +14,7 @@ from ..read_ai_system_config import get_flattened_ai_system_config
 
 TOTAL_DECIMAL_PLACES = 3
 DOMINO_EVAL_METRIC_TAG_PATTERN = f'domino.prog.metric.({VALID_LABEL_PATTERN})'
+AGGREGATED_METRIC_PATTERN = r"^(mean|median|stdev|max|min)_(.+)$"
 
 SummaryStatistic = Literal["mean", "median", "stdev", "max", "min"]
 
@@ -54,6 +55,23 @@ def get_metric_tag_name(tag: str) -> Optional[str]:
     if match:
         return match.group(1)
     return None
+
+def _parse_aggregated_metric_key(metric_key: str) -> Optional[tuple[str, str]]:
+    """
+    Parse an aggregated metric key of the form <agg>_<metric_name>.
+    Returns (agg, tag) or None
+    """
+    m = re.match(AGGREGATED_METRIC_PATTERN, metric_key)
+    if not m:
+        return None
+
+    try:
+        agg = m.group(1)
+        tag = m.group(2)
+        return agg, tag
+    except Exception as e:
+        logging.warning(f"Failed to parse aggregated metric key {metric_key}: {e}")
+        return None
 
 def _parse_value(v):
     try:
@@ -147,10 +165,14 @@ class DominoRun:
         without a user specifying the experiment explicitly.
         """
         if not self._run:
-            if self.experiment_id:
-                self._run = mlflow.start_run(experiment_id=self.experiment_id, run_id=self.run_id)
-            elif self.run_id:
+            if self.run_id:
                 self._run = mlflow.get_run(run_id=self.run_id)
+                experiment_id = self._run.info.experiment_id
+                self._run = mlflow.start_run(experiment_id=experiment_id, run_id=self.run_id)
+
+            elif self.experiment_id:
+                # start the run in this experiment
+                self._run = mlflow.start_run(experiment_id=self.experiment_id)
             else:
                 self._run = mlflow.start_run()
 
@@ -180,7 +202,27 @@ class DominoRun:
             if self.custom_summary_metrics:
                 custom_summary_metrics = [(build_metric_tag(tag), stat) for tag, stat in self.custom_summary_metrics]
 
-            summary_metric_specs = custom_summary_metrics or [(tag, "mean") for tag, _ in grouped_eval_tags.items()]
+            # Base specs: either user-provided or default to mean for discovered tags
+            base_summary_metric_specs = custom_summary_metrics or [
+                (tag, "mean") for tag, _ in grouped_eval_tags.items()
+            ]
+
+            # Find previously calculated aggregated metrics
+            recompute_specs = []
+            try:
+                existing = mlflow.get_run(self._run.info.run_id)
+                metric_keys = list(existing.data.metrics.keys()) if existing else []
+                for k in metric_keys:
+                    parsed = _parse_aggregated_metric_key(k)
+                    if parsed:
+                        agg, tag = parsed
+                        recompute_specs.append((build_metric_tag(tag), agg))
+            except Exception as e:
+                logging.warning(f"Unable to inspect existing aggregated metrics for recomputation: {e}")
+
+            # Combine and deduplicate
+            summary_metric_specs = list(set(base_summary_metric_specs + recompute_specs))
+
             for (tag, summary_statistic) in summary_metric_specs:
                 aggregator = _choose_summarizer(summary_statistic)
                 found_values = grouped_eval_tags.get(tag, None)
@@ -188,7 +230,17 @@ class DominoRun:
                     try:
                         values = [_parse_value(v) for (_, v) in found_values]
                         summary = aggregator(values)
-                        mlflow.log_metric(tag, summary, run_id=self._run.info.run_id)
+                        # Derive metric name from tag; fall back to tag with warning if parsing fails
+                        metric_name = get_metric_tag_name(tag)
+                        if metric_name is None:
+                            logging.warning(
+                                f"Could not extract metric name from tag '{tag}'. "
+                                f"Falling back to using the full tag in aggregated metric name."
+                            )
+                            metric_name = tag
+
+                        aggregated_metric_name = f"{summary_statistic}_{metric_name}"
+                        mlflow.log_metric(aggregated_metric_name, summary, run_id=self._run.info.run_id)
                     except Exception as e:
                         logging.error(f"Failed to log summarization metric for {tag}: {e}")
                 else:
