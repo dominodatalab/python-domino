@@ -52,7 +52,7 @@ setup(
     extras_require={
         "airflow": ["apache-airflow==2.2.4"],
         "data": ["dominodatalab-data>=0.1.0"],
-        "aisystems": ["semver>=3.0.4", "pandas>=2.3.1", "numpy>=2.0.2", "mlflow-skinny>=3.2.0", "mlflow-tracing>=3.2.0"],
+        "aisystems": ["semver>=3.0.4", "pandas>=2.3.1", "numpy>=2.0.2", "mlflow-skinny==3.2.0", "mlflow-tracing==3.2.0"],
         "dev": [
             "pytest-order>=1.3.0",
             "pytest-asyncio>=0.23.8",
