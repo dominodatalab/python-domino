@@ -1,6 +1,6 @@
 = python-domino
 
-:latest-version: 1.4.8
+:latest-version: 1.5.0
 :python-domino-repo: https://github.com/dominodatalab/python-domino
 
 This library provides bindings for the Domino APIs.  It ships with the Domino Standard Environment (DSE).
@@ -41,6 +41,9 @@ The `python-domino` library is compatible with different versions of Domino:
 
 | 6.0.0 or higher
 | {python-domino-repo}/archive/1.4.8.zip[1.4.8] or Higher
+
+| 6.2.0 or higher
+| {python-domino-repo}/archive/1.5.0.zip[1.5.0] or Higher
 |===
 
 == Development
@@ -173,7 +176,7 @@ Used by the `domino.aisystems` package. Indicates that an AI System is running i
 
 === Budgets and Billing Tags
 
-See {python-domino-repo}/blob/release-{latest-version}/examples/example_budget_manager.py[`example_budget_manager.py`] for example code.
+See {python-domino-repo}/blob/Release-{latest-version}/examples/example_budget_manager.py[`example_budget_manager.py`] for example code.
 
 ==== budget_defaults_list()
 
@@ -342,7 +345,7 @@ Requires Admin permission
 
 === Projects
 
-See {python-domino-repo}/blob/release-{latest-version}/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
+See {python-domino-repo}/blob/Release-{latest-version}/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
 
 
 ==== project_create_v4(project_name, owner_id, owner_username, description, collaborators, tags, billing_tag, visibility=PUBLIC)
@@ -394,7 +397,7 @@ Project tags are an easy way to add freeform metadata to a project.
 Tags help colleagues and consumers organize and find the Domino projects that interest them.
 Tags can be used to describe the subject explored by a project, the packages and libraries it uses, or the source of the data within.
 
-See {python-domino-repo}/blob/release-{latest-version}/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
+See {python-domino-repo}/blob/Release-{latest-version}/examples/example_projects_usage.py[`example_projects_usage.py`] for example code.
 
 ==== tags_list(*project_id)
 
@@ -434,8 +437,8 @@ Remove a tag from a project.
 
 See these code example files:
 
-* {python-domino-repo}/blob/release-{latest-version}/examples/start_run_and_check_status.py[`start_run_and_check_status.py`^]
-* {python-domino-repo}/blob/release-{latest-version}/examples/export_runs.py[`export_runs.py`^]
+* {python-domino-repo}/blob/Release-{latest-version}/examples/start_run_and_check_status.py[`start_run_and_check_status.py`^]
+* {python-domino-repo}/blob/Release-{latest-version}/examples/export_runs.py[`export_runs.py`^]
 
 ==== runs_list()
 
@@ -493,8 +496,8 @@ Get `stdout` emitted by a particular execution.
 
 See these code example files:
 
-* {python-domino-repo}/blob/release-{latest-version}/examples/upload_file.py[`upload_file.py`^]
-* {python-domino-repo}/blob/release-{latest-version}/examples/upload_and_run_file_and_download_results.py[`upload_and_run_file_and_download_results.py`^]
+* {python-domino-repo}/blob/Release-{latest-version}/examples/upload_file.py[`upload_file.py`^]
+* {python-domino-repo}/blob/Release-{latest-version}/examples/upload_and_run_file_and_download_results.py[`upload_and_run_file_and_download_results.py`^]
 
 ==== files_list(commitId, path)
 
@@ -641,7 +644,7 @@ A Domino dataset is a collection of files that are available in user executions 
 A dataset always reflects the most recent version of the data.
 You can modify the contents of a dataset through the Domino UI or through workload executions.
 
-See https://docs.dominodatalab.com/en/latest/user_guide/ba5bad/manage-data-in-domino-datasets/[Domino Datasets] for more details, and {python-domino-repo}/blob/release-{latest-version}/examples/example_dataset.py[`example_dataset.py`^] for example code.
+See https://docs.dominodatalab.com/en/latest/user_guide/ba5bad/manage-data-in-domino-datasets/[Domino Datasets] for more details, and {python-domino-repo}/blob/Release-{latest-version}/examples/example_dataset.py[`example_dataset.py`^] for example code.
 
 ==== datasets_list(project_id=None)
 
@@ -773,7 +776,7 @@ Similarly, when installing the client from GitHub, use the following command:
 pip install -e git+{python-domino-repo}.git@1.0.6#egg="dominodatalab[airflow]"
 ----
 
-See also {python-domino-repo}/blob/release-{latest-version}/examples/example_airflow_dag.py[example_airflow_dag.py] for example code.
+See also {python-domino-repo}/blob/Release-{latest-version}/examples/example_airflow_dag.py[example_airflow_dag.py] for example code.
 
 === DominoOperator
 

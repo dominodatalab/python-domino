@@ -8,6 +8,14 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## [1.5.0]
+
+### Added
+* DOM-68763 - Added logging and tracing helpers for the ai system python sdk for dev mode logging and evaluation only
+
+### Changed
+* Python 3.10 is required (before it was Python 3.9)
+
 ## 1.4.8
 
 ### Added

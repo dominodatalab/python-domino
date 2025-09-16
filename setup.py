@@ -4,8 +4,8 @@ import sys
 
 from setuptools import find_packages, setup
 
-if sys.version_info < (3,7):
-    message = f"dominodatalab requires Python '>=3.7.0' but the running Python is {'.'.join(map(str,sys.version_info[:3]))}"
+if sys.version_info < (3,10):
+    message = f"dominodatalab requires Python '>=3.10.0' but the running Python is {'.'.join(map(str,sys.version_info[:3]))}"
     message += "\nConsider Checking python-domino and domino compatibility"
     sys.exit(message)
 
@@ -39,7 +39,7 @@ setup(
     packages=find_packages(),
     scripts=[],
     url="https://github.com/dominodatalab/python-domino",
-    download_url=f"https://github.com/dominodatalab/python-domino/archive/release-{get_version()}.zip",
+    download_url=f"https://github.com/dominodatalab/python-domino/archive/Release-{get_version()}.zip",
     license="Apache Software License (Apache 2.0)",
     description="Python bindings for the Domino API",
     long_description=README,
