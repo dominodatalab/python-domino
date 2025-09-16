@@ -884,6 +884,8 @@ RELEASE_TAG_PATTERN=niole.DOM-70876.docs
 
 pipenv run sphinx-multiversion source docs_build -D smv_branch_whitelist=$BRANCH smv_released_pattern=RELEASE_TAG_PATTERN
 
+pipenv run rst2myst convert docs_build/**/*.rst.txt
+
 wget "/docs_build/$BRANCH/generated/domino.html#module-domino"
 ```
 
