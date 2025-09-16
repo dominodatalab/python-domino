@@ -23,7 +23,7 @@ Domino:
 | 5.10.0 or higher | [1.3.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.3.1.zip) or Higher |
 | 5.11.0 or higher | [1.4.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.1.zip) or Higher |
 | 6.0.0 or higher | [1.4.8](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.8.zip) or Higher |
-| Cloud | [1.5.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.5.0.zip) or Higher |
+| 6.2.0 or higher | [1.5.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.5.0.zip) or Higher |
 
 # Development
 
