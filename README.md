@@ -7,7 +7,7 @@ See this documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `1.4.8`.
+The latest released version of `python-domino` is `1.5.0`.
 
 # Version compatibility matrix
 
@@ -23,6 +23,7 @@ Domino:
 | 5.10.0 or higher | [1.3.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.3.1.zip) or Higher |
 | 5.11.0 or higher | [1.4.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.1.zip) or Higher |
 | 6.0.0 or higher | [1.4.8](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.8.zip) or Higher |
+| Cloud | [1.5.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.5.0.zip) or Higher |
 
 # Development
 
@@ -126,7 +127,7 @@ See
 # Budgets and Billing Tags
 
 See
-[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.4.8/examples/example_budget_manager.py)
+[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/release-1.5.0/examples/example_budget_manager.py)
 for example code.
 
 ### budget_defaults_list()
