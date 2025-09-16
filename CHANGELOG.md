@@ -8,6 +8,13 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## [1.5.1]
+
+### Added
+
+### Changed
+* Pin mlflow libraries
+
 ## [1.5.0]
 
 ### Added
