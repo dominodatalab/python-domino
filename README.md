@@ -882,11 +882,17 @@ To install a specific version of the library from GitHub, such as
 BRANCH=niole.DOM-70876.docs
 RELEASE_TAG_PATTERN=niole.DOM-70876.docs
 
-pipenv run sphinx-multiversion source docs_build -D smv_branch_whitelist=$BRANCH smv_released_pattern=RELEASE_TAG_PATTERN
+#pipenv run sphinx-multiversion source docs_build -D smv_branch_whitelist=$BRANCH smv_released_pattern=RELEASE_TAG_PATTERN
+rm Pipfile* && pipenv --rm && pipenv --python 3.10 install -e ".[dev]" && pipenv --python 3.10 install -e ".[data]" ".[airflow]" ".[aisystems]"
 
-pipenv run rst2myst convert docs_build/**/*.rst.txt
+rm -rf docs_build && pipenv run sphinx-build -M html source docs_build
 
-wget "/docs_build/$BRANCH/generated/domino.html#module-domino"
+brew install pandoc
+html_file=docs_build/html/generated/domino.aisystems.logging.html && pandoc -f html -t asciidoc -o $html_file.adoc $html_file
+
+# then manually edit to remove module summary at bottom
+
+#wget "/docs_build/$BRANCH/generated/domino.html#module-domino"
 ```
 
 # License
