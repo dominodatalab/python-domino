@@ -35,18 +35,26 @@ class SpanSummary:
     outputs: Any
 
 @dataclass
-class TraceSummary:
-    name: str
-    id: str
-    spans: list[SpanSummary]
-
-@dataclass
 class EvaluationResult:
+    """An evaluation result for a trace.
+
+    Args:
+        name: The name of the evaluation
+        value: The value of the evaluation
+    """
     name: str
     value: float | str
 
 @dataclass
 class TraceSummary:
+    """A summary of a trace.
+
+    Args:
+        id: The mlflow ID of the trace
+        name: The name of the trace
+        spans: The child spans of this trace
+        evaluation_results: The evaluation results for this trace
+    """
     name: str
     id: str
     spans: list[SpanSummary]
@@ -54,8 +62,14 @@ class TraceSummary:
 
 @dataclass
 class SearchTracesResponse:
+    """The response from searching for traces.
+
+    Args:
+        page: The cursor paginated page of results
+        page_token: The token to provide to the api to get the next page of results
+    """
     data: list[TraceSummary]
-    page_token: str
+    page_token: Optional[str]
 
 def _datetime_to_ms(dt: datetime) -> int:
     return dt.timestamp() * 1000
