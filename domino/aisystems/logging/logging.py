@@ -27,7 +27,9 @@ def log_evaluation(
 
     Args:
         trace_id: the ID of the trace to evaluate
+
         name: an label for the evaluation result. This is used to identify the evaluation result
+
         value: the evaluation result to log. This must be a float or string
     """
     verify_domino_support()

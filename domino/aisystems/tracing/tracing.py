@@ -276,11 +276,16 @@ def search_traces(
 
     Args:
         run_id: string, the ID of the development mode evaluation run to search for traces.
+
         trace_name: optinoal, the name of the traces to search for
+
         start_time: optional python datetime
+
         end_time: optional python datetime, defaults to now
+
         page_token: optional page token for pagination. You can use this to request the next page of results and may
          find a page_token in the response of the previous search_traces call.
+
         max_results: optional, defaults to 100
 
     Returns:
