@@ -73,8 +73,6 @@ setup(
             "pytest-mock>=3.14.1",
             "sphinx",
             "markupsafe==2.0.1", # added for using Jinja2 with sphinx and python 3.10
-            "pandoc",
-            "sphinx_rtd_theme",
         ],
     },
 )

@@ -19,7 +19,6 @@ release = "0.0.1"
 extensions = [
     "sphinx.ext.autodoc",
     'sphinx.ext.autosummary',
-#	"sphinx_multiversion",
 ]
 
 templates_path = ["_templates"]
@@ -65,7 +64,6 @@ autodoc_mock_imports = [
 ]
 
 # -- Options for HTML output -------------------------------------------------
-#html_theme = "sphinx_rtd_theme" # remove in order to make cleaner for adding to user facing docs
 html_static_path = ['_static']
 
 # sphinx-multiversion configuration: build main/master and version tags
