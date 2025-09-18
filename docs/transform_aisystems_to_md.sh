@@ -21,3 +21,8 @@ done
 echo ""
 echo done making $all_doc
 
+echo ""
+echo "making ascii doc"
+
+pandoc -f markdown -t asciidoc -o $all_doc.adoc $all_doc
+
