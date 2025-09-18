@@ -1,6 +1,6 @@
 #!/bin/bash
 
-base_path=build/html/generated
+base_path=docs/build/html/generated
 all_doc=$base_path/domino.aisystems.md
 
 echo creating single file $all_doc
@@ -23,6 +23,8 @@ echo done making $all_doc
 
 echo ""
 echo "making ascii doc"
+ASCII_DOC=$all_doc.adoc
 
-pandoc -f markdown -t asciidoc -o $all_doc.adoc $all_doc
+pandoc -f markdown -t asciidoc -o $ASCII_DOC $all_doc
 
+echo done making asciidoc $ASCII_DOC

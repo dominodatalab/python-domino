@@ -22,6 +22,8 @@ extensions = [
     'sphinx.ext.napoleon',
 ]
 
+templates_path = ["_templates"]
+
 exclude_patterns = [
     "tests/*",
 ]
@@ -43,7 +45,7 @@ napoleon_google_docstring = True
 napoleon_use_param = True
 
 # Autodoc settings
-autoclass_content = "class"
+autoclass_content = "both"
 autodoc_member_order = "bysource"
 autodoc_typehints = "description"
 

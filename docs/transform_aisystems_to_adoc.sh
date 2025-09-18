@@ -1,6 +1,6 @@
 #!/bin/bash
 
-base_path=build/html/generated
+base_path=docs/build/html/generated
 all_doc=$base_path/domino.aisystems.adoc
 
 echo creating single file $all_doc
