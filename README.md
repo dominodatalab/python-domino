@@ -775,6 +775,252 @@ Functions
 
 Classes
 
+[TABLE]
+
+*class* domino.aisystems.logging.DominoRun(*experiment_name=None*, *run_id=None*, *ai_system_config_path=None*, *custom_summary_metrics=None*)[¶](#domino.aisystems.logging.DominoRun "Permalink to this definition")  
+Bases: `object`
+
+Parameters:  
+- **experiment_name** (*Optional\[str\]*) – the name of the mlflow
+  experiment to log the run to.
+
+- **run_id** (*Optional\[str\]*) – optional, the ID of the mlflow run to
+  continue logging to. If not provided a new run will start.
+
+- **ai_system_config_path** (*Optional\[str\]*) – the optional path to
+  the AI System configuraiton file. If not provided, defaults to the
+  DOMINO_AI_SYSTEM_CONFIG_PATH environment variable.
+
+- **custom_summary_metrics** (*Optional\[list\[str,* *Literal\['mean',*
+  *'median',* *'stdev',* *'max',* *'min'\]\]\]*) – an optional list of
+  tuples that define what summary statistic to use with what evaluation
+  metric.
+
+- **are** (*Valid summary statistics*) – “mean”, “median”, “stdev”,
+  “max”, “min” e.g. \[(“hallucination_rate”, “max”)\]
+
+Returns: DominoRun context manager
+
+&nbsp;
+
+domino.aisystems.logging.log_evaluation(*trace_id*, *name*, *value*)[¶](#domino.aisystems.logging.log_evaluation "Permalink to this definition")  
+This logs evaluation data and metdata to a parent trace. This is used to
+log the evaluation of a span after it was created. This is useful for
+analyzing past performance of an AI System component.
+
+Parameters:  
+- **trace_id** (*str*) – the ID of the trace to evaluate
+
+- **name** (*str*) – an label for the evaluation result. This is used to
+  identify the evaluation result
+
+- **value** (*float* *\|* *str*) – the evaluation result to log. This
+  must be a float or string
+
+Modules
+
+|  |  |
+|----|----|
+| [`domino.aisystems.logging.dominorun`](domino.aisystems.logging.dominorun.html#module-domino.aisystems.logging.dominorun "domino.aisystems.logging.dominorun") |  |
+| [`domino.aisystems.logging.logging`](domino.aisystems.logging.logging.html#module-domino.aisystems.logging.logging "domino.aisystems.logging.logging") |  |
+
+# domino.aisystems.read_ai_system_config[¶](#domino-aisystems-read-ai-system-config "Permalink to this heading")
+
+domino.aisystems.read_ai_system_config(*path=None*)[¶](#domino.aisystems.read_ai_system_config "Permalink to this definition")  
+Parameters:  
+**path** (*Optional\[str\]*) –
+
+Return type:  
+dict
+
+# domino.aisystems.tracing[¶](#module-domino.aisystems.tracing "Permalink to this heading")
+
+Functions
+
+|  |  |
+|----|----|
+| [`add_tracing`](#domino.aisystems.tracing.add_tracing "domino.aisystems.tracing.add_tracing")(name\[, autolog_frameworks, ...\]) | A decorator that starts an mlflow span for the function it decorates. |
+| [`init_tracing`](#domino.aisystems.tracing.init_tracing "domino.aisystems.tracing.init_tracing")(\[autolog_frameworks\]) |  |
+| [`search_traces`](#domino.aisystems.tracing.search_traces "domino.aisystems.tracing.search_traces")(run_id\[, trace_name, ...\]) |  |
+
+Classes
+
+|  |  |
+|----|----|
+| [`SearchTracesResponse`](#domino.aisystems.tracing.SearchTracesResponse "domino.aisystems.tracing.SearchTracesResponse")(data, page_token) |  |
+| [`SpanSummary`](#domino.aisystems.tracing.SpanSummary "domino.aisystems.tracing.SpanSummary")(id, name, trace_id, inputs, outputs) |  |
+| [`TraceSummary`](#domino.aisystems.tracing.TraceSummary "domino.aisystems.tracing.TraceSummary")(name, id, spans, evaluation_results) |  |
+
+domino.aisystems.tracing.add_tracing(*name*, *autolog_frameworks=\[\]*, *evaluator=None*, *eagerly_evaluate_streamed_results=True*)[¶](#domino.aisystems.tracing.add_tracing "Permalink to this definition")  
+A decorator that starts an mlflow span for the function it decorates. If
+there is an existing trace this span will be appended to it.
+
+It also enables the user to run an evaluation inline in the code is run
+in development mode on the inputs and outputs of the wrapped function
+call. The user can provide input and output formatters for formatting
+what’s on the trace and the evaluation result inputs, which can be used
+by client’s to extract relevant data when analyzing a trace.
+
+This decorator must be used directly on the function to be traced,
+because it must have access to the arguments.
+
+@add_tracing(  
+name=”assistant_chat_bot”, evaluator=evaluate_helpfulness,
+
+) def ask_chat_bot(user_input: str) -\> dict:
+
+> …
+
+Parameters:  
+- **name** (*str*) – the name of the span to add to existing trace or
+  create if no trace exists yet.
+
+- **autolog_frameworks** (*Optional\[list\[str\]\]*) – an optional list
+  of mlflow supported frameworks to autolog
+
+- **evaluator** (*Optional\[Callable\[\[T,* *T\],* *dict\[str,* *int*
+  *\|* *float* *\|* *str\]\]\]*) – an optional function that takes the
+  inputs and outputs of the wrapped function and returns
+
+- **tags.** (*a dictionary of evaluation results. The evaluation result
+  will be added to the trace as*) –
+
+- **eagerly_evaluate_streamed_results** (*bool*) – optional boolean,
+  defaults to true, this determines if all yielded values should be
+  aggregated and set as outputs to a single span. This makes evaluation
+  eaiser, but will impact performance if you expect a large number of
+  streamed values. If set to false, each yielded value will generate a
+  new span on the trace, which can be evaluated post-hoc. Inline
+  evaluators won’t be executed. Each span will have a group_id set in
+  their attributes to indicate that they are part of the same function
+  call. Each span will have an index to indicate what order they arrived
+  in.
+
+Returns:  
+A decorator that wraps the function to be traced.
+
+&nbsp;
+
+*class* domino.aisystems.tracing.SpanSummary(*id: str*, *name: str*, *trace_id: str*, *inputs: Any*, *outputs: Any*)[¶](#domino.aisystems.tracing.SpanSummary "Permalink to this definition")  
+Bases: `object`
+
+Parameters:  
+- **id** (*str*) –
+
+- **name** (*str*) –
+
+- **trace_id** (*str*) –
+
+- **inputs** (*Any*) –
+
+- **outputs** (*Any*) –
+
+id*: str*[¶](#domino.aisystems.tracing.SpanSummary.id "Permalink to this definition")  
+
+name*: str*[¶](#domino.aisystems.tracing.SpanSummary.name "Permalink to this definition")  
+
+trace_id*: str*[¶](#domino.aisystems.tracing.SpanSummary.trace_id "Permalink to this definition")  
+
+inputs*: Any*[¶](#domino.aisystems.tracing.SpanSummary.inputs "Permalink to this definition")  
+
+outputs*: Any*[¶](#domino.aisystems.tracing.SpanSummary.outputs "Permalink to this definition")  
+
+&nbsp;
+
+*class* domino.aisystems.tracing.TraceSummary(*name: str*, *id: str*, *spans: list\[[domino.aisystems.tracing.tracing.SpanSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary "domino.aisystems.tracing.tracing.SpanSummary")\]*, *evaluation_results: list\[[domino.aisystems.tracing.tracing.EvaluationResult](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult "domino.aisystems.tracing.tracing.EvaluationResult")\]*)[¶](#domino.aisystems.tracing.TraceSummary "Permalink to this definition")  
+Bases: `object`
+
+Parameters:  
+- **name** (*str*) –
+
+- **id** (*str*) –
+
+- **spans**
+  (*list\[*[*domino.aisystems.tracing.tracing.SpanSummary*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary "domino.aisystems.tracing.tracing.SpanSummary")*\]*)
+  –
+
+- **evaluation_results**
+  (*list\[*[*domino.aisystems.tracing.tracing.EvaluationResult*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult "domino.aisystems.tracing.tracing.EvaluationResult")*\]*)
+  –
+
+name*: str*[¶](#domino.aisystems.tracing.TraceSummary.name "Permalink to this definition")  
+
+id*: str*[¶](#domino.aisystems.tracing.TraceSummary.id "Permalink to this definition")  
+
+spans*: list\[[domino.aisystems.tracing.tracing.SpanSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary "domino.aisystems.tracing.tracing.SpanSummary")\]*[¶](#domino.aisystems.tracing.TraceSummary.spans "Permalink to this definition")  
+
+evaluation_results*: list\[[domino.aisystems.tracing.tracing.EvaluationResult](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult "domino.aisystems.tracing.tracing.EvaluationResult")\]*[¶](#domino.aisystems.tracing.TraceSummary.evaluation_results "Permalink to this definition")  
+
+&nbsp;
+
+*class* domino.aisystems.tracing.SearchTracesResponse(*data: list\[[domino.aisystems.tracing.tracing.TraceSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary "domino.aisystems.tracing.tracing.TraceSummary")\]*, *page_token: str*)[¶](#domino.aisystems.tracing.SearchTracesResponse "Permalink to this definition")  
+Bases: `object`
+
+Parameters:  
+- **data**
+  (*list\[*[*domino.aisystems.tracing.tracing.TraceSummary*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary "domino.aisystems.tracing.tracing.TraceSummary")*\]*)
+  –
+
+- **page_token** (*str*) –
+
+data*: list\[[domino.aisystems.tracing.tracing.TraceSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary "domino.aisystems.tracing.tracing.TraceSummary")\]*[¶](#domino.aisystems.tracing.SearchTracesResponse.data "Permalink to this definition")  
+
+page_token*: str*[¶](#domino.aisystems.tracing.SearchTracesResponse.page_token "Permalink to this definition")  
+
+&nbsp;
+
+domino.aisystems.tracing.search_traces(*run_id*, *trace_name=None*, *start_time=None*, *end_time=None*, *page_token=None*, *max_results=None*)[¶](#domino.aisystems.tracing.search_traces "Permalink to this definition")  
+Parameters:  
+- **run_id** (*str*) –
+
+- **trace_name** (*Optional\[str\]*) –
+
+- **start_time** (*Optional\[datetime\]*) –
+
+- **end_time** (*Optional\[datetime\]*) –
+
+- **page_token** (*Optional\[str\]*) –
+
+- **max_results** (*Optional\[int\]*) –
+
+Return type:  
+[*SearchTracesResponse*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SearchTracesResponse "domino.aisystems.tracing.tracing.SearchTracesResponse")
+
+&nbsp;
+
+domino.aisystems.tracing.init_tracing(*autolog_frameworks=None*)[¶](#domino.aisystems.tracing.init_tracing "Permalink to this definition")  
+Parameters:  
+**autolog_frameworks** (*Optional\[list\[str\]\]*) –
+
+Modules
+
+|  |  |
+|----|----|
+| [`domino.aisystems.tracing.inittracing`](domino.aisystems.tracing.inittracing.html#module-domino.aisystems.tracing.inittracing "domino.aisystems.tracing.inittracing") |  |
+| [`domino.aisystems.tracing.tracing`](domino.aisystems.tracing.tracing.html#module-domino.aisystems.tracing.tracing "domino.aisystems.tracing.tracing") |  |
+
+
+
+
+# domino.aisystems.environment_variables[¶](#module-domino.aisystems.environment_variables "Permalink to this heading")
+
+DOMINO_AI_SYSTEM_CONFIG_PATH:  
+For configuring the location of the ai_system_config.yaml file. If not
+set, defaults to ‘./ai_system_config.yaml’.
+
+type:  
+str
+
+# domino.aisystems.logging[¶](#module-domino.aisystems.logging "Permalink to this heading")
+
+Functions
+
+|  |  |
+|----|----|
+| [`log_evaluation`](#domino.aisystems.logging.log_evaluation "domino.aisystems.logging.log_evaluation")(trace_id, name, value) | This logs evaluation data and metdata to a parent trace. |
+
+Classes
+
 |  |  |
 |----|----|
 | [`DominoRun`](#domino.aisystems.logging.DominoRun "domino.aisystems.logging.DominoRun")(\[experiment_name, run_id, ...\]) | Args: |

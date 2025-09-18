@@ -19,6 +19,7 @@ release = "0.0.1"
 extensions = [
     "sphinx.ext.autodoc",
     'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
 ]
 
 templates_path = ["_templates"]
@@ -39,6 +40,9 @@ set_type_checking_flag = True
 # Auto summary settings
 autosummary_imported_members = True
 autosummary_generate = True
+
+napoleon_google_docstring = True
+napoleon_use_param = True
 
 # Autodoc settings
 autoclass_content = "both"

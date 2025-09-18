@@ -19,6 +19,15 @@ Evaluator = Callable[[T, T], dict[str, int | float | str]]
 
 @dataclass
 class SpanSummary:
+    """A span in a trace.
+
+    Attributes:
+		id: The mlflow ID of the span
+		name: The name of the span
+		trace_id: The span's parent trace ID
+		inputs: The inputs to the function that created the span
+		outputs: The outputs to the function that created the span
+    """
     id: str
     name: str
     trace_id: str
