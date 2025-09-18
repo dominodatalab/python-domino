@@ -47,6 +47,7 @@ autodoc_typehints = "description"
 
 # Mock heavy/optional dependencies to keep autodoc imports lightweight in CI
 autodoc_mock_imports = [
+    "domino._impl",
     "attrs", "yaml", "pytest", "numpy",
     "apache_airflow", "airflow",
     "pandas", "numpy", "semver",

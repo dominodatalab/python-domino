@@ -1343,10 +1343,9 @@ class Api:
         return host
 
 
-class SerializedRequestBody(typing_extensions.TypedDict):
+class SerializedRequestBody(typing_extensions.TypedDict, total=False):
     body: typing.Union[str, bytes]
     fields: typing.Tuple[typing.Union[RequestField, typing.Tuple[str, str]], ...]
-    total = False
 
 
 class RequestBody(StyleFormSerializer, JSONDetector):
