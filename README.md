@@ -125,16 +125,16 @@ See
 ## building locally
 
 - Install the app in dev mode and all dependencies and pandoc: `brew install pandoc`
-- Clean build dir (optional): `rm -rf docs_build`
-- Build: `pipenv run sphinx-build -M html source docs_build`
-- View: docs_build/html/index.html
-- Transform html file to adoc: `html_file=docs_build/html/generated/domino.aisystems.logging.html && pandoc -f html -t asciidoc -o $html_file.adoc $html_file`
+- Build: `./docs/build.sh`
+- View: open docs/build/html/index.html
+- Transform an html file to adoc: `html_file=docs/build/html/generated/domino.aisystems.logging.html && pandoc -f html -t asciidoc -o $html_file.adoc $html_file`
 - Manually pick the changes you want and add to `README.adoc`
 
-## helper for transforming aisystems docs to adoc
+## helpers for transforming aisystems docs to adoc
 
-`transform_aisystems_to_adoc.sh`
-
+After runi
+`docs/transform_aisystems_to_adoc.sh`
+`docs/transform_aisystems_to_md.sh`
 
 # Methods
 

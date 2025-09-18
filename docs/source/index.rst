@@ -12,6 +12,5 @@ API Reference
 .. autosummary::
    :toctree: generated
    :recursive:
-   :exclude-members: __init__
 
    domino

@@ -77,8 +77,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
 
 # PyBuilder
 .pybuilder/
@@ -156,7 +154,7 @@ cython_debug/
 # mlflow test generated data
 mlruns
 
-# docs
-docs_build
-source/api
-source/generated
+# Sphinx documentation
+docs/build
+docs/source/api
+docs/source/generated
