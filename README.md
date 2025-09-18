@@ -870,30 +870,20 @@ To install a specific version of the library from GitHub, such as
 
     pip install https://github.com/dominodatalab/python-domino/archive/1.0.6.zip
 
-# Build the docs
+# Working with docs
 
-- Install the app in dev mode and all dependencies
-- Build: pipenv run sphinx-build -M html source docs_build
-- Open: docs_build/html/index.html
+## building locally
 
-## build docs for multiple versions
+- Install the app in dev mode and all dependencies and pandoc: `brew install pandoc`
+- Clean build dir (optional): `rm -rf docs_build`
+- Build: `pipenv run sphinx-build -M html source docs_build`
+- View: docs_build/html/index.html
+- Transform html file to adoc: `html_file=docs_build/html/generated/domino.aisystems.logging.html && pandoc -f html -t asciidoc -o $html_file.adoc $html_file`
+- Manually pick the changes you want and add to `README.adoc`
 
-```sh
-BRANCH=niole.DOM-70876.docs
-RELEASE_TAG_PATTERN=niole.DOM-70876.docs
+## helper for transforming aisystems docs to adoc
 
-#pipenv run sphinx-multiversion source docs_build -D smv_branch_whitelist=$BRANCH smv_released_pattern=RELEASE_TAG_PATTERN
-rm Pipfile* && pipenv --rm && pipenv --python 3.10 install -e ".[dev]" && pipenv --python 3.10 install -e ".[data]" ".[airflow]" ".[aisystems]"
-
-rm -rf docs_build && pipenv run sphinx-build -M html source docs_build
-
-brew install pandoc
-html_file=docs_build/html/generated/domino.aisystems.logging.html && pandoc -f html -t asciidoc -o $html_file.adoc $html_file
-
-# then manually edit to remove module summary at bottom
-
-#wget "/docs_build/$BRANCH/generated/domino.html#module-domino"
-```
+`transform_aisystems_to_adoc.sh`
 
 # License
 
