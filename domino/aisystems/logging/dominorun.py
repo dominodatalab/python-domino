@@ -85,24 +85,6 @@ def _choose_summarizer(statistic: SummaryStatistic) -> Callable[[list[float]], f
         case _:
             raise ValueError(f"Unknown summary statistic: {statistic}")
 
-"""
-DominoRun is a context manager that starts an Mlflow run and attaches the user's AI System configuration to it,
-create a Logged Model with the AI System configuration, and computes summary metrics for evaluation traces made during the run.
-Average metrics are computed by default, but the user can provide a custom list of evaluation metric aggregators.
-This is intended to be used in development mode for AI System evaluation.
-Context manager docs: https://docs.python.org/3/library/contextlib.html
-
-Parallelism: DominoRun is not thread-safe. Runs in different threads will work correctly. This is due to
-Mlflow's architecture. Parallelizing operations within a single DominoRun context however, is supported.
-
-Example:
-    import mlflow
-
-    mlflow.set_experiment("my_experiment")
-
-    with DominoRun():
-        train_model()
-"""
 class DominoRun:
     def __init__(self,
         experiment_name: Optional[str] = None,
@@ -110,7 +92,23 @@ class DominoRun:
         ai_system_config_path: Optional[str] = None,
         custom_summary_metrics: Optional[list[(str, SummaryStatistic)]] = None
     ):
-        """
+        """DominoRun is a context manager that starts an Mlflow run and attaches the user's AI System configuration to it,
+        create a Logged Model with the AI System configuration, and computes summary metrics for evaluation traces made during the run.
+        Average metrics are computed by default, but the user can provide a custom list of evaluation metric aggregators.
+        This is intended to be used in development mode for AI System evaluation.
+        Context manager docs: https://docs.python.org/3/library/contextlib.html
+
+        Parallelism: DominoRun is not thread-safe. Runs in different threads will work correctly. This is due to
+        Mlflow's architecture. Parallelizing operations within a single DominoRun context however, is supported.
+
+        Example:
+            import mlflow
+
+            mlflow.set_experiment("my_experiment")
+
+            with DominoRun():
+                train_model()
+
         Args:
                 experiment_name: the name of the mlflow experiment to log the run to.
 
