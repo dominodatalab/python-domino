@@ -23,13 +23,6 @@ extensions = [
 
 templates_path = ["_templates"]
 
-# for sphinx multiversion
-html_sidebars = {
-    '**': [
-        'versioning.html',
-    ],
-}
-
 exclude_patterns = [
     "tests/*",
 ]
@@ -65,11 +58,6 @@ autodoc_mock_imports = [
 
 # -- Options for HTML output -------------------------------------------------
 html_static_path = ['_static']
-
-# sphinx-multiversion configuration: build main/master and version tags
-smv_branch_whitelist = r"^(main|master)$"
-smv_tag_whitelist = r"^(v\d+\.\d+\.\d+|(R|r)elease-.*)$"
-smv_remote_whitelist = r"^origin$"
 
 # Auto-generate API docs from the domino package at build time
 def run_apidoc(app):
