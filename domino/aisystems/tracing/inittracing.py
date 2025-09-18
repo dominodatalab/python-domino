@@ -29,16 +29,16 @@ def _get_prod_logged_model():
     return mlflow.get_logged_model(model_id=model_id)
 
 def init_tracing(autolog_frameworks: Optional[list[str]] = None):
-    verify_domino_support()
-    frameworks = autolog_frameworks or []
     """Initialize Mlflow autologging for various frameworks and set the active model for production evaluation runs.
     This may be used to initialize logging and tracing for the AI System in dev and prod modes.
     If in prod mode, a DOMINO_AI_SYSTEM_MODEL_ID is required and represents the production AI System
     component. All traces will be linked to that model. No run is required.
 
     Args:
-        autolog_frameworks: Optional[list[string]] of frameworks to autolog
+        autolog_frameworks: list of frameworks to autolog
     """
+    verify_domino_support()
+    frameworks = autolog_frameworks or []
     # TODO when implemnenting prod tracing, must ensure AI System ID is set on trace metadata
 
     is_production = get_is_production()
