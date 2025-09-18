@@ -755,6 +755,297 @@ domino.runs_start(["echo 'Hello, World!'"], isDirect=True)
 domino.runs_start(["main.py"], commitId="aabbccddee")
 ----
 
+=== AISystems
+
+[[module-domino.aisystems.environment_variables]]
+[#domino-aisystems-environment-variables]##
+
+== domino.aisystems.environment++_++variableslink:#module-domino.aisystems.environment_variables[¶]
+
+DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH[.colon]##:##::
+  For configuring the location of the ai++_++system++_++config.yaml
+  file. If not set, defaults to ‘./ai++_++system++_++config.yaml’.
+type[.colon]##:##::
+  str
+
+[[module-domino.aisystems.logging]]
+[#domino-aisystems-logging]##
+
+== domino.aisystems.logginglink:#module-domino.aisystems.logging[¶]
+
+Functions
+
+[cols=",",]
+|===
+|link:#domino.aisystems.logging.log_evaluation[[.pre]#`log++_++evaluation`#](trace++_++id, name, value)
+|This logs evaluation data and metdata to a parent trace.
+|===
+
+Classes
+
+[cols=",",]
+|===
+|link:#domino.aisystems.logging.DominoRun[[.pre]#`DominoRun`#](++[++experiment++_++name, run++_++id, ...++]++)
+|Args:
+|===
+
+_[.pre]#class#[.w]#
+#_[.sig-prename .descclassname]#[.pre]#domino.aisystems.logging.##[.sig-name .descname]#[.pre]#DominoRun##[.sig-paren]#(#_[.n]#[.pre]#experiment++_++name##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#run++_++id##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#ai++_++system++_++config++_++path##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#custom++_++summary++_++metrics##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_[.sig-paren]#)#link:#domino.aisystems.logging.DominoRun[¶]::
+  Bases: [.pre]#`object`#
+  +
+  Args:;;
+    experiment++_++name: the name of the mlflow experiment to log the
+    run to.
+    +
+    run++_++id: optional, the ID of the mlflow run to continue logging
+    to. If not provided a new run will start.
+    +
+    ai++_++system++_++config++_++path: the optional path to the AI
+    System configuraiton file. If not provided, defaults to the::
+      DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH environment variable.
+    +
+    custom++_++summary++_++metrics: an optional list of tuples that
+    define what summary statistic to use with what evaluation metric.
+    Valid summary statistics are: “mean”, “median”, “stdev”, “max”,
+    “min” e.g. ++[++(“hallucination++_++rate”, “max”)++]++
+  +
+  Returns: DominoRun context manager
+  +
+  Parameters[.colon]##:##;;
+    * *experiment++_++name* (_Optional++[++str++]++_) –
+    * *run++_++id* (_Optional++[++str++]++_) –
+    * *ai++_++system++_++config++_++path* (_Optional++[++str++]++_) –
+    * *custom++_++summary++_++metrics* (_Optional++[++list++[++str,_
+    _Literal++[++'mean',_ _'median',_ _'stdev',_ _'max',_
+    _'min'++]++++]++++]++_) –
+
+[.sig-prename .descclassname]#[.pre]#domino.aisystems.logging.##[.sig-name .descname]#[.pre]#log++_++evaluation##[.sig-paren]#(#_[.n]#[.pre]#trace++_++id##_,
+_[.n]#[.pre]#name##_,
+_[.n]#[.pre]#value##_[.sig-paren]#)#link:#domino.aisystems.logging.log_evaluation[¶]::
+  This logs evaluation data and metdata to a parent trace. This is used
+  to log the evaluation of a span after it was created. This is useful
+  for analyzing past performance of an AI System component.
+  +
+  Args:;;
+    trace++_++id: the ID of the trace to evaluate
+    +
+    name: an label for the evaluation result. This is used to identify
+    the evaluation result
+    +
+    value: the evaluation result to log. This must be a float or string
+  +
+  Parameters[.colon]##:##;;
+    * *trace++_++id* (_str_) –
+    * *name* (_str_) –
+    * *value* (_float_ _++|++_ _str_) –
+
+
+[[domino-aisystems-read-ai-system-config]]
+== domino.aisystems.read++_++ai++_++system++_++configlink:#domino-aisystems-read-ai-system-config[¶]
+
+[.sig-prename .descclassname]#[.pre]#domino.aisystems.##[.sig-name .descname]#[.pre]#read++_++ai++_++system++_++config##[.sig-paren]#(#_[.n]#[.pre]#path##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_[.sig-paren]#)#link:#domino.aisystems.read_ai_system_config[¶]::
+  Parameters[.colon]##:##;;
+    *path* (_Optional++[++str++]++_) –
+  Return type[.colon]##:##;;
+    dict
+
+[[module-domino.aisystems.tracing]]
+[#domino-aisystems-tracing]##
+
+== domino.aisystems.tracinglink:#module-domino.aisystems.tracing[¶]
+
+Functions
+
+[cols=",",]
+|===
+|link:#domino.aisystems.tracing.add_tracing[[.pre]#`add++_++tracing`#](name++[++, autolog++_++frameworks, ...++]++)
+|A decorator that starts an mlflow span for the function it decorates.
+
+|link:#domino.aisystems.tracing.init_tracing[[.pre]#`init++_++tracing`#](++[++autolog++_++frameworks++]++)
+|
+
+|link:#domino.aisystems.tracing.search_traces[[.pre]#`search++_++traces`#](run++_++id++[++, trace++_++name, ...++]++)
+|
+|===
+
+Classes
+
+[cols=",",]
+|===
+|link:#domino.aisystems.tracing.SearchTracesResponse[[.pre]#`SearchTracesResponse`#](data, page++_++token)
+|
+
+|link:#domino.aisystems.tracing.SpanSummary[[.pre]#`SpanSummary`#](id, name, trace++_++id, inputs, outputs)
+|
+
+|link:#domino.aisystems.tracing.TraceSummary[[.pre]#`TraceSummary`#](name, id, spans, evaluation++_++results)
+|
+|===
+
+[.sig-prename .descclassname]#[.pre]#domino.aisystems.tracing.##[.sig-name .descname]#[.pre]#add++_++tracing##[.sig-paren]#(#_[.n]#[.pre]#name##_,
+_[.n]#[.pre]#autolog++_++frameworks##[.o]#[.pre]#=##[.default_value]#[.pre]#++[]++##_,
+_[.n]#[.pre]#evaluator##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#eagerly++_++evaluate++_++streamed++_++results##[.o]#[.pre]#=##[.default_value]#[.pre]#True##_[.sig-paren]#)#link:#domino.aisystems.tracing.add_tracing[¶]::
+  A decorator that starts an mlflow span for the function it decorates.
+  If there is an existing trace this span will be appended to it.
+  +
+  It also enables the user to run an evaluation inline in the code is
+  run in development mode on the inputs and outputs of the wrapped
+  function call. The user can provide input and output formatters for
+  formatting what’s on the trace and the evaluation result inputs, which
+  can be used by client’s to extract relevant data when analyzing a
+  trace.
+  +
+  This decorator must be used directly on the function to be traced,
+  because it must have access to the arguments.
+  +
+  @add++_++tracing(;;
+    name=”assistant++_++chat++_++bot”,
+    evaluator=evaluate++_++helpfulness,
+  +
+  ) def ask++_++chat++_++bot(user++_++input: str) -++>++ dict:
+  +
+  ____
+  …
+  ____
+  +
+  Args:;;
+    name: the name of the span to add to existing trace or create if no
+    trace exists yet.
+    +
+    autolog++_++frameworks: an optional list of mlflow supported
+    frameworks to autolog
+    +
+    evaluator: an optional function that takes the inputs and outputs of
+    the wrapped function and returns a dictionary of evaluation results.
+    The evaluation result will be added to the trace as tags.
+    +
+    eagerly++_++evaluate++_++streamed++_++results: optional boolean,
+    defaults to true, this determines if all::
+      yielded values should be aggregated and set as outputs to a single
+      span. This makes evaluation eaiser, but will impact performance if
+      you expect a large number of streamed values. If set to false,
+      each yielded value will generate a new span on the trace, which
+      can be evaluated post-hoc. Inline evaluators won’t be executed.
+      Each span will have a group++_++id set in their attributes to
+      indicate that they are part of the same function call. Each span
+      will have an index to indicate what order they arrived in.
+  Returns:;;
+    A decorator that wraps the function to be traced.
+  +
+  Parameters[.colon]##:##;;
+    * *name* (_str_) –
+    * *autolog++_++frameworks* (_Optional++[++list++[++str++]++++]++_) –
+    * *evaluator* (_Optional++[++Callable++[++++[++T,_ _T++]++,_
+    _dict++[++str,_ _int_ _++|++_ _float_ _++|++_ _str++]++++]++++]++_)
+    –
+    * *eagerly++_++evaluate++_++streamed++_++results* (_bool_) –
+
+_[.pre]#class#[.w]#
+#_[.sig-prename .descclassname]#[.pre]#domino.aisystems.tracing.##[.sig-name .descname]#[.pre]#SpanSummary##[.sig-paren]#(#_[.n]#[.pre]#id##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#str##_, _[.n]#[.pre]#name##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#str##_, _[.n]#[.pre]#trace++_++id##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#str##_, _[.n]#[.pre]#inputs##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#Any##_, _[.n]#[.pre]#outputs##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#Any##_[.sig-paren]#)#link:#domino.aisystems.tracing.SpanSummary[¶]::
+  Bases: [.pre]#`object`#
+  +
+  Parameters[.colon]##:##;;
+    * *id* (_str_) –
+    * *name* (_str_) –
+    * *trace++_++id* (_str_) –
+    * *inputs* (_Any_) –
+    * *outputs* (_Any_) –
+  +
+  [.sig-name .descname]#[.pre]#id##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#str#_link:#domino.aisystems.tracing.SpanSummary.id[¶];;
+  +
+  [.sig-name .descname]#[.pre]#name##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#str#_link:#domino.aisystems.tracing.SpanSummary.name[¶];;
+  +
+  [.sig-name .descname]#[.pre]#trace++_++id##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#str#_link:#domino.aisystems.tracing.SpanSummary.trace_id[¶];;
+  +
+  [.sig-name .descname]#[.pre]#inputs##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#Any#_link:#domino.aisystems.tracing.SpanSummary.inputs[¶];;
+  +
+  [.sig-name .descname]#[.pre]#outputs##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#Any#_link:#domino.aisystems.tracing.SpanSummary.outputs[¶];;
+
+_[.pre]#class#[.w]#
+#_[.sig-prename .descclassname]#[.pre]#domino.aisystems.tracing.##[.sig-name .descname]#[.pre]#TraceSummary##[.sig-paren]#(#_[.n]#[.pre]#name##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#str##_, _[.n]#[.pre]#id##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#str##_, _[.n]#[.pre]#spans##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#list#[.p]#[.pre]#++[++##link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary[[.pre]#domino.aisystems.tracing.tracing.SpanSummary#][.p]#[.pre]#++]++###_,
+_[.n]#[.pre]#evaluation++_++results##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#list#[.p]#[.pre]#++[++##link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult[[.pre]#domino.aisystems.tracing.tracing.EvaluationResult#][.p]#[.pre]#++]++###_[.sig-paren]#)#link:#domino.aisystems.tracing.TraceSummary[¶]::
+  Bases: [.pre]#`object`#
+  +
+  Parameters[.colon]##:##;;
+    * *name* (_str_) –
+    * *id* (_str_) –
+    * *spans*
+    (_list++[++_link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary[_domino.aisystems.tracing.tracing.SpanSummary_]_++]++_)
+    –
+    * *evaluation++_++results*
+    (_list++[++_link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult[_domino.aisystems.tracing.tracing.EvaluationResult_]_++]++_)
+    –
+  +
+  [.sig-name .descname]#[.pre]#name##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#str#_link:#domino.aisystems.tracing.TraceSummary.name[¶];;
+  +
+  [.sig-name .descname]#[.pre]#id##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#str#_link:#domino.aisystems.tracing.TraceSummary.id[¶];;
+  +
+  [.sig-name .descname]#[.pre]#spans##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#list#[.p]#[.pre]#++[++##link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary[[.pre]#domino.aisystems.tracing.tracing.SpanSummary#][.p]#[.pre]#++]++##_link:#domino.aisystems.tracing.TraceSummary.spans[¶];;
+  +
+  [.sig-name .descname]#[.pre]#evaluation++_++results##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#list#[.p]#[.pre]#++[++##link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult[[.pre]#domino.aisystems.tracing.tracing.EvaluationResult#][.p]#[.pre]#++]++##_link:#domino.aisystems.tracing.TraceSummary.evaluation_results[¶];;
+
+_[.pre]#class#[.w]#
+#_[.sig-prename .descclassname]#[.pre]#domino.aisystems.tracing.##[.sig-name .descname]#[.pre]#SearchTracesResponse##[.sig-paren]#(#_[.n]#[.pre]#data##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#list#[.p]#[.pre]#++[++##link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary[[.pre]#domino.aisystems.tracing.tracing.TraceSummary#][.p]#[.pre]#++]++###_,
+_[.n]#[.pre]#page++_++token##[.p]#[.pre]#:##[.w]#
+#[.n]#[.pre]#str##_[.sig-paren]#)#link:#domino.aisystems.tracing.SearchTracesResponse[¶]::
+  Bases: [.pre]#`object`#
+  +
+  Parameters[.colon]##:##;;
+    * *data*
+    (_list++[++_link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary[_domino.aisystems.tracing.tracing.TraceSummary_]_++]++_)
+    –
+    * *page++_++token* (_str_) –
+  +
+  [.sig-name .descname]#[.pre]#data##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#list#[.p]#[.pre]#++[++##link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary[[.pre]#domino.aisystems.tracing.tracing.TraceSummary#][.p]#[.pre]#++]++##_link:#domino.aisystems.tracing.SearchTracesResponse.data[¶];;
+  +
+  [.sig-name .descname]#[.pre]#page++_++token##_[.p]#[.pre]#:##[.w]#
+  #[.pre]#str#_link:#domino.aisystems.tracing.SearchTracesResponse.page_token[¶];;
+
+[.sig-prename .descclassname]#[.pre]#domino.aisystems.tracing.##[.sig-name .descname]#[.pre]#search++_++traces##[.sig-paren]#(#_[.n]#[.pre]#run++_++id##_,
+_[.n]#[.pre]#trace++_++name##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#start++_++time##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#end++_++time##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#page++_++token##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_,
+_[.n]#[.pre]#max++_++results##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_[.sig-paren]#)#link:#domino.aisystems.tracing.search_traces[¶]::
+  Parameters[.colon]##:##;;
+    * *run++_++id* (_str_) –
+    * *trace++_++name* (_Optional++[++str++]++_) –
+    * *start++_++time* (_Optional++[++datetime++]++_) –
+    * *end++_++time* (_Optional++[++datetime++]++_) –
+    * *page++_++token* (_Optional++[++str++]++_) –
+    * *max++_++results* (_Optional++[++int++]++_) –
+  Return type[.colon]##:##;;
+    link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SearchTracesResponse[_SearchTracesResponse_]
+
+[.sig-prename .descclassname]#[.pre]#domino.aisystems.tracing.##[.sig-name .descname]#[.pre]#init++_++tracing##[.sig-paren]#(#_[.n]#[.pre]#autolog++_++frameworks##[.o]#[.pre]#=##[.default_value]#[.pre]#None##_[.sig-paren]#)#link:#domino.aisystems.tracing.init_tracing[¶]::
+  Parameters[.colon]##:##;;
+    *autolog++_++frameworks* (_Optional++[++list++[++str++]++++]++_) –
+
+
 == Airflow
 
 The `python-domino` client comes bundled with an https://airflow.apache.org/docs/apache-airflow/stable/concepts/operators.html[Operator^] for use with https://airflow.apache.org/[Apache Airflow^] as an extra.
