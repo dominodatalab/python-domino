@@ -13,8 +13,9 @@ ls $base_path | grep -E 'domino\.aisystems\.[a-z_]+\.html$' | while read -r file
 
   adoc=$html_file.md
   # to github markdown
-  pandoc -f markdown -t gfm -o $adoc $md
-
+  #pandoc -f markdown -t gfm -o $adoc $md
+  #pandoc -f html -t gfm -o $adoc $html_file
+  pandoc -f html -t gfm-raw_html -o $adoc $html_file
 
   echo new $adoc
 

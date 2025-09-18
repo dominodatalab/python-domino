@@ -756,55 +756,31 @@ Uploads a file or entire directory to a dataset.
 ## AISystems 
 
 
-<div class="body" role="main">
+# domino.aisystems.environment_variables[¶](#module-domino.aisystems.environment_variables "Permalink to this heading")
 
-<div id="module-domino.aisystems.environment_variables" class="section">
-
-<span id="domino-aisystems-environment-variables"></span>
-
-# domino.aisystems.environment_variables<a href="#module-domino.aisystems.environment_variables"
-class="headerlink" title="Permalink to this heading">¶</a>
-
-DOMINO_AI_SYSTEM_CONFIG_PATH<span class="colon">:</span>  
+DOMINO_AI_SYSTEM_CONFIG_PATH:  
 For configuring the location of the ai_system_config.yaml file. If not
 set, defaults to ‘./ai_system_config.yaml’.
 
-type<span class="colon">:</span>  
+type:  
 str
 
-</div>
-
-</div>
-
-<div class="body" role="main">
-
-<div id="module-domino.aisystems.logging" class="section">
-
-<span id="domino-aisystems-logging"></span>
-
-# domino.aisystems.logging<a href="#module-domino.aisystems.logging" class="headerlink"
-title="Permalink to this heading">¶</a>
+# domino.aisystems.logging[¶](#module-domino.aisystems.logging "Permalink to this heading")
 
 Functions
 
 |  |  |
-|:---|:---|
-| <a href="#domino.aisystems.logging.log_evaluation"
-class="reference internal"
-title="domino.aisystems.logging.log_evaluation"><span class="pre"><code
-class="sourceCode python">log_evaluation</code></span></a>(trace_id, name, value) | This logs evaluation data and metdata to a parent trace. |
+|----|----|
+| [`log_evaluation`](#domino.aisystems.logging.log_evaluation "domino.aisystems.logging.log_evaluation")(trace_id, name, value) | This logs evaluation data and metdata to a parent trace. |
 
 Classes
 
 |  |  |
-|:---|:---|
-| <a href="#domino.aisystems.logging.DominoRun" class="reference internal"
-title="domino.aisystems.logging.DominoRun"><span class="pre"><code
-class="sourceCode python">DominoRun</code></span></a>(\[experiment_name, run_id, ...\]) | Args: |
+|----|----|
+| [`DominoRun`](#domino.aisystems.logging.DominoRun "domino.aisystems.logging.DominoRun")(\[experiment_name, run_id, ...\]) | Args: |
 
-*<span class="pre">class</span><span class="w"></span>*<span class="sig-prename descclassname"><span class="pre">domino.aisystems.logging.</span></span><span class="sig-name descname"><span class="pre">DominoRun</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">experiment_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">run_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">ai_system_config_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">custom_summary_metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.logging.DominoRun" class="headerlink"
-title="Permalink to this definition">¶</a>  
-Bases: <span class="pre">`object`</span>
+*class* domino.aisystems.logging.DominoRun(*experiment_name=None*, *run_id=None*, *ai_system_config_path=None*, *custom_summary_metrics=None*)[¶](#domino.aisystems.logging.DominoRun "Permalink to this definition")  
+Bases: `object`
 
 Args:  
 experiment_name: the name of the mlflow experiment to log the run to.
@@ -817,12 +793,12 @@ DOMINO_AI_SYSTEM_CONFIG_PATH environment variable.
 
 custom_summary_metrics: an optional list of tuples that define what
 summary statistic to use with what evaluation metric. Valid summary
-statistics are: “mean”, “median”, “stdev”, “max”, “min”
-e.g. \[(“hallucination_rate”, “max”)\]
+statistics are: “mean”, “median”, “stdev”, “max”, “min” e.g.
+\[(“hallucination_rate”, “max”)\]
 
 Returns: DominoRun context manager
 
-Parameters<span class="colon">:</span>  
+Parameters:  
 - **experiment_name** (*Optional\[str\]*) –
 
 - **run_id** (*Optional\[str\]*) –
@@ -832,10 +808,9 @@ Parameters<span class="colon">:</span>
 - **custom_summary_metrics** (*Optional\[list\[str,* *Literal\['mean',*
   *'median',* *'stdev',* *'max',* *'min'\]\]\]*) –
 
-<!-- -->
+&nbsp;
 
-<span class="sig-prename descclassname"><span class="pre">domino.aisystems.logging.</span></span><span class="sig-name descname"><span class="pre">log_evaluation</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">trace_id</span></span>*, *<span class="n"><span class="pre">name</span></span>*, *<span class="n"><span class="pre">value</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.logging.log_evaluation" class="headerlink"
-title="Permalink to this definition">¶</a>  
+domino.aisystems.logging.log_evaluation(*trace_id*, *name*, *value*)[¶](#domino.aisystems.logging.log_evaluation "Permalink to this definition")  
 This logs evaluation data and metdata to a parent trace. This is used to
 log the evaluation of a span after it was created. This is useful for
 analyzing past performance of an AI System component.
@@ -848,7 +823,7 @@ evaluation result
 
 value: the evaluation result to log. This must be a float or string
 
-Parameters<span class="colon">:</span>  
+Parameters:  
 - **trace_id** (*str*) –
 
 - **name** (*str*) –
@@ -858,87 +833,38 @@ Parameters<span class="colon">:</span>
 Modules
 
 |  |  |
-|:---|----|
-| <a
-href="domino.aisystems.logging.dominorun.html#module-domino.aisystems.logging.dominorun"
-class="reference internal"
-title="domino.aisystems.logging.dominorun"><span class="pre"><code
-class="sourceCode python">domino.aisystems.logging.dominorun</code></span></a> |  |
-| <a
-href="domino.aisystems.logging.logging.html#module-domino.aisystems.logging.logging"
-class="reference internal"
-title="domino.aisystems.logging.logging"><span class="pre"><code
-class="sourceCode python">domino.aisystems.logging.logging</code></span></a> |  |
+|----|----|
+| [`domino.aisystems.logging.dominorun`](domino.aisystems.logging.dominorun.html#module-domino.aisystems.logging.dominorun "domino.aisystems.logging.dominorun") |  |
+| [`domino.aisystems.logging.logging`](domino.aisystems.logging.logging.html#module-domino.aisystems.logging.logging "domino.aisystems.logging.logging") |  |
 
-</div>
+# domino.aisystems.read_ai_system_config[¶](#domino-aisystems-read-ai-system-config "Permalink to this heading")
 
-</div>
-
-<div class="body" role="main">
-
-<div id="domino-aisystems-read-ai-system-config" class="section">
-
-# domino.aisystems.read_ai_system_config<a href="#domino-aisystems-read-ai-system-config" class="headerlink"
-title="Permalink to this heading">¶</a>
-
-<span class="sig-prename descclassname"><span class="pre">domino.aisystems.</span></span><span class="sig-name descname"><span class="pre">read_ai_system_config</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.read_ai_system_config" class="headerlink"
-title="Permalink to this definition">¶</a>  
-Parameters<span class="colon">:</span>  
+domino.aisystems.read_ai_system_config(*path=None*)[¶](#domino.aisystems.read_ai_system_config "Permalink to this definition")  
+Parameters:  
 **path** (*Optional\[str\]*) –
 
-Return type<span class="colon">:</span>  
+Return type:  
 dict
 
-</div>
-
-</div>
-
-<div class="body" role="main">
-
-<div id="module-domino.aisystems.tracing" class="section">
-
-<span id="domino-aisystems-tracing"></span>
-
-# domino.aisystems.tracing<a href="#module-domino.aisystems.tracing" class="headerlink"
-title="Permalink to this heading">¶</a>
+# domino.aisystems.tracing[¶](#module-domino.aisystems.tracing "Permalink to this heading")
 
 Functions
 
 |  |  |
-|:---|:---|
-| <a href="#domino.aisystems.tracing.add_tracing"
-class="reference internal"
-title="domino.aisystems.tracing.add_tracing"><span class="pre"><code
-class="sourceCode python">add_tracing</code></span></a>(name\[, autolog_frameworks, ...\]) | A decorator that starts an mlflow span for the function it decorates. |
-| <a href="#domino.aisystems.tracing.init_tracing"
-class="reference internal"
-title="domino.aisystems.tracing.init_tracing"><span class="pre"><code
-class="sourceCode python">init_tracing</code></span></a>(\[autolog_frameworks\]) |  |
-| <a href="#domino.aisystems.tracing.search_traces"
-class="reference internal"
-title="domino.aisystems.tracing.search_traces"><span class="pre"><code
-class="sourceCode python">search_traces</code></span></a>(run_id\[, trace_name, ...\]) |  |
+|----|----|
+| [`add_tracing`](#domino.aisystems.tracing.add_tracing "domino.aisystems.tracing.add_tracing")(name\[, autolog_frameworks, ...\]) | A decorator that starts an mlflow span for the function it decorates. |
+| [`init_tracing`](#domino.aisystems.tracing.init_tracing "domino.aisystems.tracing.init_tracing")(\[autolog_frameworks\]) |  |
+| [`search_traces`](#domino.aisystems.tracing.search_traces "domino.aisystems.tracing.search_traces")(run_id\[, trace_name, ...\]) |  |
 
 Classes
 
 |  |  |
-|:---|----|
-| <a href="#domino.aisystems.tracing.SearchTracesResponse"
-class="reference internal"
-title="domino.aisystems.tracing.SearchTracesResponse"><span
-class="pre"><code
-class="sourceCode python">SearchTracesResponse</code></span></a>(data, page_token) |  |
-| <a href="#domino.aisystems.tracing.SpanSummary"
-class="reference internal"
-title="domino.aisystems.tracing.SpanSummary"><span class="pre"><code
-class="sourceCode python">SpanSummary</code></span></a>(id, name, trace_id, inputs, outputs) |  |
-| <a href="#domino.aisystems.tracing.TraceSummary"
-class="reference internal"
-title="domino.aisystems.tracing.TraceSummary"><span class="pre"><code
-class="sourceCode python">TraceSummary</code></span></a>(name, id, spans, evaluation_results) |  |
+|----|----|
+| [`SearchTracesResponse`](#domino.aisystems.tracing.SearchTracesResponse "domino.aisystems.tracing.SearchTracesResponse")(data, page_token) |  |
+| [`SpanSummary`](#domino.aisystems.tracing.SpanSummary "domino.aisystems.tracing.SpanSummary")(id, name, trace_id, inputs, outputs) |  |
+| [`TraceSummary`](#domino.aisystems.tracing.TraceSummary "domino.aisystems.tracing.TraceSummary")(name, id, spans, evaluation_results) |  |
 
-<span class="sig-prename descclassname"><span class="pre">domino.aisystems.tracing.</span></span><span class="sig-name descname"><span class="pre">add_tracing</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">name</span></span>*, *<span class="n"><span class="pre">autolog_frameworks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">\[\]</span></span>*, *<span class="n"><span class="pre">evaluator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">eagerly_evaluate_streamed_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.tracing.add_tracing" class="headerlink"
-title="Permalink to this definition">¶</a>  
+domino.aisystems.tracing.add_tracing(*name*, *autolog_frameworks=\[\]*, *evaluator=None*, *eagerly_evaluate_streamed_results=True*)[¶](#domino.aisystems.tracing.add_tracing "Permalink to this definition")  
 A decorator that starts an mlflow span for the function it decorates. If
 there is an existing trace this span will be appended to it.
 
@@ -952,15 +878,11 @@ This decorator must be used directly on the function to be traced,
 because it must have access to the arguments.
 
 @add_tracing(  
-name=“assistant_chat_bot”, evaluator=evaluate_helpfulness,
+name=”assistant_chat_bot”, evaluator=evaluate_helpfulness,
 
 ) def ask_chat_bot(user_input: str) -\> dict:
 
-> <div>
->
 > …
->
-> </div>
 
 Args:  
 name: the name of the span to add to existing trace or create if no
@@ -986,7 +908,7 @@ in.
 Returns:  
 A decorator that wraps the function to be traced.
 
-Parameters<span class="colon">:</span>  
+Parameters:  
 - **name** (*str*) –
 
 - **autolog_frameworks** (*Optional\[list\[str\]\]*) –
@@ -996,13 +918,12 @@ Parameters<span class="colon">:</span>
 
 - **eagerly_evaluate_streamed_results** (*bool*) –
 
-<!-- -->
+&nbsp;
 
-*<span class="pre">class</span><span class="w"></span>*<span class="sig-prename descclassname"><span class="pre">domino.aisystems.tracing.</span></span><span class="sig-name descname"><span class="pre">SpanSummary</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">str</span></span>*, *<span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">str</span></span>*, *<span class="n"><span class="pre">trace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">str</span></span>*, *<span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">Any</span></span>*, *<span class="n"><span class="pre">outputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">Any</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.tracing.SpanSummary" class="headerlink"
-title="Permalink to this definition">¶</a>  
-Bases: <span class="pre">`object`</span>
+*class* domino.aisystems.tracing.SpanSummary(*id: str*, *name: str*, *trace_id: str*, *inputs: Any*, *outputs: Any*)[¶](#domino.aisystems.tracing.SpanSummary "Permalink to this definition")  
+Bases: `object`
 
-Parameters<span class="colon">:</span>  
+Parameters:  
 - **id** (*str*) –
 
 - **name** (*str*) –
@@ -1013,106 +934,62 @@ Parameters<span class="colon">:</span>
 
 - **outputs** (*Any*) –
 
-<span class="sig-name descname"><span class="pre">id</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">str</span>*<a href="#domino.aisystems.tracing.SpanSummary.id" class="headerlink"
-title="Permalink to this definition">¶</a>  
+id*: str*[¶](#domino.aisystems.tracing.SpanSummary.id "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">name</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">str</span>*<a href="#domino.aisystems.tracing.SpanSummary.name" class="headerlink"
-title="Permalink to this definition">¶</a>  
+name*: str*[¶](#domino.aisystems.tracing.SpanSummary.name "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">trace_id</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">str</span>*<a href="#domino.aisystems.tracing.SpanSummary.trace_id"
-class="headerlink" title="Permalink to this definition">¶</a>  
+trace_id*: str*[¶](#domino.aisystems.tracing.SpanSummary.trace_id "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">inputs</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">Any</span>*<a href="#domino.aisystems.tracing.SpanSummary.inputs"
-class="headerlink" title="Permalink to this definition">¶</a>  
+inputs*: Any*[¶](#domino.aisystems.tracing.SpanSummary.inputs "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">outputs</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">Any</span>*<a href="#domino.aisystems.tracing.SpanSummary.outputs"
-class="headerlink" title="Permalink to this definition">¶</a>  
+outputs*: Any*[¶](#domino.aisystems.tracing.SpanSummary.outputs "Permalink to this definition")  
 
-<!-- -->
+&nbsp;
 
-*<span class="pre">class</span><span class="w"></span>*<span class="sig-prename descclassname"><span class="pre">domino.aisystems.tracing.</span></span><span class="sig-name descname"><span class="pre">TraceSummary</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">str</span></span>*, *<span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">str</span></span>*, *<span class="n"><span class="pre">spans</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">\[</span></span><a
-href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary"
-class="reference internal"
-title="domino.aisystems.tracing.tracing.SpanSummary"><span
-class="pre">domino.aisystems.tracing.tracing.SpanSummary</span></a><span class="p"><span class="pre">\]</span></span></span>*, *<span class="n"><span class="pre">evaluation_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">\[</span></span><a
-href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult"
-class="reference internal"
-title="domino.aisystems.tracing.tracing.EvaluationResult"><span
-class="pre">domino.aisystems.tracing.tracing.EvaluationResult</span></a><span class="p"><span class="pre">\]</span></span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.tracing.TraceSummary" class="headerlink"
-title="Permalink to this definition">¶</a>  
-Bases: <span class="pre">`object`</span>
+*class* domino.aisystems.tracing.TraceSummary(*name: str*, *id: str*, *spans: list\[[domino.aisystems.tracing.tracing.SpanSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary "domino.aisystems.tracing.tracing.SpanSummary")\]*, *evaluation_results: list\[[domino.aisystems.tracing.tracing.EvaluationResult](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult "domino.aisystems.tracing.tracing.EvaluationResult")\]*)[¶](#domino.aisystems.tracing.TraceSummary "Permalink to this definition")  
+Bases: `object`
 
-Parameters<span class="colon">:</span>  
+Parameters:  
 - **name** (*str*) –
 
 - **id** (*str*) –
 
-- **spans** (*list\[*<a
-  href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary"
-  class="reference internal"
-  title="domino.aisystems.tracing.tracing.SpanSummary"><em>domino.aisystems.tracing.tracing.SpanSummary</em></a>*\]*)
+- **spans**
+  (*list\[*[*domino.aisystems.tracing.tracing.SpanSummary*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary "domino.aisystems.tracing.tracing.SpanSummary")*\]*)
   –
 
-- **evaluation_results** (*list\[*<a
-  href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult"
-  class="reference internal"
-  title="domino.aisystems.tracing.tracing.EvaluationResult"><em>domino.aisystems.tracing.tracing.EvaluationResult</em></a>*\]*)
+- **evaluation_results**
+  (*list\[*[*domino.aisystems.tracing.tracing.EvaluationResult*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult "domino.aisystems.tracing.tracing.EvaluationResult")*\]*)
   –
 
-<span class="sig-name descname"><span class="pre">name</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">str</span>*<a href="#domino.aisystems.tracing.TraceSummary.name" class="headerlink"
-title="Permalink to this definition">¶</a>  
+name*: str*[¶](#domino.aisystems.tracing.TraceSummary.name "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">id</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">str</span>*<a href="#domino.aisystems.tracing.TraceSummary.id" class="headerlink"
-title="Permalink to this definition">¶</a>  
+id*: str*[¶](#domino.aisystems.tracing.TraceSummary.id "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">spans</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">list</span><span class="p"><span class="pre">\[</span></span><a
-href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary"
-class="reference internal"
-title="domino.aisystems.tracing.tracing.SpanSummary"><span
-class="pre">domino.aisystems.tracing.tracing.SpanSummary</span></a><span class="p"><span class="pre">\]</span></span>*<a href="#domino.aisystems.tracing.TraceSummary.spans"
-class="headerlink" title="Permalink to this definition">¶</a>  
+spans*: list\[[domino.aisystems.tracing.tracing.SpanSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary "domino.aisystems.tracing.tracing.SpanSummary")\]*[¶](#domino.aisystems.tracing.TraceSummary.spans "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">evaluation_results</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">list</span><span class="p"><span class="pre">\[</span></span><a
-href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult"
-class="reference internal"
-title="domino.aisystems.tracing.tracing.EvaluationResult"><span
-class="pre">domino.aisystems.tracing.tracing.EvaluationResult</span></a><span class="p"><span class="pre">\]</span></span>*<a href="#domino.aisystems.tracing.TraceSummary.evaluation_results"
-class="headerlink" title="Permalink to this definition">¶</a>  
+evaluation_results*: list\[[domino.aisystems.tracing.tracing.EvaluationResult](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult "domino.aisystems.tracing.tracing.EvaluationResult")\]*[¶](#domino.aisystems.tracing.TraceSummary.evaluation_results "Permalink to this definition")  
 
-<!-- -->
+&nbsp;
 
-*<span class="pre">class</span><span class="w"></span>*<span class="sig-prename descclassname"><span class="pre">domino.aisystems.tracing.</span></span><span class="sig-name descname"><span class="pre">SearchTracesResponse</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">\[</span></span><a
-href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary"
-class="reference internal"
-title="domino.aisystems.tracing.tracing.TraceSummary"><span
-class="pre">domino.aisystems.tracing.tracing.TraceSummary</span></a><span class="p"><span class="pre">\]</span></span></span>*, *<span class="n"><span class="pre">page_token</span></span><span class="p"><span class="pre">:</span></span><span class="w"></span><span class="n"><span class="pre">str</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.tracing.SearchTracesResponse"
-class="headerlink" title="Permalink to this definition">¶</a>  
-Bases: <span class="pre">`object`</span>
+*class* domino.aisystems.tracing.SearchTracesResponse(*data: list\[[domino.aisystems.tracing.tracing.TraceSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary "domino.aisystems.tracing.tracing.TraceSummary")\]*, *page_token: str*)[¶](#domino.aisystems.tracing.SearchTracesResponse "Permalink to this definition")  
+Bases: `object`
 
-Parameters<span class="colon">:</span>  
-- **data** (*list\[*<a
-  href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary"
-  class="reference internal"
-  title="domino.aisystems.tracing.tracing.TraceSummary"><em>domino.aisystems.tracing.tracing.TraceSummary</em></a>*\]*)
+Parameters:  
+- **data**
+  (*list\[*[*domino.aisystems.tracing.tracing.TraceSummary*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary "domino.aisystems.tracing.tracing.TraceSummary")*\]*)
   –
 
 - **page_token** (*str*) –
 
-<span class="sig-name descname"><span class="pre">data</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">list</span><span class="p"><span class="pre">\[</span></span><a
-href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary"
-class="reference internal"
-title="domino.aisystems.tracing.tracing.TraceSummary"><span
-class="pre">domino.aisystems.tracing.tracing.TraceSummary</span></a><span class="p"><span class="pre">\]</span></span>*<a href="#domino.aisystems.tracing.SearchTracesResponse.data"
-class="headerlink" title="Permalink to this definition">¶</a>  
+data*: list\[[domino.aisystems.tracing.tracing.TraceSummary](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary "domino.aisystems.tracing.tracing.TraceSummary")\]*[¶](#domino.aisystems.tracing.SearchTracesResponse.data "Permalink to this definition")  
 
-<span class="sig-name descname"><span class="pre">page_token</span></span>*<span class="p"><span class="pre">:</span></span><span class="w"></span><span class="pre">str</span>*<a href="#domino.aisystems.tracing.SearchTracesResponse.page_token"
-class="headerlink" title="Permalink to this definition">¶</a>  
+page_token*: str*[¶](#domino.aisystems.tracing.SearchTracesResponse.page_token "Permalink to this definition")  
 
-<!-- -->
+&nbsp;
 
-<span class="sig-prename descclassname"><span class="pre">domino.aisystems.tracing.</span></span><span class="sig-name descname"><span class="pre">search_traces</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">run_id</span></span>*, *<span class="n"><span class="pre">trace_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">page_token</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*, *<span class="n"><span class="pre">max_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.tracing.search_traces" class="headerlink"
-title="Permalink to this definition">¶</a>  
-Parameters<span class="colon">:</span>  
+domino.aisystems.tracing.search_traces(*run_id*, *trace_name=None*, *start_time=None*, *end_time=None*, *page_token=None*, *max_results=None*)[¶](#domino.aisystems.tracing.search_traces "Permalink to this definition")  
+Parameters:  
 - **run_id** (*str*) –
 
 - **trace_name** (*Optional\[str\]*) –
@@ -1125,37 +1002,21 @@ Parameters<span class="colon">:</span>
 
 - **max_results** (*Optional\[int\]*) –
 
-Return type<span class="colon">:</span>  
-<a
-href="domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SearchTracesResponse"
-class="reference internal"
-title="domino.aisystems.tracing.tracing.SearchTracesResponse"><em>SearchTracesResponse</em></a>
+Return type:  
+[*SearchTracesResponse*](domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SearchTracesResponse "domino.aisystems.tracing.tracing.SearchTracesResponse")
 
-<!-- -->
+&nbsp;
 
-<span class="sig-prename descclassname"><span class="pre">domino.aisystems.tracing.</span></span><span class="sig-name descname"><span class="pre">init_tracing</span></span><span class="sig-paren">(</span>*<span class="n"><span class="pre">autolog_frameworks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span>*<span class="sig-paren">)</span><a href="#domino.aisystems.tracing.init_tracing" class="headerlink"
-title="Permalink to this definition">¶</a>  
-Parameters<span class="colon">:</span>  
+domino.aisystems.tracing.init_tracing(*autolog_frameworks=None*)[¶](#domino.aisystems.tracing.init_tracing "Permalink to this definition")  
+Parameters:  
 **autolog_frameworks** (*Optional\[list\[str\]\]*) –
 
 Modules
 
 |  |  |
-|:---|----|
-| <a
-href="domino.aisystems.tracing.inittracing.html#module-domino.aisystems.tracing.inittracing"
-class="reference internal"
-title="domino.aisystems.tracing.inittracing"><span class="pre"><code
-class="sourceCode python">domino.aisystems.tracing.inittracing</code></span></a> |  |
-| <a
-href="domino.aisystems.tracing.tracing.html#module-domino.aisystems.tracing.tracing"
-class="reference internal"
-title="domino.aisystems.tracing.tracing"><span class="pre"><code
-class="sourceCode python">domino.aisystems.tracing.tracing</code></span></a> |  |
-
-</div>
-
-</div>
+|----|----|
+| [`domino.aisystems.tracing.inittracing`](domino.aisystems.tracing.inittracing.html#module-domino.aisystems.tracing.inittracing "domino.aisystems.tracing.inittracing") |  |
+| [`domino.aisystems.tracing.tracing`](domino.aisystems.tracing.tracing.html#module-domino.aisystems.tracing.tracing "domino.aisystems.tracing.tracing") |  |
 
 
 
