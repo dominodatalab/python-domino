@@ -292,8 +292,6 @@ def search_traces(
   page_token: Optional[str] = None,
   max_results: Optional[int] = None,
 ) -> SearchTracesResponse:
-    # this depends on mlflow 3 due to the pagination support
-    verify_domino_support()
     """This allows searching for traces that have a certain name and returns a paginated response of trace summaries that
     inclued the spans that were requested.
 
@@ -316,6 +314,8 @@ def search_traces(
             data: list of TraceSummary
             page_token: the next page's token
     """
+    # this depends on mlflow 3 due to the pagination support
+    verify_domino_support()
 
     if not run_id:
         raise Exception("run_id must be provided to search traces")
