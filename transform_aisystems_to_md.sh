@@ -8,8 +8,13 @@ echo "" > $all_doc
 
 ls $base_path | grep -E 'domino\.aisystems\.[a-z_]+\.html$' | while read -r file; do
   html_file=$base_path/$file
+  md=$html_file.md.txt
+  pandoc -f html -t markdown -o $md $html_file
+
   adoc=$html_file.md
-  pandoc -f html -t markdown -o $adoc $html_file
+  # to github markdown
+  pandoc -f markdown -t gfm -o $adoc $md
+
 
   echo new $adoc
 
