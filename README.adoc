@@ -793,7 +793,7 @@ configuration, and computes summary metrics for evaluation traces made
 during the run.
 |===
 
-_class_ domino.aisystems.logging.DominoRun(_experiment++_++name:
+=== _class_ domino.aisystems.logging.DominoRun(_experiment++_++name:
 Optional++[++str++]++ = None_, _run++_++id: Optional++[++str++]++ =
 None_, _ai++_++system++_++config++_++path: Optional++[++str++]++ =
 None_, _custom++_++summary++_++metrics: Optional++[++list++[++str,
