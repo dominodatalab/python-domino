@@ -71,6 +71,8 @@ setup(
             "frozendict==2.4.6",
             "docker>=7.1.0",
             "pytest-mock>=3.14.1",
+            "sphinx>=7.4.0",
+            "markupsafe==2.0.1", # added for using Jinja2 with sphinx and python 3.10
         ],
     },
 )

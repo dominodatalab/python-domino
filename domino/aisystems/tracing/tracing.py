@@ -19,34 +19,58 @@ Evaluator = Callable[[T, T], dict[str, int | float | str]]
 
 @dataclass
 class SpanSummary:
-    id: str
-    name: str
-    trace_id: str
-    inputs: Any
-    outputs: Any
+    """A span in a trace."""
 
-@dataclass
-class TraceSummary:
-    name: str
     id: str
-    spans: list[SpanSummary]
+    """the mlflow ID of the span"""
+
+    name: str
+    """The name of the span"""
+
+    trace_id: str
+    """The parent trace ID"""
+
+    inputs: Any
+    """The inputs to the function that created the span"""
+
+    outputs: Any
+    """The outputs of the function that created the span"""
 
 @dataclass
 class EvaluationResult:
+    """An evaluation result for a trace."""
+
     name: str
+    """The name of the evaluation"""
+
     value: float | str
+    """The value of the evaluation"""
 
 @dataclass
 class TraceSummary:
+    """A summary of a trace."""
+
     name: str
+    """The name of the trace"""
+
     id: str
+    """The mlflow ID of the trace"""
+
     spans: list[SpanSummary]
+    """The child spans of this trace"""
+
     evaluation_results: list[EvaluationResult]
+    """The evaluation results for this trace"""
 
 @dataclass
 class SearchTracesResponse:
+    """The response from searching for traces."""
+
     data: list[TraceSummary]
-    page_token: str
+    """The list of trace summaries"""
+
+    page_token: Optional[str]
+    """The token for the next page of results"""
 
 def _datetime_to_ms(dt: datetime) -> int:
     return dt.timestamp() * 1000
@@ -269,18 +293,21 @@ def search_traces(
   page_token: Optional[str] = None,
   max_results: Optional[int] = None,
 ) -> SearchTracesResponse:
-    # this depends on mlflow 3 due to the pagination support
-    verify_domino_support()
     """This allows searching for traces that have a certain name and returns a paginated response of trace summaries that
     inclued the spans that were requested.
 
     Args:
         run_id: string, the ID of the development mode evaluation run to search for traces.
+
         trace_name: optinoal, the name of the traces to search for
+
         start_time: optional python datetime
+
         end_time: optional python datetime, defaults to now
+
         page_token: optional page token for pagination. You can use this to request the next page of results and may
          find a page_token in the response of the previous search_traces call.
+
         max_results: optional, defaults to 100
 
     Returns:
@@ -288,6 +315,8 @@ def search_traces(
             data: list of TraceSummary
             page_token: the next page's token
     """
+    # this depends on mlflow 3 due to the pagination support
+    verify_domino_support()
 
     if not run_id:
         raise Exception("run_id must be provided to search traces")

@@ -77,8 +77,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
 
 # PyBuilder
 .pybuilder/
@@ -155,3 +153,11 @@ cython_debug/
 
 # mlflow test generated data
 mlruns
+
+# Sphinx documentation
+docs/build
+docs/source/api
+docs/source/generated
+
+# Haskell environment file for Pandoc extensions
+.ghc*
