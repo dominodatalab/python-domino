@@ -7,6 +7,3 @@ adoc_out=$IN_FILE.adoc
 pandoc -f markdown -t asciidoc -o $adoc_out $IN_FILE
 
 echo $adoc_out
-
-
-
