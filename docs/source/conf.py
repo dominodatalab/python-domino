@@ -18,7 +18,7 @@ release = "0.0.1"
 # -- General configuration ---------------------------------------------------
 extensions = [
     "sphinx.ext.autodoc",
-#    'sphinx.ext.autosummary',
+    'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
 ]
 
