@@ -784,9 +784,13 @@ data and metdata to a parent trace.
 
 Classes
 
-[cols=",",]
+[width="100%",cols="50%,50%",]
 |===
-|`DominoRun`(++[++experiment++_++name, run++_++id, …++]++) |
+|`DominoRun`(++[++experiment++_++name, run++_++id, …++]++) |DominoRun is
+a context manager that starts an Mlflow run and attaches the user’s AI
+System configuration to it, create a Logged Model with the AI System
+configuration, and computes summary metrics for evaluation traces made
+during the run.
 |===
 
 _class_ domino.aisystems.logging.DominoRun(_experiment++_++name:
@@ -796,6 +800,44 @@ None_, _custom++_++summary++_++metrics: Optional++[++list++[++str,
 Literal++[++'`mean`', '`median`', '`stdev`', '`max`', '`min`'++]]]++ =
 None_)¶ +
 Bases: `object`
+
+DominoRun is a context manager that starts an Mlflow run and attaches
+the user’s AI System configuration to it, create a Logged Model with the
+AI System configuration, and computes summary metrics for evaluation
+traces made during the run. Average metrics are computed by default, but
+the user can provide a custom list of evaluation metric aggregators.
+This is intended to be used in development mode for AI System
+evaluation. Context manager docs:
+https://docs.python.org/3/library/contextlib.html
+
+Parallelism: DominoRun is not thread-safe. Runs in different threads
+will work correctly. This is due to Mlflow’s architecture. Parallelizing
+operations within a single DominoRun context however, is supported.
+
+Example
+
+import mlflow
+
+mlflow.set++_++experiment(“my++_++experiment”)
+
+with DominoRun(): +
+train++_++model()
+
+Parameters: +
+- *experiment++_++name* – the name of the mlflow experiment to log the
+run to.
+
+* *run++_++id* – optional, the ID of the mlflow run to continue logging
+to. If not provided a new run will start.
+* *ai++_++system++_++config++_++path* – the optional path to the AI
+System configuraiton file. If not provided, defaults to the
+DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH environment variable.
+* *custom++_++summary++_++metrics* – an optional list of tuples that
+define what summary statistic to use with what evaluation metric.
+* *are* (_Valid summary statistics_) – “mean”, “median”, “stdev”, “max”,
+“min” e.g. ++[++(“hallucination++_++rate”, “max”)++]++
+
+Returns: DominoRun context manager
 
  
 
