@@ -42,12 +42,14 @@ autosummary_imported_members = True
 autosummary_generate = True
 
 napoleon_google_docstring = True
+napoleon_numpy_docstring = False
 napoleon_use_param = True
+napoleon_preprocess_types = False
 
 # Autodoc settings
 autoclass_content = "class"
-autodoc_member_order = "bysource"
-#autodoc_typehints = "description"
+autodoc_member_order = "groupwise"
+strip_autodoc_type_xrefs = True
 
 # Mock heavy/optional dependencies to keep autodoc imports lightweight in CI
 autodoc_mock_imports = [
