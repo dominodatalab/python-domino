@@ -19,57 +19,58 @@ Evaluator = Callable[[T, T], dict[str, int | float | str]]
 
 @dataclass
 class SpanSummary:
-    """A span in a trace.
+    """A span in a trace."""
 
-    Args:
-        id: The mlflow ID of the span
-        name: The name of the span
-        trace_id: The span's parent trace ID
-        inputs: The inputs to the function that created the span
-        outputs: The outputs to the function that created the span
-    """
     id: str
+    """the mlflow ID of the span"""
+
     name: str
+    """The name of the span"""
+
     trace_id: str
+    """The parent trace ID"""
+
     inputs: Any
+    """The inputs to the function that created the span"""
+
     outputs: Any
+    """The outputs of the function that created the span"""
 
 @dataclass
 class EvaluationResult:
-    """An evaluation result for a trace.
+    """An evaluation result for a trace."""
 
-    Args:
-        name: The name of the evaluation
-        value: The value of the evaluation
-    """
     name: str
+    """The name of the evaluation"""
+
     value: float | str
+    """The value of the evaluation"""
 
 @dataclass
 class TraceSummary:
-    """A summary of a trace.
+    """A summary of a trace."""
 
-    Args:
-        id: The mlflow ID of the trace
-        name: The name of the trace
-        spans: The child spans of this trace
-        evaluation_results: The evaluation results for this trace
-    """
     name: str
+    """The name of the trace"""
+
     id: str
+    """The mlflow ID of the trace"""
+
     spans: list[SpanSummary]
+    """The child spans of this trace"""
+
     evaluation_results: list[EvaluationResult]
+    """The evaluation results for this trace"""
 
 @dataclass
 class SearchTracesResponse:
-    """The response from searching for traces.
+    """The response from searching for traces."""
 
-    Args:
-        page: The cursor paginated page of results
-        page_token: The token to provide to the api to get the next page of results
-    """
     data: list[TraceSummary]
+    """The list of trace summaries"""
+
     page_token: Optional[str]
+    """The token for the next page of results"""
 
 def _datetime_to_ms(dt: datetime) -> int:
     return dt.timestamp() * 1000

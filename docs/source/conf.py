@@ -18,7 +18,7 @@ release = "0.0.1"
 # -- General configuration ---------------------------------------------------
 extensions = [
     "sphinx.ext.autodoc",
-    'sphinx.ext.autosummary',
+#    'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
 ]
 
@@ -45,9 +45,9 @@ napoleon_google_docstring = True
 napoleon_use_param = True
 
 # Autodoc settings
-autoclass_content = "both"
+autoclass_content = "class"
 autodoc_member_order = "bysource"
-autodoc_typehints = "description"
+#autodoc_typehints = "description"
 
 # Mock heavy/optional dependencies to keep autodoc imports lightweight in CI
 autodoc_mock_imports = [
