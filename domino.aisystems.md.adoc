@@ -1,4 +1,4 @@
-== domino.aisystems.environment++_++variableslink:#module-domino.aisystems.environment_variables[¶]
+== domino.aisystems.environment++_++variables¶
 
 DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH: +
 For configuring the location of the ai++_++system++_++config.yaml file.
@@ -13,7 +13,7 @@ The ID of the production AI System
 type: +
 str
 
-== domino.aisystems.logginglink:#module-domino.aisystems.logging[¶]
+== domino.aisystems.logging¶
 
 Functions
 
@@ -24,14 +24,13 @@ Optional++[++str++]++ = None_, _run++_++id: Optional++[++str++]++ =
 None_, _ai++_++system++_++config++_++path: Optional++[++str++]++ =
 None_, _custom++_++summary++_++metrics: Optional++[++list++[++str,
 Literal++[++'`mean`', '`median`', '`stdev`', '`max`', '`min`'++]]]++ =
-None_)link:#domino.aisystems.logging.DominoRun[¶] +
+None_)¶ +
 Bases: `object`
 
  
 
 domino.aisystems.logging.log++_++evaluation(_trace++_++id: str_, _name:
-str_, _value: float ++|++
-str_)link:#domino.aisystems.logging.log_evaluation[¶] +
+str_, _value: float ++|++ str_)¶ +
 This logs evaluation data and metdata to a parent trace. This is used to
 log the evaluation of a span after it was created. This is useful for
 analyzing past performance of an AI System component.
@@ -45,11 +44,10 @@ the evaluation result
 
 Modules
 
-== domino.aisystems.read++_++ai++_++system++_++configlink:#domino-aisystems-read-ai-system-config[¶]
+== domino.aisystems.read++_++ai++_++system++_++config¶
 
 domino.aisystems.read++_++ai++_++system++_++config(_path:
-Optional++[++str++]++ = None_) →
-dictlink:#domino.aisystems.read_ai_system_config[¶] +
+Optional++[++str++]++ = None_) → dict¶ +
 For getting the ai++_++system++_++config.yaml file and reading it into a
 dictionary. If no path is provided it will look for the path in the
 DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH. See environment variables
@@ -61,76 +59,69 @@ Parameters: +
 Returns: +
 A dictionary of the ai system config yaml values.
 
-== domino.aisystems.tracinglink:#module-domino.aisystems.tracing[¶]
+== domino.aisystems.tracing¶
 
 Functions
 
 Classes
 
 _class_ domino.aisystems.tracing.SearchTracesResponse(_data:
-list++[++link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary[domino.aisystems.tracing.tracing.TraceSummary]++]++_,
-_page++_++token:
-Optional++[++str++]++_)link:#domino.aisystems.tracing.SearchTracesResponse[¶] +
+list++[++domino.aisystems.tracing.tracing.TraceSummary++]++_,
+_page++_++token: Optional++[++str++]++_)¶ +
 Bases: `object`
 
 The response from searching for traces.
 
-data__:
-list++[++link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.TraceSummary[domino.aisystems.tracing.tracing.TraceSummary]++]++__link:#domino.aisystems.tracing.SearchTracesResponse.data[¶] +
+data__: list++[++domino.aisystems.tracing.tracing.TraceSummary++]++__¶ +
 The list of trace summaries
 
-page++_++token__:
-Optional++[++str++]++__link:#domino.aisystems.tracing.SearchTracesResponse.page_token[¶] +
+page++_++token__: Optional++[++str++]++__¶ +
 The token for the next page of results
 
  
 
 _class_ domino.aisystems.tracing.SpanSummary(_id: str_, _name: str_,
-_trace++_++id: str_, _inputs: Any_, _outputs:
-Any_)link:#domino.aisystems.tracing.SpanSummary[¶] +
+_trace++_++id: str_, _inputs: Any_, _outputs: Any_)¶ +
 Bases: `object`
 
 A span in a trace.
 
-id__: str__link:#domino.aisystems.tracing.SpanSummary.id[¶] +
+id__: str__¶ +
 the mlflow ID of the span
 
-inputs__: Any__link:#domino.aisystems.tracing.SpanSummary.inputs[¶] +
+inputs__: Any__¶ +
 The inputs to the function that created the span
 
-name__: str__link:#domino.aisystems.tracing.SpanSummary.name[¶] +
+name__: str__¶ +
 The name of the span
 
-outputs__: Any__link:#domino.aisystems.tracing.SpanSummary.outputs[¶] +
+outputs__: Any__¶ +
 The outputs of the function that created the span
 
-trace++_++id__:
-str__link:#domino.aisystems.tracing.SpanSummary.trace_id[¶] +
+trace++_++id__: str__¶ +
 The parent trace ID
 
  
 
 _class_ domino.aisystems.tracing.TraceSummary(_name: str_, _id: str_,
-_spans:
-list++[++link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary[domino.aisystems.tracing.tracing.SpanSummary]++]++_,
+_spans: list++[++domino.aisystems.tracing.tracing.SpanSummary++]++_,
 _evaluation++_++results:
-list++[++link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult[domino.aisystems.tracing.tracing.EvaluationResult]++]++_)link:#domino.aisystems.tracing.TraceSummary[¶] +
+list++[++domino.aisystems.tracing.tracing.EvaluationResult++]++_)¶ +
 Bases: `object`
 
 A summary of a trace.
 
 evaluation++_++results__:
-list++[++link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.EvaluationResult[domino.aisystems.tracing.tracing.EvaluationResult]++]++__link:#domino.aisystems.tracing.TraceSummary.evaluation_results[¶] +
+list++[++domino.aisystems.tracing.tracing.EvaluationResult++]++__¶ +
 The evaluation results for this trace
 
-id__: str__link:#domino.aisystems.tracing.TraceSummary.id[¶] +
+id__: str__¶ +
 The mlflow ID of the trace
 
-name__: str__link:#domino.aisystems.tracing.TraceSummary.name[¶] +
+name__: str__¶ +
 The name of the trace
 
-spans__:
-list++[++link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SpanSummary[domino.aisystems.tracing.tracing.SpanSummary]++]++__link:#domino.aisystems.tracing.TraceSummary.spans[¶] +
+spans__: list++[++domino.aisystems.tracing.tracing.SpanSummary++]++__¶ +
 The child spans of this trace
 
  
@@ -139,8 +130,7 @@ domino.aisystems.tracing.add++_++tracing(_name: str_,
 _autolog++_++frameworks: Optional++[++list++[++str++]]++ = ++[]++_,
 _evaluator: Optional++[++Callable++[[++T, T++]++, dict++[++str, int
 ++|++ float ++|++ str++]]]++ = None_,
-_eagerly++_++evaluate++_++streamed++_++results: bool =
-True_)link:#domino.aisystems.tracing.add_tracing[¶] +
+_eagerly++_++evaluate++_++streamed++_++results: bool = True_)¶ +
 A decorator that starts an mlflow span for the function it decorates. If
 there is an existing trace this span will be appended to it.
 
@@ -188,8 +178,7 @@ A decorator that wraps the function to be traced.
  
 
 domino.aisystems.tracing.init++_++tracing(_autolog++_++frameworks:
-Optional++[++list++[++str++]]++ =
-None_)link:#domino.aisystems.tracing.init_tracing[¶] +
+Optional++[++list++[++str++]]++ = None_)¶ +
 Initialize Mlflow autologging for various frameworks and set the active
 model for production evaluation runs. This may be used to initialize
 logging and tracing for the AI System in dev and prod modes. If in prod
@@ -207,8 +196,7 @@ _trace++_++name: Optional++[++str++]++ = None_, _start++_++time:
 Optional++[++datetime++]++ = None_, _end++_++time:
 Optional++[++datetime++]++ = None_, _page++_++token:
 Optional++[++str++]++ = None_, _max++_++results: Optional++[++int++]++ =
-None_) →
-link:domino.aisystems.tracing.tracing.html#domino.aisystems.tracing.tracing.SearchTracesResponse[SearchTracesResponse]link:#domino.aisystems.tracing.search_traces[¶] +
+None_) → SearchTracesResponse¶ +
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that inclued the spans that were
 requested.
