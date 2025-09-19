@@ -127,14 +127,14 @@ See
 - Install the app in dev mode and all dependencies and pandoc: `brew install pandoc ghc cabal-install haskell-stack` and `cabal update && cabal install --lib pandoc-types --package-env .`
 - Build: `./docs/build.sh`
 - View: open docs/build/html/index.html
-- Transform an html file to adoc: `html_file=docs/build/html/generated/domino.aisystems.logging.html && pandoc -f html -t asciidoc -o $html_file.adoc $html_file`
+- Transform an html file to adoc: `md_file_name=$(./docs/html_to_md.sh $FN) && ./docs/md_to_adoc.sh $md_file_name` (This creates an adoc that our user facing docs site can render)
 - Manually pick the changes you want and add to `README.adoc`
 
-## helpers for transforming aisystems docs to adoc and github flavored markdown
+## transform aisystems docs for README
 
-After runi
-`docs/transform_aisystems_to_adoc.sh`
-`docs/transform_aisystems_to_md.sh`
+- Run:
+`./docs/transform_aisystems_docs_for_readme.sh`
+- copy/paste the outputs for asciidoc and markdown into respective README files
 
 # Methods
 
