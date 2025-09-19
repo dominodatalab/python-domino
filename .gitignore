@@ -158,3 +158,6 @@ mlruns
 docs/build
 docs/source/api
 docs/source/generated
+
+# Haskell environment file for Pandoc extensions
+.ghc*
