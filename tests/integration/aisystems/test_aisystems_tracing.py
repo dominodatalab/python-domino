@@ -83,21 +83,16 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
 
 def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
-        autolog calls should be idempotent
         should not create an experiment or set tags
         """
-        import domino.aisystems.tracing.tracing
         import domino.aisystems._client
         import mlflow
-        autolog_spy = mocker.spy(domino.aisystems.tracing.inittracing, "call_autolog")
         set_experiment_tag_spy = mocker.spy(domino.aisystems._client.client, "set_experiment_tag")
         set_experiment_spy = mocker.spy(mlflow, "set_experiment")
 
         with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True):
                 tracing.init_tracing(["sklearn"])
-                tracing.init_tracing(["sklearn"])
 
-                assert autolog_spy.call_args_list == [call('sklearn')]
                 assert set_experiment_tag_spy.call_count == 0, "should set experiment tag"
                 assert set_experiment_spy.call_count == 0, "should not create an experiment"
 

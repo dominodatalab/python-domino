@@ -10,7 +10,7 @@ from uuid import uuid4
 from .._client import client
 from .inittracing import init_tracing
 from ..logging.logging import log_evaluation, add_domino_tags
-from ._util import get_is_production
+from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
@@ -262,7 +262,9 @@ def _build_trace_summaries(traces) -> list[TraceSummary]:
     return trace_summaries
 
 def search_traces(
-  run_id: str,
+  run_id: Optional[str] = None,
+  ai_system_id: Optional[str] = None,
+  ai_system_version: Optional[str] = None,
   trace_name: Optional[str] = None,
   start_time: Optional[datetime] = None,
   end_time: Optional[datetime] = None,
@@ -276,12 +278,12 @@ def search_traces(
 
     Args:
         run_id: string, the ID of the development mode evaluation run to search for traces.
-        trace_name: optinoal, the name of the traces to search for
-        start_time: optional python datetime
-        end_time: optional python datetime, defaults to now
-        page_token: optional page token for pagination. You can use this to request the next page of results and may
+        trace_name: the name of the traces to search for
+        start_time: python datetime
+        end_time: python datetime, defaults to now
+        page_token: page token for pagination. You can use this to request the next page of results and may
          find a page_token in the response of the previous search_traces call.
-        max_results: optional, defaults to 100
+        max_results: defaults to 100
 
     Returns:
         SearchTracesReponse: a token based pagination response that contains a list of trace summaries
@@ -289,10 +291,21 @@ def search_traces(
             page_token: the next page's token
     """
 
-    if not run_id:
-        raise Exception("run_id must be provided to search traces")
+    if not run_id and not ai_system_version and not ai_system_id:
+        raise Exception("Either run_id or ai_system_id and ai_system_version must be provided to search traces")
 
-    experiment_id = client.get_run(run_id).info.experiment_id
+    if ai_system_version and not ai_system_id:
+        raise Exception("If ai_system_version is provided, ai_system_id must also be provided")
+
+    # get experiment id
+    if run_id:
+        experiment_id = client.get_run(run_id).info.experiment_id
+    else:
+        experiment_name = build_ai_system_experiment_name(ai_system_id, ai_system_version)
+        experiment = mlflow.get_experiment_by_name(experiment_name)
+        if not experiment:
+            raise Exception(f"No experiment found for ai_system_id: {ai_system_id} and ai_system_version: {ai_system_version}")
+        experiment_id = experiment.experiment_id
 
     time_range_filter_clause = ''
     if start_time:

@@ -5,7 +5,7 @@ from typing import Optional
 
 from .._client import client
 from .._constants import EXPERIMENT_AI_SYSTEM_TAG
-from ._util import get_is_production
+from ._util import is_ai_system, get_running_ai_system_experiment_name
 from .._verify_domino_support import verify_domino_support
 
 global _triggered_autolog_frameworks
@@ -23,14 +23,9 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
     Args:
         autolog_frameworks: Optional[list[string]] of frameworks to autolog
     """
-    is_production = get_is_production()
-
-    app_id = os.environ.get("DOMINO_APP_ID")
-    app_version = os.environ.get("DOMINO_APP_VERSION")
-    if is_production and app_id and app_version:
+    if is_ai_system():
         # activate ai system experiment
-        ai_system_experiment_name = f"{app_id}_{app_version}"
-        experiment = mlflow.set_experiment(ai_system_experiment_name)
+        experiment = mlflow.set_experiment(get_running_ai_system_experiment_name())
         if experiment.tags.get(EXPERIMENT_AI_SYSTEM_TAG) != "true":
             client.set_experiment_tag(experiment.experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
 
