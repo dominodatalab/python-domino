@@ -22,8 +22,10 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
 
         import domino.aisystems.tracing.tracing
         import domino.aisystems._client
+        import mlflow
         autolog_spy = mocker.spy(domino.aisystems.tracing.inittracing, "call_autolog")
         set_experiment_tag_spy = mocker.spy(domino.aisystems._client.client, "set_experiment_tag")
+        set_experiment_spy = mocker.spy(mlflow, "set_experiment")
 
         with patch.dict(os.environ, env_vars, clear=True):
                 tracing.init_tracing(["sklearn"])
@@ -32,20 +34,28 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
 
                 assert autolog_spy.call_args_list == [call('sklearn')]
                 assert set_experiment_tag_spy.call_count == 1, "should only save tag on experiment once"
+                assert set_experiment_spy.call_count is not 0, "should set an active experiment"
                 assert found_exp is not None, "ai system experiment should exist"
 
 def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
-        set_active_model should not be called
+        autolog calls should be idempotent
+        should not create an experiment or set tags
         """
+        import domino.aisystems.tracing.tracing
+        import domino.aisystems._client
+        import mlflow
+        autolog_spy = mocker.spy(domino.aisystems.tracing.inittracing, "call_autolog")
+        set_experiment_tag_spy = mocker.spy(domino.aisystems._client.client, "set_experiment_tag")
+        set_experiment_spy = mocker.spy(mlflow, "set_experiment")
+
         with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True):
-                set_active_model_spy = mocker.spy(mlflow, "set_active_model")
-                exp = mlflow.set_experiment("test_init_tracing")
-
                 tracing.init_tracing(["sklearn"])
                 tracing.init_tracing(["sklearn"])
 
-                assert set_active_model_spy.call_count == 0
+                assert autolog_spy.call_args_list == [call('sklearn')]
+                assert set_experiment_tag_spy.call_count == 0, "should set experiment tag"
+                assert set_experiment_spy.call_count == 0, "should not create an experiment"
 
 def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
