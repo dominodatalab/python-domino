@@ -16,8 +16,7 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
         should create an experiment for the ai system and tag it only once
         """
         app_id = "appid"
-        app_version = "appversion"
-        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id, "DOMINO_APP_VERSION": app_version}
+        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
         expected_experiment_name = app_id
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
@@ -44,8 +43,7 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
         should be saved to the same ai system experiment
         """
         app_id = "threaded_app_id"
-        app_version = "threaded_app_version"
-        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id, "DOMINO_APP_VERSION": app_version}
+        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
         expected_experiment_name = app_id
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
