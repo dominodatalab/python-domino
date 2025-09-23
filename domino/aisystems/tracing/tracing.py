@@ -278,6 +278,8 @@ def search_traces(
 
     Args:
         run_id: string, the ID of the development mode evaluation run to search for traces.
+        ai_system_id: string, the ID of the AI System to filter by
+        ai_system_version: string, the version of the AI System to filter by, if not provided will search throuh all versions
         trace_name: the name of the traces to search for
         start_time: python datetime
         end_time: python datetime, defaults to now
