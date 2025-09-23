@@ -9,23 +9,30 @@ from unittest.mock import call, patch
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._eval_tags import InvalidEvaluationLabelException
 
-def test_init_tracing(setup_mlflow_tracking_server, mocker, mlflow, tracing):
+def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
         should initialize autologging only once for each framework
+        should create an experiment for the ai system and tag it only once
         """
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true" }
+        app_id = "appid"
+        app_version = "appversion"
+        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id, "DOMINO_APP_VERSION": app_version}
+        expected_experiment_name = f"{app_id}_{app_version}"
+        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
         import domino.aisystems.tracing.tracing
+        import domino.aisystems._client
         autolog_spy = mocker.spy(domino.aisystems.tracing.inittracing, "call_autolog")
+        set_experiment_tag_spy = mocker.spy(domino.aisystems._client.client, "set_experiment_tag")
 
         with patch.dict(os.environ, env_vars, clear=True):
-                set_active_model_spy = mocker.spy(mlflow, "set_active_model")
-                exp = mlflow.set_experiment("test_init_tracing")
-
                 tracing.init_tracing(["sklearn"])
                 tracing.init_tracing(["sklearn"])
+                found_exp = mlflow.get_experiment_by_name(expected_experiment_name)
 
                 assert autolog_spy.call_args_list == [call('sklearn')]
+                assert set_experiment_tag_spy.call_count == 1, "should only save tag on experiment once"
+                assert found_exp is not None, "ai system experiment should exist"
 
 def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """

@@ -31,7 +31,8 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
         # activate ai system experiment
         ai_system_experiment_name = f"{app_id}_{app_version}"
         experiment = mlflow.set_experiment(ai_system_experiment_name)
-        client.set_experiment_tag(experiment.experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
+        if experiment.tags.get(EXPERIMENT_AI_SYSTEM_TAG) != "true":
+            client.set_experiment_tag(experiment.experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
 
     for fw in frameworks:
         global _triggered_autolog_frameworks
