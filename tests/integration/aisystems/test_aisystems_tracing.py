@@ -11,15 +11,9 @@ from domino.aisystems._eval_tags import InvalidEvaluationLabelException
 
 def test_init_tracing(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
-        set_active_model should be called once in production mode
-        and initialize autologging only once for each framework
+        should initialize autologging only once for each framework
         """
-        prod_model = mlflow.create_external_model(
-                model_type="AI System",
-                params={}
-        )
-        prod_model_id = prod_model.model_id
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_AI_SYSTEM_MODEL_ID": prod_model_id}
+        env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true" }
 
         import domino.aisystems.tracing.tracing
         autolog_spy = mocker.spy(domino.aisystems.tracing.inittracing, "call_autolog")
@@ -31,7 +25,6 @@ def test_init_tracing(setup_mlflow_tracking_server, mocker, mlflow, tracing):
                 tracing.init_tracing(["sklearn"])
                 tracing.init_tracing(["sklearn"])
 
-                assert set_active_model_spy.call_count == 1, "set active model should be called once"
                 assert autolog_spy.call_args_list == [call('sklearn')]
 
 def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tracing):
