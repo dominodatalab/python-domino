@@ -18,7 +18,7 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
         app_id = "appid"
         app_version = "appversion"
         test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id, "DOMINO_APP_VERSION": app_version}
-        expected_experiment_name = f"{app_id}_{app_version}"
+        expected_experiment_name = app_id
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
         import domino.aisystems.tracing.tracing
@@ -46,7 +46,7 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
         app_id = "threaded_app_id"
         app_version = "threaded_app_version"
         test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id, "DOMINO_APP_VERSION": app_version}
-        expected_experiment_name = f"{app_id}_{app_version}"
+        expected_experiment_name = app_id
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
         with patch.dict(os.environ, env_vars, clear=True):

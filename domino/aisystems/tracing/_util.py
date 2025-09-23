@@ -11,11 +11,10 @@ def _get_ai_system_version() -> str | None:
     return os.environ.get("DOMINO_APP_VERSION")
 
 def is_ai_system() -> bool:
-    return get_is_production() and _get_ai_system_id() is not None \
-        and _get_ai_system_version() is not None
+    return get_is_production() and _get_ai_system_id() is not None
 
 def build_ai_system_experiment_name(id: str, version: str) -> str:
-    return f"{id}_{version}"
+    return id
 
 def get_running_ai_system_experiment_name() -> str | None:
     if is_ai_system():
