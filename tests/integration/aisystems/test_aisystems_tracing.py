@@ -3,6 +3,7 @@ import inspect
 import logging
 import os
 import pytest
+import threading
 import time
 from unittest.mock import call, patch
 
@@ -36,6 +37,49 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
                 assert set_experiment_tag_spy.call_count == 1, "should only save tag on experiment once"
                 assert set_experiment_spy.call_count is not 0, "should set an active experiment"
                 assert found_exp is not None, "ai system experiment should exist"
+
+def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
+        """
+        traces created in separate threads forked from the same main thread
+        should be saved to the same ai system experiment
+        """
+        app_id = "threaded_app_id"
+        app_version = "threaded_app_version"
+        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id, "DOMINO_APP_VERSION": app_version}
+        expected_experiment_name = f"{app_id}_{app_version}"
+        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
+
+        with patch.dict(os.environ, env_vars, clear=True):
+                tracing.init_tracing()
+
+                @tracing.add_tracing(name="a")
+                def a(num):
+                        return num
+
+                @tracing.add_tracing(name="b")
+                def b(num):
+                        return num
+
+                t1 = threading.Thread(target=a, args=(10,))
+                t2 = threading.Thread(target=b, args=(10,))
+
+                t1.start()
+                t2.start()
+
+                t1.join()
+                t2.join()
+
+        # a and b traces should all be in the ai system experiment
+        traces_a = mlflow.search_traces(filter_string="trace.name = 'a'", return_type='list')
+        traces_b = mlflow.search_traces(filter_string="trace.name = 'b'", return_type='list')
+
+        def get_experiment_id(trace):
+                return trace.info.trace_location.mlflow_experiment.experiment_id
+
+        found_exp_ids = set([get_experiment_id(t) for t in traces_a + traces_b])
+        actual_exp_id = set([mlflow.get_experiment_by_name(expected_experiment_name).experiment_id])
+        assert found_exp_ids == actual_exp_id, "traces should be linked to the ai system experiment"
+
 
 def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
