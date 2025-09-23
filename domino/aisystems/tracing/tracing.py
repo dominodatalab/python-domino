@@ -299,9 +299,13 @@ def search_traces(
     if ai_system_version and not ai_system_id:
         raise Exception("If ai_system_version is provided, ai_system_id must also be provided")
 
+    filter_clauses = []
+
     # get experiment id
     if run_id:
         experiment_id = client.get_run(run_id).info.experiment_id
+        run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
+        filter_clauses.append(run_filter_clause)
     else:
         experiment_name = build_ai_system_experiment_name(ai_system_id, ai_system_version)
         experiment = mlflow.get_experiment_by_name(experiment_name)
@@ -309,23 +313,32 @@ def search_traces(
             raise Exception(f"No experiment found for ai_system_id: {ai_system_id} and ai_system_version: {ai_system_version}")
         experiment_id = experiment.experiment_id
 
-    time_range_filter_clause = ''
-    if start_time:
-        start_ms = _datetime_to_ms(start_time)
-        time_range_filter_clause += f'timestamp_ms > {start_ms}'
+        # add prod trace tag filters
+        if ai_system_id:
+            filter_clauses.append(f'tags.mlflow.domino.app_id = "{ai_system_id}"')
 
-    if end_time:
-        end_ms = _datetime_to_ms(end_time)
-        time_range_filter_clause += f' AND timestamp_ms < {end_ms}'
+        if ai_system_version:
+            filter_clauses.append(f'tags.mlflow.domino.app_version_id = "{ai_system_version}"')
 
-    trace_name_filter_clause = None
+    if start_time or end_time:
+        time_range_filter_clause = ''
+
+        if start_time:
+            start_ms = _datetime_to_ms(start_time)
+            time_range_filter_clause += f'timestamp_ms > {start_ms}'
+
+        if end_time:
+            end_ms = _datetime_to_ms(end_time)
+            time_range_filter_clause += f' AND timestamp_ms < {end_ms}'
+
+        filter_clauses.append(time_range_filter_clause)
+
     if trace_name:
         trace_name_filter_clause = f'trace.name = "{trace_name}"'
+        filter_clauses.append(trace_name_filter_clause)
 
     # get traces made within the time range
     # get traces with the trace names
-    run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
-    filter_clauses = [run_filter_clause, time_range_filter_clause, trace_name_filter_clause]
     filter_string = ' AND '.join([x for x in filter_clauses if x])
 
     traces = client.search_traces(
