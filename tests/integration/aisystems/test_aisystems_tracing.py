@@ -473,6 +473,9 @@ def test_search_traces_multiple_runs_in_exp(setup_mlflow_tracking_server, mocker
         assert [trace.name for trace in res.data] == ["unit1"]
 
 def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, mlflow, tracing):
+        """
+        Can filter by ai system id alone or id and version
+        """
         app_id = "test_search_traces_ai_system_id"
         app_version_1 = "test_search_traces_ai_system_version_1"
         app_version_2 = "test_search_traces_ai_system_version_2"
@@ -517,6 +520,27 @@ def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, m
 
                 v2_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_2)
                 assert get_trace_names(v2_traces) == ["two"], "Can get traces for just ai system version 2"
+
+def test_search_traces_ai_system_ai_system_id_required(setup_mlflow_tracking_server_no_env_var_mock, tracing):
+        """
+        ai system id is required if version supplied
+        """
+
+        with pytest.raises(Exception) as e_info:
+                tracing.search_traces(ai_system_version="fakeversion")
+
+        assert "ai_system_id must also be provided" in str(e_info), "Should raise if version provided without id"
+
+def test_search_traces_no_run_ai_system_ids_supplied(setup_mlflow_tracking_server_no_env_var_mock, tracing):
+        """
+        should throw if no run id, ai system version, or id supplied
+        """
+
+        with pytest.raises(Exception) as e_info:
+                tracing.search_traces()
+
+        assert "Either run_id or ai_system_id and ai_system_version must be provided to search traces" in str(e_info), \
+                "Should raise no ai system info or run info provided"
 
 def test_search_traces_filters_should_work_together(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
