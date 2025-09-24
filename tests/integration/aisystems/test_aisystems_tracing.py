@@ -41,6 +41,20 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
                 assert found_exp is not None, "ai system experiment should exist"
                 assert found_exp.tags.get("ai_system") == "true", "ai system experiment should be tagged"
 
+def test_init_tracing_logs_experiment_creation_debug(setup_mlflow_tracking_server, mlflow, tracing, caplog):
+        """
+        when log level is debug, verify the experiment creation log includes the experiment ID
+        """
+        app_id = "app_id_logs_debug"
+        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
+
+        with patch.dict(os.environ, env_vars, clear=True), caplog.at_level(logging.DEBUG):
+                tracing.init_tracing(should_reinitialize=True)
+                exp = mlflow.get_experiment_by_name(app_id)
+                assert exp is not None, "experiment should be created in prod mode"
+                assert f"Created experiment for AI System with ID {exp.experiment_id}" in caplog.text
+
 def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
         traces created in separate threads forked from the same main thread
