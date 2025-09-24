@@ -11,7 +11,12 @@ from .._verify_domino_support import verify_domino_support
 global _triggered_autolog_frameworks
 _triggered_autolog_frameworks = set()
 
-def init_tracing(autolog_frameworks: Optional[list[str]] = None):
+global _is_prod_tracing_initialized
+_is_prod_tracing_initialized = False
+
+# should_reinitialize is for testing, in order to work around the _is_prod_tracing_initialized guard, so that
+# we can have multiple tests for the init_tracing function
+def init_tracing(autolog_frameworks: Optional[list[str]] = None, should_reinitialize: Optional[bool] = False):
     verify_domino_support()
     frameworks = autolog_frameworks or []
     """Initialize Mlflow autologging for various frameworks and set the active model for production evaluation runs.
@@ -23,7 +28,8 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
     Args:
         autolog_frameworks: Optional[list[string]] of frameworks to autolog
     """
-    if is_ai_system():
+    global _is_prod_tracing_initialized
+    if is_ai_system() and (not _is_prod_tracing_initialized or should_reinitialize):
         # activate ai system experiment
 
         # we use the client to create experiment and get to avoid racy behavior
@@ -37,6 +43,7 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
         # only set experiment by ID to avoid the python client creating a new experiment with a random ID appended
         # this happens when init_tracing called by itself and then a domino trace started right after
         experiment = mlflow.set_experiment(experiment_id=experiment_id)
+        _is_prod_tracing_initialized = True
 
     for fw in frameworks:
         global _triggered_autolog_frameworks

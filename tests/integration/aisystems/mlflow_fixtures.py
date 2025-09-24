@@ -51,7 +51,7 @@ def fixture_create_prod_traces(
 
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": ai_system_id }
         with patch.dict(os.environ, env_vars, clear=True):
-                tracing.init_tracing()
+                tracing.init_tracing(should_reinitialize=True)
                 if hours_ago is not None:
                         experiment = mlflow.get_experiment_by_name(build_ai_system_experiment_name(ai_system_id))
                         create_span_at_time(trace_name, hours_ago, hours_ago, experiment.experiment_id)

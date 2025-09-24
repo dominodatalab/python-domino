@@ -52,7 +52,7 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
         with patch.dict(os.environ, env_vars, clear=True):
-                tracing.init_tracing()
+                tracing.init_tracing(should_reinitialize=True)
 
                 @tracing.add_tracing(name="a")
                 def a(num):
