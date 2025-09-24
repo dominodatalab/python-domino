@@ -9,7 +9,7 @@ from unittest.mock import call, patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._client import client
-#from domino.aisystems.tracing._util import build_ai_system_experiment_name
+from domino.aisystems.tracing._util import build_ai_system_experiment_name
 from domino.aisystems._eval_tags import InvalidEvaluationLabelException
 
 def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
@@ -38,6 +38,7 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
                 assert set_experiment_tag_spy.call_count == 1, "should only save tag on experiment once"
                 assert set_experiment_spy.call_count is not 0, "should set an active experiment"
                 assert found_exp is not None, "ai system experiment should exist"
+                assert found_exp.tags.get("ai_system") == "true", "ai system experiment should be tagged"
 
 def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
@@ -94,7 +95,7 @@ def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tra
                 tracing.init_tracing(["sklearn"])
 
                 assert set_experiment_tag_spy.call_count == 0, "should set experiment tag"
-                assert set_experiment_spy.call_count == 0, "should not create an experiment"
+                assert set_experiment_spy.call_count == 0, "should not set an active experiment"
 
 def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
@@ -471,7 +472,6 @@ def test_search_traces_multiple_runs_in_exp(setup_mlflow_tracking_server, mocker
 
         assert [trace.name for trace in res.data] == ["unit1"]
 
-@pytest.mark.order(-1)
 def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, mlflow, tracing):
         app_id = "test_search_traces_ai_system_id"
         app_version_1 = "test_search_traces_ai_system_version_1"
@@ -491,15 +491,13 @@ def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, m
                 one(1)
                 two(2)
 
-                # add prod tags (would be done by Domino deployment)
-                exp_name = app_id #build_ai_system_experiment_name(app_id)
+                exp_name = build_ai_system_experiment_name(app_id)
                 exp = mlflow.get_experiment_by_name(exp_name)
-                print(client.search_traces(experiment_ids=[exp.experiment_id]))
+
                 v1_ts = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'one'", return_type='list')
                 v2_ts = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'two'", return_type='list')
 
-                print(v2_ts)
-
+                # add prod tags (would be done by Domino deployment)
                 for t in v1_ts:
                         client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_id", app_id)
                         client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_version_id", app_version_1)
@@ -512,13 +510,13 @@ def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, m
                         return sorted([trace.name for trace in traces.data])
 
                 all_traces = tracing.search_traces(ai_system_id=app_id)
-                assert get_trace_names(all_traces) == ["one", "two"]
+                assert get_trace_names(all_traces) == ["one", "two"], "Can get traces for all ai system versions"
 
                 v1_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_1)
-                assert get_trace_names(v1_traces) == ["one"]
+                assert get_trace_names(v1_traces) == ["one"], "Can get traces for just ai system version 1"
 
                 v2_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_2)
-                assert get_trace_names(v2_traces) == ["two"]
+                assert get_trace_names(v2_traces) == ["two"], "Can get traces for just ai system version 2"
 
 def test_search_traces_filters_should_work_together(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
