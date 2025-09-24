@@ -8,6 +8,7 @@ import time
 from unittest.mock import call, patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
+from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time
 from domino.aisystems._client import client
 from domino.aisystems.tracing._util import build_ai_system_experiment_name
 from domino.aisystems._eval_tags import InvalidEvaluationLabelException
@@ -479,47 +480,21 @@ def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, m
         app_id = "test_search_traces_ai_system_id"
         app_version_1 = "test_search_traces_ai_system_version_1"
         app_version_2 = "test_search_traces_ai_system_version_2"
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id }
 
-        @tracing.add_tracing(name="one")
-        def one(x):
-                return x
-        @tracing.add_tracing(name="two")
-        def two(x):
-                return x
+        fixture_create_prod_traces(app_id, app_version_1, "one", tracing)
+        fixture_create_prod_traces(app_id, app_version_2, "two", tracing)
 
-        # create traces and ai system experiment
-        with patch.dict(os.environ, env_vars, clear=True):
-                tracing.init_tracing()
-                one(1)
-                two(2)
+        def get_trace_names(traces):
+                return sorted([trace.name for trace in traces.data])
 
-                exp_name = build_ai_system_experiment_name(app_id)
-                exp = mlflow.get_experiment_by_name(exp_name)
+        all_traces = tracing.search_traces(ai_system_id=app_id)
+        assert get_trace_names(all_traces) == ["one", "two"], "Can get traces for all ai system versions"
 
-                v1_ts = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'one'", return_type='list')
-                v2_ts = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'two'", return_type='list')
+        v1_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_1)
+        assert get_trace_names(v1_traces) == ["one"], "Can get traces for just ai system version 1"
 
-                # add prod tags (would be done by Domino deployment)
-                for t in v1_ts:
-                        client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_id", app_id)
-                        client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_version_id", app_version_1)
-
-                for t in v2_ts:
-                        client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_id", app_id)
-                        client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_version_id", app_version_2)
-
-                def get_trace_names(traces):
-                        return sorted([trace.name for trace in traces.data])
-
-                all_traces = tracing.search_traces(ai_system_id=app_id)
-                assert get_trace_names(all_traces) == ["one", "two"], "Can get traces for all ai system versions"
-
-                v1_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_1)
-                assert get_trace_names(v1_traces) == ["one"], "Can get traces for just ai system version 1"
-
-                v2_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_2)
-                assert get_trace_names(v2_traces) == ["two"], "Can get traces for just ai system version 2"
+        v2_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_2)
+        assert get_trace_names(v2_traces) == ["two"], "Can get traces for just ai system version 2"
 
 def test_search_traces_ai_system_ai_system_id_required(setup_mlflow_tracking_server_no_env_var_mock, tracing):
         """
@@ -542,13 +517,13 @@ def test_search_traces_no_run_ai_system_ids_supplied(setup_mlflow_tracking_serve
         assert "Either run_id or ai_system_id and ai_system_version must be provided to search traces" in str(e_info), \
                 "Should raise no ai system info or run info provided"
 
-def test_search_traces_filters_should_work_together(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+def test_search_traces_filters_should_work_together_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
         When every filter is specified as well as pagination, the expected results should be returned
         The test creates multiple differently named traces over the course of a few hours in an experiment
         with multiple runs
         """
-        exp = mlflow.set_experiment("test_search_traces_filters_should_work_together")
+        exp = mlflow.set_experiment("test_search_traces_filters_should_work_together_dev")
 
         @tracing.add_tracing(name="unit1")
         def unit1(x):
@@ -606,6 +581,52 @@ def test_search_traces_filters_should_work_together(setup_mlflow_tracking_server
         # should only return the second sum1 call in the run_1_id domino run
         page2 = get_traces(page1.page_token)
         assert get_span_data(page2) == [("sum1", [3])], "Should return second call"
+
+
+def test_search_traces_filters_should_work_together_prod(setup_mlflow_tracking_server_no_env_var_mock, mocker, mlflow, tracing, logging):
+        """
+        When searching by ai system ID and version and when every filter is specified as well as pagination,
+        the expected results should be returned
+        The test creates multiple differently named traces over the course of a few hours in an experiment
+        with multiple runs
+        """
+        app_id = "test_search_traces_filters_should_work_together_prod"
+        app_version_1 = f"{app_id}_1"
+        app_version_2 = f"{app_id}_2"
+
+        fixture_create_prod_traces(app_id, app_version_1, "sum1", tracing, hours_ago=5)
+
+        # search_traces should return the following two spans
+        fixture_create_prod_traces(app_id, app_version_1, "sum1", tracing, hours_ago=2)
+        fixture_create_prod_traces(app_id, app_version_1, "sum1", tracing, hours_ago=3)
+
+        fixture_create_prod_traces(app_id, app_version_1, "unit1", tracing)
+        fixture_create_prod_traces(app_id, app_version_2, "unit2", tracing)
+
+        start_time = datetime.now() - timedelta(hours=4)
+        end_time = datetime.now() - timedelta(hours=1)
+
+        def get_traces(next_page_token):
+                return tracing.search_traces(
+                        ai_system_id=app_id,
+                        ai_system_version=app_version_1,
+                        trace_name="sum1",
+                        start_time=start_time,
+                        end_time=end_time,
+                        page_token=next_page_token,
+                        max_results=1
+                )
+
+        def get_span_data(page):
+                return [(trace.name, [s.inputs for s in trace.spans]) for trace in page.data]
+
+        # should only return the first sum1 call
+        page1 = get_traces(None)
+        assert get_span_data(page1) == [("sum1", [3])], "Should return first call"
+
+        # should only return the second sum1 call
+        page2 = get_traces(page1.page_token)
+        assert get_span_data(page2) == [("sum1", [2])], "Should return second call"
 
 
 def test_search_traces_pagination(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
