@@ -25,9 +25,18 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
     """
     if is_ai_system():
         # activate ai system experiment
-        experiment = mlflow.set_experiment(get_running_ai_system_experiment_name())
-        if experiment.tags.get(EXPERIMENT_AI_SYSTEM_TAG) != "true":
-            client.set_experiment_tag(experiment.experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
+
+        # we use the client to create experiment and get to avoid racy behavior
+        experiment = client.get_experiment_by_name(get_running_ai_system_experiment_name())
+        if experiment is None:
+            experiment_id = client.create_experiment(get_running_ai_system_experiment_name())
+            client.set_experiment_tag(experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
+        else:
+            experiment_id = experiment.experiment_id
+
+        # only set experiment by ID to avoid the python client creating a new experiment with a random ID appended
+        # this happens when init_tracing called by itself and then a domino trace started right after
+        experiment = mlflow.set_experiment(experiment_id=experiment_id)
 
     for fw in frameworks:
         global _triggered_autolog_frameworks

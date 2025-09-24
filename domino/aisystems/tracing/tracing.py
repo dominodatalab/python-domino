@@ -307,8 +307,8 @@ def search_traces(
         run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
         filter_clauses.append(run_filter_clause)
     else:
-        experiment_name = build_ai_system_experiment_name(ai_system_id, ai_system_version)
-        experiment = mlflow.get_experiment_by_name(experiment_name)
+        experiment_name = build_ai_system_experiment_name(ai_system_id)
+        experiment = client.get_experiment_by_name(experiment_name)
         if not experiment:
             raise Exception(f"No experiment found for ai_system_id: {ai_system_id} and ai_system_version: {ai_system_version}")
         experiment_id = experiment.experiment_id
