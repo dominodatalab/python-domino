@@ -20,7 +20,7 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
         """
         app_id = "appid"
         test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        expected_experiment_name = app_id
+        expected_experiment_name = build_ai_system_experiment_name(app_id)
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
         import domino.aisystems.tracing.tracing
@@ -51,7 +51,8 @@ def test_init_tracing_logs_experiment_creation_debug(setup_mlflow_tracking_serve
 
         with patch.dict(os.environ, env_vars, clear=True), caplog.at_level(logging.DEBUG):
                 tracing.init_tracing(should_reinitialize=True)
-                exp = mlflow.get_experiment_by_name(app_id)
+                expected_experiment_name = build_ai_system_experiment_name(app_id)
+                exp = mlflow.get_experiment_by_name(expected_experiment_name)
                 assert exp is not None, "experiment should be created in prod mode"
                 assert f"Created experiment for AI System with ID {exp.experiment_id}" in caplog.text
 
@@ -62,7 +63,7 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
         """
         app_id = "threaded_app_id"
         test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        expected_experiment_name = app_id
+        expected_experiment_name = build_ai_system_experiment_name(app_id)
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
         with patch.dict(os.environ, env_vars, clear=True):

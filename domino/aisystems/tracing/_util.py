@@ -11,7 +11,7 @@ def is_ai_system() -> bool:
     return get_is_production() and _get_ai_system_id() is not None
 
 def build_ai_system_experiment_name(id: str) -> str:
-    return id
+    return f"ai_system_experiment_{id}"
 
 def get_running_ai_system_experiment_name() -> str | None:
     if is_ai_system():

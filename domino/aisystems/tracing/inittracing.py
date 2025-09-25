@@ -14,8 +14,6 @@ _triggered_autolog_frameworks = set()
 global _is_prod_tracing_initialized
 _is_prod_tracing_initialized = False
 
-# TODO add logging to help debug what experiment got created and where are traces going
-
 # should_reinitialize is for testing, in order to work around the _is_prod_tracing_initialized guard, so that
 # we can have multiple tests for the init_tracing function
 def init_tracing(autolog_frameworks: Optional[list[str]] = None, should_reinitialize: Optional[bool] = False):
@@ -24,7 +22,7 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None, should_reinitia
     """Initialize Mlflow autologging for various frameworks and set the active model for production evaluation runs.
     This may be used to initialize logging and tracing for the AI System in dev and prod modes.
 
-    In prod mode, environment variables DOMINO_AI_SYSTEM_IS_PROD, DOMINO_APP_ID, DOMINO_APP_VERSION
+    In prod mode, environment variables DOMINO_AI_SYSTEM_IS_PROD, DOMINO_APP_ID
     must be set. Call init_tracing before your app starts up to start logging traces to Domino.
 
     Args:
