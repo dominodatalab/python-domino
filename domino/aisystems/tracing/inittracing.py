@@ -8,6 +8,13 @@ from .._constants import EXPERIMENT_AI_SYSTEM_TAG
 from ._util import is_ai_system, get_running_ai_system_experiment_name
 from .._verify_domino_support import verify_domino_support
 
+# init_tracing is not thread safe. this likely won't cause an issue with the autolog frameworks. If data inconsistency is caused with
+# autolog frameworks, then the worst case scenario is that we get duplicate autolog calls. These are local to the process
+# so not a big deal
+#
+# TODO the experiment initialization needs further investigation in order to determine if we need
+# to improve thread safety in order to reduce calls to the mlflow tracking server
+
 global _triggered_autolog_frameworks
 _triggered_autolog_frameworks = set()
 
