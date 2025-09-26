@@ -64,8 +64,8 @@ setup(
             "semver>=3.0.4",
             "pandas>=2.3.1",
             "numpy>=2.0.2",
-            "mlflow-skinny==3.2.0",
-            "mlflow-tracing==3.2.0",
+            "mlflow-skinny~=3.2",
+            "mlflow-tracing~=3.2",
         ],
         "dev": [
             "pytest-order>=1.3.0",
