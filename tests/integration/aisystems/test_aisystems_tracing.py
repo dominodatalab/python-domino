@@ -698,7 +698,7 @@ def test_search_traces_from_lazy_generator(setup_mlflow_tracking_server, mocker,
 
 def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup_mlflow_tracking_server, mlflow, tracing):
         """
-        init_tracing should call client.get_experiment_by_name once
+        init_tracing should call mlflow.set_experiment once
         when invoked concurrently from two threads and traces should go to the
         right experiment anyway
         """
@@ -707,7 +707,6 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
         expected_experiment_name = build_ai_system_experiment_name(app_id)
 
         with patch.dict(os.environ, env_vars, clear=True):
-                from domino.aisystems._client import client
 
                 def send_traces():
                         tracing.init_tracing()
@@ -718,12 +717,12 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
 
                         do()
 
-                # Spy on the exact call site used inside init_tracing
+                # Spy on mlflow.set_experiment to ensure it is called once
                 with patch.object(
-                        client,
-                        "get_experiment_by_name",
-                        wraps=.set_experiment,
-                ) as spy_get_by_name:
+                        mlflow,
+                        "set_experiment",
+                        wraps=mlflow.set_experiment,
+                ) as spy_set_experiment:
                         t1 = threading.Thread(target=send_traces)
                         t2 = threading.Thread(target=send_traces)
 
@@ -732,7 +731,7 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
                         t1.join()
                         t2.join()
 
-                        assert spy_get_by_name.call_count == 1, "get_experiment_by_name should be called once from init_tracing"
+                        assert spy_set_experiment.call_count == 1, "set_experiment should be called once from init_tracing"
 
                 # Verify two traces named "do" were saved to the AI System experiment
                 exp = mlflow.get_experiment_by_name(expected_experiment_name)
