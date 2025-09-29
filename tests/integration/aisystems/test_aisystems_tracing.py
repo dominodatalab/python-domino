@@ -694,3 +694,51 @@ def test_search_traces_from_lazy_generator(setup_mlflow_tracking_server, mocker,
 
         assert len(traces.data) == 1
         assert len(traces.data[0].spans) == 4
+
+
+def test_init_tracing_triggers_two_get_experiment_by_name_calls_in_threads(setup_mlflow_tracking_server, mlflow, tracing):
+        """
+        init_tracing should call client.get_experiment_by_name twice
+        when invoked concurrently from two threads.
+        """
+        app_id = "concurrency_app"
+        env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        expected_experiment_name = build_ai_system_experiment_name(app_id)
+
+        with patch.dict(os.environ, env_vars, clear=True):
+                from domino.aisystems._client import client
+
+                def send_traces():
+                        tracing.init_tracing()
+
+                        @tracing.add_tracing(name="do")
+                        def do():
+                                return 1
+
+                        do()
+
+                # Spy on the exact call site used inside init_tracing
+                with patch.object(
+                        client,
+                        "get_experiment_by_name",
+                        wraps=client.get_experiment_by_name,
+                ) as spy_get_by_name:
+                        t1 = threading.Thread(target=send_traces)
+                        t2 = threading.Thread(target=send_traces)
+
+                        t1.start()
+                        t2.start()
+                        t1.join()
+                        t2.join()
+
+                        # Both threads should trigger a lookup within init_tracing
+                        assert spy_get_by_name.call_count == 2, "get_experiment_by_name should be called twice from init_tracing"
+
+                # Verify two traces named "do" were saved to the AI System experiment
+                exp = mlflow.get_experiment_by_name(expected_experiment_name)
+                traces = mlflow.search_traces(
+                        experiment_ids=[exp.experiment_id],
+                        filter_string="trace.name = 'do'",
+                        return_type='list',
+                )
+                assert len(traces) == 2, "Two traces named 'do' should be saved to the experiment"
