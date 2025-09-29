@@ -696,10 +696,11 @@ def test_search_traces_from_lazy_generator(setup_mlflow_tracking_server, mocker,
         assert len(traces.data[0].spans) == 4
 
 
-def test_init_tracing_triggers_two_get_experiment_by_name_calls_in_threads(setup_mlflow_tracking_server, mlflow, tracing):
+def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup_mlflow_tracking_server, mlflow, tracing):
         """
-        init_tracing should call client.get_experiment_by_name twice
-        when invoked concurrently from two threads.
+        init_tracing should call client.get_experiment_by_name once
+        when invoked concurrently from two threads and traces should go to the
+        right experiment anyway
         """
         app_id = "concurrency_app"
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
@@ -721,7 +722,7 @@ def test_init_tracing_triggers_two_get_experiment_by_name_calls_in_threads(setup
                 with patch.object(
                         client,
                         "get_experiment_by_name",
-                        wraps=client.get_experiment_by_name,
+                        wraps=.set_experiment,
                 ) as spy_get_by_name:
                         t1 = threading.Thread(target=send_traces)
                         t2 = threading.Thread(target=send_traces)
@@ -731,8 +732,7 @@ def test_init_tracing_triggers_two_get_experiment_by_name_calls_in_threads(setup
                         t1.join()
                         t2.join()
 
-                        # Both threads should trigger a lookup within init_tracing
-                        assert spy_get_by_name.call_count == 2, "get_experiment_by_name should be called twice from init_tracing"
+                        assert spy_get_by_name.call_count == 1, "get_experiment_by_name should be called once from init_tracing"
 
                 # Verify two traces named "do" were saved to the AI System experiment
                 exp = mlflow.get_experiment_by_name(expected_experiment_name)
@@ -741,4 +741,7 @@ def test_init_tracing_triggers_two_get_experiment_by_name_calls_in_threads(setup
                         filter_string="trace.name = 'do'",
                         return_type='list',
                 )
+
+                # even though we don't re-initialize the experiment in both threads, the traces
+                # still go to the right experiment
                 assert len(traces) == 2, "Two traces named 'do' should be saved to the experiment"

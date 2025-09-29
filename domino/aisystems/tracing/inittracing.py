@@ -1,6 +1,7 @@
 import logging
 import mlflow
 import os
+import threading
 from typing import Optional
 
 from .._client import client
@@ -21,6 +22,10 @@ _triggered_autolog_frameworks = set()
 global _is_prod_tracing_initialized
 _is_prod_tracing_initialized = False
 
+# Lock to ensure thread-safe access to _is_prod_tracing_initialized
+global _prod_tracing_init_lock
+_prod_tracing_init_lock = threading.Lock()
+
 # should_reinitialize is for testing, in order to work around the _is_prod_tracing_initialized guard, so that
 # we can have multiple tests for the init_tracing function
 def init_tracing(autolog_frameworks: Optional[list[str]] = None, should_reinitialize: Optional[bool] = False):
@@ -36,35 +41,38 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None, should_reinitia
         autolog_frameworks: Optional[list[string]] of frameworks to autolog
     """
     global _is_prod_tracing_initialized
-    if is_ai_system() and (not _is_prod_tracing_initialized or should_reinitialize):
-        # activate ai system experiment
-        logging.debug("Initializing mlflow tracing for AI System")
+    # Guard and initialization are protected by a lock for thread safety
+    if is_ai_system():
+        with _prod_tracing_init_lock:
+            if not _is_prod_tracing_initialized or should_reinitialize:
+                # activate ai system experiment
+                logging.debug("Initializing mlflow tracing for AI System")
 
-        # we use the client to create experiment and get to avoid racy behavior
-        experiment = client.get_experiment_by_name(get_running_ai_system_experiment_name())
-        if experiment is None:
-            experiment_name = get_running_ai_system_experiment_name()
+                # we use the client to create experiment and get to avoid racy behavior
+                experiment = client.get_experiment_by_name(get_running_ai_system_experiment_name())
+                if experiment is None:
+                    experiment_name = get_running_ai_system_experiment_name()
 
-            logging.debug("Creating new experiment for AI System named %s", experiment_name)
+                    logging.debug("Creating new experiment for AI System named %s", experiment_name)
 
-            experiment_id = client.create_experiment(experiment_name)
+                    experiment_id = client.create_experiment(experiment_name)
 
-            logging.debug("Created experiment for AI System with ID %s", experiment_id)
+                    logging.debug("Created experiment for AI System with ID %s", experiment_id)
 
-            client.set_experiment_tag(experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
+                    client.set_experiment_tag(experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
 
-            logging.debug("Tagged experiment with ID %s with tag %s", experiment_id, EXPERIMENT_AI_SYSTEM_TAG)
-        else:
-            experiment_id = experiment.experiment_id
+                    logging.debug("Tagged experiment with ID %s with tag %s", experiment_id, EXPERIMENT_AI_SYSTEM_TAG)
+                else:
+                    experiment_id = experiment.experiment_id
 
-        # only set experiment by ID to avoid the python client creating a new experiment with a random ID appended
-        # this happens when init_tracing called by itself and then a domino trace started right after
+                # only set experiment by ID to avoid the python client creating a new experiment with a random ID appended
+                # this happens when init_tracing called by itself and then a domino trace started right after
 
-        logging.debug("Setting AI System experiment with ID %s as active", experiment_id)
+                logging.debug("Setting AI System experiment with ID %s as active", experiment_id)
 
-        experiment = mlflow.set_experiment(experiment_id=experiment_id)
+                experiment = mlflow.set_experiment(experiment_id=experiment_id)
 
-        _is_prod_tracing_initialized = True
+                _is_prod_tracing_initialized = True
 
     for fw in frameworks:
         global _triggered_autolog_frameworks
