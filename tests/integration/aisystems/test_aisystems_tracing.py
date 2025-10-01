@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import inspect
-import logging
+import logging as logger
 import os
 import pytest
 import threading
@@ -57,7 +57,7 @@ def test_init_tracing_logs_experiment_creation_debug(setup_mlflow_tracking_serve
 
         reset_prod_tracing()
 
-        with patch.dict(os.environ, env_vars, clear=True), caplog.at_level(logging.DEBUG):
+        with patch.dict(os.environ, env_vars, clear=True), caplog.at_level(logger.DEBUG):
                 tracing.init_tracing()
                 expected_experiment_name = build_ai_system_experiment_name(app_id)
                 exp = mlflow.get_experiment_by_name(expected_experiment_name)
@@ -285,7 +285,7 @@ def test_add_tracing_failed_inline_evaluator_logs_warning(setup_mlflow_tracking_
         def unit(x):
                 return x
 
-        with mlflow.start_run(), caplog.at_level(logging.WARNING):
+        with mlflow.start_run(), caplog.at_level(logger.WARNING):
                 assert unit(1) == 1
                 assert "Inline evaluation failed for evaluator, failing_evaluator" in caplog.text
 
@@ -386,6 +386,19 @@ def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, lo
         assert sorted(span_data) == sorted([("parent", {'x':1, 'y': 2}, 3), \
                 ("parent2", {'x':1}, 1), ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)
         ])
+
+def test_search_traces_time_filter_warning(setup_mlflow_tracking_server, tracing, mlflow, logging, caplog):
+        """
+        if start time is > end time, warn the user
+        """
+        mlflow.set_experiment("test_search_traces_time_filter_warning")
+        run_id = None
+        with logging.DominoRun() as run:
+                run_id = run.info.run_id
+
+        with caplog.at_level(logger.WARNING):
+                tracing.search_traces(run_id=run_id, start_time=datetime.now(), end_time=datetime.now() - timedelta(seconds=10))
+                assert f"start_time must be before end_time" in caplog.text
 
 def test_search_traces_by_trace_name(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         @tracing.add_tracing(name="unit")

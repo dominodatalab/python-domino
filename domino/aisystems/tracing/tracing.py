@@ -386,6 +386,9 @@ def _search_traces(
             end_ms = _datetime_to_ms(end_time)
             time_range_filter_clause += f' AND timestamp_ms < {end_ms}'
 
+        if start_time and end_time and start_time >= end_time:
+            logging.warning("start_time must be before end_time")
+
         filter_clauses.append(time_range_filter_clause)
 
     if trace_name:
