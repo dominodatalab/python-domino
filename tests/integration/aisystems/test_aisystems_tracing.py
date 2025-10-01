@@ -8,6 +8,7 @@ import time
 from unittest.mock import call, patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
+from domino.aisystems._constants import EXPERIMENT_AI_SYSTEM_TAG
 from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time
 from domino.aisystems._client import client
 from domino.aisystems.tracing._util import build_ai_system_experiment_name
@@ -39,7 +40,7 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
                 assert set_experiment_tag_spy.call_count == 1, "should only save tag on experiment once"
                 assert set_experiment_spy.call_count is not 0, "should set an active experiment"
                 assert found_exp is not None, "ai system experiment should exist"
-                assert found_exp.tags.get("ai_system") == "true", "ai system experiment should be tagged"
+                assert found_exp.tags.get(EXPERIMENT_AI_SYSTEM_TAG) == "true", "ai system experiment should be tagged"
 
 def test_init_tracing_logs_experiment_creation_debug(setup_mlflow_tracking_server, mlflow, tracing, caplog):
         """
