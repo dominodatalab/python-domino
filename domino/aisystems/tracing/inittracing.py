@@ -12,9 +12,6 @@ from .._verify_domino_support import verify_domino_support
 # init_tracing is not thread safe. this likely won't cause an issue with the autolog frameworks. If data inconsistency is caused with
 # autolog frameworks, then the worst case scenario is that we get duplicate autolog calls. These are local to the process
 # so not a big deal
-#
-# TODO the experiment initialization needs further investigation in order to determine if we need
-# to improve thread safety in order to reduce calls to the mlflow tracking server
 
 global _triggered_autolog_frameworks
 _triggered_autolog_frameworks = set()
@@ -26,9 +23,7 @@ _is_prod_tracing_initialized = False
 global _prod_tracing_init_lock
 _prod_tracing_init_lock = threading.Lock()
 
-# should_reinitialize is for testing, in order to work around the _is_prod_tracing_initialized guard, so that
-# we can have multiple tests for the init_tracing function
-def init_tracing(autolog_frameworks: Optional[list[str]] = None, should_reinitialize: Optional[bool] = False):
+def init_tracing(autolog_frameworks: Optional[list[str]] = None):
     verify_domino_support()
     frameworks = autolog_frameworks or []
     """Initialize Mlflow autologging for various frameworks and sets the active experiment to enable tracing in production.
@@ -44,7 +39,7 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None, should_reinitia
     # Guard and initialization are protected by a lock for thread safety
     if is_ai_system():
         with _prod_tracing_init_lock:
-            if not _is_prod_tracing_initialized or should_reinitialize:
+            if not _is_prod_tracing_initialized:
                 # activate ai system experiment
                 logging.debug("Initializing mlflow tracing for AI System")
 

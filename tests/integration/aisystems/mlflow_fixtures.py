@@ -7,6 +7,7 @@ from typing import Callable, Optional
 from domino.aisystems._client import client
 from domino.aisystems.tracing._util import build_ai_system_experiment_name
 from .conftest import TEST_AI_SYSTEMS_ENV_VARS
+from .test_util import reset_prod_tracing
 
 def fixture_create_traces():
         pytest.importorskip("mlflow")
@@ -44,6 +45,7 @@ def fixture_create_prod_traces(
         pytest.importorskip("mlflow")
         import mlflow
 
+        reset_prod_tracing()
 
         @tracing.add_tracing(name=trace_name)
         def one(x):
@@ -51,7 +53,7 @@ def fixture_create_prod_traces(
 
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": ai_system_id }
         with patch.dict(os.environ, env_vars, clear=True):
-                tracing.init_tracing(should_reinitialize=True)
+                tracing.init_tracing()
                 if hours_ago is not None:
                         experiment = mlflow.get_experiment_by_name(build_ai_system_experiment_name(ai_system_id))
                         create_span_at_time(trace_name, hours_ago, hours_ago, experiment.experiment_id)

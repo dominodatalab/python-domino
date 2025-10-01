@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._constants import MIN_MLFLOW_VERSION
+from .test_util import reset_prod_tracing
 
 @pytest.fixture
 def tracing():

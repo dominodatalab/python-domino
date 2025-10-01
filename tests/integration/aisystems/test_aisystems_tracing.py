@@ -10,6 +10,7 @@ from unittest.mock import call, patch
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._constants import EXPERIMENT_AI_SYSTEM_TAG
 from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time
+from .test_util import reset_prod_tracing
 from domino.aisystems._client import client
 from domino.aisystems.tracing._util import build_ai_system_experiment_name
 from domino.aisystems._eval_tags import InvalidEvaluationLabelException
@@ -31,6 +32,8 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
         set_experiment_tag_spy = mocker.spy(domino.aisystems._client.client, "set_experiment_tag")
         set_experiment_spy = mocker.spy(mlflow, "set_experiment")
 
+        reset_prod_tracing()
+
         with patch.dict(os.environ, env_vars, clear=True):
                 tracing.init_tracing(["sklearn"])
                 tracing.init_tracing(["sklearn"])
@@ -50,8 +53,10 @@ def test_init_tracing_logs_experiment_creation_debug(setup_mlflow_tracking_serve
         test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
+        reset_prod_tracing()
+
         with patch.dict(os.environ, env_vars, clear=True), caplog.at_level(logging.DEBUG):
-                tracing.init_tracing(should_reinitialize=True)
+                tracing.init_tracing()
                 expected_experiment_name = build_ai_system_experiment_name(app_id)
                 exp = mlflow.get_experiment_by_name(expected_experiment_name)
                 assert exp is not None, "experiment should be created in prod mode"
@@ -67,8 +72,10 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
         expected_experiment_name = build_ai_system_experiment_name(app_id)
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
 
+        reset_prod_tracing()
+
         with patch.dict(os.environ, env_vars, clear=True):
-                tracing.init_tracing(should_reinitialize=True)
+                tracing.init_tracing()
 
                 @tracing.add_tracing(name="a")
                 def a(num):
@@ -706,6 +713,8 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
         app_id = "concurrency_app"
         env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
         expected_experiment_name = build_ai_system_experiment_name(app_id)
+
+        reset_prod_tracing()
 
         with patch.dict(os.environ, env_vars, clear=True):
 
