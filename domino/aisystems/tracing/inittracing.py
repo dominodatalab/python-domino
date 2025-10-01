@@ -41,29 +41,29 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
         with _prod_tracing_init_lock:
             if not _is_prod_tracing_initialized:
                 # activate ai system experiment
-                logging.debug("Initializing mlflow tracing for AI System")
+                logger.debug("Initializing mlflow tracing for AI System")
 
                 # we use the client to create experiment and get to avoid racy behavior
                 experiment = client.get_experiment_by_name(get_running_ai_system_experiment_name())
                 if experiment is None:
                     experiment_name = get_running_ai_system_experiment_name()
 
-                    logging.debug("Creating new experiment for AI System named %s", experiment_name)
+                    logger.debug("Creating new experiment for AI System named %s", experiment_name)
 
                     experiment_id = client.create_experiment(experiment_name)
 
-                    logging.debug("Created experiment for AI System with ID %s", experiment_id)
+                    logger.debug("Created experiment for AI System with ID %s", experiment_id)
 
                     client.set_experiment_tag(experiment_id, EXPERIMENT_AI_SYSTEM_TAG, "true")
 
-                    logging.debug("Tagged experiment with ID %s with tag %s", experiment_id, EXPERIMENT_AI_SYSTEM_TAG)
+                    logger.debug("Tagged experiment with ID %s with tag %s", experiment_id, EXPERIMENT_AI_SYSTEM_TAG)
                 else:
                     experiment_id = experiment.experiment_id
 
                 # only set experiment by ID to avoid the python client creating a new experiment with a random ID appended
                 # this happens when init_tracing called by itself and then a domino trace started right after
 
-                logging.debug("Setting AI System experiment with ID %s as active", experiment_id)
+                logger.debug("Setting AI System experiment with ID %s as active", experiment_id)
 
                 experiment = mlflow.set_experiment(experiment_id=experiment_id)
 
@@ -79,4 +79,5 @@ def call_autolog(fw: str):
     try:
         getattr(mlflow, fw).autolog()
     except Exception as e:
-        logging.warning(f"Failed to call mlflow autolog for {fw} ai framework", e)
+        logger.warning(f"Failed to call mlflow autolog for {fw} ai framework", e)
+logger = logging.getLogger(__name__)

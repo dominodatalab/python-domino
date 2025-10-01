@@ -40,7 +40,7 @@ def _verify_domino_support_impl():
         domino_version = _get_domino_version()
     except Exception as e:
         # the user may run this outside of Domino, so we log a warning instead of failing
-        logging.debug(f"Failed to get Domino version. Will continue without version info: {e}")
+        logger.debug(f"Failed to get Domino version. Will continue without version info: {e}")
 
     if domino_version is not None:
         # verify Domino version is >= min domino version
@@ -60,3 +60,4 @@ def verify_domino_support():
     if supported is None:
         _verify_domino_support_impl()
         supported = True
+logger = logging.getLogger(__name__)

@@ -69,7 +69,7 @@ def _do_evaluation(
             try:
                 return evaluator(span.inputs, span.outputs)
             except Exception as e:
-                logging.error(
+                logger.error(
                     "Inline evaluation failed for evaluator, %s. Error: %s" , evaluator.__name__, e, exc_info=True
                 )
 
@@ -203,7 +203,7 @@ def add_tracing(
                     if not eagerly_evaluate_streamed_results:
                         # can't do inline evaluation, so warn if an evaluator is provided
                         if evaluator:
-                            logging.warning(
+                            logger.warning(
                                 """eagerly_evaluate_streamed_results is false, so inline evaluation is disabled.
                                 You can still do evaluations using log_evaluation post-hoc"""
                             )
@@ -387,7 +387,7 @@ def _search_traces(
             time_range_filter_clause += f' AND timestamp_ms < {end_ms}'
 
         if start_time and end_time and start_time >= end_time:
-            logging.warning("start_time must be before end_time")
+            logger.warning("start_time must be before end_time")
 
         filter_clauses.append(time_range_filter_clause)
 
@@ -411,3 +411,4 @@ def _search_traces(
     next_page_token = traces.token
 
     return SearchTracesResponse(trace_summaries, next_page_token)
+logger = logging.getLogger(__name__)

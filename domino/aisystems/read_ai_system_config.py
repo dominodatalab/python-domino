@@ -28,7 +28,7 @@ def read_ai_system_config(path: Optional[str] = None) -> dict:
                 with open(path, 'r') as f:
                     params = yaml.safe_load(f)
         except Exception as e:
-                logging.warning(f"Failed to read ai system config yaml at path {path}: {e}")
+                logger.warning(f"Failed to read ai system config yaml at path {path}: {e}")
 
         return params
-
+logger = logging.getLogger(__name__)
