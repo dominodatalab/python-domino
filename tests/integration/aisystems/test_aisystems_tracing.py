@@ -13,6 +13,8 @@ from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time
 from .test_util import reset_prod_tracing
 from domino.aisystems._client import client
 from domino.aisystems.tracing._util import build_ai_system_experiment_name
+# NOTE: don't use this import to test public functions, use the tracing pytest fixture instead
+from domino.aisystems.tracing.tracing import _search_traces
 from domino.aisystems._eval_tags import InvalidEvaluationLabelException
 
 def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
@@ -510,22 +512,22 @@ def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, m
         def get_trace_names(traces):
                 return sorted([trace.name for trace in traces.data])
 
-        all_traces = tracing.search_traces(ai_system_id=app_id)
+        all_traces = tracing.search_ai_system_traces(ai_system_id=app_id)
         assert get_trace_names(all_traces) == ["one", "two"], "Can get traces for all ai system versions"
 
-        v1_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_1)
+        v1_traces = tracing.search_ai_system_traces(ai_system_id=app_id, ai_system_version=app_version_1)
         assert get_trace_names(v1_traces) == ["one"], "Can get traces for just ai system version 1"
 
-        v2_traces = tracing.search_traces(ai_system_id=app_id, ai_system_version=app_version_2)
+        v2_traces = tracing.search_ai_system_traces(ai_system_id=app_id, ai_system_version=app_version_2)
         assert get_trace_names(v2_traces) == ["two"], "Can get traces for just ai system version 2"
 
-def test_search_traces_ai_system_ai_system_id_required(setup_mlflow_tracking_server_no_env_var_mock, tracing):
+def test_search_traces_ai_system_ai_system_id_required(setup_mlflow_tracking_server_no_env_var_mock):
         """
         ai system id is required if version supplied
         """
 
         with pytest.raises(Exception) as e_info:
-                tracing.search_traces(ai_system_version="fakeversion")
+                _search_traces(ai_system_version="fakeversion")
 
         assert "ai_system_id must also be provided" in str(e_info), "Should raise if version provided without id"
 
@@ -630,7 +632,7 @@ def test_search_traces_filters_should_work_together_prod(setup_mlflow_tracking_s
         end_time = datetime.now() - timedelta(hours=1)
 
         def get_traces(next_page_token):
-                return tracing.search_traces(
+                return tracing.search_ai_system_traces(
                         ai_system_id=app_id,
                         ai_system_version=app_version_1,
                         trace_name="sum1",
