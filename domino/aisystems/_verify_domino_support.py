@@ -14,21 +14,23 @@ from ..http_request_manager import _HttpRequestManager
 global supported
 supported = None
 
+
 def _get_version_endpoint() -> str:
-    return urljoin(os.environ['DOMINO_API_HOST'], "version")
+    return urljoin(os.environ["DOMINO_API_HOST"], "version")
+
 
 def _get_domino_version() -> str:
-    req_manager = _HttpRequestManager(
-        get_auth_by_type()
-    )
+    req_manager = _HttpRequestManager(get_auth_by_type())
     version_metadata = req_manager.get(_get_version_endpoint()).json()
     return version_metadata["version"]
 
+
 def _get_mlflow_version() -> str:
-        """
-        This makes testing easier
-        """
-        return mlflow.__version__
+    """
+    This makes testing easier
+    """
+    return mlflow.__version__
+
 
 def _verify_domino_support_impl():
     domino_supported = True
@@ -40,23 +42,37 @@ def _verify_domino_support_impl():
         domino_version = _get_domino_version()
     except Exception as e:
         # the user may run this outside of Domino, so we log a warning instead of failing
-        logging.debug(f"Failed to get Domino version. Will continue without version info: {e}")
+        logger.debug(
+            f"Failed to get Domino version. Will continue without version info: {e}"
+        )
 
     if domino_version is not None:
         # verify Domino version is >= min domino version
-        domino_supported = semver.Version.parse(domino_version).compare(MIN_DOMINO_VERSION) > -1
+        domino_supported = (
+            semver.Version.parse(domino_version).compare(MIN_DOMINO_VERSION) > -1
+        )
 
     if not domino_supported:
-        raise UnsupportedOperationException("This version of Domino doesn’t support the aisystems package.")
+        raise UnsupportedOperationException(
+            "This version of Domino doesn’t support the aisystems package."
+        )
 
     # verify mlflow sdk version
-    mlflow_supported = semver.Version.parse(_get_mlflow_version()).compare(MIN_MLFLOW_VERSION) > -1
+    mlflow_supported = (
+        semver.Version.parse(_get_mlflow_version()).compare(MIN_MLFLOW_VERSION) > -1
+    )
 
     if not mlflow_supported:
-        raise UnsupportedOperationException(f"This code requires you to install mlflow>={MIN_MLFLOW_VERSION}")
+        raise UnsupportedOperationException(
+            f"This code requires you to install mlflow>={MIN_MLFLOW_VERSION}"
+        )
+
 
 def verify_domino_support():
     global supported
     if supported is None:
         _verify_domino_support_impl()
         supported = True
+
+
+logger = logging.getLogger(__name__)

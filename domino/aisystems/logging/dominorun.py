@@ -13,15 +13,16 @@ from .._verify_domino_support import verify_domino_support
 from ..read_ai_system_config import get_flattened_ai_system_config
 
 TOTAL_DECIMAL_PLACES = 3
-DOMINO_EVAL_METRIC_TAG_PATTERN = f'domino.prog.metric.({VALID_LABEL_PATTERN})'
+DOMINO_EVAL_METRIC_TAG_PATTERN = f"domino.prog.metric.({VALID_LABEL_PATTERN})"
 AGGREGATED_METRIC_PATTERN = r"^(mean|median|stdev|max|min)_(.+)$"
 
 SummaryStatistic = Literal["mean", "median", "stdev", "max", "min"]
 
+
 def get_all_traces_for_run(experiment_id: str, run_id: str):
     filter_string = f"metadata.mlflow.sourceRun = '{run_id}' AND tags.{DOMINO_INTERNAL_EVAL_TAG} = 'true'"
 
-    logging.debug(f"Searching for traces with filter: {filter_string}")
+    logger.debug(f"Searching for traces with filter: {filter_string}")
 
     next_page_token = None
 
@@ -47,14 +48,17 @@ def get_all_traces_for_run(experiment_id: str, run_id: str):
 
     return traces
 
+
 def is_metric_tag(tag: str) -> bool:
     return re.match(DOMINO_EVAL_METRIC_TAG_PATTERN, tag) is not None
+
 
 def get_metric_tag_name(tag: str) -> Optional[str]:
     match = re.match(DOMINO_EVAL_METRIC_TAG_PATTERN, tag)
     if match:
         return match.group(1)
     return None
+
 
 def _parse_aggregated_metric_key(metric_key: str) -> Optional[tuple[str, str]]:
     """
@@ -70,15 +74,17 @@ def _parse_aggregated_metric_key(metric_key: str) -> Optional[tuple[str, str]]:
         tag = m.group(2)
         return agg, tag
     except Exception as e:
-        logging.warning(f"Failed to parse aggregated metric key {metric_key}: {e}")
+        logger.warning(f"Failed to parse aggregated metric key {metric_key}: {e}")
         return None
+
 
 def _parse_value(v):
     try:
         return float(v)
     except ValueError as e:
-        logging.warning(f"Failed to parse value {v} as float: {e}")
+        logger.warning(f"Failed to parse value {v} as float: {e}")
         raise e
+
 
 def _get_experiment_id_from_name(name: Optional[str]):
     if name:
@@ -87,6 +93,7 @@ def _get_experiment_id_from_name(name: Optional[str]):
             raise Exception(f"Could not find experiment with name {name}")
         return exp.experiment_id
     return None
+
 
 def _choose_summarizer(statistic: SummaryStatistic) -> Callable[[list[float]], float]:
     match statistic:
@@ -102,6 +109,7 @@ def _choose_summarizer(statistic: SummaryStatistic) -> Callable[[list[float]], f
             return min
         case _:
             raise ValueError(f"Unknown summary statistic: {statistic}")
+
 
 """
 DominoRun is a context manager that starts an Mlflow run and attaches the user's AI System configuration to it,
@@ -121,12 +129,15 @@ Example:
     with DominoRun():
         train_model()
 """
+
+
 class DominoRun:
-    def __init__(self,
+    def __init__(
+        self,
         experiment_name: Optional[str] = None,
         run_id: Optional[str] = None,
         ai_system_config_path: Optional[str] = None,
-        custom_summary_metrics: Optional[list[(str, SummaryStatistic)]] = None
+        custom_summary_metrics: Optional[list[(str, SummaryStatistic)]] = None,
     ):
         """
         Args:
@@ -155,7 +166,7 @@ class DominoRun:
     def _validate(self):
         # validate custome summary metrics
         if self.custom_summary_metrics:
-            for (_, stat) in self.custom_summary_metrics:
+            for _, stat in self.custom_summary_metrics:
                 _choose_summarizer(stat)
 
     def _start_run(self):
@@ -168,7 +179,9 @@ class DominoRun:
             if self.run_id:
                 self._run = mlflow.get_run(run_id=self.run_id)
                 experiment_id = self._run.info.experiment_id
-                self._run = mlflow.start_run(experiment_id=experiment_id, run_id=self.run_id)
+                self._run = mlflow.start_run(
+                    experiment_id=experiment_id, run_id=self.run_id
+                )
 
             elif self.experiment_id:
                 # start the run in this experiment
@@ -195,12 +208,28 @@ class DominoRun:
             traces = get_all_traces_for_run(self.experiment_id, self._run.info.run_id)
 
             # group by evaluation name
-            eval_tags = sorted([(key, value) for t in traces for (key, value) in t.info.tags.items() if is_metric_tag(key)], key=lambda x: x[0])
-            grouped_eval_tags = dict([(k, list(vs)) for (k, vs) in itertools.groupby(eval_tags, key=lambda x: x[0])])
+            eval_tags = sorted(
+                [
+                    (key, value)
+                    for t in traces
+                    for (key, value) in t.info.tags.items()
+                    if is_metric_tag(key)
+                ],
+                key=lambda x: x[0],
+            )
+            grouped_eval_tags = dict(
+                [
+                    (k, list(vs))
+                    for (k, vs) in itertools.groupby(eval_tags, key=lambda x: x[0])
+                ]
+            )
 
             custom_summary_metrics = None
             if self.custom_summary_metrics:
-                custom_summary_metrics = [(build_metric_tag(tag), stat) for tag, stat in self.custom_summary_metrics]
+                custom_summary_metrics = [
+                    (build_metric_tag(tag), stat)
+                    for tag, stat in self.custom_summary_metrics
+                ]
 
             # Base specs: either user-provided or default to mean for discovered tags
             base_summary_metric_specs = custom_summary_metrics or [
@@ -218,12 +247,16 @@ class DominoRun:
                         agg, tag = parsed
                         recompute_specs.append((build_metric_tag(tag), agg))
             except Exception as e:
-                logging.warning(f"Unable to inspect existing aggregated metrics for recomputation: {e}")
+                logger.warning(
+                    f"Unable to inspect existing aggregated metrics for recomputation: {e}"
+                )
 
             # Combine and deduplicate
-            summary_metric_specs = list(set(base_summary_metric_specs + recompute_specs))
+            summary_metric_specs = list(
+                set(base_summary_metric_specs + recompute_specs)
+            )
 
-            for (tag, summary_statistic) in summary_metric_specs:
+            for tag, summary_statistic in summary_metric_specs:
                 aggregator = _choose_summarizer(summary_statistic)
                 found_values = grouped_eval_tags.get(tag, None)
                 if found_values:
@@ -233,20 +266,28 @@ class DominoRun:
                         # Derive metric name from tag; fall back to tag with warning if parsing fails
                         metric_name = get_metric_tag_name(tag)
                         if metric_name is None:
-                            logging.warning(
+                            logger.warning(
                                 f"Could not extract metric name from tag '{tag}'. "
                                 f"Falling back to using the full tag in aggregated metric name."
                             )
                             metric_name = tag
 
                         aggregated_metric_name = f"{summary_statistic}_{metric_name}"
-                        mlflow.log_metric(aggregated_metric_name, summary, run_id=self._run.info.run_id)
+                        mlflow.log_metric(
+                            aggregated_metric_name,
+                            summary,
+                            run_id=self._run.info.run_id,
+                        )
                     except Exception as e:
-                        logging.error(f"Failed to log summarization metric for {tag}: {e}")
+                        logger.error(
+                            f"Failed to log summarization metric for {tag}: {e}"
+                        )
                 else:
-                    logging.debug(f"No evaluation tags found for {tag}, skipping summarization metric logging")
+                    logger.debug(
+                        f"No evaluation tags found for {tag}, skipping summarization metric logging"
+                    )
         except Exception as e:
-            logging.error(
+            logger.error(
                 f"Something went wrong while computing summarization metric for run {self._run.info.run_id}: {e}"
             )
             traceback.print_exc()
@@ -268,4 +309,7 @@ class DominoRun:
                 source_run_id=run_id,
             )
         except Exception as e:
-            logging.error(f"Failed to log AI System configuration to run {run_id}: {e}")
+            logger.error(f"Failed to log AI System configuration to run {run_id}: {e}")
+
+
+logger = logging.getLogger(__name__)

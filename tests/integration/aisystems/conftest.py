@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._constants import MIN_MLFLOW_VERSION
+from .test_util import reset_prod_tracing
 
 @pytest.fixture
 def tracing():
@@ -33,14 +34,12 @@ def _remove_mlruns_data():
                 logger.warning(f"Failed to remove mlfruns directory during test cleanup: {e}")
 
 @pytest.fixture(scope="package")
-def setup_mlflow_tracking_server(docker_client):
+def setup_mlflow_tracking_server_no_env_var_mock(docker_client):
         pytest.importorskip("mlflow")
         from mlflow import MlflowClient
 
-        with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True), \
-                patch("domino.aisystems._verify_domino_support.verify_domino_support", clear=True) as mock_verify_domino_support:
+        with patch("domino.aisystems._verify_domino_support.verify_domino_support", clear=True) as mock_verify_domino_support:
                 mock_verify_domino_support.return_value = None
-
                 container_name = "test_mlflow_tracking_server"
                 docker_client.containers.run(
                         f"ghcr.io/mlflow/mlflow:v{MIN_MLFLOW_VERSION}",
@@ -80,3 +79,8 @@ def setup_mlflow_tracking_server(docker_client):
                         live_container.remove(force=True)
                         _remove_mlruns_data()
                         raise e
+
+@pytest.fixture
+def setup_mlflow_tracking_server(setup_mlflow_tracking_server_no_env_var_mock, docker_client):
+        with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True):
+                yield setup_mlflow_tracking_server_no_env_var_mock
