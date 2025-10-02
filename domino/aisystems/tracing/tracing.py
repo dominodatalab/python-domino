@@ -300,7 +300,7 @@ def search_ai_system_traces(
     )
 
 def search_traces(
-  run_id: Optional[str] = None,
+  run_id: str,
   trace_name: Optional[str] = None,
   start_time: Optional[datetime] = None,
   end_time: Optional[datetime] = None,

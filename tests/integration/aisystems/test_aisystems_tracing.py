@@ -550,7 +550,7 @@ def test_search_traces_no_run_ai_system_ids_supplied(setup_mlflow_tracking_serve
         """
 
         with pytest.raises(Exception) as e_info:
-                tracing.search_traces()
+                _search_traces()
 
         assert "Either run_id or ai_system_id and ai_system_version must be provided to search traces" in str(e_info), \
                 "Should raise no ai system info or run info provided"
