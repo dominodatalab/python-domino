@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 import functools
 import inspect
 import logging
@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from .._client import client
 from .inittracing import init_tracing
-from ..logging.logging import log_evaluation, add_domino_tags
+from ..logging.logging import log_evaluation
 from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
@@ -25,13 +25,6 @@ class SpanSummary:
     trace_id: str
     inputs: Any
     outputs: Any
-
-
-@dataclass
-class TraceSummary:
-    name: str
-    id: str
-    spans: list[SpanSummary]
 
 
 @dataclass
@@ -217,8 +210,6 @@ def add_tracing(
 
                     result = func(*args, **kwargs)
 
-                    eval_result = None
-
                     if not eagerly_evaluate_streamed_results:
                         # can't do inline evaluation, so warn if an evaluator is provided
                         if evaluator:
@@ -259,7 +250,7 @@ def _build_evaluation_result(tag_key: str, tag_value: str) -> EvaluationResult:
     value = tag_value
     try:
         value = float(tag_value)
-    except:
+    except Exception:
         pass
 
     return EvaluationResult(name=get_eval_tag_name(tag_key), value=value)

@@ -1,6 +1,5 @@
 import logging
 import mlflow
-import os
 import threading
 from typing import Optional
 

@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-from ._constants import DOMINO_INTERNAL_EVAL_TAG, EVALUATION_TAG_PREFIX
+from ._constants import EVALUATION_TAG_PREFIX
 from ..exceptions import DominoException
 
 VALID_LABEL_PATTERN = r"[a-zA-Z0-9_-]+"
