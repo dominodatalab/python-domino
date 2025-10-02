@@ -14,8 +14,9 @@ from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
-T = TypeVar('T')
+T = TypeVar("T")
 Evaluator = Callable[[T, T], dict[str, int | float | str]]
+
 
 @dataclass
 class SpanSummary:
@@ -25,16 +26,19 @@ class SpanSummary:
     inputs: Any
     outputs: Any
 
+
 @dataclass
 class TraceSummary:
     name: str
     id: str
     spans: list[SpanSummary]
 
+
 @dataclass
 class EvaluationResult:
     name: str
     value: float | str
+
 
 @dataclass
 class TraceSummary:
@@ -43,13 +47,16 @@ class TraceSummary:
     spans: list[SpanSummary]
     evaluation_results: list[EvaluationResult]
 
+
 @dataclass
 class SearchTracesResponse:
     data: list[TraceSummary]
     page_token: str
 
+
 def _datetime_to_ms(dt: datetime) -> int:
     return dt.timestamp() * 1000
+
 
 def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
     return SpanSummary(
@@ -60,22 +67,29 @@ def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
         outputs=span.outputs,
     )
 
+
 def _do_evaluation(
-        span: mlflow.entities.Span,
-        evaluator: Optional[Evaluator] = None,
-        is_production: bool = False) -> Optional[dict]:
+    span: mlflow.entities.Span,
+    evaluator: Optional[Evaluator] = None,
+    is_production: bool = False,
+) -> Optional[dict]:
+    if not is_production and evaluator:
+        try:
+            return evaluator(span.inputs, span.outputs)
+        except Exception as e:
+            logger.error(
+                "Inline evaluation failed for evaluator, %s. Error: %s",
+                evaluator.__name__,
+                e,
+                exc_info=True,
+            )
 
-        if not is_production and evaluator:
-            try:
-                return evaluator(span.inputs, span.outputs)
-            except Exception as e:
-                logger.error(
-                    "Inline evaluation failed for evaluator, %s. Error: %s" , evaluator.__name__, e, exc_info=True
-                )
+    return None
 
-        return None
 
-def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Evaluator]):
+def _log_eval_results(
+    parent_span: mlflow.entities.Span, evaluator: Optional[Evaluator]
+):
     """
     Saves the evaluation results
     """
@@ -83,13 +97,14 @@ def _log_eval_results(parent_span: mlflow.entities.Span, evaluator: Optional[Eva
     eval_result = _do_evaluation(parent_span, evaluator, is_production)
 
     if eval_result:
-        for (k, v) in eval_result.items():
+        for k, v in eval_result.items():
             # save the evaluation result for the trace
             log_evaluation(
                 parent_span.request_id,
                 value=v,
                 name=k,
             )
+
 
 def _set_span_inputs(parent_span, func, args, kwargs):
     """
@@ -100,17 +115,20 @@ def _set_span_inputs(parent_span, func, args, kwargs):
     """
     bound_args = inspect.signature(func).bind(*args, **kwargs)
     bound_args.apply_defaults()
-    inputs = {k: v for k, v in bound_args.arguments.items() if k != 'self' and k != 'cls'}
+    inputs = {
+        k: v for k, v in bound_args.arguments.items() if k != "self" and k != "cls"
+    }
     parent_span.set_inputs(inputs)
 
     return inputs
 
+
 def add_tracing(
-        name: str,
-        autolog_frameworks: Optional[list[str]] = [],
-        evaluator: Optional[Evaluator] = None,
-        eagerly_evaluate_streamed_results: bool = True,
-    ):
+    name: str,
+    autolog_frameworks: Optional[list[str]] = [],
+    evaluator: Optional[Evaluator] = None,
+    eagerly_evaluate_streamed_results: bool = True,
+):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
     this span will be appended to it.
 
@@ -151,7 +169,6 @@ def add_tracing(
     validate_label(name)
 
     def decorator(func):
-
         # For Regular Functions (e.g., langgraph_agents.run_agent)
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -170,6 +187,7 @@ def add_tracing(
 
         # for async functions
         if inspect.iscoroutinefunction(func):
+
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
                 init_tracing(autolog_frameworks)
@@ -189,6 +207,7 @@ def add_tracing(
 
         # For Generator Functions (e.g., RAGAgent.answer)
         if inspect.isgeneratorfunction(func):
+
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 init_tracing(autolog_frameworks)
@@ -215,7 +234,9 @@ def add_tracing(
                             with mlflow.start_span(name) as gen_span:
                                 # make span for each yielded value
                                 gen_span.set_inputs(inputs)
-                                gen_span.set_attributes({"group_id": str(group_id), "index": i})
+                                gen_span.set_attributes(
+                                    {"group_id": str(group_id), "index": i}
+                                )
                                 yield v
                                 gen_span.set_outputs(v)
                     else:
@@ -229,9 +250,10 @@ def add_tracing(
 
             return wrapper
 
-
         return wrapper
+
     return decorator
+
 
 def _build_evaluation_result(tag_key: str, tag_value: str) -> EvaluationResult:
     value = tag_value
@@ -241,6 +263,7 @@ def _build_evaluation_result(tag_key: str, tag_value: str) -> EvaluationResult:
         pass
 
     return EvaluationResult(name=get_eval_tag_name(tag_key), value=value)
+
 
 def _build_trace_summaries(traces) -> list[TraceSummary]:
     trace_summaries = []
@@ -255,20 +278,25 @@ def _build_trace_summaries(traces) -> list[TraceSummary]:
                 name=trace_name,
                 id=trace.info.trace_id,
                 spans=[_make_span_summary(s) for s in spans],
-                evaluation_results=[_build_evaluation_result(key, value) for (key, value) in trace.info.tags.items() if get_eval_tag_name(key) is not None],
+                evaluation_results=[
+                    _build_evaluation_result(key, value)
+                    for (key, value) in trace.info.tags.items()
+                    if get_eval_tag_name(key) is not None
+                ],
             )
         )
 
     return trace_summaries
 
+
 def search_ai_system_traces(
-  ai_system_id: str,
-  ai_system_version: Optional[str] = None,
-  trace_name: Optional[str] = None,
-  start_time: Optional[datetime] = None,
-  end_time: Optional[datetime] = None,
-  page_token: Optional[str] = None,
-  max_results: Optional[int] = None,
+    ai_system_id: str,
+    ai_system_version: Optional[str] = None,
+    trace_name: Optional[str] = None,
+    start_time: Optional[datetime] = None,
+    end_time: Optional[datetime] = None,
+    page_token: Optional[str] = None,
+    max_results: Optional[int] = None,
 ) -> SearchTracesResponse:
     """This allows searching for traces that have a certain name and returns a paginated response of trace summaries that
     inclued the spans that were requested.
@@ -299,13 +327,14 @@ def search_ai_system_traces(
         max_results,
     )
 
+
 def search_traces(
-  run_id: str,
-  trace_name: Optional[str] = None,
-  start_time: Optional[datetime] = None,
-  end_time: Optional[datetime] = None,
-  page_token: Optional[str] = None,
-  max_results: Optional[int] = None,
+    run_id: str,
+    trace_name: Optional[str] = None,
+    start_time: Optional[datetime] = None,
+    end_time: Optional[datetime] = None,
+    page_token: Optional[str] = None,
+    max_results: Optional[int] = None,
 ) -> SearchTracesResponse:
     """This allows searching for traces that have a certain name and returns a paginated response of trace summaries that
     inclued the spans that were requested.
@@ -335,24 +364,29 @@ def search_traces(
         max_results,
     )
 
+
 def _search_traces(
-  run_id: Optional[str] = None,
-  ai_system_id: Optional[str] = None,
-  ai_system_version: Optional[str] = None,
-  trace_name: Optional[str] = None,
-  start_time: Optional[datetime] = None,
-  end_time: Optional[datetime] = None,
-  page_token: Optional[str] = None,
-  max_results: Optional[int] = None,
+    run_id: Optional[str] = None,
+    ai_system_id: Optional[str] = None,
+    ai_system_version: Optional[str] = None,
+    trace_name: Optional[str] = None,
+    start_time: Optional[datetime] = None,
+    end_time: Optional[datetime] = None,
+    page_token: Optional[str] = None,
+    max_results: Optional[int] = None,
 ) -> SearchTracesResponse:
     # this depends on mlflow 3 due to the pagination support
     verify_domino_support()
 
     if not run_id and not ai_system_version and not ai_system_id:
-        raise Exception("Either run_id or ai_system_id and ai_system_version must be provided to search traces")
+        raise Exception(
+            "Either run_id or ai_system_id and ai_system_version must be provided to search traces"
+        )
 
     if ai_system_version and not ai_system_id:
-        raise Exception("If ai_system_version is provided, ai_system_id must also be provided")
+        raise Exception(
+            "If ai_system_version is provided, ai_system_id must also be provided"
+        )
 
     filter_clauses = []
 
@@ -365,7 +399,9 @@ def _search_traces(
         experiment_name = build_ai_system_experiment_name(ai_system_id)
         experiment = client.get_experiment_by_name(experiment_name)
         if not experiment:
-            raise Exception(f"No experiment found for ai_system_id: {ai_system_id} and ai_system_version: {ai_system_version}")
+            raise Exception(
+                f"No experiment found for ai_system_id: {ai_system_id} and ai_system_version: {ai_system_version}"
+            )
         experiment_id = experiment.experiment_id
 
         # add prod trace tag filters
@@ -373,18 +409,20 @@ def _search_traces(
             filter_clauses.append(f'tags.mlflow.domino.app_id = "{ai_system_id}"')
 
         if ai_system_version:
-            filter_clauses.append(f'tags.mlflow.domino.app_version_id = "{ai_system_version}"')
+            filter_clauses.append(
+                f'tags.mlflow.domino.app_version_id = "{ai_system_version}"'
+            )
 
     if start_time or end_time:
-        time_range_filter_clause = ''
+        time_range_filter_clause = ""
 
         if start_time:
             start_ms = _datetime_to_ms(start_time)
-            time_range_filter_clause += f'timestamp_ms > {start_ms}'
+            time_range_filter_clause += f"timestamp_ms > {start_ms}"
 
         if end_time:
             end_ms = _datetime_to_ms(end_time)
-            time_range_filter_clause += f' AND timestamp_ms < {end_ms}'
+            time_range_filter_clause += f" AND timestamp_ms < {end_ms}"
 
         if start_time and end_time and start_time >= end_time:
             logger.warning("start_time must be before end_time")
@@ -397,7 +435,7 @@ def _search_traces(
 
     # get traces made within the time range
     # get traces with the trace names
-    filter_string = ' AND '.join([x for x in filter_clauses if x])
+    filter_string = " AND ".join([x for x in filter_clauses if x])
 
     traces = client.search_traces(
         experiment_ids=[experiment_id],
@@ -411,4 +449,6 @@ def _search_traces(
     next_page_token = traces.token
 
     return SearchTracesResponse(trace_summaries, next_page_token)
+
+
 logger = logging.getLogger(__name__)
