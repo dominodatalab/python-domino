@@ -149,19 +149,23 @@ def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, 
 
 def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
-        User can access a trace in an inline evaluator
+        User can access a trace in an inline evaluator on the trace parent, and not the child
         """
         exp = mlflow.set_experiment("test_add_tracing_dev_use_trace_in_evaluator")
 
-        @tracing.add_tracing(name="unit", evaluator=lambda inputs, outputs, trace: { 'trace_id': trace.trace_id })
+        @tracing.add_tracing(name="parent", evaluator=lambda inputs, outputs, trace: { 'trace_id': trace.info.trace_id })
+        def parent(x):
+                return unit(x)
+
+        @tracing.add_tracing(name="unit", evaluator=lambda inputs, outputs, trace: { 'trace_exists': str(trace is not None) })
         def unit(x):
                 return x
 
         with logging.DominoRun() as run:
-                unit(1)
+                parent(1)
 
-        ts = tracing.search_traces(run_id=run.info.run_id, trace_name="unit")
-        assert ts.data[0].evaluation_results[0].value == ts.data[0].id
+        parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
+        assert sorted([r.value for r in parent_t.evaluation_results]) == sorted([parent_t.id, "False"])
 
 def test_add_tracing_invalid_label(setup_mlflow_tracking_server, tracing):
         with pytest.raises(InvalidEvaluationLabelException):

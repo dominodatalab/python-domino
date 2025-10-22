@@ -99,7 +99,8 @@ def _do_evaluation(
 ) -> Optional[dict]:
     if not is_production and evaluator:
         try:
-            return evaluator(span.inputs, span.outputs, span)
+            trace = mlflow.get_trace(span.trace_id)
+            return evaluator(span.inputs, span.outputs, trace)
         except Exception as e:
             logger.error(
                 "Inline evaluation failed for evaluator, %s. Error: %s",
@@ -198,6 +199,7 @@ def add_tracing(
         def wrapper(*args, **kwargs):
             init_tracing(autolog_frameworks)
 
+            result = "domino_no_result"
             with mlflow.start_span(name) as parent_span:
                 _set_span_inputs(parent_span, func, args, kwargs)
 
@@ -205,9 +207,12 @@ def add_tracing(
 
                 parent_span.set_outputs(result)
 
-                _log_eval_results(parent_span, evaluator)
+            _log_eval_results(parent_span, evaluator)
 
+            if result != "domino_no_result":
                 return result
+            else:
+                raise Exception("No result returned from traced function")
 
         # for async functions
         if inspect.iscoroutinefunction(func):
