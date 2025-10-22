@@ -14,10 +14,10 @@ from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
-Span = TypeVar("Span")
+Trace = TypeVar("Trace")
 SpanInputs = TypeVar("SpanInputs")
 SpanOutputs = TypeVar("SpanOutputs")
-Evaluator = Callable[[SpanInputs, SpanOutputs, Span], dict[str, int | float | str]]
+Evaluator = Callable[[SpanInputs, SpanOutputs, str, Trace | None], dict[str, int | float | str]]
 
 DOMINO_NO_RESULT_ADD_TRACING = "domino_no_result"
 
@@ -100,8 +100,11 @@ def _do_evaluation(
 ) -> Optional[dict]:
     if not is_production and evaluator:
         try:
-            trace = mlflow.get_trace(span.trace_id)
-            return evaluator(span.inputs, span.outputs, trace)
+            try:
+                trace = mlflow.get_trace(span.trace_id)
+            except Exception:
+                trace = None
+            return evaluator(span.inputs, span.outputs, span.trace_id, trace)
         except Exception as e:
             logger.error(
                 "Inline evaluation failed for evaluator, %s. Error: %s",
