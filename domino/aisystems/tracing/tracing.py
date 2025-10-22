@@ -487,6 +487,6 @@ def _return_traced_result(result: any):
     if result != DOMINO_NO_RESULT_ADD_TRACING:
         return result
     else:
-        raise Exception("No result returned from traced function")
+        logger.warning("No result returned from traced function")
 
 logger = logging.getLogger(__name__)
