@@ -162,7 +162,7 @@ def add_tracing(
     this span will be appended to it.
 
     It also enables the user to run an evaluation inline in the code is run in development mode on
-    the inputs and outputs of the wrapped function call.
+    the inputs and outputs of the wrapped function call. Trace will be passed to the evaluator if available.
     The user can provide input and output formatters for formatting what's on the trace
     and the evaluation result inputs, which can be used by client's to extract relevant data when
     analyzing a trace.
