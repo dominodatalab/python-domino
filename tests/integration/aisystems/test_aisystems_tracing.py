@@ -337,6 +337,29 @@ def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing,
         assert 'domino.prog.metric.result' not in tags
         assert 'domino.internal.is_eval' not in tags
 
+def test_add_tracing_generator_trace_in_evaluator(setup_mlflow_tracking_server, tracing, mlflow, logging):
+        """
+        When using a generator, the trace should be accessible in the parent generator function's evaluator,
+        but not the child span's evaluator
+        """
+        exp = mlflow.set_experiment("test_add_tracing_generator_trace_in_evaluator")
+        experiment_id = exp.experiment_id
+
+        @tracing.add_tracing(name="parent", evaluator=lambda i, o, t: { 'trace_id': t.info.trace_id })
+        def parent():
+                yield from child(1)
+
+        @tracing.add_tracing(name="child", evaluator=lambda i, o, t: { 'trace': str(t is not None) })
+        def child(x):
+                yield x
+
+
+        with logging.DominoRun() as run:
+                [_ for _ in parent()]
+
+        parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
+        assert sorted([r.value for r in parent_t.evaluation_results]) == sorted(["False", parent_t.id]), "Only the parent trace should be accessible in the parent evaluator"
+
 def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_tracking_server, tracing, mlflow):
         """
         add_tracing should record the result from a generator and evaluate it inline
@@ -376,6 +399,31 @@ async def test_add_tracing_works_with_async(setup_mlflow_tracking_server, mlflow
 
         assert [t.data.spans[0].inputs for t in traces] == [{'x':1}], "Inputs to trace should be the function arguments"
         assert [t.data.spans[0].outputs for t in traces] == [1], "Outputs to trace should be the function return value"
+
+@pytest.mark.asyncio
+async def test_add_tracing_async_trace_in_evaluator(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        When using async functions, the trace should be accessible in the parent function's evaluator
+        but not the child function's evaluator
+        """
+        exp = mlflow.set_experiment("test_add_tracing_async_trace_in_evaluator")
+
+        @tracing.add_tracing(name="parent", evaluator=lambda i, o, t: { 'trace_id': t.info.trace_id })
+        async def parent(x):
+                return await child(x)
+
+        @tracing.add_tracing(name="child", evaluator=lambda i, o, t: { 'trace': str(t is not None) })
+        async def child(x):
+                return x
+
+        with logging.DominoRun() as run:
+                await parent(1)
+
+        parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
+
+        parent_eval_values = sorted([r.value for r in parent_t.evaluation_results])
+
+        assert parent_eval_values == sorted(["False", parent_t.id]), "Only the parent trace should be accessible in the parent evaluator"
 
 def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         @tracing.add_tracing(name="unit")

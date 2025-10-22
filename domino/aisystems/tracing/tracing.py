@@ -19,6 +19,7 @@ SpanInputs = TypeVar("SpanInputs")
 SpanOutputs = TypeVar("SpanOutputs")
 Evaluator = Callable[[SpanInputs, SpanOutputs, Span], dict[str, int | float | str]]
 
+DOMINO_NO_RESULT_ADD_TRACING = "domino_no_result"
 
 @dataclass
 class SpanSummary:
@@ -197,9 +198,9 @@ def add_tracing(
         # For Regular Functions (e.g., langgraph_agents.run_agent)
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            result = DOMINO_NO_RESULT_ADD_TRACING
             init_tracing(autolog_frameworks)
 
-            result = "domino_no_result"
             with mlflow.start_span(name) as parent_span:
                 _set_span_inputs(parent_span, func, args, kwargs)
 
@@ -207,18 +208,17 @@ def add_tracing(
 
                 parent_span.set_outputs(result)
 
-            _log_eval_results(parent_span, evaluator)
+            if result != DOMINO_NO_RESULT_ADD_TRACING:
+                _log_eval_results(parent_span, evaluator)
 
-            if result != "domino_no_result":
-                return result
-            else:
-                raise Exception("No result returned from traced function")
+            return _return_traced_result(result)
 
         # for async functions
         if inspect.iscoroutinefunction(func):
 
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
+                result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
                 with mlflow.start_span(name) as parent_span:
@@ -228,9 +228,10 @@ def add_tracing(
 
                     parent_span.set_outputs(result)
 
+                if result != DOMINO_NO_RESULT_ADD_TRACING:
                     _log_eval_results(parent_span, evaluator)
 
-                    return result
+                return _return_traced_result(result)
 
             return async_wrapper
 
@@ -239,6 +240,7 @@ def add_tracing(
 
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
+                result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
                 with mlflow.start_span(name) as parent_span:
@@ -270,10 +272,11 @@ def add_tracing(
                         # get all results and set as outputs
                         all_results = [v for v in result]
                         parent_span.set_outputs(all_results)
-                        _log_eval_results(parent_span, evaluator)
-
                         for v in all_results:
                             yield v
+
+                if eagerly_evaluate_streamed_results and result != DOMINO_NO_RESULT_ADD_TRACING:
+                    _log_eval_results(parent_span, evaluator)
 
             return wrapper
 
@@ -477,5 +480,10 @@ def _search_traces(
 
     return SearchTracesResponse(trace_summaries, next_page_token)
 
+def _return_traced_result(result: any):
+    if result != DOMINO_NO_RESULT_ADD_TRACING:
+        return result
+    else:
+        raise Exception("No result returned from traced function")
 
 logger = logging.getLogger(__name__)
