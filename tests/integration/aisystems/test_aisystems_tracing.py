@@ -132,7 +132,7 @@ def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, 
         # so that mocker works
         exp = mlflow.set_experiment("test_add_tracing_dev")
 
-        @tracing.add_tracing(name="add_numbers", autolog_frameworks=["sklearn"], evaluator=lambda inputs, outputs: { 'result': outputs })
+        @tracing.add_tracing(name="add_numbers", autolog_frameworks=["sklearn"], evaluator=lambda inputs, outputs, trace: { 'result': outputs })
         def add_numbers(x, y):
                 return x + y
 
@@ -146,6 +146,22 @@ def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, 
         tags = ts[0].info.tags
         assert tags['domino.prog.metric.result'] == '2'
         assert tags['domino.internal.is_eval'] == 'true'
+
+def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+        """
+        User can access a trace in an inline evaluator
+        """
+        exp = mlflow.set_experiment("test_add_tracing_dev_use_trace_in_evaluator")
+
+        @tracing.add_tracing(name="unit", evaluator=lambda inputs, outputs, trace: { 'trace_id': trace.trace_id })
+        def unit(x):
+                return x
+
+        with logging.DominoRun() as run:
+                unit(1)
+
+        ts = tracing.search_traces(run_id=run.info.run_id, trace_name="unit")
+        assert ts.data[0].evaluation_results[0].value == ts.data[0].id
 
 def test_add_tracing_invalid_label(setup_mlflow_tracking_server, tracing):
         with pytest.raises(InvalidEvaluationLabelException):
@@ -278,7 +294,7 @@ def test_add_tracing_failed_inline_evaluator_logs_warning(setup_mlflow_tracking_
         """
         mlflow.set_experiment("test_add_tracing_failed_inline_evaluator_logs_warning")
 
-        def failing_evaluator(i, o):
+        def failing_evaluator(i, o, t):
                 return 1/0
 
         @tracing.add_tracing(name="unit", evaluator=failing_evaluator)
@@ -297,7 +313,7 @@ def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing,
         exp = mlflow.set_experiment("test_add_tracing_works_with_generator")
         experiment_id = exp.experiment_id
 
-        @tracing.add_tracing(name="gen", evaluator=lambda i, o: { 'result': 1 }, eagerly_evaluate_streamed_results=False)
+        @tracing.add_tracing(name="gen", evaluator=lambda i, o, t: { 'result': 1 }, eagerly_evaluate_streamed_results=False)
         def gen():
                 for i in range(3):
                         yield i
@@ -324,7 +340,7 @@ def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_trackin
         exp = mlflow.set_experiment("test_add_tracing_works_with_eagerly_evaluated_generator")
         experiment_id = exp.experiment_id
 
-        @tracing.add_tracing(name="gen_record_all", evaluator=lambda i, o: { 'result': 1 })
+        @tracing.add_tracing(name="gen_record_all", evaluator=lambda i, o, t: { 'result': 1 })
         def gen_record_all():
                 for i in range(3):
                         yield i
@@ -345,7 +361,7 @@ def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_trackin
 async def test_add_tracing_works_with_async(setup_mlflow_tracking_server, mlflow, tracing):
         exp = mlflow.set_experiment("test_add_tracing_works_with_async")
 
-        @tracing.add_tracing(name="async_function", evaluator=lambda i, o: { 'result': 1 })
+        @tracing.add_tracing(name="async_function", evaluator=lambda i, o, t: { 'result': 1 })
         async def async_function(x):
                 return x
 
@@ -362,7 +378,7 @@ def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, lo
         def unit(x):
                 return x
 
-        @tracing.add_tracing(name="parent", evaluator=lambda i, o: {'mymetric': 1, 'mylabel': 'category'})
+        @tracing.add_tracing(name="parent", evaluator=lambda i, o, t: {'mymetric': 1, 'mylabel': 'category'})
         def parent(x, y):
                 return unit(x) + unit(y)
 

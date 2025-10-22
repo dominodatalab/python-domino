@@ -14,8 +14,10 @@ from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
-T = TypeVar("T")
-Evaluator = Callable[[T, T], dict[str, int | float | str]]
+Span = TypeVar("Span")
+SpanInputs = TypeVar("SpanInputs")
+SpanOutputs = TypeVar("SpanOutputs")
+Evaluator = Callable[[SpanInputs, SpanOutputs, Span], dict[str, int | float | str]]
 
 
 @dataclass
@@ -97,7 +99,7 @@ def _do_evaluation(
 ) -> Optional[dict]:
     if not is_production and evaluator:
         try:
-            return evaluator(span.inputs, span.outputs)
+            return evaluator(span.inputs, span.outputs, span)
         except Exception as e:
             logger.error(
                 "Inline evaluation failed for evaluator, %s. Error: %s",
