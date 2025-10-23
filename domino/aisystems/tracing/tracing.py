@@ -14,10 +14,15 @@ from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
+EvalResult = dict[str, int | float | str]
+
 Trace = TypeVar("Trace")
-SpanInputs = TypeVar("SpanInputs")
-SpanOutputs = TypeVar("SpanOutputs")
-Evaluator = Callable[[SpanInputs, SpanOutputs, str, Trace | None], dict[str, int | float | str]]
+Span = TypeVar("Span")
+
+SpanEvaluator = Callable[[Span], EvalResult]
+TraceEvaluator = Callable[[Trace], EvalResult]
+
+DominoEvaluator = Callable[[mlflow.entities.Span, Optional[mlflow.entities.Trace]], Optional[EvalResult]]
 
 DOMINO_NO_RESULT_ADD_TRACING = "domino_no_result"
 
@@ -95,16 +100,28 @@ def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
 
 def _do_evaluation(
     span: mlflow.entities.Span,
-    evaluator: Optional[Evaluator] = None,
+    evaluator: Optional[SpanEvaluator] = None,
+    trace_evaluator: Optional[TraceEvaluator] = None,
     is_production: bool = False,
 ) -> Optional[dict]:
-    if not is_production and evaluator:
+    if not is_production and evaluator or trace_evaluator:
         try:
-            try:
-                trace = mlflow.get_trace(span.trace_id)
-            except Exception:
-                trace = None
-            return evaluator(span.inputs, span.outputs, span.trace_id, trace)
+            span_eval_result = None
+            trace_eval_result = None
+            if evaluator:
+                span_eval_result = evaluator(span)
+
+            if trace_evaluator:
+                try:
+                    trace = mlflow.get_trace(span.trace_id)
+                except Exception:
+                    trace = None
+
+                if trace:
+                    trace_eval_result = trace_evaluator(trace)
+
+            if span_eval_result or trace_eval_result:
+                return {**(trace_eval_result or {}), **(span_eval_result or {})}
         except Exception as e:
             logger.error(
                 "Inline evaluation failed for evaluator, %s. Error: %s",
@@ -117,13 +134,15 @@ def _do_evaluation(
 
 
 def _log_eval_results(
-    parent_span: mlflow.entities.Span, evaluator: Optional[Evaluator]
+    parent_span: mlflow.entities.Span,
+    evaluator: Optional[SpanEvaluator],
+    trace_evaluator: Optional[TraceEvaluator],
 ):
     """
     Saves the evaluation results
     """
     is_production = get_is_production()
-    eval_result = _do_evaluation(parent_span, evaluator, is_production)
+    eval_result = _do_evaluation(parent_span, evaluator, trace_evaluator, is_production)
 
     if eval_result:
         for k, v in eval_result.items():
@@ -155,7 +174,8 @@ def _set_span_inputs(parent_span, func, args, kwargs):
 def add_tracing(
     name: str,
     autolog_frameworks: Optional[list[str]] = [],
-    evaluator: Optional[Evaluator] = None,
+    evaluator: Optional[SpanEvaluator] = None,
+    trace_evaluator: Optional[TraceEvaluator] = None,
     eagerly_evaluate_streamed_results: bool = True,
 ):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
@@ -182,8 +202,12 @@ def add_tracing(
 
         autolog_frameworks: an optional list of mlflow supported frameworks to autolog
 
-        evaluator: an optional function that takes the inputs and outputs of the wrapped function and returns
+        evaluator: an optional function that takes the span created for the wrapped wrapped function and returns
         a dictionary of evaluation results. The evaluation result will be added to the trace as tags.
+
+        trace_evaluator: an optional function that takes the trace for this call stack and returns a dictionary of
+        evaluation results. This evaluator will be triggered if the trace was started and finished by this
+        function call
 
         eagerly_evaluate_streamed_results: optional boolean, defaults to true, this determines if all
             yielded values should be aggregated and set as outputs to a single span. This makes evaluation easier, but
@@ -196,6 +220,7 @@ def add_tracing(
         A decorator that wraps the function to be traced.
     """
     validate_label(name)
+
 
     def decorator(func):
         # For Regular Functions (e.g., langgraph_agents.run_agent)
@@ -212,7 +237,7 @@ def add_tracing(
                 parent_span.set_outputs(result)
 
             if result != DOMINO_NO_RESULT_ADD_TRACING:
-                _log_eval_results(parent_span, evaluator)
+                _log_eval_results(parent_span, evaluator, trace_evaluator)
 
             return _return_traced_result(result)
 
@@ -232,7 +257,7 @@ def add_tracing(
                     parent_span.set_outputs(result)
 
                 if result != DOMINO_NO_RESULT_ADD_TRACING:
-                    _log_eval_results(parent_span, evaluator)
+                    _log_eval_results(parent_span, evaluator, trace_evaluator)
 
                 return _return_traced_result(result)
 
@@ -253,7 +278,7 @@ def add_tracing(
 
                     if not eagerly_evaluate_streamed_results:
                         # can't do inline evaluation, so warn if an evaluator is provided
-                        if evaluator:
+                        if evaluator or trace_evaluator:
                             logger.warning(
                                 """eagerly_evaluate_streamed_results is false, so inline evaluation is disabled.
                                 You can still do evaluations using log_evaluation post-hoc"""
@@ -279,7 +304,7 @@ def add_tracing(
                             yield v
 
                 if eagerly_evaluate_streamed_results and result != DOMINO_NO_RESULT_ADD_TRACING:
-                    _log_eval_results(parent_span, evaluator)
+                    _log_eval_results(parent_span, evaluator, trace_evaluator)
 
             return wrapper
 

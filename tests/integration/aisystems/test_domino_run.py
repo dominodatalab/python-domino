@@ -16,7 +16,7 @@ def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, l
         create_external_model_spy = mocker.spy(mlflow, "create_external_model")
         exp = mlflow.set_experiment("test_domino_run")
 
-        @tracing.add_tracing(name="add_numbers", autolog_frameworks=['sklearn'], evaluator=lambda inputs, outputs, trace_id, trace: { 'add_numbers': outputs })
+        @tracing.add_tracing(name="add_numbers", autolog_frameworks=['sklearn'], evaluator=lambda span: { 'add_numbers': span.outputs })
         def add_numbers(x, y):
                 return x + y
 
@@ -62,23 +62,23 @@ def test_domino_run_dev_custom_aggregator(setup_mlflow_tracking_server, mlflow, 
         """
         exp = mlflow.set_experiment("test_domino_run_custom_aggregator")
 
-        @tracing.add_tracing(name="median", evaluator=lambda inputs, outputs, trace_id, trace: { 'median': outputs })
+        @tracing.add_tracing(name="median", evaluator=lambda span: { 'median': span.outputs })
         def for_median(x):
                 return x
 
-        @tracing.add_tracing(name="mean", evaluator=lambda inputs, outputs, trace_id, trace: { 'mean': outputs })
+        @tracing.add_tracing(name="mean", evaluator=lambda span: { 'mean': span.outputs })
         def for_mean(x):
                 return x
 
-        @tracing.add_tracing(name="stdev", evaluator=lambda inputs, outputs, trace_id, trace: { 'stdev': outputs })
+        @tracing.add_tracing(name="stdev", evaluator=lambda span: { 'stdev': span.outputs })
         def for_stdev(x):
                 return x
 
-        @tracing.add_tracing(name="min", evaluator=lambda inputs, outputs, trace_id, trace: { 'min': outputs })
+        @tracing.add_tracing(name="min", evaluator=lambda span: { 'min': span.outputs })
         def for_min(x):
                 return x
 
-        @tracing.add_tracing(name="max", evaluator=lambda inputs, outputs, trace_id, trace: { 'max': outputs })
+        @tracing.add_tracing(name="max", evaluator=lambda span: { 'max': span.outputs })
         def for_max(x):
                 return x
 
@@ -151,7 +151,7 @@ def test_domino_run_extend_current_run(setup_mlflow_tracking_server, mlflow, log
         """
         mlflow.set_experiment("test_domino_run_extend_current_run")
 
-        @tracing.add_tracing(name="unit", evaluator=lambda inputs, outputs, trace_id, trace: { 'unit': outputs })
+        @tracing.add_tracing(name="unit", evaluator=lambda span: { 'unit': span.outputs })
         def unit(x):
                 return x
 
@@ -291,7 +291,7 @@ def test_domino_run_recomputes_existing_aggregations(setup_mlflow_tracking_serve
         """
         exp = mlflow.set_experiment("test_domino_run_recomputes_existing_aggregations")
 
-        @tracing.add_tracing(name="agg", evaluator=lambda inputs, outputs, trace_id, trace: { 'agg': outputs })
+        @tracing.add_tracing(name="agg", evaluator=lambda span: { 'agg': span.outputs })
         def agg_fn(x):
                 return x
 
