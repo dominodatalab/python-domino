@@ -761,7 +761,7 @@ domino.runs_start(["main.py"], commitId="aabbccddee")
 === AISystems
 
 
-== domino.aisystems.environment++_++variables¶
+== domino.aisystems.environment++_++variables
 
 DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH: +
 For configuring the location of the ai++_++system++_++config.yaml file.
@@ -776,7 +776,7 @@ The ID of the production AI System
 type: +
 str
 
-== domino.aisystems.logging¶
+== domino.aisystems.logging
 
 Functions
 
@@ -801,7 +801,7 @@ during the run.
 === ++|++ None = None_, _run++_++id: str ++|++ None = None_,
 === _ai++_++system++_++config++_++path: str ++|++ None = None_,
 === _custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`',
-=== '`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_)¶ +
+=== '`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
 Bases: `object`
 
 DominoRun is a context manager that starts an Mlflow run and attaches
@@ -845,7 +845,7 @@ Returns: DominoRun context manager
  
 
 === domino.aisystems.logging.log++_++evaluation(_trace++_++id: str_, _name:
-=== str_, _value: float ++|++ str_)¶ +
+=== str_, _value: float ++|++ str_) +
 This logs evaluation data and metadata to a parent trace. This is used
 to log the evaluation of a span after it was created. This is useful for
 analyzing past performance of an AI System component.
@@ -857,8 +857,15 @@ Parameters: +
 the evaluation result
 * *value* – the evaluation result to log. This must be a float or string
 
+Modules
 
-== domino.aisystems.tracing¶
+[cols=",",]
+|===
+|`dominorun` |
+|`logging` |
+|===
+
+== domino.aisystems.tracing
 
 Functions
 
@@ -868,12 +875,17 @@ Functions
 decorator that starts an mlflow span for the function it decorates.
 
 |`init++_++tracing`(++[++autolog++_++frameworks++]++) |Initialize Mlflow
-autologging for various frameworks and set the active model for
-production evaluation runs.
+autologging for various frameworks and sets the active experiment to
+enable tracing in production.
+
+|`search++_++ai++_++system++_++traces`(ai++_++system++_++id++[++, …++]++)
+|This allows searching for traces that have a certain name and returns a
+paginated response of trace summaries that include the spans that were
+requested.
 
 |`search++_++traces`(run++_++id++[++, trace++_++name, …++]++) |This
 allows searching for traces that have a certain name and returns a
-paginated response of trace summaries that include the spans that were
+paginated response of trace summaries that inclued the spans that were
 requested.
 |===
 
@@ -892,59 +904,59 @@ trace.
 |===
 
 === _class_ domino.aisystems.tracing.SearchTracesResponse(_data:
-=== list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_)¶ +
+=== list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
 Bases: `object`
 
 The response from searching for traces.
 
-data__: list++[++TraceSummary++]++__¶ +
+data__: list++[++TraceSummary++]++__ +
 The list of trace summaries
 
-page++_++token__: str ++|++ None__¶ +
+page++_++token__: str ++|++ None__ +
 The token for the next page of results
 
  
 
 === _class_ domino.aisystems.tracing.SpanSummary(_id: str_, _name: str_,
-=== _trace++_++id: str_, _inputs: Any_, _outputs: Any_)¶ +
+=== _trace++_++id: str_, _inputs: Any_, _outputs: Any_) +
 Bases: `object`
 
 A span in a trace.
 
-id__: str__¶ +
+id__: str__ +
 the mlflow ID of the span
 
-inputs__: Any__¶ +
+inputs__: Any__ +
 The inputs to the function that created the span
 
-name__: str__¶ +
+name__: str__ +
 The name of the span
 
-outputs__: Any__¶ +
+outputs__: Any__ +
 The outputs of the function that created the span
 
-trace++_++id__: str__¶ +
+trace++_++id__: str__ +
 The parent trace ID
 
  
 
 === _class_ domino.aisystems.tracing.TraceSummary(_name: str_, _id: str_,
 === _spans: list++[++SpanSummary++]++_, _evaluation++_++results:
-=== list++[++EvaluationResult++]++_)¶ +
+=== list++[++EvaluationResult++]++_) +
 Bases: `object`
 
 A summary of a trace.
 
-evaluation++_++results__: list++[++EvaluationResult++]++__¶ +
+evaluation++_++results__: list++[++EvaluationResult++]++__ +
 The evaluation results for this trace
 
-id__: str__¶ +
+id__: str__ +
 The mlflow ID of the trace
 
-name__: str__¶ +
+name__: str__ +
 The name of the trace
 
-spans__: list++[++SpanSummary++]++__¶ +
+spans__: list++[++SpanSummary++]++__ +
 The child spans of this trace
 
  
@@ -953,7 +965,7 @@ The child spans of this trace
 === _autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,
 === _evaluator: Callable++[[++T, T++]++, dict++[++str, int ++|++ float ++|++
 === str++]]++ ++|++ None = None_,
-=== _eagerly++_++evaluate++_++streamed++_++results: bool = True_)¶ +
+=== _eagerly++_++evaluate++_++streamed++_++results: bool = True_) +
 A decorator that starts an mlflow span for the function it decorates. If
 there is an existing trace this span will be appended to it.
 
@@ -1001,16 +1013,51 @@ A decorator that wraps the function to be traced.
  
 
 === domino.aisystems.tracing.init++_++tracing(_autolog++_++frameworks:
-=== list++[++str++]++ ++|++ None = None_)¶ +
-Initialize Mlflow autologging for various frameworks and set the active
-model for production evaluation runs. This may be used to initialize
-logging and tracing for the AI System in dev and prod modes. If in prod
-mode, a DOMINO++_++AI++_++SYSTEM++_++MODEL++_++ID is required and
-represents the production AI System component. All traces will be linked
-to that model. No run is required.
+=== list++[++str++]++ ++|++ None = None_) +
+Initialize Mlflow autologging for various frameworks and sets the active
+experiment to enable tracing in production. This may be used to
+initialize logging and tracing for the AI System in dev and prod modes.
+
+In prod mode, environment variables
+DOMINO++_++AI++_++SYSTEM++_++IS++_++PROD, DOMINO++_++APP++_++ID must be
+set. Call init++_++tracing before your app starts up to start logging
+traces to Domino.
 
 Parameters: +
 *autolog++_++frameworks* – list of frameworks to autolog
+
+ 
+
+=== domino.aisystems.tracing.search++_++ai++_++system++_++traces(_ai++_++system++_++id:
+=== str_, _ai++_++system++_++version: str ++|++ None = None_,
+=== _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++
+=== None = None_, _end++_++time: datetime ++|++ None = None_,
+=== _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++
+=== None = None_) → SearchTracesResponse +
+This allows searching for traces that have a certain name and returns a
+paginated response of trace summaries that include the spans that were
+requested.
+
+Parameters: +
+- *ai++_++system++_++id* – string, the ID of the AI System to filter by
+
+* *ai++_++system++_++version* – string, the version of the AI System to
+filter by, if not provided will search throuh all versions
+* *trace++_++name* – the name of the traces to search for
+* *start++_++time* – python datetime
+* *end++_++time* – python datetime, defaults to now
+* *page++_++token* – page token for pagination. You can use this to
+request the next page of results and may find a page++_++token in the
+response of the previous search++_++traces call.
+* *max++_++results* – defaults to 100
+
+Returns: +
+a token based pagination response that contains a list of trace
+summaries +
+data: list of TraceSummary page++_++token: the next page’s token
+
+Return type: +
+SearchTracesResponse
 
  
 
@@ -1018,9 +1065,9 @@ Parameters: +
 === _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++
 === None = None_, _end++_++time: datetime ++|++ None = None_,
 === _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++
-=== None = None_) → SearchTracesResponse¶ +
+=== None = None_) → SearchTracesResponse +
 This allows searching for traces that have a certain name and returns a
-paginated response of trace summaries that include the spans that were
+paginated response of trace summaries that inclued the spans that were
 requested.
 
 Parameters: +
@@ -1041,7 +1088,16 @@ summaries +
 data: list of TraceSummary page++_++token: the next page’s token
 
 Return type: +
-SearchTracesResponse
+SearchTracesReponse
+
+Modules
+
+[cols=",",]
+|===
+|`inittracing` |
+|`tracing` |
+|===
+
 
 == Airflow
 
