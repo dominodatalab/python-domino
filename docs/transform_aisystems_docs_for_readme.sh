@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # we generate the asciidoc by generating a markdown file first because
-# pandoc converts html to asciidoc in a way that we can't render in our user faceing docs
+# pandoc converts html to asciidoc in a way that we can't render in our user facing docs
 
 base_path=docs/build/html/generated
 all_doc=$base_path/domino.aisystems.md
