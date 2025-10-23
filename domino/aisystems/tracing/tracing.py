@@ -4,7 +4,7 @@ import functools
 import inspect
 import logging
 import mlflow
-from typing import Optional, Callable, Any, TypeVar
+from typing import Optional, Callable, Any
 from uuid import uuid4
 
 from .._client import client
@@ -16,13 +16,8 @@ from .._verify_domino_support import verify_domino_support
 
 EvalResult = dict[str, int | float | str]
 
-Trace = TypeVar("Trace")
-Span = TypeVar("Span")
-
-SpanEvaluator = Callable[[Span], EvalResult]
-TraceEvaluator = Callable[[Trace], EvalResult]
-
-DominoEvaluator = Callable[[mlflow.entities.Span, Optional[mlflow.entities.Trace]], Optional[EvalResult]]
+SpanEvaluator = Callable[[mlflow.entities.Span], EvalResult]
+TraceEvaluator = Callable[[mlflow.entities.Trace], EvalResult]
 
 DOMINO_NO_RESULT_ADD_TRACING = "domino_no_result"
 
@@ -179,16 +174,16 @@ def add_tracing(
     eagerly_evaluate_streamed_results: bool = True,
 ):
     """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
-    this span will be appended to it.
+    this span will be appended to it. If there is no existing trace, a new trace will be created.
 
-    It also enables the user to run an evaluation inline in the code is run in development mode on
-    the inputs and outputs of the wrapped function call. Trace will be passed to the evaluator if available.
-    The user can provide input and output formatters for formatting what's on the trace
-    and the evaluation result inputs, which can be used by client's to extract relevant data when
-    analyzing a trace.
+    It also enables the user to run evaluators when the code is run in development mode. Evaluators can be run on
+    the span and/or trace generated for the wrapped function call. The trace evaluator will run if the parent trace
+    was started and finished by the related decorator call. The trace will contain all child span information.
+    The span evaluator will always run. The evaluation results from both evaluators will be combined and saved
+    to the trace.
 
-    This decorator must be used directly on the function to be traced, because it must have access to the
-    arguments.
+    This decorator must be used directly on the function to be traced without any intervening decorators, because it
+    must have access to the arguments.
 
     @add_tracing(
         name="assistant_chat_bot",
@@ -202,12 +197,12 @@ def add_tracing(
 
         autolog_frameworks: an optional list of mlflow supported frameworks to autolog
 
-        evaluator: an optional function that takes the span created for the wrapped wrapped function and returns
-        a dictionary of evaluation results. The evaluation result will be added to the trace as tags.
+        evaluator: an optional function that takes the span created for the wrapped function and returns
+        a dictionary of evaluation results. The evaluation result will be saved to the trace
 
         trace_evaluator: an optional function that takes the trace for this call stack and returns a dictionary of
-        evaluation results. This evaluator will be triggered if the trace was started and finished by this
-        function call
+        evaluation results. This evaluator will be triggered if the trace was started and finished by the add tracing
+        decorator. The evaluation result will be saved to the trace
 
         eagerly_evaluate_streamed_results: optional boolean, defaults to true, this determines if all
             yielded values should be aggregated and set as outputs to a single span. This makes evaluation easier, but
