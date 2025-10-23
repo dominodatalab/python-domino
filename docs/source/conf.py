@@ -37,7 +37,7 @@ autodoc_member_order = "groupwise"
 # Mock heavy/optional dependencies to keep autodoc imports lightweight in CI
 autodoc_mock_imports = [
     "domino._impl",
-    "attrs", "yaml", "pytest", "numpy",
+    "attrs", "yaml", "pytest",
     "apache_airflow", "airflow",
     "pandas", "numpy", "semver",
     "mlflow", "mlflow_tracing", "mlflow-skinny",
