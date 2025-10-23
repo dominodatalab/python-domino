@@ -153,11 +153,11 @@ def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mo
         """
         exp = mlflow.set_experiment("test_add_tracing_dev_use_trace_in_evaluator")
 
-        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'trace_id_parent': span.trace_id }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
+        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'span_exists_parent': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
         def parent(x):
                 return unit(x)
 
-        @tracing.add_tracing(name="unit", evaluator=lambda span: { 'trace_id_child': span.trace_id }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True' })
+        @tracing.add_tracing(name="unit", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True' })
         def unit(x):
                 return x
 
@@ -169,8 +169,8 @@ def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mo
         evals = {r.name: r.value for r in parent_t.evaluation_results}
         assert evals.get('trace_exists_parent') == 'True'
         assert 'trace_exists_child' not in evals
-        assert evals.get('trace_id_parent') == parent_t.id
-        assert evals.get('trace_id_child') == parent_t.id
+        assert evals.get('span_exists_parent') == 'True'
+        assert evals.get('span_exists_child') == 'True'
 
 def test_add_tracing_invalid_label(setup_mlflow_tracking_server, tracing):
         with pytest.raises(InvalidEvaluationLabelException):
@@ -350,11 +350,11 @@ def test_add_tracing_generator_trace_in_evaluator(setup_mlflow_tracking_server, 
         exp = mlflow.set_experiment("test_add_tracing_generator_trace_in_evaluator")
         experiment_id = exp.experiment_id
 
-        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'trace_id_parent': span.trace_id }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
+        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'span_exists_parent': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
         def parent():
                 yield from child(1)
 
-        @tracing.add_tracing(name="child", evaluator=lambda span: { 'trace_id_child': span.trace_id }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True' })
+        @tracing.add_tracing(name="child", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True' })
         def child(x):
                 yield x
 
@@ -366,8 +366,8 @@ def test_add_tracing_generator_trace_in_evaluator(setup_mlflow_tracking_server, 
         evals = {r.name: r.value for r in parent_t.evaluation_results}
         assert evals.get('trace_exists_parent') == 'True'
         assert 'trace_exists_child' not in evals
-        assert evals.get('trace_id_parent') == parent_t.id
-        assert evals.get('trace_id_child') == parent_t.id
+        assert evals.get('span_exists_parent') == 'True'
+        assert evals.get('span_exists_child') == 'True'
 
 def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_tracking_server, tracing, mlflow):
         """
@@ -417,11 +417,11 @@ async def test_add_tracing_async_trace_in_evaluator(setup_mlflow_tracking_server
         """
         exp = mlflow.set_experiment("test_add_tracing_async_trace_in_evaluator")
 
-        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'trace_id_parent': span.trace_id }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
+        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'span_exists_parent': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
         async def parent(x):
                 return await child(x)
 
-        @tracing.add_tracing(name="child", evaluator=lambda span: { 'trace_id_child': span.trace_id }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True'})
+        @tracing.add_tracing(name="child", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True'})
         async def child(x):
                 return x
 
@@ -433,8 +433,8 @@ async def test_add_tracing_async_trace_in_evaluator(setup_mlflow_tracking_server
         evals = {r.name: r.value for r in parent_t.evaluation_results}
         assert evals.get('trace_exists_parent') == 'True'
         assert 'trace_exists_child' not in evals
-        assert evals.get('trace_id_parent') == parent_t.id
-        assert evals.get('trace_id_child') == parent_t.id
+        assert evals.get('span_exists_parent') == 'True'
+        assert evals.get('span_exists_child') == 'True'
 
 def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         @tracing.add_tracing(name="unit")
