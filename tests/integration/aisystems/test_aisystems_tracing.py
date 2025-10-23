@@ -157,7 +157,10 @@ def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mo
         def parent(x):
                 return unit(x)
 
-        @tracing.add_tracing(name="unit", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True' })
+        def child_trace_evaluator(trace):
+                return { 'trace_exists_child': 'True' }
+
+        @tracing.add_tracing(name="unit", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=child_trace_evaluator)
         def unit(x):
                 return x
 
@@ -171,7 +174,7 @@ def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mo
         assert 'trace_exists_child' not in evals
         assert evals.get('span_exists_parent') == 'True'
         assert evals.get('span_exists_child') == 'True'
-        assert "A trace_evaluator was provided, but the trace could not be found" in caplog.text
+        assert "A trace_evaluator child_trace_evaluator was provided, but the trace could not be found" in caplog.text
 
 def test_add_tracing_invalid_label(setup_mlflow_tracking_server, tracing):
         with pytest.raises(InvalidEvaluationLabelException):

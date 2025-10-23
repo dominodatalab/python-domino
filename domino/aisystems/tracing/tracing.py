@@ -120,7 +120,11 @@ def _do_evaluation(
             try:
                 trace = mlflow.get_trace(span.trace_id)
             except Exception as e:
-                logger.warning("A trace_evaluator was provided, but the trace could not be found: %s", e)
+                logger.warning(
+                    "A trace_evaluator %s was provided, but the trace could not be found: %s",
+                    trace_evaluator.__name__,
+                    e,
+                )
                 trace = None
 
             if trace:
@@ -137,7 +141,10 @@ def _do_evaluation(
             else:
                 # warn the user if they provided a trace evaluator, but we couldn't find a trace
                 # because they may need to design their evaluations differently
-                logger.warning("A trace_evaluator was provided, but the trace could not be found")
+                logger.warning(
+                    "A trace_evaluator %s was provided, but the trace could not be found",
+                    trace_evaluator.__name__,
+                )
 
         # if at least one result exists, return a combined dict
         # otherwise, return none
