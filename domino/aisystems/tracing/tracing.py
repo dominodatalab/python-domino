@@ -100,30 +100,49 @@ def _do_evaluation(
     is_production: bool = False,
 ) -> Optional[dict]:
     if not is_production and evaluator or trace_evaluator:
-        try:
-            span_eval_result = None
-            trace_eval_result = None
-            if evaluator:
+        span_eval_result = None
+        trace_eval_result = None
+
+        # get span evaluator result
+        if evaluator:
+            try:
                 span_eval_result = evaluator(span)
+            except Exception as e:
+                logger.error(
+                    "Inline evaluation failed for evaluator, %s. Error: %s",
+                    evaluator.__name__,
+                    e,
+                    exc_info=True,
+                )
 
-            if trace_evaluator:
+        # get trace evaluator result
+        if trace_evaluator:
+            try:
+                trace = mlflow.get_trace(span.trace_id)
+            except Exception as e:
+                logger.warning("A trace_evaluator was provided, but the trace could not be found: %s", e)
+                trace = None
+
+            if trace:
                 try:
-                    trace = mlflow.get_trace(span.trace_id)
-                except Exception:
-                    trace = None
-
-                if trace:
                     trace_eval_result = trace_evaluator(trace)
+                except Exception as e:
+                    logger.error(
+                        "Inline evaluation failed for trace_evaluator, %s. Error: %s",
+                        trace_evaluator.__name__,
+                        e,
+                        exc_info=True,
+                    )
 
-            if span_eval_result or trace_eval_result:
-                return {**(trace_eval_result or {}), **(span_eval_result or {})}
-        except Exception as e:
-            logger.error(
-                "Inline evaluation failed for evaluator, %s. Error: %s",
-                evaluator.__name__,
-                e,
-                exc_info=True,
-            )
+            else:
+                # warn the user if they provided a trace evaluator, but we couldn't find a trace
+                # because they may need to design their evaluations differently
+                logger.warning("A trace_evaluator was provided, but the trace could not be found")
+
+        # if at least one result exists, return a combined dict
+        # otherwise, return none
+        if span_eval_result or trace_eval_result:
+            return {**(trace_eval_result or {}), **(span_eval_result or {})}
 
     return None
 

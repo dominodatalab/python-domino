@@ -147,7 +147,7 @@ def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, 
         assert tags['domino.prog.metric.result'] == '2'
         assert tags['domino.internal.is_eval'] == 'true'
 
-def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
+def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging, caplog):
         """
         User can access a trace in an inline evaluator on the trace parent, and not the child
         """
@@ -161,7 +161,7 @@ def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mo
         def unit(x):
                 return x
 
-        with logging.DominoRun() as run:
+        with logging.DominoRun() as run, caplog.at_level(logger.WARNING):
                 parent(1)
 
         parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
@@ -171,6 +171,7 @@ def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mo
         assert 'trace_exists_child' not in evals
         assert evals.get('span_exists_parent') == 'True'
         assert evals.get('span_exists_child') == 'True'
+        assert "A trace_evaluator was provided, but the trace could not be found" in caplog.text
 
 def test_add_tracing_invalid_label(setup_mlflow_tracking_server, tracing):
         with pytest.raises(InvalidEvaluationLabelException):
@@ -303,16 +304,21 @@ def test_add_tracing_failed_inline_evaluator_logs_warning(setup_mlflow_tracking_
         """
         mlflow.set_experiment("test_add_tracing_failed_inline_evaluator_logs_warning")
 
+        def failing_trace_evaluator(t):
+                return 1/0
+
         def failing_evaluator(span):
                 return 1/0
 
-        @tracing.add_tracing(name="unit", evaluator=failing_evaluator)
+        @tracing.add_tracing(name="unit", evaluator=failing_evaluator, trace_evaluator=failing_trace_evaluator)
         def unit(x):
                 return x
 
-        with mlflow.start_run(), caplog.at_level(logger.WARNING):
+        with mlflow.start_run(), caplog.at_level(logger.ERROR):
                 assert unit(1) == 1
+                print(caplog.text)
                 assert "Inline evaluation failed for evaluator, failing_evaluator" in caplog.text
+                assert "Inline evaluation failed for trace_evaluator, failing_trace_evaluator" in caplog.text
 
 def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing, mlflow):
         """
