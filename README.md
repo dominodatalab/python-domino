@@ -756,6 +756,7 @@ Uploads a file or entire directory to a dataset.
    
 # AISystems 
 
+
 ## domino.aisystems.environment_variables
 
 DOMINO_AI_SYSTEM_CONFIG_PATH:  
@@ -845,6 +846,13 @@ Parameters:
 - **value** – the evaluation result to log. This must be a float or
   string
 
+Modules
+
+|             |     |
+|-------------|-----|
+| `dominorun` |     |
+| `logging`   |     |
+
 ## domino.aisystems.tracing
 
 Functions
@@ -852,8 +860,9 @@ Functions
 |  |  |
 |----|----|
 | `add_tracing`(name\[, autolog_frameworks, ...\]) | A decorator that starts an mlflow span for the function it decorates. |
-| `init_tracing`(\[autolog_frameworks\]) | Initialize Mlflow autologging for various frameworks and set the active model for production evaluation runs. |
-| `search_traces`(run_id\[, trace_name, ...\]) | This allows searching for traces that have a certain name and returns a paginated response of trace summaries that include the spans that were requested. |
+| `init_tracing`(\[autolog_frameworks\]) | Initialize Mlflow autologging for various frameworks and sets the active experiment to enable tracing in production. |
+| `search_ai_system_traces`(ai_system_id\[, ...\]) | This allows searching for traces that have a certain name and returns a paginated response of trace summaries that include the spans that were requested. |
+| `search_traces`(run_id\[, trace_name, ...\]) | This allows searching for traces that have a certain name and returns a paginated response of trace summaries that inclued the spans that were requested. |
 
 Classes
 
@@ -966,21 +975,54 @@ A decorator that wraps the function to be traced.
 &nbsp;
 
 ### domino.aisystems.tracing.init_tracing(*autolog_frameworks: list\[str\] \| None = None*)  
-Initialize Mlflow autologging for various frameworks and set the active
-model for production evaluation runs. This may be used to initialize
-logging and tracing for the AI System in dev and prod modes. If in prod
-mode, a DOMINO_AI_SYSTEM_MODEL_ID is required and represents the
-production AI System component. All traces will be linked to that model.
-No run is required.
+Initialize Mlflow autologging for various frameworks and sets the active
+experiment to enable tracing in production. This may be used to
+initialize logging and tracing for the AI System in dev and prod modes.
+
+In prod mode, environment variables DOMINO_AI_SYSTEM_IS_PROD,
+DOMINO_APP_ID must be set. Call init_tracing before your app starts up
+to start logging traces to Domino.
 
 Parameters:  
 **autolog_frameworks** – list of frameworks to autolog
 
 &nbsp;
 
-### domino.aisystems.tracing.search_traces(*run_id: str*, *trace_name: str \| None = None*, *start_time: datetime \| None = None*, *end_time: datetime \| None = None*, *page_token: str \| None = None*, *max_results: int \| None = None*) → SearchTracesResponse  
+### domino.aisystems.tracing.search_ai_system_traces(*ai_system_id: str*, *ai_system_version: str \| None = None*, *trace_name: str \| None = None*, *start_time: datetime \| None = None*, *end_time: datetime \| None = None*, *page_token: str \| None = None*, *max_results: int \| None = None*) → SearchTracesResponse  
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that include the spans that were
+requested.
+
+Parameters:  
+- **ai_system_id** – string, the ID of the AI System to filter by
+
+- **ai_system_version** – string, the version of the AI System to filter
+  by, if not provided will search throuh all versions
+
+- **trace_name** – the name of the traces to search for
+
+- **start_time** – python datetime
+
+- **end_time** – python datetime, defaults to now
+
+- **page_token** – page token for pagination. You can use this to
+  request the next page of results and may find a page_token in the
+  response of the previous search_traces call.
+
+- **max_results** – defaults to 100
+
+Returns:  
+a token based pagination response that contains a list of trace summaries  
+data: list of TraceSummary page_token: the next page’s token
+
+Return type:  
+SearchTracesResponse
+
+&nbsp;
+
+### domino.aisystems.tracing.search_traces(*run_id: str*, *trace_name: str \| None = None*, *start_time: datetime \| None = None*, *end_time: datetime \| None = None*, *page_token: str \| None = None*, *max_results: int \| None = None*) → SearchTracesResponse  
+This allows searching for traces that have a certain name and returns a
+paginated response of trace summaries that inclued the spans that were
 requested.
 
 Parameters:  
@@ -1004,7 +1046,15 @@ a token based pagination response that contains a list of trace summaries
 data: list of TraceSummary page_token: the next page’s token
 
 Return type:  
-SearchTracesResponse
+SearchTracesReponse
+
+Modules
+
+|               |     |
+|---------------|-----|
+| `inittracing` |     |
+| `tracing`     |     |
+
 
 # Airflow
 
