@@ -1,14 +1,5 @@
 # Configuration file for the Sphinx documentation builder.
 
-import os
-import sys
-
-# Make the project importable by Sphinx (repo root on sys.path)
-# This file lives at docs/source/conf.py, so go up two directories.
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if REPO_ROOT not in sys.path:
-    sys.path.insert(0, REPO_ROOT)
-
 # -- Project information -----------------------------------------------------
 project = "domino"
 author = "Domino Data Lab Inc."
@@ -57,20 +48,3 @@ autodoc_mock_imports = [
 
 # -- Options for HTML output -------------------------------------------------
 html_static_path = ['_static']
-
-# Auto-generate API docs from the domino package at build time
-def run_apidoc(app):
-    from sphinx.ext.apidoc import main as apidoc_main
-    here = os.path.dirname(__file__)
-    src = REPO_ROOT
-    out = os.path.join(here, "api")
-    os.makedirs(out, exist_ok=True)
-    argv = [
-        "-f",            # overwrite existing files
-        "-o", out,       # output directory
-        src,              # package path
-    ]
-    apidoc_main(argv)
-
-def setup(app):
-    app.connect('builder-inited', run_apidoc)
