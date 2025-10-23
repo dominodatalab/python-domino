@@ -6,6 +6,10 @@
 base_path=docs/build/html/generated
 all_doc=$base_path/domino.aisystems.md
 
+function replace_carriage_returns() {
+  sed -i '' "s/¶//g" $1
+}
+
 echo creating single file $all_doc
 echo "" > $all_doc
 
@@ -17,6 +21,7 @@ ls $base_path | grep -E 'domino\.aisystems\.[a-z_]+\.html$' | while read -r file
 
   cat $adoc >> $all_doc
   echo "" >> $all_doc
+  replace_carriage_returns $all_doc
 
 done
 
@@ -26,5 +31,6 @@ echo done making $all_doc
 echo ""
 echo "making ascii doc"
 ASCII_DOC=$(./docs/md_to_adoc.sh $all_doc)
+replace_carriage_returns $ASCII_DOC
 
 echo done making asciidoc $ASCII_DOC

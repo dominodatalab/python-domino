@@ -128,8 +128,7 @@ See
 - Install the app in dev mode and all dependencies and pandoc: `brew install pandoc ghc cabal-install haskell-stack` and `cabal update && cabal install --lib pandoc-types --package-env .`
 - Build: `./docs/build.sh`
 - View: open docs/build/html/index.html
-- Transform an html file to adoc: `md_file_name=$(./docs/html_to_md.sh $FN) && ./docs/md_to_adoc.sh $md_file_name` (This creates an adoc that our user facing docs site can render)
-- Manually pick the changes you want and add to `README.adoc`
+- Manually pick the changes you want and add to `README.adoc` and `README.md`. Update the styling of the docs as needed.
 
 ## transform aisystems docs for README
 
