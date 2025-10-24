@@ -961,13 +961,7 @@ The child spans of this trace
 
  
 
-=== domino.aisystems.tracing.add++_++tracing(_name: str_,
-=== _autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,
-=== _evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int
-=== ++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator:
-=== Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float
-=== ++|++ str++]]++ ++|++ None = None_,
-=== _eagerly++_++evaluate++_++streamed++_++results: bool = True_) +
+=== domino.aisystems.tracing.add++_++tracing(_name: str_, autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_, evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator: Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_) +
 This is a decorator that starts an mlflow span for the function it
 decorates. If there is an existing trace a span will be appended to it.
 If there is no existing trace, a new trace will be created.
