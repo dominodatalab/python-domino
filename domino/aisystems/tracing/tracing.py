@@ -20,31 +20,60 @@ Evaluator = Callable[[T, T], dict[str, int | float | str]]
 
 @dataclass
 class SpanSummary:
-    id: str
-    name: str
-    trace_id: str
-    inputs: Any
-    outputs: Any
+    """A span in a trace."""
 
+    id: str
+    """the mlflow ID of the span"""
+
+    name: str
+    """The name of the span"""
+
+    trace_id: str
+    """The parent trace ID"""
+
+    inputs: Any
+    """The inputs to the function that created the span"""
+
+    outputs: Any
+    """The outputs of the function that created the span"""
 
 @dataclass
 class EvaluationResult:
+    """An evaluation result for a trace."""
+
     name: str
+    """The name of the evaluation"""
+
     value: float | str
+    """The value of the evaluation"""
 
 
 @dataclass
 class TraceSummary:
+    """A summary of a trace."""
+
     name: str
+    """The name of the trace"""
+
     id: str
+    """The mlflow ID of the trace"""
+
     spans: list[SpanSummary]
+    """The child spans of this trace"""
+
     evaluation_results: list[EvaluationResult]
+    """The evaluation results for this trace"""
 
 
 @dataclass
 class SearchTracesResponse:
+    """The response from searching for traces."""
+
     data: list[TraceSummary]
-    page_token: str
+    """The list of trace summaries"""
+
+    page_token: Optional[str]
+    """The token for the next page of results"""
 
 
 def _datetime_to_ms(dt: datetime) -> int:
@@ -150,7 +179,7 @@ def add_tracing(
         a dictionary of evaluation results. The evaluation result will be added to the trace as tags.
 
         eagerly_evaluate_streamed_results: optional boolean, defaults to true, this determines if all
-            yielded values should be aggregated and set as outputs to a single span. This makes evaluation eaiser, but
+            yielded values should be aggregated and set as outputs to a single span. This makes evaluation easier, but
             will impact performance if you expect a large number of streamed values. If set to false, each yielded value
             will generate a new span on the trace, which can be evaluated post-hoc. Inline evaluators won't be executed.
             Each span will have a group_id set in their attributes to indicate that they are part of the same function call.
@@ -290,7 +319,7 @@ def search_ai_system_traces(
     max_results: Optional[int] = None,
 ) -> SearchTracesResponse:
     """This allows searching for traces that have a certain name and returns a paginated response of trace summaries that
-    inclued the spans that were requested.
+    include the spans that were requested.
 
     Args:
         ai_system_id: string, the ID of the AI System to filter by
@@ -303,7 +332,7 @@ def search_ai_system_traces(
         max_results: defaults to 100
 
     Returns:
-        SearchTracesReponse: a token based pagination response that contains a list of trace summaries
+        SearchTracesResponse: a token based pagination response that contains a list of trace summaries
             data: list of TraceSummary
             page_token: the next page's token
     """

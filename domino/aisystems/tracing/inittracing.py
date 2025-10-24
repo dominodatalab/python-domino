@@ -24,8 +24,6 @@ _prod_tracing_init_lock = threading.Lock()
 
 
 def init_tracing(autolog_frameworks: Optional[list[str]] = None):
-    verify_domino_support()
-    frameworks = autolog_frameworks or []
     """Initialize Mlflow autologging for various frameworks and sets the active experiment to enable tracing in production.
     This may be used to initialize logging and tracing for the AI System in dev and prod modes.
 
@@ -33,8 +31,10 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
     must be set. Call init_tracing before your app starts up to start logging traces to Domino.
 
     Args:
-        autolog_frameworks: Optional[list[string]] of frameworks to autolog
+        autolog_frameworks: list of frameworks to autolog
     """
+    verify_domino_support()
+    frameworks = autolog_frameworks or []
     global _is_prod_tracing_initialized
     # Guard and initialization are protected by a lock for thread safety
     if is_ai_system():

@@ -26,13 +26,24 @@ def get_flattened_ai_system_config(path: Optional[str] = None) -> dict[str, any]
 
 
 def read_ai_system_config(path: Optional[str] = None) -> dict:
+    """For getting the ai_system_config.yaml file and reading it into a dictionary.
+    If no path is provided it will look for the path in the DOMINO_AI_SYSTEM_CONFIG_PATH. See environment variables
+    docs for default values.
+
+    Args:
+        path: Location of the ai system config yaml file.
+
+    Returns:
+        A dictionary of the ai system config yaml values.
+
+    """
     path = path or _get_ai_system_config_path()
     params = {}
     try:
-        with open(path, "r") as f:
-            params = yaml.safe_load(f)
+            with open(path, 'r') as f:
+                params = yaml.safe_load(f)
     except Exception as e:
-        logger.warning(f"Failed to read ai system config yaml at path {path}: {e}")
+            logging.warning(f"Failed to read ai system config yaml at path {path}: {e}")
 
     return params
 
