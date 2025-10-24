@@ -140,11 +140,9 @@ class DominoRun:
 
                 run_id: optional, the ID of the mlflow run to continue logging to. If not provided a new run will start.
 
-                ai_system_config_path: the optional path to the AI System configuration file. If not provided, defaults to the
-                        DOMINO_AI_SYSTEM_CONFIG_PATH environment variable.
+                ai_system_config_path: the optional path to the AI System configuration file. If not provided, defaults to the DOMINO_AI_SYSTEM_CONFIG_PATH environment variable.
 
-                custom_summary_metrics: an optional list of tuples that define what summary statistic to use with what evaluation metric.
-                Valid summary statistics are: "mean", "median", "stdev", "max", "min" e.g. [("hallucination_rate", "max")]
+                custom_summary_metrics: an optional list of tuples that define what summary statistic to use with what evaluation metric. Valid summary statistics are: "mean", "median", "stdev", "max", "min" e.g. [("hallucination_rate", "max")]
 
         Returns: DominoRun context manager
         """

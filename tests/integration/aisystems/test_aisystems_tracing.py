@@ -132,7 +132,7 @@ def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, 
         # so that mocker works
         exp = mlflow.set_experiment("test_add_tracing_dev")
 
-        @tracing.add_tracing(name="add_numbers", autolog_frameworks=["sklearn"], evaluator=lambda inputs, outputs: { 'result': outputs })
+        @tracing.add_tracing(name="add_numbers", autolog_frameworks=["sklearn"], evaluator=lambda span: { 'result': span.outputs })
         def add_numbers(x, y):
                 return x + y
 
@@ -146,6 +146,35 @@ def test_add_tracing_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, 
         tags = ts[0].info.tags
         assert tags['domino.prog.metric.result'] == '2'
         assert tags['domino.internal.is_eval'] == 'true'
+
+def test_add_tracing_dev_use_trace_in_evaluator(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging, caplog):
+        """
+        User can access a trace in an inline evaluator on the trace parent, and not the child
+        """
+        exp = mlflow.set_experiment("test_add_tracing_dev_use_trace_in_evaluator")
+
+        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'span_exists_parent': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
+        def parent(x):
+                return unit(x)
+
+        def child_trace_evaluator(trace):
+                return { 'trace_exists_child': 'True' }
+
+        @tracing.add_tracing(name="unit", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=child_trace_evaluator)
+        def unit(x):
+                return x
+
+        with logging.DominoRun() as run, caplog.at_level(logger.WARNING):
+                parent(1)
+
+        parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
+
+        evals = {r.name: r.value for r in parent_t.evaluation_results}
+        assert evals.get('trace_exists_parent') == 'True'
+        assert 'trace_exists_child' not in evals
+        assert evals.get('span_exists_parent') == 'True'
+        assert evals.get('span_exists_child') == 'True'
+        assert "A trace_evaluator child_trace_evaluator was provided, but the trace could not be found" in caplog.text
 
 def test_add_tracing_invalid_label(setup_mlflow_tracking_server, tracing):
         with pytest.raises(InvalidEvaluationLabelException):
@@ -278,16 +307,21 @@ def test_add_tracing_failed_inline_evaluator_logs_warning(setup_mlflow_tracking_
         """
         mlflow.set_experiment("test_add_tracing_failed_inline_evaluator_logs_warning")
 
-        def failing_evaluator(i, o):
+        def failing_trace_evaluator(t):
                 return 1/0
 
-        @tracing.add_tracing(name="unit", evaluator=failing_evaluator)
+        def failing_evaluator(span):
+                return 1/0
+
+        @tracing.add_tracing(name="unit", evaluator=failing_evaluator, trace_evaluator=failing_trace_evaluator)
         def unit(x):
                 return x
 
-        with mlflow.start_run(), caplog.at_level(logger.WARNING):
+        with mlflow.start_run(), caplog.at_level(logger.ERROR):
                 assert unit(1) == 1
+                print(caplog.text)
                 assert "Inline evaluation failed for evaluator, failing_evaluator" in caplog.text
+                assert "Inline evaluation failed for trace_evaluator, failing_trace_evaluator" in caplog.text
 
 def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing, mlflow):
         """
@@ -297,7 +331,7 @@ def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing,
         exp = mlflow.set_experiment("test_add_tracing_works_with_generator")
         experiment_id = exp.experiment_id
 
-        @tracing.add_tracing(name="gen", evaluator=lambda i, o: { 'result': 1 }, eagerly_evaluate_streamed_results=False)
+        @tracing.add_tracing(name="gen", evaluator=lambda span: { 'result': 1 }, eagerly_evaluate_streamed_results=False)
         def gen():
                 for i in range(3):
                         yield i
@@ -317,6 +351,33 @@ def test_add_tracing_works_with_generator(setup_mlflow_tracking_server, tracing,
         assert 'domino.prog.metric.result' not in tags
         assert 'domino.internal.is_eval' not in tags
 
+def test_add_tracing_generator_trace_in_evaluator(setup_mlflow_tracking_server, tracing, mlflow, logging):
+        """
+        When using a generator, the trace should be accessible in the parent generator function's evaluator,
+        but not the child span's evaluator
+        """
+        exp = mlflow.set_experiment("test_add_tracing_generator_trace_in_evaluator")
+        experiment_id = exp.experiment_id
+
+        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'span_exists_parent': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
+        def parent():
+                yield from child(1)
+
+        @tracing.add_tracing(name="child", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True' })
+        def child(x):
+                yield x
+
+
+        with logging.DominoRun() as run:
+                [_ for _ in parent()]
+
+        parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
+        evals = {r.name: r.value for r in parent_t.evaluation_results}
+        assert evals.get('trace_exists_parent') == 'True'
+        assert 'trace_exists_child' not in evals
+        assert evals.get('span_exists_parent') == 'True'
+        assert evals.get('span_exists_child') == 'True'
+
 def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_tracking_server, tracing, mlflow):
         """
         add_tracing should record the result from a generator and evaluate it inline
@@ -324,7 +385,7 @@ def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_trackin
         exp = mlflow.set_experiment("test_add_tracing_works_with_eagerly_evaluated_generator")
         experiment_id = exp.experiment_id
 
-        @tracing.add_tracing(name="gen_record_all", evaluator=lambda i, o: { 'result': 1 })
+        @tracing.add_tracing(name="gen_record_all", evaluator=lambda span: { 'result': 1 })
         def gen_record_all():
                 for i in range(3):
                         yield i
@@ -345,7 +406,7 @@ def test_add_tracing_works_with_eagerly_evaluated_generator(setup_mlflow_trackin
 async def test_add_tracing_works_with_async(setup_mlflow_tracking_server, mlflow, tracing):
         exp = mlflow.set_experiment("test_add_tracing_works_with_async")
 
-        @tracing.add_tracing(name="async_function", evaluator=lambda i, o: { 'result': 1 })
+        @tracing.add_tracing(name="async_function", evaluator=lambda span: { 'result': 1 })
         async def async_function(x):
                 return x
 
@@ -357,12 +418,39 @@ async def test_add_tracing_works_with_async(setup_mlflow_tracking_server, mlflow
         assert [t.data.spans[0].inputs for t in traces] == [{'x':1}], "Inputs to trace should be the function arguments"
         assert [t.data.spans[0].outputs for t in traces] == [1], "Outputs to trace should be the function return value"
 
+@pytest.mark.asyncio
+async def test_add_tracing_async_trace_in_evaluator(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        When using async functions, the trace should be accessible in the parent function's evaluator
+        but not the child function's evaluator
+        """
+        exp = mlflow.set_experiment("test_add_tracing_async_trace_in_evaluator")
+
+        @tracing.add_tracing(name="parent", evaluator=lambda span: { 'span_exists_parent': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_parent': 'True' })
+        async def parent(x):
+                return await child(x)
+
+        @tracing.add_tracing(name="child", evaluator=lambda span: { 'span_exists_child': 'True' }, trace_evaluator=lambda trace: { 'trace_exists_child': 'True'})
+        async def child(x):
+                return x
+
+        with logging.DominoRun() as run:
+                await parent(1)
+
+        parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
+        parent_t = tracing.search_traces(run_id=run.info.run_id, trace_name="parent").data[0]
+        evals = {r.name: r.value for r in parent_t.evaluation_results}
+        assert evals.get('trace_exists_parent') == 'True'
+        assert 'trace_exists_child' not in evals
+        assert evals.get('span_exists_parent') == 'True'
+        assert evals.get('span_exists_child') == 'True'
+
 def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         @tracing.add_tracing(name="unit")
         def unit(x):
                 return x
 
-        @tracing.add_tracing(name="parent", evaluator=lambda i, o: {'mymetric': 1, 'mylabel': 'category'})
+        @tracing.add_tracing(name="parent", evaluator=lambda span: {'mymetric': 1, 'mylabel': 'category'})
         def parent(x, y):
                 return unit(x) + unit(y)
 

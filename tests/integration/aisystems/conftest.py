@@ -1,5 +1,6 @@
 import logging as logger
 import os
+from docker.types import Mount
 import polling2
 import pytest
 import shutil
@@ -46,7 +47,7 @@ def setup_mlflow_tracking_server_no_env_var_mock(docker_client):
                         detach=True,
                         name=container_name,
                         ports={5000:5000},
-                        command="mlflow ui --host 0.0.0.0",
+                        command="mlflow ui --host 0.0.0.0 --serve-artifacts",
                 )
 
                 try:
