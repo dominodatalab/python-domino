@@ -822,10 +822,9 @@ Parameters:
   DOMINO_AI_SYSTEM_CONFIG_PATH environment variable.
 
 - **custom_summary_metrics** – an optional list of tuples that define
-  what summary statistic to use with what evaluation metric.
-
-- **are** (*Valid summary statistics*) – “mean”, “median”, “stdev”,
-  “max”, “min” e.g. \[(“hallucination_rate”, “max”)\]
+  what summary statistic to use with what evaluation metric. Valid
+  summary statistics are: “mean”, “median”, “stdev”, “max”, “min” e.g.
+  \[(“hallucination_rate”, “max”)\]
 
 Returns: DominoRun context manager
 
@@ -957,17 +956,14 @@ Parameters:
   frameworks to autolog
 
 - **evaluator** – an optional function that takes the span created for
-  the wrapped function and returns
-
-- **trace** (*decorator. The evaluation results will be saved to the*)
+  the wrapped function and returns a dictionary of evaluation results.
+  The evaluation results will be saved to the trace
 
 - **trace_evaluator** – an optional function that takes the trace for
-  this call stack and returns a dictionary of
-
-- **tracing** (*evaluation results. This evaluator will be triggered if
-  the trace was started and finished by the add*)
-
-- **trace**
+  this call stack and returns a dictionary of evaluation results. This
+  evaluator will be triggered if the trace was started and finished by
+  the add tracing decorator. The evaluation results will be saved to the
+  trace
 
 - **eagerly_evaluate_streamed_results** – optional boolean, defaults to
   true, this determines if all yielded values should be aggregated and

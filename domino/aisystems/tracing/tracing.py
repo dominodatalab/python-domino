@@ -223,12 +223,9 @@ def add_tracing(
 
         autolog_frameworks: an optional list of mlflow supported frameworks to autolog
 
-        evaluator: an optional function that takes the span created for the wrapped function and returns
-        a dictionary of evaluation results. The evaluation results will be saved to the trace
+        evaluator: an optional function that takes the span created for the wrapped function and returns a dictionary of evaluation results. The evaluation results will be saved to the trace
 
-        trace_evaluator: an optional function that takes the trace for this call stack and returns a dictionary of
-        evaluation results. This evaluator will be triggered if the trace was started and finished by the add tracing
-        decorator. The evaluation results will be saved to the trace
+        trace_evaluator: an optional function that takes the trace for this call stack and returns a dictionary of evaluation results. This evaluator will be triggered if the trace was started and finished by the add tracing decorator. The evaluation results will be saved to the trace
 
         eagerly_evaluate_streamed_results: optional boolean, defaults to true, this determines if all
             yielded values should be aggregated and set as outputs to a single span. This makes evaluation easier, but
