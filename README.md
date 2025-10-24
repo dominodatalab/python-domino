@@ -858,7 +858,7 @@ Functions
 
 |  |  |
 |----|----|
-| `add_tracing`(name\[, autolog_frameworks, ...\]) | A decorator that starts an mlflow span for the function it decorates. |
+| `add_tracing`(name\[, autolog_frameworks, ...\]) | This is a decorator that starts an mlflow span for the function it decorates. |
 | `init_tracing`(\[autolog_frameworks\]) | Initialize Mlflow autologging for various frameworks and sets the active experiment to enable tracing in production. |
 | `search_ai_system_traces`(ai_system_id\[, ...\]) | This allows searching for traces that have a certain name and returns a paginated response of trace summaries that include the spans that were requested. |
 | `search_traces`(run_id\[, trace_name, ...\]) | This allows searching for traces that have a certain name and returns a paginated response of trace summaries that inclued the spans that were requested. |
@@ -925,18 +925,22 @@ The child spans of this trace
 
 &nbsp;
 
-### domino.aisystems.tracing.add_tracing(*name: str*, *autolog_frameworks: list\[str\] \| None = \[\]*, *evaluator: Callable\[\[T, T\], dict\[str, int \| float \| str\]\] \| None = None*, *eagerly_evaluate_streamed_results: bool = True*)  
-A decorator that starts an mlflow span for the function it decorates. If
-there is an existing trace this span will be appended to it.
+### domino.aisystems.tracing.add_tracing(*name: str*, *autolog_frameworks: list\[str\] \| None = \[\]*, *evaluator: Callable\[\[mlflow.entities.Span\], dict\[str, int \| float \| str\]\] \| None = None*, *trace_evaluator: Callable\[\[mlflow.entities.Trace\], dict\[str, int \| float \| str\]\] \| None = None*, *eagerly_evaluate_streamed_results: bool = True*)  
+This is a decorator that starts an mlflow span for the function it
+decorates. If there is an existing trace a span will be appended to it.
+If there is no existing trace, a new trace will be created.
 
-It also enables the user to run an evaluation inline in the code is run
-in development mode on the inputs and outputs of the wrapped function
-call. The user can provide input and output formatters for formatting
-what’s on the trace and the evaluation result inputs, which can be used
-by client’s to extract relevant data when analyzing a trace.
+It also enables the user to run evaluators when the code is run in
+development mode. Evaluators can be run on the span and/or trace
+generated for the wrapped function call. The trace evaluator will run if
+the parent trace was started and finished by the related decorator call.
+The trace will contain all child span information. The span evaluator
+will always run. The evaluation results from both evaluators will be
+combined and saved to the trace.
 
-This decorator must be used directly on the function to be traced,
-because it must have access to the arguments.
+This decorator must be used directly on the function to be traced
+without any intervening decorators, because it must have access to the
+arguments.
 
 @add_tracing(  
 name=”assistant_chat_bot”, evaluator=evaluate_helpfulness,
@@ -952,11 +956,18 @@ Parameters:
 - **autolog_frameworks** – an optional list of mlflow supported
   frameworks to autolog
 
-- **evaluator** – an optional function that takes the inputs and outputs
-  of the wrapped function and returns
+- **evaluator** – an optional function that takes the span created for
+  the wrapped function and returns
 
-- **tags.** (*a dictionary* *of* *evaluation results. The evaluation
-  result will be added to the trace as*)
+- **trace** (*decorator. The evaluation results will be saved to the*)
+
+- **trace_evaluator** – an optional function that takes the trace for
+  this call stack and returns a dictionary of
+
+- **tracing** (*evaluation results. This evaluator will be triggered if
+  the trace was started and finished by the add*)
+
+- **trace**
 
 - **eagerly_evaluate_streamed_results** – optional boolean, defaults to
   true, this determines if all yielded values should be aggregated and

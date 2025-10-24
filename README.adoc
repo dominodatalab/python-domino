@@ -871,7 +871,7 @@ Functions
 
 [width="100%",cols="50%,50%",]
 |===
-|`add++_++tracing`(name++[++, autolog++_++frameworks, …++]++) |A
+|`add++_++tracing`(name++[++, autolog++_++frameworks, …++]++) |This is a
 decorator that starts an mlflow span for the function it decorates.
 
 |`init++_++tracing`(++[++autolog++_++frameworks++]++) |Initialize Mlflow
@@ -963,20 +963,26 @@ The child spans of this trace
 
 === domino.aisystems.tracing.add++_++tracing(_name: str_,
 === _autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,
-=== _evaluator: Callable++[[++T, T++]++, dict++[++str, int ++|++ float ++|++
-=== str++]]++ ++|++ None = None_,
+=== _evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int
+=== ++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator:
+=== Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float
+=== ++|++ str++]]++ ++|++ None = None_,
 === _eagerly++_++evaluate++_++streamed++_++results: bool = True_) +
-A decorator that starts an mlflow span for the function it decorates. If
-there is an existing trace this span will be appended to it.
+This is a decorator that starts an mlflow span for the function it
+decorates. If there is an existing trace a span will be appended to it.
+If there is no existing trace, a new trace will be created.
 
-It also enables the user to run an evaluation inline in the code is run
-in development mode on the inputs and outputs of the wrapped function
-call. The user can provide input and output formatters for formatting
-what’s on the trace and the evaluation result inputs, which can be used
-by client’s to extract relevant data when analyzing a trace.
+It also enables the user to run evaluators when the code is run in
+development mode. Evaluators can be run on the span and/or trace
+generated for the wrapped function call. The trace evaluator will run if
+the parent trace was started and finished by the related decorator call.
+The trace will contain all child span information. The span evaluator
+will always run. The evaluation results from both evaluators will be
+combined and saved to the trace.
 
-This decorator must be used directly on the function to be traced,
-because it must have access to the arguments.
+This decorator must be used directly on the function to be traced
+without any intervening decorators, because it must have access to the
+arguments.
 
 @add++_++tracing( +
 name=”assistant++_++chat++_++bot”, evaluator=evaluate++_++helpfulness,
@@ -993,10 +999,14 @@ trace exists yet.
 
 * *autolog++_++frameworks* – an optional list of mlflow supported
 frameworks to autolog
-* *evaluator* – an optional function that takes the inputs and outputs
-of the wrapped function and returns
-* *tags.* (_a dictionary_ _of_ _evaluation results. The evaluation
-result will be added to the trace as_)
+* *evaluator* – an optional function that takes the span created for the
+wrapped function and returns
+* *trace* (_decorator. The evaluation results will be saved to the_)
+* *trace++_++evaluator* – an optional function that takes the trace for
+this call stack and returns a dictionary of
+* *tracing* (_evaluation results. This evaluator will be triggered if
+the trace was started and finished by the add_)
+* *trace*
 * *eagerly++_++evaluate++_++streamed++_++results* – optional boolean,
 defaults to true, this determines if all yielded values should be
 aggregated and set as outputs to a single span. This makes evaluation
