@@ -4,7 +4,7 @@ import functools
 import inspect
 import logging
 import mlflow
-from typing import Optional, Callable, Any, TypeVar
+from typing import Optional, Callable, Any
 from uuid import uuid4
 
 from .._client import client
@@ -14,9 +14,12 @@ from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
-T = TypeVar("T")
-Evaluator = Callable[[T, T], dict[str, int | float | str]]
+EvalResult = dict[str, int | float | str]
 
+SpanEvaluator = Callable[[mlflow.entities.Span], EvalResult]
+TraceEvaluator = Callable[[mlflow.entities.Trace], EvalResult]
+
+DOMINO_NO_RESULT_ADD_TRACING = "domino_no_result"
 
 @dataclass
 class SpanSummary:
@@ -92,31 +95,75 @@ def _make_span_summary(span: mlflow.entities.Span) -> SpanSummary:
 
 def _do_evaluation(
     span: mlflow.entities.Span,
-    evaluator: Optional[Evaluator] = None,
+    evaluator: Optional[SpanEvaluator] = None,
+    trace_evaluator: Optional[TraceEvaluator] = None,
     is_production: bool = False,
 ) -> Optional[dict]:
-    if not is_production and evaluator:
-        try:
-            return evaluator(span.inputs, span.outputs)
-        except Exception as e:
-            logger.error(
-                "Inline evaluation failed for evaluator, %s. Error: %s",
-                evaluator.__name__,
-                e,
-                exc_info=True,
-            )
+    if not is_production and evaluator or trace_evaluator:
+        span_eval_result = None
+        trace_eval_result = None
+
+        # get span evaluator result
+        if evaluator:
+            try:
+                span_eval_result = evaluator(span)
+            except Exception as e:
+                logger.error(
+                    "Inline evaluation failed for evaluator, %s. Error: %s",
+                    evaluator.__name__,
+                    e,
+                    exc_info=True,
+                )
+
+        # get trace evaluator result
+        if trace_evaluator:
+            try:
+                trace = mlflow.get_trace(span.trace_id)
+            except Exception as e:
+                logger.warning(
+                    "A trace_evaluator %s was provided, but the trace could not be found: %s",
+                    trace_evaluator.__name__,
+                    e,
+                )
+                trace = None
+
+            if trace:
+                try:
+                    trace_eval_result = trace_evaluator(trace)
+                except Exception as e:
+                    logger.error(
+                        "Inline evaluation failed for trace_evaluator, %s. Error: %s",
+                        trace_evaluator.__name__,
+                        e,
+                        exc_info=True,
+                    )
+
+            else:
+                # warn the user if they provided a trace evaluator, but we couldn't find a trace
+                # because they may need to design their evaluations differently
+                logger.warning(
+                    "A trace_evaluator %s was provided, but the trace could not be found",
+                    trace_evaluator.__name__,
+                )
+
+        # if at least one result exists, return a combined dict
+        # otherwise, return none
+        if span_eval_result or trace_eval_result:
+            return {**(trace_eval_result or {}), **(span_eval_result or {})}
 
     return None
 
 
 def _log_eval_results(
-    parent_span: mlflow.entities.Span, evaluator: Optional[Evaluator]
+    parent_span: mlflow.entities.Span,
+    evaluator: Optional[SpanEvaluator],
+    trace_evaluator: Optional[TraceEvaluator],
 ):
     """
     Saves the evaluation results
     """
     is_production = get_is_production()
-    eval_result = _do_evaluation(parent_span, evaluator, is_production)
+    eval_result = _do_evaluation(parent_span, evaluator, trace_evaluator, is_production)
 
     if eval_result:
         for k, v in eval_result.items():
@@ -148,20 +195,21 @@ def _set_span_inputs(parent_span, func, args, kwargs):
 def add_tracing(
     name: str,
     autolog_frameworks: Optional[list[str]] = [],
-    evaluator: Optional[Evaluator] = None,
+    evaluator: Optional[SpanEvaluator] = None,
+    trace_evaluator: Optional[TraceEvaluator] = None,
     eagerly_evaluate_streamed_results: bool = True,
 ):
-    """A decorator that starts an mlflow span for the function it decorates. If there is an existing trace
-    this span will be appended to it.
+    """This is a decorator that starts an mlflow span for the function it decorates. If there is an existing trace
+    a span will be appended to it. If there is no existing trace, a new trace will be created.
 
-    It also enables the user to run an evaluation inline in the code is run in development mode on
-    the inputs and outputs of the wrapped function call.
-    The user can provide input and output formatters for formatting what's on the trace
-    and the evaluation result inputs, which can be used by client's to extract relevant data when
-    analyzing a trace.
+    It also enables the user to run evaluators when the code is run in development mode. Evaluators can be run on
+    the span and/or trace generated for the wrapped function call. The trace evaluator will run if the parent trace
+    was started and finished by the related decorator call. The trace will contain all child span information.
+    The span evaluator will always run. The evaluation results from both evaluators will be combined and saved
+    to the trace.
 
-    This decorator must be used directly on the function to be traced, because it must have access to the
-    arguments.
+    This decorator must be used directly on the function to be traced without any intervening decorators, because it
+    must have access to the arguments.
 
     @add_tracing(
         name="assistant_chat_bot",
@@ -175,8 +223,9 @@ def add_tracing(
 
         autolog_frameworks: an optional list of mlflow supported frameworks to autolog
 
-        evaluator: an optional function that takes the inputs and outputs of the wrapped function and returns
-        a dictionary of evaluation results. The evaluation result will be added to the trace as tags.
+        evaluator: an optional function that takes the span created for the wrapped function and returns a dictionary of evaluation results. The evaluation results will be saved to the trace
+
+        trace_evaluator: an optional function that takes the trace for this call stack and returns a dictionary of evaluation results. This evaluator will be triggered if the trace was started and finished by the add tracing decorator. The evaluation results will be saved to the trace
 
         eagerly_evaluate_streamed_results: optional boolean, defaults to true, this determines if all
             yielded values should be aggregated and set as outputs to a single span. This makes evaluation easier, but
@@ -190,10 +239,12 @@ def add_tracing(
     """
     validate_label(name)
 
+
     def decorator(func):
         # For Regular Functions (e.g., langgraph_agents.run_agent)
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            result = DOMINO_NO_RESULT_ADD_TRACING
             init_tracing(autolog_frameworks)
 
             with mlflow.start_span(name) as parent_span:
@@ -203,15 +254,17 @@ def add_tracing(
 
                 parent_span.set_outputs(result)
 
-                _log_eval_results(parent_span, evaluator)
+            if result != DOMINO_NO_RESULT_ADD_TRACING:
+                _log_eval_results(parent_span, evaluator, trace_evaluator)
 
-                return result
+            return _return_traced_result(result)
 
         # for async functions
         if inspect.iscoroutinefunction(func):
 
             @functools.wraps(func)
             async def async_wrapper(*args, **kwargs):
+                result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
                 with mlflow.start_span(name) as parent_span:
@@ -221,9 +274,10 @@ def add_tracing(
 
                     parent_span.set_outputs(result)
 
-                    _log_eval_results(parent_span, evaluator)
+                if result != DOMINO_NO_RESULT_ADD_TRACING:
+                    _log_eval_results(parent_span, evaluator, trace_evaluator)
 
-                    return result
+                return _return_traced_result(result)
 
             return async_wrapper
 
@@ -232,6 +286,7 @@ def add_tracing(
 
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
+                result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
                 with mlflow.start_span(name) as parent_span:
@@ -241,7 +296,7 @@ def add_tracing(
 
                     if not eagerly_evaluate_streamed_results:
                         # can't do inline evaluation, so warn if an evaluator is provided
-                        if evaluator:
+                        if evaluator or trace_evaluator:
                             logger.warning(
                                 """eagerly_evaluate_streamed_results is false, so inline evaluation is disabled.
                                 You can still do evaluations using log_evaluation post-hoc"""
@@ -263,10 +318,11 @@ def add_tracing(
                         # get all results and set as outputs
                         all_results = [v for v in result]
                         parent_span.set_outputs(all_results)
-                        _log_eval_results(parent_span, evaluator)
-
                         for v in all_results:
                             yield v
+
+                if eagerly_evaluate_streamed_results and result != DOMINO_NO_RESULT_ADD_TRACING:
+                    _log_eval_results(parent_span, evaluator, trace_evaluator)
 
             return wrapper
 
@@ -470,5 +526,10 @@ def _search_traces(
 
     return SearchTracesResponse(trace_summaries, next_page_token)
 
+def _return_traced_result(result: any):
+    if result != DOMINO_NO_RESULT_ADD_TRACING:
+        return result
+    else:
+        logger.warning("No result returned from traced function")
 
 logger = logging.getLogger(__name__)

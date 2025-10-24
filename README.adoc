@@ -797,11 +797,7 @@ configuration, and computes summary metrics for evaluation traces made
 during the run.
 |===
 
-=== _class_ domino.aisystems.logging.DominoRun(_experiment++_++name: str
-=== ++|++ None = None_, _run++_++id: str ++|++ None = None_,
-=== _ai++_++system++_++config++_++path: str ++|++ None = None_,
-=== _custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`',
-=== '`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
+=== _class_ domino.aisystems.logging.DominoRun(_experiment++_++name: str++|++ None = None_, _run++_++id: str ++|++ None = None_,_ai++_++system++_++config++_++path: str ++|++ None = None_,_custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`', '`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
 Bases: `object`
 
 DominoRun is a context manager that starts an Mlflow run and attaches
@@ -836,16 +832,15 @@ to. If not provided a new run will start.
 System configuration file. If not provided, defaults to the
 DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH environment variable.
 * *custom++_++summary++_++metrics* – an optional list of tuples that
-define what summary statistic to use with what evaluation metric.
-* *are* (_Valid summary statistics_) – “mean”, “median”, “stdev”, “max”,
-“min” e.g. ++[++(“hallucination++_++rate”, “max”)++]++
+define what summary statistic to use with what evaluation metric. Valid
+summary statistics are: “mean”, “median”, “stdev”, “max”, “min” e.g.
+++[++(“hallucination++_++rate”, “max”)++]++
 
 Returns: DominoRun context manager
 
  
 
-=== domino.aisystems.logging.log++_++evaluation(_trace++_++id: str_, _name:
-=== str_, _value: float ++|++ str_) +
+=== domino.aisystems.logging.log++_++evaluation(_trace++_++id: str_, _name: str_, _value: float ++|++ str_) +
 This logs evaluation data and metadata to a parent trace. This is used
 to log the evaluation of a span after it was created. This is useful for
 analyzing past performance of an AI System component.
@@ -871,7 +866,7 @@ Functions
 
 [width="100%",cols="50%,50%",]
 |===
-|`add++_++tracing`(name++[++, autolog++_++frameworks, …++]++) |A
+|`add++_++tracing`(name++[++, autolog++_++frameworks, …++]++) |This is a
 decorator that starts an mlflow span for the function it decorates.
 
 |`init++_++tracing`(++[++autolog++_++frameworks++]++) |Initialize Mlflow
@@ -903,8 +898,7 @@ trace.
 trace.
 |===
 
-=== _class_ domino.aisystems.tracing.SearchTracesResponse(_data:
-=== list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
+=== _class_ domino.aisystems.tracing.SearchTracesResponse(_data: list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
 Bases: `object`
 
 The response from searching for traces.
@@ -917,8 +911,7 @@ The token for the next page of results
 
  
 
-=== _class_ domino.aisystems.tracing.SpanSummary(_id: str_, _name: str_,
-=== _trace++_++id: str_, _inputs: Any_, _outputs: Any_) +
+=== _class_ domino.aisystems.tracing.SpanSummary(_id: str_, _name: str_, _trace++_++id: str_, _inputs: Any_, _outputs: Any_) +
 Bases: `object`
 
 A span in a trace.
@@ -940,9 +933,7 @@ The parent trace ID
 
  
 
-=== _class_ domino.aisystems.tracing.TraceSummary(_name: str_, _id: str_,
-=== _spans: list++[++SpanSummary++]++_, _evaluation++_++results:
-=== list++[++EvaluationResult++]++_) +
+=== _class_ domino.aisystems.tracing.TraceSummary(_name: str_, _id: str_, _spans: list++[++SpanSummary++]++_, _evaluation++_++results: list++[++EvaluationResult++]++_) +
 Bases: `object`
 
 A summary of a trace.
@@ -961,22 +952,22 @@ The child spans of this trace
 
  
 
-=== domino.aisystems.tracing.add++_++tracing(_name: str_,
-=== _autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,
-=== _evaluator: Callable++[[++T, T++]++, dict++[++str, int ++|++ float ++|++
-=== str++]]++ ++|++ None = None_,
-=== _eagerly++_++evaluate++_++streamed++_++results: bool = True_) +
-A decorator that starts an mlflow span for the function it decorates. If
-there is an existing trace this span will be appended to it.
+=== domino.aisystems.tracing.add++_++tracing(_name: str_, autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_, evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator: Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_) +
+This is a decorator that starts an mlflow span for the function it
+decorates. If there is an existing trace a span will be appended to it.
+If there is no existing trace, a new trace will be created.
 
-It also enables the user to run an evaluation inline in the code is run
-in development mode on the inputs and outputs of the wrapped function
-call. The user can provide input and output formatters for formatting
-what’s on the trace and the evaluation result inputs, which can be used
-by client’s to extract relevant data when analyzing a trace.
+It also enables the user to run evaluators when the code is run in
+development mode. Evaluators can be run on the span and/or trace
+generated for the wrapped function call. The trace evaluator will run if
+the parent trace was started and finished by the related decorator call.
+The trace will contain all child span information. The span evaluator
+will always run. The evaluation results from both evaluators will be
+combined and saved to the trace.
 
-This decorator must be used directly on the function to be traced,
-because it must have access to the arguments.
+This decorator must be used directly on the function to be traced
+without any intervening decorators, because it must have access to the
+arguments.
 
 @add++_++tracing( +
 name=”assistant++_++chat++_++bot”, evaluator=evaluate++_++helpfulness,
@@ -993,10 +984,13 @@ trace exists yet.
 
 * *autolog++_++frameworks* – an optional list of mlflow supported
 frameworks to autolog
-* *evaluator* – an optional function that takes the inputs and outputs
-of the wrapped function and returns
-* *tags.* (_a dictionary_ _of_ _evaluation results. The evaluation
-result will be added to the trace as_)
+* *evaluator* – an optional function that takes the span created for the
+wrapped function and returns a dictionary of evaluation results. The
+evaluation results will be saved to the trace
+* *trace++_++evaluator* – an optional function that takes the trace for
+this call stack and returns a dictionary of evaluation results. This
+evaluator will be triggered if the trace was started and finished by the
+add tracing decorator. The evaluation results will be saved to the trace
 * *eagerly++_++evaluate++_++streamed++_++results* – optional boolean,
 defaults to true, this determines if all yielded values should be
 aggregated and set as outputs to a single span. This makes evaluation
@@ -1012,8 +1006,7 @@ A decorator that wraps the function to be traced.
 
  
 
-=== domino.aisystems.tracing.init++_++tracing(_autolog++_++frameworks:
-=== list++[++str++]++ ++|++ None = None_) +
+=== domino.aisystems.tracing.init++_++tracing(_autolog++_++frameworks: list++[++str++]++ ++|++ None = None_) +
 Initialize Mlflow autologging for various frameworks and sets the active
 experiment to enable tracing in production. This may be used to
 initialize logging and tracing for the AI System in dev and prod modes.
@@ -1028,12 +1021,7 @@ Parameters: +
 
  
 
-=== domino.aisystems.tracing.search++_++ai++_++system++_++traces(_ai++_++system++_++id:
-=== str_, _ai++_++system++_++version: str ++|++ None = None_,
-=== _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++
-=== None = None_, _end++_++time: datetime ++|++ None = None_,
-=== _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++
-=== None = None_) → SearchTracesResponse +
+=== domino.aisystems.tracing.search++_++ai++_++system++_++traces(_ai++_++system++_++id: str_, _ai++_++system++_++version: str ++|++ None = None_, _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++ None = None_, _end++_++time: datetime ++|++ None = None_, _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++ None = None_) → SearchTracesResponse +
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that include the spans that were
 requested.
@@ -1061,11 +1049,7 @@ SearchTracesResponse
 
  
 
-=== domino.aisystems.tracing.search++_++traces(_run++_++id: str_,
-=== _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++
-=== None = None_, _end++_++time: datetime ++|++ None = None_,
-=== _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++
-=== None = None_) → SearchTracesResponse +
+=== domino.aisystems.tracing.search++_++traces(_run++_++id: str_, _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++ None = None_, _end++_++time: datetime ++|++ None = None_, _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++ None = None_) → SearchTracesResponse +
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that inclued the spans that were
 requested.
