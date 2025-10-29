@@ -4,7 +4,7 @@
 project = "domino"
 author = "Domino Data Lab Inc."
 copyright = "2025, Domino Data Lab Inc."
-release = "1.5.1"
+release = "1.5.2"
 
 # -- General configuration ---------------------------------------------------
 extensions = [

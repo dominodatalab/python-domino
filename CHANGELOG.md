@@ -8,6 +8,16 @@ All notable changes to the `python-domino` library will be documented in this fi
 
 ### Changed
 
+## [1.5.2]
+
+### Added
+* Support for ai system apps to search_traces and init_tracing in order to support prod evals and prod tracing.
+* Docs for ai system apps.
+* Incorporate for ai system apps two new separate evaluators to the add_tracing function.
+
+### Changed
+* Relax mlflow libraries constraints to use pessimistic versioning.
+
 ## [1.5.1]
 
 ### Added
