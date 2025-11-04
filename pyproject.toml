@@ -53,6 +53,10 @@ dev = [
   "docker>=7.1.0",
   "pytest-mock>=3.14.1",
 ]
+docs = [
+  "sphinx>=7.4.0",
+  "markupsafe==2.0.1"
+]
 
 [project.urls]
 Repository = "https://github.com/dominodatalab/python-domino"
