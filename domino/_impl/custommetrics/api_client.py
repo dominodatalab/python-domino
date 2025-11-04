@@ -1271,7 +1271,7 @@ class Api:
         self.api_client = api_client
 
     @staticmethod
-    def _verify_typed_dict_inputs_oapg(cls: type, data: typing.Dict[str, typing.Any]):
+    def _verify_typed_dict_inputs_oapg(cls: type, data: type):
         """
         Ensures that:
         - required keys are present
