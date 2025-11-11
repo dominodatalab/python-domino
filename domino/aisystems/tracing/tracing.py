@@ -8,7 +8,7 @@ from typing import Optional, Callable, Any
 from uuid import uuid4
 
 from .._client import client
-from .inittracing import init_tracing
+from .inittracing import init_tracing, triggered_autolog_frameworks, call_autolog
 from ..logging.logging import log_evaluation
 from ._util import get_is_production, build_ai_system_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
@@ -98,8 +98,14 @@ def _do_evaluation(
     evaluator: Optional[SpanEvaluator] = None,
     trace_evaluator: Optional[TraceEvaluator] = None,
     is_production: bool = False,
+    allow_evaluator_autologging: bool = False,
 ) -> Optional[dict]:
     if not is_production and evaluator or trace_evaluator:
+        if not allow_evaluator_autologging:
+            # disable all autologging
+            for fw in triggered_autolog_frameworks:
+                call_autolog(fw, disable=True)
+
         span_eval_result = None
         trace_eval_result = None
 
@@ -151,6 +157,12 @@ def _do_evaluation(
         if span_eval_result or trace_eval_result:
             return {**(trace_eval_result or {}), **(span_eval_result or {})}
 
+
+    if not allow_evaluator_autologging:
+        # re-enable autologging if it was previously enabled
+        for fw in triggered_autolog_frameworks:
+            call_autolog(fw)
+
     return None
 
 
@@ -158,12 +170,13 @@ def _log_eval_results(
     parent_span: mlflow.entities.Span,
     evaluator: Optional[SpanEvaluator],
     trace_evaluator: Optional[TraceEvaluator],
+    allow_evaluator_autologging: bool,
 ):
     """
     Saves the evaluation results
     """
     is_production = get_is_production()
-    eval_result = _do_evaluation(parent_span, evaluator, trace_evaluator, is_production)
+    eval_result = _do_evaluation(parent_span, evaluator, trace_evaluator, is_production, allow_evaluator_autologging)
 
     if eval_result:
         for k, v in eval_result.items():
@@ -198,6 +211,7 @@ def add_tracing(
     evaluator: Optional[SpanEvaluator] = None,
     trace_evaluator: Optional[TraceEvaluator] = None,
     eagerly_evaluate_streamed_results: bool = True,
+    allow_tracing_evaluator: bool = False,
 ):
     """This is a decorator that starts an mlflow span for the function it decorates. If there is an existing trace
     a span will be appended to it. If there is no existing trace, a new trace will be created.
@@ -234,6 +248,9 @@ def add_tracing(
             Each span will have a group_id set in their attributes to indicate that they are part of the same function call.
             Each span will have an index to indicate what order they arrived in.
 
+        allow_tracing_evaluator: optional boolean, defaults to false. This determines if inline evaluators
+            will be traced by mlflow autolog.
+
     Returns:
         A decorator that wraps the function to be traced.
     """
@@ -255,7 +272,7 @@ def add_tracing(
                 parent_span.set_outputs(result)
 
             if result != DOMINO_NO_RESULT_ADD_TRACING:
-                _log_eval_results(parent_span, evaluator, trace_evaluator)
+                _log_eval_results(parent_span, evaluator, trace_evaluator, allow_tracing_evaluator)
 
             return _return_traced_result(result)
 
@@ -275,7 +292,7 @@ def add_tracing(
                     parent_span.set_outputs(result)
 
                 if result != DOMINO_NO_RESULT_ADD_TRACING:
-                    _log_eval_results(parent_span, evaluator, trace_evaluator)
+                    _log_eval_results(parent_span, evaluator, trace_evaluator, allow_tracing_evaluator)
 
                 return _return_traced_result(result)
 
@@ -322,7 +339,7 @@ def add_tracing(
                             yield v
 
                 if eagerly_evaluate_streamed_results and result != DOMINO_NO_RESULT_ADD_TRACING:
-                    _log_eval_results(parent_span, evaluator, trace_evaluator)
+                    _log_eval_results(parent_span, evaluator, trace_evaluator, allow_tracing_evaluator)
 
             return wrapper
 

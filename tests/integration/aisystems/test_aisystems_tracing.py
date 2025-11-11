@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
 import inspect
 import logging as logger
 import os
+import subprocess
+from openai import OpenAI
+import openai
 import pytest
 import threading
 import time
@@ -857,3 +860,55 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
                 # even though we don't re-initialize the experiment in both threads, the traces
                 # still go to the right experiment
                 assert len(traces) == 2, "Two traces named 'do' should be saved to the experiment"
+
+def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        inline evaluators should not get traced
+        """
+        mlflow.set_experiment("test_disable_evaluator_tracing")
+
+        def openai_evaluator(span):
+                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
+                completion = openaiclient.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[{"role": "user", "content": "content"}],
+                )
+                return {'evaluator_metric': 1}
+
+        @tracing.add_tracing(name="parent", autolog_frameworks=["openai"], evaluator=openai_evaluator)
+        def parent(x):
+                return x
+
+        with logging.DominoRun() as run:
+                parent(1)
+
+        ts = tracing.search_traces(run_id=run.info.run_id)
+
+        assert not any([t.name == 'Completions' for t in ts.data]), "No traces from OpenAI evaluator should be present"
+
+def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        inline evaluators should get traced if flag is provided
+        """
+        mlflow.set_experiment("test_enable_evaluator_tracing")
+
+        def openai_evaluator(span):
+                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
+                completion = openaiclient.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[{"role": "user", "content": "content"}],
+                )
+                return {'evaluator_metric': 1}
+
+        @tracing.add_tracing(name="parent", autolog_frameworks=["openai"], evaluator=openai_evaluator, allow_tracing_evaluator=True)
+        def parent(x):
+                return x
+
+        with logging.DominoRun() as run:
+                parent(1)
+
+        ts = tracing.search_traces(run_id=run.info.run_id)
+
+        print(ts)
+
+        assert any([t.name == 'Completions' for t in ts.data]), "No traces from OpenAI evaluator should be present"
