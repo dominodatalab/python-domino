@@ -952,7 +952,7 @@ The child spans of this trace
 
  
 
-=== domino.aisystems.tracing.add++_++tracing(_name: str_, autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_, evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator: Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_) +
+=== domino.aisystems.tracing.add++_++tracing(_name: str_,_autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,_evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator:Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_,_allow++_++tracing++_++evaluator: bool = False_) +
 This is a decorator that starts an mlflow span for the function it
 decorates. If there is an existing trace a span will be appended to it.
 If there is no existing trace, a new trace will be created.
@@ -1000,6 +1000,9 @@ span on the trace, which can be evaluated post-hoc. Inline evaluators
 won’t be executed. Each span will have a group++_++id set in their
 attributes to indicate that they are part of the same function call.
 Each span will have an index to indicate what order they arrived in.
+* *allow++_++tracing++_++evaluator* – optional boolean, defaults to
+false. This determines if inline evaluators will be traced by mlflow
+autolog.
 
 Returns: +
 A decorator that wraps the function to be traced.
