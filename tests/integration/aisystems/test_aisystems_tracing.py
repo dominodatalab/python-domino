@@ -1,7 +1,9 @@
+import asyncio
 from datetime import datetime, timedelta
 import inspect
 import logging as logger
 import os
+import random
 import subprocess
 from openai import OpenAI
 import openai
@@ -944,3 +946,38 @@ def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing,
         ts = tracing.search_traces(run_id=run.info.run_id)
 
         assert any([t.name == 'Completions' for t in ts.data]), "traces from OpenAI evaluator should be present"
+
+@pytest.mark.asyncio
+async def test_async_evaluator_tracing_disabled(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
+        """
+        disabling evaluator tracing in async functions shouldn't affect ones where it's enabled
+        """
+        mlflow.set_experiment("test_async_evaluator_tracing_disabled")
+
+        def openai_evaluator(span):
+                span.outputs
+                time.sleep(1)
+                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
+                completion = openaiclient.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[{"role": "user", "content": str(span.outputs)}],
+                )
+                return {'evaluator_metric': 1}
+
+        @tracing.add_tracing(name="disabled", autolog_frameworks=["openai"], evaluator=openai_evaluator)
+        async def disabled(x):
+                return x
+
+        @tracing.add_tracing(name="enabled", autolog_frameworks=["openai"], evaluator=openai_evaluator, allow_tracing_evaluator=True)
+        async def enabled(x):
+                return "enabled"
+
+        with logging.DominoRun() as run:
+                tasks = [enabled(i) for i in range(10)] + [disabled(i) for i in range(10)]
+                random.shuffle(tasks)
+                results = await asyncio.gather(*tasks)
+
+        ts = tracing.search_traces(run_id=run.info.run_id)
+
+        outputs = [t.spans[0].inputs['messages'][0]['content'] for t in ts.data if t.name == 'Completions']
+        assert  outputs == ["enabled"] * 10, "traces from OpenAI evaluator should be present for enabled function only"
