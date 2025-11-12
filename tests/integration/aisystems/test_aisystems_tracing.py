@@ -888,7 +888,7 @@ def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing
 
 def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging):
         """
-        inline evaluators should get traced if flag is provided
+        inline evaluators should get traced if flag is true
         """
         mlflow.set_experiment("test_enable_evaluator_tracing")
 
@@ -909,6 +909,4 @@ def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing,
 
         ts = tracing.search_traces(run_id=run.info.run_id)
 
-        print(ts)
-
-        assert any([t.name == 'Completions' for t in ts.data]), "No traces from OpenAI evaluator should be present"
+        assert any([t.name == 'Completions' for t in ts.data]), "traces from OpenAI evaluator should be present"

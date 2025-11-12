@@ -152,19 +152,25 @@ def _do_evaluation(
                     trace_evaluator.__name__,
                 )
 
+        if not allow_evaluator_autologging:
+            enable_evaluator_logging()
+
         # if at least one result exists, return a combined dict
         # otherwise, return none
         if span_eval_result or trace_eval_result:
             return {**(trace_eval_result or {}), **(span_eval_result or {})}
 
-
+    # enable eval logging here as well just in case we didn't do any evaluations
+    # because no eval result generated
     if not allow_evaluator_autologging:
-        # re-enable autologging if it was previously enabled
-        for fw in triggered_autolog_frameworks:
-            call_autolog(fw)
+        enable_evaluator_logging()
 
     return None
 
+def enable_evaluator_logging():
+    # re-enable autologging if it was previously enabled
+    for fw in triggered_autolog_frameworks:
+        call_autolog(fw)
 
 def _log_eval_results(
     parent_span: mlflow.entities.Span,
