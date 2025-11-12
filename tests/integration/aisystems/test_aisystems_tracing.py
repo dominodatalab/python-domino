@@ -886,6 +886,40 @@ def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing
 
         assert not any([t.name == 'Completions' for t in ts.data]), "No traces from OpenAI evaluator should be present"
 
+def test_evaluator_tracing_gets_reenabled(setup_mlflow_tracking_server, mlflow, tracing, logging):
+        """
+        inline evaluators tracing should get reenabled later
+        """
+        mlflow.set_experiment("test_disable_evaluator_tracing")
+
+        def openai_evaluator(span):
+                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
+                completion = openaiclient.chat.completions.create(
+                        model="gpt-3.5-turbo",
+                        messages=[{"role": "user", "content": "content"}],
+                )
+                return {'evaluator_metric': 1}
+
+        @tracing.add_tracing(name="parent", autolog_frameworks=["openai"], evaluator=openai_evaluator)
+        def parent(x):
+                return x
+
+        @tracing.add_tracing(name="enabled", autolog_frameworks=["openai"], evaluator=openai_evaluator, allow_tracing_evaluator=True)
+        def enabled(x):
+                return x
+
+        # disabled one
+        with logging.DominoRun() :
+                parent(1)
+
+        # enabled one
+        with logging.DominoRun() as run2:
+                enabled(1)
+
+        ts = tracing.search_traces(run_id=run2.info.run_id)
+
+        assert any([t.name == 'Completions' for t in ts.data]), "traces from OpenAI evaluator should be present"
+
 def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging):
         """
         inline evaluators should get traced if flag is true

@@ -160,11 +160,6 @@ def _do_evaluation(
         if span_eval_result or trace_eval_result:
             return {**(trace_eval_result or {}), **(span_eval_result or {})}
 
-    # enable eval logging here as well just in case we didn't do any evaluations
-    # because no eval result generated
-    if not allow_evaluator_autologging:
-        enable_evaluator_logging()
-
     return None
 
 def enable_evaluator_logging():
