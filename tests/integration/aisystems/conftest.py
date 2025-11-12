@@ -5,6 +5,8 @@ import polling2
 import pytest
 import shutil
 from unittest.mock import patch
+import subprocess
+import sys
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._constants import MIN_MLFLOW_VERSION
@@ -33,6 +35,13 @@ def _remove_mlruns_data():
                 shutil.rmtree('./mlruns')
         except Exception as e:
                 logger.warning(f"Failed to remove mlfruns directory during test cleanup: {e}")
+
+@pytest.fixture(scope="package")
+def setup_openai_mock_server():
+        server_command = ['pipenv', 'run', 'ai-mock', 'server']
+        server_process = subprocess.Popen(server_command)
+        yield
+        server_process.kill()
 
 @pytest.fixture(scope="package")
 def setup_mlflow_tracking_server_no_env_var_mock(docker_client):

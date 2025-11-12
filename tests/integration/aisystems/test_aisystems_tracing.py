@@ -861,7 +861,7 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
                 # still go to the right experiment
                 assert len(traces) == 2, "Two traces named 'do' should be saved to the experiment"
 
-def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging):
+def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
         """
         inline evaluators should not get traced
         """
@@ -886,7 +886,7 @@ def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing
 
         assert not any([t.name == 'Completions' for t in ts.data]), "No traces from OpenAI evaluator should be present"
 
-def test_evaluator_tracing_gets_reenabled(setup_mlflow_tracking_server, mlflow, tracing, logging):
+def test_evaluator_tracing_gets_reenabled(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
         """
         inline evaluators tracing should get reenabled later
         """
@@ -920,7 +920,7 @@ def test_evaluator_tracing_gets_reenabled(setup_mlflow_tracking_server, mlflow, 
 
         assert any([t.name == 'Completions' for t in ts.data]), "traces from OpenAI evaluator should be present"
 
-def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging):
+def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
         """
         inline evaluators should get traced if flag is true
         """
