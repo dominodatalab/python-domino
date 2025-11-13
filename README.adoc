@@ -770,8 +770,23 @@ If not set, defaults to ‘./ai++_++system++_++config.yaml’.
 type: +
 str
 
-DOMINO++_++AI++_++SYSTEM++_++MODEL++_++ID: +
-The ID of the production AI System
+DOMINO++_++AI++_++SYSTEM++_++IS++_++PROD: +
+Indicates if the AI System is running in production mode. Set to ‘true’
+to optimize for production.
+
+type: +
+str
+
+DOMINO++_++APP++_++ID: +
+Indicates the ID of the AI System application. Must be set in production
+mode.
+
+type: +
+str
+
+MLFLOW++_++TRACKING++_++URI: +
+Used to configure Mlflow functionality. It is required in order for
+library to work and will be set automatically when running in Domino.
 
 type: +
 str
@@ -888,6 +903,8 @@ Classes
 
 [width="100%",cols="50%,50%",]
 |===
+|`EvaluationResult`(name, value) |An evaluation result for a trace.
+
 |`SearchTracesResponse`(data, page++_++token) |The response from
 searching for traces.
 
@@ -897,6 +914,19 @@ trace.
 |`TraceSummary`(name, id, spans, evaluation++_++results) |A summary of a
 trace.
 |===
+
+=== _class_ domino.aisystems.tracing.EvaluationResult(_name: str_, _value:float ++|++ str_) +
+Bases: `object`
+
+An evaluation result for a trace.
+
+name__: str__ +
+The name of the evaluation
+
+value__: float ++|++ str__ +
+The value of the evaluation
+
+
 
 === _class_ domino.aisystems.tracing.SearchTracesResponse(_data: list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
 Bases: `object`

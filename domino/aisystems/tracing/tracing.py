@@ -100,7 +100,7 @@ def _do_evaluation(
     is_production: bool = False,
     allow_evaluator_autologging: bool = False,
 ) -> Optional[dict]:
-    if not is_production and evaluator or trace_evaluator:
+    if not is_production and (evaluator or trace_evaluator):
         if not allow_evaluator_autologging:
             # disable all autologging
             for fw in triggered_autolog_frameworks:

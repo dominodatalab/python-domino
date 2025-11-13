@@ -14,7 +14,7 @@ from unittest.mock import call, patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._constants import EXPERIMENT_AI_SYSTEM_TAG
-from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time
+from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time, add_prod_tags
 from .test_util import reset_prod_tracing
 from domino.aisystems._client import client
 from domino.aisystems.tracing._util import build_ai_system_experiment_name
@@ -112,6 +112,42 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
         actual_exp_id = set([mlflow.get_experiment_by_name(expected_experiment_name).experiment_id])
         assert found_exp_ids == actual_exp_id, "traces should be linked to the ai system experiment"
 
+def test_inline_evaluators_should_not_run_prod(setup_mlflow_tracking_server, tracing):
+        """
+        in prod mode, inline evaluators should not run
+        """
+        app_id = "inline_evals_prod"
+        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
+
+        reset_prod_tracing()
+
+        @tracing.add_tracing(name="span_unit", evaluator=lambda span: { 'span_result': 1 })
+        def span_unit(x):
+                return x
+
+        @tracing.add_tracing(name="trace_unit", trace_evaluator=lambda trace: { 'trace_result': 1 })
+        def trace_unit(x):
+                return x
+
+        @tracing.add_tracing(name="trace_and_unit", evaluator=lambda span: { 'both_span_result': 1 }, trace_evaluator=lambda trace: { 'both_trace_result': 1 })
+        def trace_and_unit(x):
+                return x
+
+        with patch.dict(os.environ, env_vars, clear=True):
+                tracing.init_tracing()
+                span_unit(1)
+                trace_unit(1)
+                trace_and_unit(1)
+
+        # add prod tags, like what domino services would do
+        add_prod_tags(None, app_id, "v1")
+
+        ts = tracing.search_ai_system_traces(ai_system_id=app_id)
+        eval_results = [r for trace in ts.data for r in trace.evaluation_results]
+
+        assert len(ts.data) == 3, "three traces should be created"
+        assert len(eval_results) == 0, "no evaluation results should be logged in prod mode"
 
 def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
