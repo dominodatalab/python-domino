@@ -514,7 +514,7 @@ def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, lo
                 == sorted([("mylabel", "category"), ("mymetric", 1.0)])
         assert len(span_data) == 4
         assert sorted(span_data, key=lambda x: x[0]) == sorted([("parent", {'x':1, 'y': 2}, 3), \
-                ("parent2", {'x':1}, 1), ("unit", {'x':1}, 1), ("unit", {'x':2}, 2)
+                ("parent2", {'x':1}, 1), ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)
         ], key=lambda x: x[0])
 
 def test_search_traces_time_filter_warning(setup_mlflow_tracking_server, tracing, mlflow, logging, caplog):
@@ -556,7 +556,7 @@ def test_search_traces_by_trace_name(setup_mlflow_tracking_server, mocker, mlflo
         assert [trace.name for trace in res.data] == ["parent"]
         assert len(span_data) == 3
         assert sorted(span_data, key=lambda x: x[0]) == sorted([("parent", {'x':1, 'y': 2}, 3), \
-                ("unit", {'x':1}, 1), ("unit", {'x':2}, 2)], key=lambda x: x[0])
+                ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)], key=lambda x: x[0])
 
 def test_search_traces_by_timestamp(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         @tracing.add_tracing(name="parent")
