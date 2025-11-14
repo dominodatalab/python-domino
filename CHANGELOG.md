@@ -5,6 +5,7 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+* Support environmentId and externalVolumeMountIds in app_publish
 
 ### Changed
 
