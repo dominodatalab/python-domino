@@ -945,7 +945,8 @@ class Domino:
             "environmentId": environmentId,
             "externalVolumeMountIds": externalVolumeMountIds
         }
-        response = self.request_manager.post(url, json=request)
+        omitting_null = {k: v for (k, v) in payload.items() if v is not None}
+        response = self.request_manager.post(url, json=omitting_null)
         return response
 
     def app_unpublish(self):
