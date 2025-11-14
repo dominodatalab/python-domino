@@ -932,7 +932,7 @@ class Domino:
         return response
 
     # App functions
-    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None):
+    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None, environmentId=None, externalVolumeMountIds=None):
         if unpublishRunningApps:
             self.app_unpublish()
         app_id = self._app_id
@@ -940,7 +940,11 @@ class Domino:
             # No App Exists creating one
             app_id = self.__app_create(hardware_tier_id=hardwareTierId)
         url = self._routes.app_start(app_id)
-        request = {"hardwareTierId": hardwareTierId}
+        request = {
+            "hardwareTierId": hardwareTierId,
+            "environmentId": environmentId,
+            "externalVolumeMountIds": externalVolumeMountIds
+        }
         response = self.request_manager.post(url, json=request)
         return response
 
