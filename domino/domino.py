@@ -899,10 +899,11 @@ class Domino:
         url = self._routes.app_start(app_id)
         request = {
             "hardwareTierId": hardwareTierId,
-             "environmentId": environmentId,
-             "externalVolumeMountIds": externalVolumeMountIds
+            "environmentId": environmentId,
+            "externalVolumeMountIds": externalVolumeMountIds
         }
-        response = self.request_manager.post(url, json=request)
+        omitting_null = {k: v for (k, v) in payload.items() if v is not None}
+        response = self.request_manager.post(url, json=omitting_null)
         return response
 
     def app_unpublish(self):
