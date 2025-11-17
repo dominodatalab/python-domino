@@ -64,13 +64,15 @@ setup(
             "semver>=3.0.4",
             "pandas>=2.3.1",
             "numpy>=2.0.2",
-            "mlflow-skinny~=3.2",
-            "mlflow-tracing~=3.2",
+            "mlflow-skinny>=3.2.0,<3.3.0",
+            "mlflow-tracing>=3.2.0,<3.3.0",
         ],
         "dev": [
             "pytest-order>=1.3.0",
             "pytest-asyncio>=0.23.8",
             "scikit-learn>=1.6.1",  # used in aisystem tracing tests
+            "openai>=2.7.2", # used in aisystem tracing tests
+            "ai-mock>=0.3.1", # used in aisystem tracing tests
             "black==22.3.0",
             "flake8==4.0.1",
             "Jinja2==2.11.3",
