@@ -749,9 +749,9 @@ domino.runs_start(["echo 'Hello, World!'"], isDirect=True)
 domino.runs_start(["main.py"], commitId="aabbccddee")
 ----
 
-=== Agents
+== Agents
 
-== domino.agents.environment++_++variables
+=== domino.agents.environment++_++variables
 
 DOMINO++_++AGENT++_++CONFIG++_++PATH: +
 For configuring the location of the agent++_++config.yaml file. If not
@@ -781,7 +781,7 @@ library to work and will be set automatically when running in Domino.
 type: +
 str
 
-== domino.agents.logging
+=== domino.agents.logging
 
 Functions
 
@@ -802,7 +802,7 @@ configuration, and computes summary metrics for evaluation traces made
 during the run.
 |===
 
-= _class_ domino.agents.logging.DominoRun(_experiment++_++name: str ++|++None = None_, _run++_++id: str ++|++ None = None_,_agent++_++config++_++path: str ++|++ None = None_,_custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`','`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
+=== _class_ domino.agents.logging.DominoRun(_experiment++_++name: str ++|++None = None_, _run++_++id: str ++|++ None = None_,_agent++_++config++_++path: str ++|++ None = None_,_custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`','`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
 Bases: `object`
 
 DominoRun is a context manager that starts an Mlflow run and attaches
@@ -844,7 +844,7 @@ Returns: DominoRun context manager
 
  
 
-= domino.agents.logging.log++_++evaluation(_trace++_++id: str_, _name:str_, _value: float ++|++ str_) +
+=== domino.agents.logging.log++_++evaluation(_trace++_++id: str_, _name:str_, _value: float ++|++ str_) +
 This logs evaluation data and metadata to a parent trace. This is used
 to log the evaluation of a span after it was created. This is useful for
 analyzing past performance of an Agent component.
@@ -864,7 +864,7 @@ Modules
 |`logging` |
 |===
 
-== domino.agents.tracing
+=== domino.agents.tracing
 
 Functions
 
@@ -903,7 +903,7 @@ trace.
 trace.
 |===
 
-= _class_ domino.agents.tracing.EvaluationResult(_name: str_, _value:float ++|++ str_) +
+=== _class_ domino.agents.tracing.EvaluationResult(_name: str_, _value:float ++|++ str_) +
 Bases: `object`
 
 An evaluation result for a trace.
@@ -916,7 +916,7 @@ The value of the evaluation
 
  
 
-= _class_ domino.agents.tracing.SearchTracesResponse(_data:list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
+=== _class_ domino.agents.tracing.SearchTracesResponse(_data:list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
 Bases: `object`
 
 The response from searching for traces.
@@ -929,7 +929,7 @@ The token for the next page of results
 
  
 
-= _class_ domino.agents.tracing.SpanSummary(_id: str_, _name: str_,_trace++_++id: str_, _inputs: Any_, _outputs: Any_) +
+=== _class_ domino.agents.tracing.SpanSummary(_id: str_, _name: str_,_trace++_++id: str_, _inputs: Any_, _outputs: Any_) +
 Bases: `object`
 
 A span in a trace.
@@ -951,7 +951,7 @@ The parent trace ID
 
  
 
-= _class_ domino.agents.tracing.TraceSummary(_name: str_, _id: str_,_spans: list++[++SpanSummary++]++_, _evaluation++_++results:list++[++EvaluationResult++]++_) +
+=== _class_ domino.agents.tracing.TraceSummary(_name: str_, _id: str_,_spans: list++[++SpanSummary++]++_, _evaluation++_++results:list++[++EvaluationResult++]++_) +
 Bases: `object`
 
 A summary of a trace.
@@ -970,7 +970,7 @@ The child spans of this trace
 
  
 
-= domino.agents.tracing.add++_++tracing(_name: str_,_autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,_evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator:Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_,_allow++_++tracing++_++evaluator: bool = False_) +
+=== domino.agents.tracing.add++_++tracing(_name: str_,_autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,_evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator:Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_,_allow++_++tracing++_++evaluator: bool = False_) +
 This is a decorator that starts an mlflow span for the function it
 decorates. If there is an existing trace a span will be appended to it.
 If there is no existing trace, a new trace will be created.
@@ -1027,7 +1027,7 @@ A decorator that wraps the function to be traced.
 
  
 
-= domino.agents.tracing.init++_++tracing(_autolog++_++frameworks:list++[++str++]++ ++|++ None = None_) +
+=== domino.agents.tracing.init++_++tracing(_autolog++_++frameworks:list++[++str++]++ ++|++ None = None_) +
 Initialize Mlflow autologging for various frameworks and sets the active
 experiment to enable tracing in production. This may be used to
 initialize logging and tracing for the Agent in dev and prod modes.
@@ -1041,7 +1041,7 @@ Parameters: +
 
  
 
-= domino.agents.tracing.search++_++agent++_++traces(_agent++_++id: str_,_agent++_++version: str ++|++ None = None_, _trace++_++name: str ++|++None = None_, _start++_++time: datetime ++|++ None = None_,_end++_++time: datetime ++|++ None = None_, _page++_++token: str ++|++None = None_, _max++_++results: int ++|++ None = None_) →
+=== domino.agents.tracing.search++_++agent++_++traces(_agent++_++id: str_,_agent++_++version: str ++|++ None = None_, _trace++_++name: str ++|++None = None_, _start++_++time: datetime ++|++ None = None_,_end++_++time: datetime ++|++ None = None_, _page++_++token: str ++|++None = None_, _max++_++results: int ++|++ None = None_) →
 SearchTracesResponse +
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that include the spans that were
@@ -1070,7 +1070,7 @@ SearchTracesResponse
 
  
 
-= domino.agents.tracing.search++_++traces(_run++_++id: str_,_trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++None = None_, _end++_++time: datetime ++|++ None = None_,_page++_++token: str ++|++ None = None_, _max++_++results: int ++|++None = None_) → SearchTracesResponse +
+=== domino.agents.tracing.search++_++traces(_run++_++id: str_,_trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++None = None_, _end++_++time: datetime ++|++ None = None_,_page++_++token: str ++|++ None = None_, _max++_++results: int ++|++None = None_) → SearchTracesResponse +
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that inclued the spans that were
 requested.
