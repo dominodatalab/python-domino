@@ -36,9 +36,9 @@ To install dependencies from `setup.py` for development:
 
     pipenv --python 3.10 install -e ".[dev]"
 
-Use the same process for Airflow, aisystems, and data:
+Use the same process for Airflow, agents, and data:
 
-    pipenv --python 3.10 install -e ".[data]" ".[airflow]" ".[aisystems]"
+    pipenv --python 3.10 install -e ".[data]" ".[airflow]" ".[agents]"
 
 # Set up the connection
 
