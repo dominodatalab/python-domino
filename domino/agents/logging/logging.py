@@ -21,7 +21,7 @@ def log_evaluation(
         value: float | str,
     ):
     """This logs evaluation data and metadata to a parent trace. This is used to log the evaluation of a span
-    after it was created. This is useful for analyzing past performance of an AI System component.
+    after it was created. This is useful for analyzing past performance of an Agent component.
 
     Args:
         trace_id: the ID of the trace to evaluate

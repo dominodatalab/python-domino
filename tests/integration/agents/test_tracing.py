@@ -12,31 +12,31 @@ import threading
 import time
 from unittest.mock import call, patch
 
-from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
-from domino.aisystems._constants import EXPERIMENT_AI_SYSTEM_TAG
+from ...conftest import TEST_AGENTS_ENV_VARS
+from domino.agents._constants import EXPERIMENT_AGENT_TAG
 from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time, add_prod_tags
 from .test_util import reset_prod_tracing
-from domino.aisystems._client import client
-from domino.aisystems.tracing._util import build_ai_system_experiment_name
+from domino.agents._client import client
+from domino.agents.tracing._util import build_agent_experiment_name
 # NOTE: don't use this import to test public functions, use the tracing pytest fixture instead
-from domino.aisystems.tracing.tracing import _search_traces
-from domino.aisystems._eval_tags import InvalidEvaluationLabelException
+from domino.agents.tracing.tracing import _search_traces
+from domino.agents._eval_tags import InvalidEvaluationLabelException
 
 def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
         should initialize autologging only once for each framework
-        should create an experiment for the ai system and tag it only once
+        should create an experiment for the agent and tag it only once
         """
         app_id = "appid"
-        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        expected_experiment_name = build_ai_system_experiment_name(app_id)
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
+        test_case_vars = {"DOMINO_AGENT_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        expected_experiment_name = build_agent_experiment_name(app_id)
+        env_vars = TEST_AGENTS_ENV_VARS | test_case_vars
 
-        import domino.aisystems.tracing.tracing
-        import domino.aisystems._client
+        import domino.agents.tracing.tracing
+        import domino.agents._client
         import mlflow
-        autolog_spy = mocker.spy(domino.aisystems.tracing.inittracing, "call_autolog")
-        set_experiment_tag_spy = mocker.spy(domino.aisystems._client.client, "set_experiment_tag")
+        autolog_spy = mocker.spy(domino.agents.tracing.inittracing, "call_autolog")
+        set_experiment_tag_spy = mocker.spy(domino.agents._client.client, "set_experiment_tag")
         set_experiment_spy = mocker.spy(mlflow, "set_experiment")
 
         reset_prod_tracing()
@@ -49,35 +49,35 @@ def test_init_tracing_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing
                 assert autolog_spy.call_args_list == [call('sklearn')]
                 assert set_experiment_tag_spy.call_count == 1, "should only save tag on experiment once"
                 assert set_experiment_spy.call_count is not 0, "should set an active experiment"
-                assert found_exp is not None, "ai system experiment should exist"
-                assert found_exp.tags.get(EXPERIMENT_AI_SYSTEM_TAG) == "true", "ai system experiment should be tagged"
+                assert found_exp is not None, "agent experiment should exist"
+                assert found_exp.tags.get(EXPERIMENT_AGENT_TAG) == "true", "agent experiment should be tagged"
 
 def test_init_tracing_logs_experiment_creation_debug(setup_mlflow_tracking_server, mlflow, tracing, caplog):
         """
         when log level is debug, verify the experiment creation log includes the experiment ID
         """
         app_id = "app_id_logs_debug"
-        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
+        test_case_vars = {"DOMINO_AGENT_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        env_vars = TEST_AGENTS_ENV_VARS | test_case_vars
 
         reset_prod_tracing()
 
         with patch.dict(os.environ, env_vars, clear=True), caplog.at_level(logger.DEBUG):
                 tracing.init_tracing()
-                expected_experiment_name = build_ai_system_experiment_name(app_id)
+                expected_experiment_name = build_agent_experiment_name(app_id)
                 exp = mlflow.get_experiment_by_name(expected_experiment_name)
                 assert exp is not None, "experiment should be created in prod mode"
-                assert f"Created experiment for AI System with ID {exp.experiment_id}" in caplog.text
+                assert f"Created experiment for Agent with ID {exp.experiment_id}" in caplog.text
 
 def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
         traces created in separate threads forked from the same main thread
-        should be saved to the same ai system experiment
+        should be saved to the same agent experiment
         """
         app_id = "threaded_app_id"
-        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        expected_experiment_name = build_ai_system_experiment_name(app_id)
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
+        test_case_vars = {"DOMINO_AGENT_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        expected_experiment_name = build_agent_experiment_name(app_id)
+        env_vars = TEST_AGENTS_ENV_VARS | test_case_vars
 
         reset_prod_tracing()
 
@@ -101,7 +101,7 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
                 t1.join()
                 t2.join()
 
-        # a and b traces should all be in the ai system experiment
+        # a and b traces should all be in the agent experiment
         traces_a = mlflow.search_traces(filter_string="trace.name = 'a'", return_type='list')
         traces_b = mlflow.search_traces(filter_string="trace.name = 'b'", return_type='list')
 
@@ -110,15 +110,15 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
 
         found_exp_ids = set([get_experiment_id(t) for t in traces_a + traces_b])
         actual_exp_id = set([mlflow.get_experiment_by_name(expected_experiment_name).experiment_id])
-        assert found_exp_ids == actual_exp_id, "traces should be linked to the ai system experiment"
+        assert found_exp_ids == actual_exp_id, "traces should be linked to the agent experiment"
 
 def test_inline_evaluators_should_not_run_prod(setup_mlflow_tracking_server, tracing):
         """
         in prod mode, inline evaluators should not run
         """
         app_id = "inline_evals_prod"
-        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
+        test_case_vars = {"DOMINO_AGENT_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        env_vars = TEST_AGENTS_ENV_VARS | test_case_vars
 
         reset_prod_tracing()
 
@@ -143,7 +143,7 @@ def test_inline_evaluators_should_not_run_prod(setup_mlflow_tracking_server, tra
         # add prod tags, like what domino services would do
         add_prod_tags(None, app_id, "v1")
 
-        ts = tracing.search_ai_system_traces(ai_system_id=app_id)
+        ts = tracing.search_agent_traces(agent_id=app_id)
         eval_results = [r for trace in ts.data for r in trace.evaluation_results]
 
         assert len(ts.data) == 3, "three traces should be created"
@@ -153,12 +153,12 @@ def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tra
         """
         should not create an experiment or set tags
         """
-        import domino.aisystems._client
+        import domino.agents._client
         import mlflow
-        set_experiment_tag_spy = mocker.spy(domino.aisystems._client.client, "set_experiment_tag")
+        set_experiment_tag_spy = mocker.spy(domino.agents._client.client, "set_experiment_tag")
         set_experiment_spy = mocker.spy(mlflow, "set_experiment")
 
-        with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True):
+        with patch.dict(os.environ, TEST_AGENTS_ENV_VARS, clear=True):
                 tracing.init_tracing(["sklearn"])
 
                 assert set_experiment_tag_spy.call_count == 0, "should set experiment tag"
@@ -257,7 +257,7 @@ def test_add_tracing_decorator_preserves_function_info(setup_mlflow_tracking_ser
 
         assert decorated_func.__name__ == "decorated_func", "the function name should be preserved by the decorator"
         assert decorated_func.__doc__ == "returns the input value", "the function docstring should be preserved by the decorator"
-        assert decorated_func.__module__ == "tests.integration.aisystems.test_aisystems_tracing"
+        assert decorated_func.__module__ == "tests.integration.agents.test_tracing"
         assert decorated_sig == original_sig
         assert list(decorated_sig.parameters.keys()) == ['a', 'b', 'c', 'args', 'kwargs']
         assert decorated_sig.parameters['c'].default == 10
@@ -643,13 +643,13 @@ def test_search_traces_multiple_runs_in_exp(setup_mlflow_tracking_server, mocker
 
         assert [trace.name for trace in res.data] == ["unit1"]
 
-def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, mlflow, tracing):
+def test_search_traces_agent(setup_mlflow_tracking_server_no_env_var_mock, mlflow, tracing):
         """
-        Can filter by ai system id alone or id and version
+        Can filter by agent id alone or id and version
         """
-        app_id = "test_search_traces_ai_system_id"
-        app_version_1 = "test_search_traces_ai_system_version_1"
-        app_version_2 = "test_search_traces_ai_system_version_2"
+        app_id = "test_search_traces_agent_id"
+        app_version_1 = "test_search_traces_agent_version_1"
+        app_version_2 = "test_search_traces_agent_version_2"
 
         fixture_create_prod_traces(app_id, app_version_1, "one", tracing)
         fixture_create_prod_traces(app_id, app_version_2, "two", tracing)
@@ -657,35 +657,35 @@ def test_search_traces_ai_system(setup_mlflow_tracking_server_no_env_var_mock, m
         def get_trace_names(traces):
                 return sorted([trace.name for trace in traces.data])
 
-        all_traces = tracing.search_ai_system_traces(ai_system_id=app_id)
-        assert get_trace_names(all_traces) == ["one", "two"], "Can get traces for all ai system versions"
+        all_traces = tracing.search_agent_traces(agent_id=app_id)
+        assert get_trace_names(all_traces) == ["one", "two"], "Can get traces for all agent versions"
 
-        v1_traces = tracing.search_ai_system_traces(ai_system_id=app_id, ai_system_version=app_version_1)
-        assert get_trace_names(v1_traces) == ["one"], "Can get traces for just ai system version 1"
+        v1_traces = tracing.search_agent_traces(agent_id=app_id, agent_version=app_version_1)
+        assert get_trace_names(v1_traces) == ["one"], "Can get traces for just agent version 1"
 
-        v2_traces = tracing.search_ai_system_traces(ai_system_id=app_id, ai_system_version=app_version_2)
-        assert get_trace_names(v2_traces) == ["two"], "Can get traces for just ai system version 2"
+        v2_traces = tracing.search_agent_traces(agent_id=app_id, agent_version=app_version_2)
+        assert get_trace_names(v2_traces) == ["two"], "Can get traces for just agent version 2"
 
-def test_search_traces_ai_system_ai_system_id_required(setup_mlflow_tracking_server_no_env_var_mock):
+def test_search_traces_agent_agent_id_required(setup_mlflow_tracking_server_no_env_var_mock):
         """
-        ai system id is required if version supplied
+        agent id is required if version supplied
         """
 
         with pytest.raises(Exception) as e_info:
-                _search_traces(ai_system_version="fakeversion")
+                _search_traces(agent_version="fakeversion")
 
-        assert "ai_system_id must also be provided" in str(e_info), "Should raise if version provided without id"
+        assert "agent_id must also be provided" in str(e_info), "Should raise if version provided without id"
 
-def test_search_traces_no_run_ai_system_ids_supplied(setup_mlflow_tracking_server_no_env_var_mock, tracing):
+def test_search_traces_no_run_agent_ids_supplied(setup_mlflow_tracking_server_no_env_var_mock, tracing):
         """
-        should throw if no run id, ai system version, or id supplied
+        should throw if no run id, agent version, or id supplied
         """
 
         with pytest.raises(Exception) as e_info:
                 _search_traces()
 
-        assert "Either run_id or ai_system_id and ai_system_version must be provided to search traces" in str(e_info), \
-                "Should raise no ai system info or run info provided"
+        assert "Either run_id or agent_id and agent_version must be provided to search traces" in str(e_info), \
+                "Should raise no agent info or run info provided"
 
 def test_search_traces_filters_should_work_together_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
@@ -755,7 +755,7 @@ def test_search_traces_filters_should_work_together_dev(setup_mlflow_tracking_se
 
 def test_search_traces_filters_should_work_together_prod(setup_mlflow_tracking_server_no_env_var_mock, mocker, mlflow, tracing, logging):
         """
-        When searching by ai system ID and version and when every filter is specified as well as pagination,
+        When searching by agent ID and version and when every filter is specified as well as pagination,
         the expected results should be returned
         The test creates multiple differently named traces over the course of a few hours in an experiment
         with multiple runs
@@ -777,9 +777,9 @@ def test_search_traces_filters_should_work_together_prod(setup_mlflow_tracking_s
         end_time = datetime.now() - timedelta(hours=1)
 
         def get_traces(next_page_token):
-                return tracing.search_ai_system_traces(
-                        ai_system_id=app_id,
-                        ai_system_version=app_version_1,
+                return tracing.search_agent_traces(
+                        agent_id=app_id,
+                        agent_version=app_version_1,
                         trace_name="sum1",
                         start_time=start_time,
                         end_time=end_time,
@@ -858,8 +858,8 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
         right experiment anyway
         """
         app_id = "concurrency_app"
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        expected_experiment_name = build_ai_system_experiment_name(app_id)
+        env_vars = TEST_AGENTS_ENV_VARS | {"DOMINO_AGENT_IS_PROD": "true", "DOMINO_APP_ID": app_id}
+        expected_experiment_name = build_agent_experiment_name(app_id)
 
         reset_prod_tracing()
 
@@ -890,7 +890,7 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
 
                         assert spy_set_experiment.call_count == 1, "set_experiment should be called once from init_tracing"
 
-                # Verify two traces named "do" were saved to the AI System experiment
+                # Verify two traces named "do" were saved to the Agent experiment
                 exp = mlflow.get_experiment_by_name(expected_experiment_name)
                 traces = mlflow.search_traces(
                         experiment_ids=[exp.experiment_id],
@@ -924,6 +924,7 @@ def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing
                 parent(1)
 
         ts = tracing.search_traces(run_id=run.info.run_id)
+        print(ts.data)
 
         assert not any([t.name == 'Completions' for t in ts.data]), "No traces from OpenAI evaluator should be present"
 
@@ -1019,4 +1020,5 @@ async def test_async_evaluator_tracing_disabled(setup_mlflow_tracking_server, ml
         ts = tracing.search_traces(run_id=run.info.run_id)
 
         outputs = [t.spans[0].inputs['messages'][0]['content'] for t in ts.data if t.name == 'Completions']
+        assert len(outputs) == 10, "should have 10 traces from OpenAI"
         assert  outputs == ["enabled"] * 10, "traces from OpenAI evaluator should be present for enabled function only"

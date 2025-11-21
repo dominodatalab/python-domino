@@ -13,10 +13,10 @@ from domino.constants import (
     DOMINO_USER_NAME_KEY_NAME,
 )
 
-TEST_AI_SYSTEMS_ENV_VARS = {
+TEST_AGENTS_ENV_VARS = {
     "MLFLOW_TRACKING_URI": "http://localhost:5000",
-    "DOMINO_AI_SYSTEM_CONFIG_PATH": "tests/assets/ai_system_config.yaml",
-    "DOMINO_AI_SYSTEM_IS_PROD": "false"
+    "DOMINO_AGENT_CONFIG_PATH": "tests/assets/agent_config.yaml",
+    "DOMINO_AGENT_IS_PROD": "false"
 }
 
 version_info = {

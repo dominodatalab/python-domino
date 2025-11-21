@@ -1,22 +1,22 @@
 from unittest.mock import patch
 import os
 
-from domino.aisystems import read_ai_system_config
-from domino.aisystems.read_ai_system_config import flatten_dict
-from ..conftest import TEST_AI_SYSTEMS_ENV_VARS
+from domino.agents import read_agent_config
+from domino.agents.read_agent_config import flatten_dict
+from ..conftest import TEST_AGENTS_ENV_VARS
 
-def test_read_ai_system_config_path_from_env_var():
-        with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS, clear=True):
-                config_values = read_ai_system_config()
+def test_read_agent_config_path_from_env_var():
+        with patch.dict(os.environ, TEST_AGENTS_ENV_VARS, clear=True):
+                config_values = read_agent_config()
 
                 assert config_values['version'] == 1.0
                 assert config_values['chat_assistant']['model'] == 'gpt-3.5-turbo'
                 assert config_values['chat_assistant']['temperature'] == 0.7
                 assert config_values['chat_assistant']['max_tokens'] == 1500
 
-def test_read_ai_system_config_path_from_override_arg():
-        with patch.dict(os.environ, TEST_AI_SYSTEMS_ENV_VARS | {"DOMINO_AI_SYSTEM_CONFIG_PATH": "broken_path"}, clear=True):
-                config_values = read_ai_system_config("tests/assets/ai_system_config.yaml")
+def test_read_agent_config_path_from_override_arg():
+        with patch.dict(os.environ, TEST_AGENTS_ENV_VARS | {"DOMINO_AGENT_CONFIG_PATH": "broken_path"}, clear=True):
+                config_values = read_agent_config("tests/assets/agent_config.yaml")
 
                 assert config_values['version'] == 1.0
                 assert config_values['chat_assistant']['model'] == 'gpt-3.5-turbo'

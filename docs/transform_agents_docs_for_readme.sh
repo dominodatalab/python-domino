@@ -4,7 +4,7 @@
 # pandoc converts html to asciidoc in a way that we can't render in our user facing docs
 
 base_path=docs/build/html/generated
-all_doc=$base_path/domino.aisystems.md
+all_doc=$base_path/domino.agents.md
 
 function replace_carriage_returns() {
   sed -i '' "s/¶//g" $1
@@ -13,7 +13,7 @@ function replace_carriage_returns() {
 echo creating single file $all_doc
 echo "" > $all_doc
 
-ls $base_path | grep -E 'domino\.aisystems\.[a-z_]+\.html$' | while read -r file; do
+ls $base_path | grep -E 'domino\.agents\.[a-z_]+\.html$' | while read -r file; do
   html_file=$base_path/$file
   adoc=$(./docs/html_to_md.sh $html_file)
 

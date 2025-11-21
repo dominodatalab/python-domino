@@ -10,7 +10,7 @@ from .._client import client
 from .._constants import LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG
 from .._eval_tags import build_metric_tag, VALID_LABEL_PATTERN
 from .._verify_domino_support import verify_domino_support
-from ..read_ai_system_config import get_flattened_ai_system_config
+from ..read_agent_config import get_flattened_agent_config
 
 TOTAL_DECIMAL_PLACES = 3
 DOMINO_EVAL_METRIC_TAG_PATTERN = f"domino.prog.metric.({VALID_LABEL_PATTERN})"
@@ -115,13 +115,13 @@ class DominoRun:
         self,
         experiment_name: Optional[str] = None,
         run_id: Optional[str] = None,
-        ai_system_config_path: Optional[str] = None,
+        agent_config_path: Optional[str] = None,
         custom_summary_metrics: Optional[list[(str, SummaryStatistic)]] = None,
     ):
-        """DominoRun is a context manager that starts an Mlflow run and attaches the user's AI System configuration to it,
-        create a Logged Model with the AI System configuration, and computes summary metrics for evaluation traces made during the run.
+        """DominoRun is a context manager that starts an Mlflow run and attaches the user's Agent configuration to it,
+        create a Logged Model with the Agent configuration, and computes summary metrics for evaluation traces made during the run.
         Average metrics are computed by default, but the user can provide a custom list of evaluation metric aggregators.
-        This is intended to be used in development mode for AI System evaluation.
+        This is intended to be used in development mode for Agent evaluation.
         Context manager docs: https://docs.python.org/3/library/contextlib.html
 
         Parallelism: DominoRun is not thread-safe. Runs in different threads will work correctly. This is due to
@@ -140,7 +140,7 @@ class DominoRun:
 
                 run_id: optional, the ID of the mlflow run to continue logging to. If not provided a new run will start.
 
-                ai_system_config_path: the optional path to the AI System configuration file. If not provided, defaults to the DOMINO_AI_SYSTEM_CONFIG_PATH environment variable.
+                agent_config_path: the optional path to the Agent configuration file. If not provided, defaults to the DOMINO_AGENT_CONFIG_PATH environment variable.
 
                 custom_summary_metrics: an optional list of tuples that define what summary statistic to use with what evaluation metric. Valid summary statistics are: "mean", "median", "stdev", "max", "min" e.g. [("hallucination_rate", "max")]
 
@@ -149,7 +149,7 @@ class DominoRun:
         verify_domino_support()
         self.experiment_name = experiment_name
         self.run_id = run_id
-        self.config_path = ai_system_config_path
+        self.config_path = agent_config_path
         self.custom_summary_metrics = custom_summary_metrics
         self.experiment_id = _get_experiment_id_from_name(experiment_name)
         self._run = None
@@ -289,20 +289,20 @@ class DominoRun:
 
     def __log_params(self, run_id: str):
         """
-        Saves the user's AI System configuration as parameters to the mlflow run and
-        the AI System's logged model
+        Saves the user's Agent configuration as parameters to the mlflow run and
+        the Agent's logged model
         """
         try:
-            params = get_flattened_ai_system_config(self.config_path)
+            params = get_flattened_agent_config(self.config_path)
             mlflow.log_params(params, run_id=run_id)
 
             mlflow.create_external_model(
-                model_type="AI System",
+                model_type="Agent",
                 params=params,
                 source_run_id=run_id,
             )
         except Exception as e:
-            logger.error(f"Failed to log AI System configuration to run {run_id}: {e}")
+            logger.error(f"Failed to log Agent configuration to run {run_id}: {e}")
 
 
 logger = logging.getLogger(__name__)

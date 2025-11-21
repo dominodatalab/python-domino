@@ -160,17 +160,8 @@ https://urllib3.readthedocs.io/en/latest/reference/urllib3.util.html#module-urll
 
 * `MLFLOW_TRACKING_URI`
 +
-Must be set for the `domino.aisystems` package to work properly. This will be set automatically in executions, e.g. Jobs, Workspaces, Scheduled Jobs, etc.
+Must be set for the `domino.agents` package to work properly. This will be set automatically in executions, e.g. Jobs, Workspaces, Scheduled Jobs, etc.
 For testing, the value must be set on the command line to "http://localhost:5000".
-
-* `DOMINO_AI_SYSTEM_CONFIG_PATH`
-+
-Used by the `domino.aisystems` package. May be set to point to the location of the `ai_system_config.yaml`.
-
-* `DOMINO_AI_SYSTEM_IS_PROD`
-+
-Used by the `domino.aisystems` package. Indicates that an AI System is running in production or development mode.
-
 
 == Methods
 
@@ -758,27 +749,26 @@ domino.runs_start(["echo 'Hello, World!'"], isDirect=True)
 domino.runs_start(["main.py"], commitId="aabbccddee")
 ----
 
-=== AISystems
+=== Agents
 
+== domino.agents.environment++_++variables
 
-== domino.aisystems.environment++_++variables
-
-DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH: +
-For configuring the location of the ai++_++system++_++config.yaml file.
-If not set, defaults to ‘./ai++_++system++_++config.yaml’.
+DOMINO++_++AGENT++_++CONFIG++_++PATH: +
+For configuring the location of the agent++_++config.yaml file. If not
+set, defaults to ‘./agent++_++config.yaml’.
 
 type: +
 str
 
-DOMINO++_++AI++_++SYSTEM++_++IS++_++PROD: +
-Indicates if the AI System is running in production mode. Set to ‘true’
-to optimize for production.
+DOMINO++_++AGENT++_++IS++_++PROD: +
+Indicates if the Agent is running in production mode. Set to ‘true’ to
+optimize for production.
 
 type: +
 str
 
 DOMINO++_++APP++_++ID: +
-Indicates the ID of the AI System application. Must be set in production
+Indicates the ID of the Agent application. Must be set in production
 mode.
 
 type: +
@@ -791,7 +781,7 @@ library to work and will be set automatically when running in Domino.
 type: +
 str
 
-== domino.aisystems.logging
+== domino.agents.logging
 
 Functions
 
@@ -806,23 +796,22 @@ Classes
 [width="100%",cols="50%,50%",]
 |===
 |`DominoRun`(++[++experiment++_++name, run++_++id, …++]++) |DominoRun is
-a context manager that starts an Mlflow run and attaches the user’s AI
-System configuration to it, create a Logged Model with the AI System
+a context manager that starts an Mlflow run and attaches the user’s
+Agent configuration to it, create a Logged Model with the Agent
 configuration, and computes summary metrics for evaluation traces made
 during the run.
 |===
 
-=== _class_ domino.aisystems.logging.DominoRun(_experiment++_++name: str++|++ None = None_, _run++_++id: str ++|++ None = None_,_ai++_++system++_++config++_++path: str ++|++ None = None_,_custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`', '`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
+= _class_ domino.agents.logging.DominoRun(_experiment++_++name: str ++|++None = None_, _run++_++id: str ++|++ None = None_,_agent++_++config++_++path: str ++|++ None = None_,_custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`','`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
 Bases: `object`
 
 DominoRun is a context manager that starts an Mlflow run and attaches
-the user’s AI System configuration to it, create a Logged Model with the
-AI System configuration, and computes summary metrics for evaluation
-traces made during the run. Average metrics are computed by default, but
-the user can provide a custom list of evaluation metric aggregators.
-This is intended to be used in development mode for AI System
-evaluation. Context manager docs:
-https://docs.python.org/3/library/contextlib.html
+the user’s Agent configuration to it, create a Logged Model with the
+Agent configuration, and computes summary metrics for evaluation traces
+made during the run. Average metrics are computed by default, but the
+user can provide a custom list of evaluation metric aggregators. This is
+intended to be used in development mode for Agent evaluation. Context
+manager docs: https://docs.python.org/3/library/contextlib.html
 
 Parallelism: DominoRun is not thread-safe. Runs in different threads
 will work correctly. This is due to Mlflow’s architecture. Parallelizing
@@ -843,9 +832,9 @@ run to.
 
 * *run++_++id* – optional, the ID of the mlflow run to continue logging
 to. If not provided a new run will start.
-* *ai++_++system++_++config++_++path* – the optional path to the AI
-System configuration file. If not provided, defaults to the
-DOMINO++_++AI++_++SYSTEM++_++CONFIG++_++PATH environment variable.
+* *agent++_++config++_++path* – the optional path to the Agent
+configuration file. If not provided, defaults to the
+DOMINO++_++AGENT++_++CONFIG++_++PATH environment variable.
 * *custom++_++summary++_++metrics* – an optional list of tuples that
 define what summary statistic to use with what evaluation metric. Valid
 summary statistics are: “mean”, “median”, “stdev”, “max”, “min” e.g.
@@ -855,10 +844,10 @@ Returns: DominoRun context manager
 
  
 
-=== domino.aisystems.logging.log++_++evaluation(_trace++_++id: str_, _name: str_, _value: float ++|++ str_) +
+= domino.agents.logging.log++_++evaluation(_trace++_++id: str_, _name:str_, _value: float ++|++ str_) +
 This logs evaluation data and metadata to a parent trace. This is used
 to log the evaluation of a span after it was created. This is useful for
-analyzing past performance of an AI System component.
+analyzing past performance of an Agent component.
 
 Parameters: +
 - *trace++_++id* – the ID of the trace to evaluate
@@ -875,7 +864,7 @@ Modules
 |`logging` |
 |===
 
-== domino.aisystems.tracing
+== domino.agents.tracing
 
 Functions
 
@@ -888,10 +877,9 @@ decorator that starts an mlflow span for the function it decorates.
 autologging for various frameworks and sets the active experiment to
 enable tracing in production.
 
-|`search++_++ai++_++system++_++traces`(ai++_++system++_++id++[++, …++]++)
-|This allows searching for traces that have a certain name and returns a
-paginated response of trace summaries that include the spans that were
-requested.
+|`search++_++agent++_++traces`(agent++_++id++[++, …++]++) |This allows
+searching for traces that have a certain name and returns a paginated
+response of trace summaries that include the spans that were requested.
 
 |`search++_++traces`(run++_++id++[++, trace++_++name, …++]++) |This
 allows searching for traces that have a certain name and returns a
@@ -915,7 +903,7 @@ trace.
 trace.
 |===
 
-=== _class_ domino.aisystems.tracing.EvaluationResult(_name: str_, _value:float ++|++ str_) +
+= _class_ domino.agents.tracing.EvaluationResult(_name: str_, _value:float ++|++ str_) +
 Bases: `object`
 
 An evaluation result for a trace.
@@ -926,9 +914,9 @@ The name of the evaluation
 value__: float ++|++ str__ +
 The value of the evaluation
 
+ 
 
-
-=== _class_ domino.aisystems.tracing.SearchTracesResponse(_data: list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
+= _class_ domino.agents.tracing.SearchTracesResponse(_data:list++[++TraceSummary++]++_, _page++_++token: str ++|++ None_) +
 Bases: `object`
 
 The response from searching for traces.
@@ -941,7 +929,7 @@ The token for the next page of results
 
  
 
-=== _class_ domino.aisystems.tracing.SpanSummary(_id: str_, _name: str_, _trace++_++id: str_, _inputs: Any_, _outputs: Any_) +
+= _class_ domino.agents.tracing.SpanSummary(_id: str_, _name: str_,_trace++_++id: str_, _inputs: Any_, _outputs: Any_) +
 Bases: `object`
 
 A span in a trace.
@@ -963,7 +951,7 @@ The parent trace ID
 
  
 
-=== _class_ domino.aisystems.tracing.TraceSummary(_name: str_, _id: str_, _spans: list++[++SpanSummary++]++_, _evaluation++_++results: list++[++EvaluationResult++]++_) +
+= _class_ domino.agents.tracing.TraceSummary(_name: str_, _id: str_,_spans: list++[++SpanSummary++]++_, _evaluation++_++results:list++[++EvaluationResult++]++_) +
 Bases: `object`
 
 A summary of a trace.
@@ -982,7 +970,7 @@ The child spans of this trace
 
  
 
-=== domino.aisystems.tracing.add++_++tracing(_name: str_,_autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,_evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator:Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_,_allow++_++tracing++_++evaluator: bool = False_) +
+= domino.agents.tracing.add++_++tracing(_name: str_,_autolog++_++frameworks: list++[++str++]++ ++|++ None = ++[]++_,_evaluator: Callable++[[++mlflow.entities.Span++]++, dict++[++str, int++|++ float ++|++ str++]]++ ++|++ None = None_, _trace++_++evaluator:Callable++[[++mlflow.entities.Trace++]++, dict++[++str, int ++|++ float++|++ str++]]++ ++|++ None = None_,_eagerly++_++evaluate++_++streamed++_++results: bool = True_,_allow++_++tracing++_++evaluator: bool = False_) +
 This is a decorator that starts an mlflow span for the function it
 decorates. If there is an existing trace a span will be appended to it.
 If there is no existing trace, a new trace will be created.
@@ -1039,31 +1027,31 @@ A decorator that wraps the function to be traced.
 
  
 
-=== domino.aisystems.tracing.init++_++tracing(_autolog++_++frameworks: list++[++str++]++ ++|++ None = None_) +
+= domino.agents.tracing.init++_++tracing(_autolog++_++frameworks:list++[++str++]++ ++|++ None = None_) +
 Initialize Mlflow autologging for various frameworks and sets the active
 experiment to enable tracing in production. This may be used to
-initialize logging and tracing for the AI System in dev and prod modes.
+initialize logging and tracing for the Agent in dev and prod modes.
 
-In prod mode, environment variables
-DOMINO++_++AI++_++SYSTEM++_++IS++_++PROD, DOMINO++_++APP++_++ID must be
-set. Call init++_++tracing before your app starts up to start logging
-traces to Domino.
+In prod mode, environment variables DOMINO++_++AGENT++_++IS++_++PROD,
+DOMINO++_++APP++_++ID must be set. Call init++_++tracing before your app
+starts up to start logging traces to Domino.
 
 Parameters: +
 *autolog++_++frameworks* – list of frameworks to autolog
 
  
 
-=== domino.aisystems.tracing.search++_++ai++_++system++_++traces(_ai++_++system++_++id: str_, _ai++_++system++_++version: str ++|++ None = None_, _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++ None = None_, _end++_++time: datetime ++|++ None = None_, _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++ None = None_) → SearchTracesResponse +
+= domino.agents.tracing.search++_++agent++_++traces(_agent++_++id: str_,_agent++_++version: str ++|++ None = None_, _trace++_++name: str ++|++None = None_, _start++_++time: datetime ++|++ None = None_,_end++_++time: datetime ++|++ None = None_, _page++_++token: str ++|++None = None_, _max++_++results: int ++|++ None = None_) →
+SearchTracesResponse +
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that include the spans that were
 requested.
 
 Parameters: +
-- *ai++_++system++_++id* – string, the ID of the AI System to filter by
+- *agent++_++id* – string, the ID of the Agent to filter by
 
-* *ai++_++system++_++version* – string, the version of the AI System to
-filter by, if not provided will search throuh all versions
+* *agent++_++version* – string, the version of the Agent to filter by,
+if not provided will search throuh all versions
 * *trace++_++name* – the name of the traces to search for
 * *start++_++time* – python datetime
 * *end++_++time* – python datetime, defaults to now
@@ -1082,7 +1070,7 @@ SearchTracesResponse
 
  
 
-=== domino.aisystems.tracing.search++_++traces(_run++_++id: str_, _trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++ None = None_, _end++_++time: datetime ++|++ None = None_, _page++_++token: str ++|++ None = None_, _max++_++results: int ++|++ None = None_) → SearchTracesResponse +
+= domino.agents.tracing.search++_++traces(_run++_++id: str_,_trace++_++name: str ++|++ None = None_, _start++_++time: datetime ++|++None = None_, _end++_++time: datetime ++|++ None = None_,_page++_++token: str ++|++ None = None_, _max++_++results: int ++|++None = None_) → SearchTracesResponse +
 This allows searching for traces that have a certain name and returns a
 paginated response of trace summaries that inclued the spans that were
 requested.

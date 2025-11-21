@@ -5,7 +5,7 @@ from .tracing import (
     TraceSummary,
     SearchTracesResponse,
     search_traces,
-    search_ai_system_traces,
+    search_agent_traces,
 )
 from .inittracing import init_tracing as init_tracing
 
@@ -16,6 +16,6 @@ __all__ = [
     "TraceSummary",
     "SearchTracesResponse",
     "search_traces",
-    "search_ai_system_traces",
+    "search_agent_traces",
     "init_tracing",
 ]
