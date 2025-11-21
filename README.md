@@ -126,7 +126,6 @@ See
 ## building locally
 
 - Install the app in dev mode and all dependencies and pandoc: `brew install pandoc ghc cabal-install haskell-stack` and `cabal update && cabal install --lib pandoc-types --package-env .`
-- install dependencies in this order: `pipenv --python 3.10 install -e ".[dev]" && pipenv --python 3.10 install -e ".[docs]" && pipenv --python 3.10 install -e ".[data]" ".[airflow]" ".[aisystems]"`
 - Build: `./docs/build.sh`
 - View: open docs/build/html/index.html
 - Manually pick the changes you want and add to `README.adoc` and `README.md`. Update the styling of the docs as needed.
@@ -766,23 +765,8 @@ set, defaults to ‘./ai_system_config.yaml’.
 type:  
 str
 
-DOMINO_AI_SYSTEM_IS_PROD:  
-Indicates if the AI System is running in production mode. Set to ‘true’
-to optimize for production.
-
-type:  
-str
-
-DOMINO_APP_ID:  
-Indicates the ID of the AI System application. Must be set in production
-mode.
-
-type:  
-str
-
-MLFLOW_TRACKING_URI:  
-Used to configure Mlflow functionality. It is required in order for
-library to work and will be set automatically when running in Domino.
+DOMINO_AI_SYSTEM_MODEL_ID:  
+The ID of the production AI System
 
 type:  
 str
@@ -882,23 +866,9 @@ Classes
 
 |  |  |
 |----|----|
-| `EvaluationResult`(name, value) | An evaluation result for a trace. |
 | `SearchTracesResponse`(data, page_token) | The response from searching for traces. |
 | `SpanSummary`(id, name, trace_id, inputs, outputs) | A span in a trace. |
 | `TraceSummary`(name, id, spans, evaluation_results) | A summary of a trace. |
-
-### *class* domino.aisystems.tracing.EvaluationResult(*name: str*, *value: float \| str*)  
-Bases: `object`
-
-An evaluation result for a trace.
-
-name*: str*  
-The name of the evaluation
-
-value*: float \| str*  
-The value of the evaluation
-
-&nbsp;
 
 ### *class* domino.aisystems.tracing.SearchTracesResponse(*data: list\[TraceSummary\]*, *page_token: str \| None*)  
 Bases: `object`
@@ -954,7 +924,7 @@ The child spans of this trace
 
 &nbsp;
 
-### domino.aisystems.tracing.add_tracing(*name: str*, *autolog_frameworks: list\[str\] \| None = \[\]*, *evaluator: Callable\[\[mlflow.entities.Span\], dict\[str, int \| float \| str\]\] \| None = None*, *trace_evaluator: Callable\[\[mlflow.entities.Trace\], dict\[str, int \| float \| str\]\] \| None = None*, *eagerly_evaluate_streamed_results: bool = True*, *allow_tracing_evaluator: bool = False*)  
+### domino.aisystems.tracing.add_tracing(*name: str*, *autolog_frameworks: list\[str\] \| None = \[\]*, *evaluator: Callable\[\[mlflow.entities.Span\], dict\[str, int \| float \| str\]\] \| None = None*, *trace_evaluator: Callable\[\[mlflow.entities.Trace\], dict\[str, int \| float \| str\]\] \| None = None*, *eagerly_evaluate_streamed_results: bool = True*)  
 This is a decorator that starts an mlflow span for the function it
 decorates. If there is an existing trace a span will be appended to it.
 If there is no existing trace, a new trace will be created.
@@ -1004,9 +974,6 @@ Parameters:
   be executed. Each span will have a group_id set in their attributes to
   indicate that they are part of the same function call. Each span will
   have an index to indicate what order they arrived in.
-
-- **allow_tracing_evaluator** – optional boolean, defaults to false.
-  This determines if inline evaluators will be traced by mlflow autolog.
 
 Returns:  
 A decorator that wraps the function to be traced.

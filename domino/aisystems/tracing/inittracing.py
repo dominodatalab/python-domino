@@ -12,8 +12,8 @@ from .._verify_domino_support import verify_domino_support
 # autolog frameworks, then the worst case scenario is that we get duplicate autolog calls. These are local to the process
 # so not a big deal
 
-global triggered_autolog_frameworks
-triggered_autolog_frameworks = set()
+global _triggered_autolog_frameworks
+_triggered_autolog_frameworks = set()
 
 global _is_prod_tracing_initialized
 _is_prod_tracing_initialized = False
@@ -85,17 +85,17 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
                 _is_prod_tracing_initialized = True
 
     for fw in frameworks:
-        global triggered_autolog_frameworks
-        if fw not in triggered_autolog_frameworks:
-            triggered_autolog_frameworks.add(fw)
+        global _triggered_autolog_frameworks
+        if fw not in _triggered_autolog_frameworks:
+            _triggered_autolog_frameworks.add(fw)
             call_autolog(fw)
 
 
-def call_autolog(fw: str, disable: bool = False):
+def call_autolog(fw: str):
     try:
-        getattr(mlflow, fw).autolog(disable=disable)
+        getattr(mlflow, fw).autolog()
     except Exception as e:
-        logger.warning(f"Failed to call mlflow autolog for {fw} ai framework: {e}")
+        logger.warning(f"Failed to call mlflow autolog for {fw} ai framework", e)
 
 
 logger = logging.getLogger(__name__)

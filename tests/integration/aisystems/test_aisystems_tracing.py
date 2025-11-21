@@ -1,12 +1,7 @@
-import asyncio
 from datetime import datetime, timedelta
 import inspect
 import logging as logger
 import os
-import random
-import subprocess
-from openai import OpenAI
-import openai
 import pytest
 import threading
 import time
@@ -14,7 +9,7 @@ from unittest.mock import call, patch
 
 from ...conftest import TEST_AI_SYSTEMS_ENV_VARS
 from domino.aisystems._constants import EXPERIMENT_AI_SYSTEM_TAG
-from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time, add_prod_tags
+from .mlflow_fixtures import fixture_create_prod_traces, create_span_at_time
 from .test_util import reset_prod_tracing
 from domino.aisystems._client import client
 from domino.aisystems.tracing._util import build_ai_system_experiment_name
@@ -112,42 +107,6 @@ def test_logging_traces_prod(setup_mlflow_tracking_server, mocker, mlflow, traci
         actual_exp_id = set([mlflow.get_experiment_by_name(expected_experiment_name).experiment_id])
         assert found_exp_ids == actual_exp_id, "traces should be linked to the ai system experiment"
 
-def test_inline_evaluators_should_not_run_prod(setup_mlflow_tracking_server, tracing):
-        """
-        in prod mode, inline evaluators should not run
-        """
-        app_id = "inline_evals_prod"
-        test_case_vars = {"DOMINO_AI_SYSTEM_IS_PROD": "true", "DOMINO_APP_ID": app_id}
-        env_vars = TEST_AI_SYSTEMS_ENV_VARS | test_case_vars
-
-        reset_prod_tracing()
-
-        @tracing.add_tracing(name="span_unit", evaluator=lambda span: { 'span_result': 1 })
-        def span_unit(x):
-                return x
-
-        @tracing.add_tracing(name="trace_unit", trace_evaluator=lambda trace: { 'trace_result': 1 })
-        def trace_unit(x):
-                return x
-
-        @tracing.add_tracing(name="trace_and_unit", evaluator=lambda span: { 'both_span_result': 1 }, trace_evaluator=lambda trace: { 'both_trace_result': 1 })
-        def trace_and_unit(x):
-                return x
-
-        with patch.dict(os.environ, env_vars, clear=True):
-                tracing.init_tracing()
-                span_unit(1)
-                trace_unit(1)
-                trace_and_unit(1)
-
-        # add prod tags, like what domino services would do
-        add_prod_tags(None, app_id, "v1")
-
-        ts = tracing.search_ai_system_traces(ai_system_id=app_id)
-        eval_results = [r for trace in ts.data for r in trace.evaluation_results]
-
-        assert len(ts.data) == 3, "three traces should be created"
-        assert len(eval_results) == 0, "no evaluation results should be logged in prod mode"
 
 def test_init_tracing_dev_mode(setup_mlflow_tracking_server, mocker, mlflow, tracing):
         """
@@ -512,10 +471,9 @@ def test_search_traces(setup_mlflow_tracking_server, mocker, mlflow, tracing, lo
         assert sorted([trace.name for trace in res.data]) == sorted(["parent", "parent2"])
         assert sorted([(t.name, t.value) for trace in res.data for t in trace.evaluation_results if trace.name == "parent"]) \
                 == sorted([("mylabel", "category"), ("mymetric", 1.0)])
-        assert len(span_data) == 4
-        assert sorted(span_data, key=lambda x: x[0]) == sorted([("parent", {'x':1, 'y': 2}, 3), \
+        assert sorted(span_data) == sorted([("parent", {'x':1, 'y': 2}, 3), \
                 ("parent2", {'x':1}, 1), ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)
-        ], key=lambda x: x[0])
+        ])
 
 def test_search_traces_time_filter_warning(setup_mlflow_tracking_server, tracing, mlflow, logging, caplog):
         """
@@ -554,9 +512,7 @@ def test_search_traces_by_trace_name(setup_mlflow_tracking_server, mocker, mlflo
         span_data = [(s.name, s.inputs, s.outputs) for trace in res.data for s in trace.spans]
 
         assert [trace.name for trace in res.data] == ["parent"]
-        assert len(span_data) == 3
-        assert sorted(span_data, key=lambda x: x[0]) == sorted([("parent", {'x':1, 'y': 2}, 3), \
-                ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)], key=lambda x: x[0])
+        assert sorted(span_data) == sorted([("parent", {'x':1, 'y': 2}, 3), ("unit_1", {'x':1}, 1), ("unit_2", {'x':2}, 2)])
 
 def test_search_traces_by_timestamp(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         @tracing.add_tracing(name="parent")
@@ -901,122 +857,3 @@ def test_init_tracing_triggers_one_get_experiment_by_name_calls_in_threads(setup
                 # even though we don't re-initialize the experiment in both threads, the traces
                 # still go to the right experiment
                 assert len(traces) == 2, "Two traces named 'do' should be saved to the experiment"
-
-def test_disable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
-        """
-        inline evaluators should not get traced
-        """
-        mlflow.set_experiment("test_disable_evaluator_tracing")
-
-        def openai_evaluator(span):
-                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
-                completion = openaiclient.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": "content"}],
-                )
-                return {'evaluator_metric': 1}
-
-        @tracing.add_tracing(name="parent", autolog_frameworks=["openai"], evaluator=openai_evaluator)
-        def parent(x):
-                return x
-
-        with logging.DominoRun() as run:
-                parent(1)
-
-        ts = tracing.search_traces(run_id=run.info.run_id)
-
-        assert not any([t.name == 'Completions' for t in ts.data]), "No traces from OpenAI evaluator should be present"
-
-def test_evaluator_tracing_gets_reenabled(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
-        """
-        inline evaluators tracing should get reenabled later
-        """
-        mlflow.set_experiment("test_disable_evaluator_tracing")
-
-        def openai_evaluator(span):
-                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
-                completion = openaiclient.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": "content"}],
-                )
-                return {'evaluator_metric': 1}
-
-        @tracing.add_tracing(name="parent", autolog_frameworks=["openai"], evaluator=openai_evaluator)
-        def parent(x):
-                return x
-
-        @tracing.add_tracing(name="enabled", autolog_frameworks=["openai"], evaluator=openai_evaluator, allow_tracing_evaluator=True)
-        def enabled(x):
-                return x
-
-        # disabled one
-        with logging.DominoRun() :
-                parent(1)
-
-        # enabled one
-        with logging.DominoRun() as run2:
-                enabled(1)
-
-        ts = tracing.search_traces(run_id=run2.info.run_id)
-
-        assert any([t.name == 'Completions' for t in ts.data]), "traces from OpenAI evaluator should be present"
-
-def test_enable_evaluator_tracing(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
-        """
-        inline evaluators should get traced if flag is true
-        """
-        mlflow.set_experiment("test_enable_evaluator_tracing")
-
-        def openai_evaluator(span):
-                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
-                completion = openaiclient.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": "content"}],
-                )
-                return {'evaluator_metric': 1}
-
-        @tracing.add_tracing(name="parent", autolog_frameworks=["openai"], evaluator=openai_evaluator, allow_tracing_evaluator=True)
-        def parent(x):
-                return x
-
-        with logging.DominoRun() as run:
-                parent(1)
-
-        ts = tracing.search_traces(run_id=run.info.run_id)
-
-        assert any([t.name == 'Completions' for t in ts.data]), "traces from OpenAI evaluator should be present"
-
-@pytest.mark.asyncio
-async def test_async_evaluator_tracing_disabled(setup_mlflow_tracking_server, mlflow, tracing, logging, setup_openai_mock_server):
-        """
-        disabling evaluator tracing in async functions shouldn't affect ones where it's enabled
-        """
-        mlflow.set_experiment("test_async_evaluator_tracing_disabled")
-
-        def openai_evaluator(span):
-                span.outputs
-                time.sleep(1)
-                openaiclient = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
-                completion = openaiclient.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[{"role": "user", "content": str(span.outputs)}],
-                )
-                return {'evaluator_metric': 1}
-
-        @tracing.add_tracing(name="disabled", autolog_frameworks=["openai"], evaluator=openai_evaluator)
-        async def disabled(x):
-                return x
-
-        @tracing.add_tracing(name="enabled", autolog_frameworks=["openai"], evaluator=openai_evaluator, allow_tracing_evaluator=True)
-        async def enabled(x):
-                return "enabled"
-
-        with logging.DominoRun() as run:
-                tasks = [enabled(i) for i in range(10)] + [disabled(i) for i in range(10)]
-                random.shuffle(tasks)
-                results = await asyncio.gather(*tasks)
-
-        ts = tracing.search_traces(run_id=run.info.run_id)
-
-        outputs = [t.spans[0].inputs['messages'][0]['content'] for t in ts.data if t.name == 'Completions']
-        assert  outputs == ["enabled"] * 10, "traces from OpenAI evaluator should be present for enabled function only"

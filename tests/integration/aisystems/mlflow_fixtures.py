@@ -20,17 +20,7 @@ def fixture_create_traces():
         with mlflow.start_run():
                 test_add(1, 2)
 
-def add_prod_tags(traces: Optional[list], ai_system_id: str, ai_system_version: str):
-        # adds prod tags to traces, simulating what domino services would do in a prod deployment
-
-        pytest.importorskip("mlflow")
-        import mlflow
-        if not traces:
-                exp_name = build_ai_system_experiment_name(ai_system_id)
-                exp = mlflow.get_experiment_by_name(exp_name)
-
-                traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list')
-
+def _add_prod_tags(traces, ai_system_id: str, ai_system_version: str):
         for t in traces:
                 client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_id", ai_system_id)
                 client.set_trace_tag(t.info.trace_id, "mlflow.domino.app_version_id", ai_system_version)
@@ -76,4 +66,4 @@ def fixture_create_prod_traces(
                 ts = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string=f"trace.name = '{trace_name}'", return_type='list')
 
                 # add prod tags (would be done by Domino deployment)
-                add_prod_tags(ts, ai_system_id, ai_system_version)
+                _add_prod_tags(ts, ai_system_id, ai_system_version)
