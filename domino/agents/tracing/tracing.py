@@ -10,7 +10,7 @@ from uuid import uuid4
 from .._client import client
 from .inittracing import init_tracing, triggered_autolog_frameworks, call_autolog
 from ..logging.logging import log_evaluation
-from ._util import get_is_production, build_ai_system_experiment_name
+from ._util import get_is_production, build_agent_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
 from .._verify_domino_support import verify_domino_support
 
@@ -98,14 +98,8 @@ def _do_evaluation(
     evaluator: Optional[SpanEvaluator] = None,
     trace_evaluator: Optional[TraceEvaluator] = None,
     is_production: bool = False,
-    allow_evaluator_autologging: bool = False,
 ) -> Optional[dict]:
     if not is_production and (evaluator or trace_evaluator):
-        if not allow_evaluator_autologging:
-            # disable all autologging
-            for fw in triggered_autolog_frameworks:
-                call_autolog(fw, disable=True)
-
         span_eval_result = None
         trace_eval_result = None
 
@@ -152,9 +146,6 @@ def _do_evaluation(
                     trace_evaluator.__name__,
                 )
 
-        if not allow_evaluator_autologging:
-            enable_evaluator_logging()
-
         # if at least one result exists, return a combined dict
         # otherwise, return none
         if span_eval_result or trace_eval_result:
@@ -162,22 +153,16 @@ def _do_evaluation(
 
     return None
 
-def enable_evaluator_logging():
-    # re-enable autologging if it was previously enabled
-    for fw in triggered_autolog_frameworks:
-        call_autolog(fw)
-
 def _log_eval_results(
     parent_span: mlflow.entities.Span,
     evaluator: Optional[SpanEvaluator],
     trace_evaluator: Optional[TraceEvaluator],
-    allow_evaluator_autologging: bool,
 ):
     """
     Saves the evaluation results
     """
     is_production = get_is_production()
-    eval_result = _do_evaluation(parent_span, evaluator, trace_evaluator, is_production, allow_evaluator_autologging)
+    eval_result = _do_evaluation(parent_span, evaluator, trace_evaluator, is_production)
 
     if eval_result:
         for k, v in eval_result.items():
@@ -212,7 +197,6 @@ def add_tracing(
     evaluator: Optional[SpanEvaluator] = None,
     trace_evaluator: Optional[TraceEvaluator] = None,
     eagerly_evaluate_streamed_results: bool = True,
-    allow_tracing_evaluator: bool = False,
 ):
     """This is a decorator that starts an mlflow span for the function it decorates. If there is an existing trace
     a span will be appended to it. If there is no existing trace, a new trace will be created.
@@ -249,9 +233,6 @@ def add_tracing(
             Each span will have a group_id set in their attributes to indicate that they are part of the same function call.
             Each span will have an index to indicate what order they arrived in.
 
-        allow_tracing_evaluator: optional boolean, defaults to false. This determines if inline evaluators
-            will be traced by mlflow autolog.
-
     Returns:
         A decorator that wraps the function to be traced.
     """
@@ -273,7 +254,7 @@ def add_tracing(
                 parent_span.set_outputs(result)
 
             if result != DOMINO_NO_RESULT_ADD_TRACING:
-                _log_eval_results(parent_span, evaluator, trace_evaluator, allow_tracing_evaluator)
+                _log_eval_results(parent_span, evaluator, trace_evaluator)
 
             return _return_traced_result(result)
 
@@ -293,7 +274,7 @@ def add_tracing(
                     parent_span.set_outputs(result)
 
                 if result != DOMINO_NO_RESULT_ADD_TRACING:
-                    _log_eval_results(parent_span, evaluator, trace_evaluator, allow_tracing_evaluator)
+                    _log_eval_results(parent_span, evaluator, trace_evaluator)
 
                 return _return_traced_result(result)
 
@@ -340,7 +321,7 @@ def add_tracing(
                             yield v
 
                 if eagerly_evaluate_streamed_results and result != DOMINO_NO_RESULT_ADD_TRACING:
-                    _log_eval_results(parent_span, evaluator, trace_evaluator, allow_tracing_evaluator)
+                    _log_eval_results(parent_span, evaluator, trace_evaluator)
 
             return wrapper
 
@@ -383,9 +364,9 @@ def _build_trace_summaries(traces) -> list[TraceSummary]:
     return trace_summaries
 
 
-def search_ai_system_traces(
-    ai_system_id: str,
-    ai_system_version: Optional[str] = None,
+def search_agent_traces(
+    agent_id: str,
+    agent_version: Optional[str] = None,
     trace_name: Optional[str] = None,
     start_time: Optional[datetime] = None,
     end_time: Optional[datetime] = None,
@@ -396,8 +377,8 @@ def search_ai_system_traces(
     include the spans that were requested.
 
     Args:
-        ai_system_id: string, the ID of the AI System to filter by
-        ai_system_version: string, the version of the AI System to filter by, if not provided will search throuh all versions
+        agent_id: string, the ID of the Agent to filter by
+        agent_version: string, the version of the Agent to filter by, if not provided will search throuh all versions
         trace_name: the name of the traces to search for
         start_time: python datetime
         end_time: python datetime, defaults to now
@@ -412,8 +393,8 @@ def search_ai_system_traces(
     """
     return _search_traces(
         None,
-        ai_system_id,
-        ai_system_version,
+        agent_id,
+        agent_version,
         trace_name,
         start_time,
         end_time,
@@ -461,8 +442,8 @@ def search_traces(
 
 def _search_traces(
     run_id: Optional[str] = None,
-    ai_system_id: Optional[str] = None,
-    ai_system_version: Optional[str] = None,
+    agent_id: Optional[str] = None,
+    agent_version: Optional[str] = None,
     trace_name: Optional[str] = None,
     start_time: Optional[datetime] = None,
     end_time: Optional[datetime] = None,
@@ -472,14 +453,14 @@ def _search_traces(
     # this depends on mlflow 3 due to the pagination support
     verify_domino_support()
 
-    if not run_id and not ai_system_version and not ai_system_id:
+    if not run_id and not agent_version and not agent_id:
         raise Exception(
-            "Either run_id or ai_system_id and ai_system_version must be provided to search traces"
+            "Either run_id or agent_id and agent_version must be provided to search traces"
         )
 
-    if ai_system_version and not ai_system_id:
+    if agent_version and not agent_id:
         raise Exception(
-            "If ai_system_version is provided, ai_system_id must also be provided"
+            "If agent_version is provided, agent_id must also be provided"
         )
 
     filter_clauses = []
@@ -490,21 +471,21 @@ def _search_traces(
         run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
         filter_clauses.append(run_filter_clause)
     else:
-        experiment_name = build_ai_system_experiment_name(ai_system_id)
+        experiment_name = build_agent_experiment_name(agent_id)
         experiment = client.get_experiment_by_name(experiment_name)
         if not experiment:
             raise Exception(
-                f"No experiment found for ai_system_id: {ai_system_id} and ai_system_version: {ai_system_version}"
+                f"No experiment found for agent_id: {agent_id} and agent_version: {agent_version}"
             )
         experiment_id = experiment.experiment_id
 
         # add prod trace tag filters
-        if ai_system_id:
-            filter_clauses.append(f'tags.mlflow.domino.app_id = "{ai_system_id}"')
+        if agent_id:
+            filter_clauses.append(f'tags.mlflow.domino.app_id = "{agent_id}"')
 
-        if ai_system_version:
+        if agent_version:
             filter_clauses.append(
-                f'tags.mlflow.domino.app_version_id = "{ai_system_version}"'
+                f'tags.mlflow.domino.app_version_id = "{agent_version}"'
             )
 
     if start_time or end_time:

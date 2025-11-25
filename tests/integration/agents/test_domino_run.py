@@ -4,9 +4,9 @@ from unittest.mock import call
 
 def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
-        DominoRun will contain the ai system configuration loggged as parameters and the summary metrics for its
+        DominoRun will contain the agent configuration loggged as parameters and the summary metrics for its
                 evaluation traces which are attached to the run only,
-                and a logged model with the ai system configuration,
+                and a logged model with the agent configuration,
                 and a default summarization metrics are computed for the evaluation traces
 
                 the sklearn autolog function will be called
@@ -34,7 +34,7 @@ def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, l
         assert len(models) == 1
 
         model = models[0]
-        # verify ai system config added as configuration
+        # verify agent config added as configuration
         assert model.params['chat_assistant.max_tokens'] == '1500'
         assert model.params['chat_assistant.model'] == 'gpt-3.5-turbo'
         assert model.params['chat_assistant.temperature'] == '0.7'
@@ -46,7 +46,7 @@ def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, l
 
         run = mlflow.get_run(run_id)
 
-        # verify run has ai system config logged to it as parameters
+        # verify run has agent config logged to it as parameters
         assert run.data.params['chat_assistant.max_tokens'] == '1500'
         assert run.data.params['chat_assistant.model'] == 'gpt-3.5-turbo'
         assert run.data.params['chat_assistant.temperature'] == '0.7'
