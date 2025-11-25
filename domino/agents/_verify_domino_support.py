@@ -54,7 +54,7 @@ def _verify_domino_support_impl():
 
     if not domino_supported:
         raise UnsupportedOperationException(
-            "This version of Domino doesn’t support the aisystems package."
+            "This version of Domino doesn’t support the agents package."
         )
 
     # verify mlflow sdk version
