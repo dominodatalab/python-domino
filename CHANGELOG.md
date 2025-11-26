@@ -14,7 +14,6 @@ All notable changes to the `python-domino` library will be documented in this fi
 * Support environmentId and externalVolumeMountIds in app_publish
 
 ### Changed
-* Disabled tracing of ai system evaluators by default
 * Renamed the package `domino.aisystems` to `domino.agents` (_Breaks backwards compatibility_)
 
 ## [1.5.2]
