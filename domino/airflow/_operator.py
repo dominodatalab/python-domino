@@ -2,7 +2,6 @@ import time
 from typing import Any, List, Optional
 
 from airflow.models import BaseOperator
-from airflow.utils.decorators import apply_defaults
 
 from domino import Domino
 
@@ -29,7 +28,6 @@ class DominoOperator(BaseOperator):
     template_fields = ("command", "title")
     ui_color = "#5188c7"
 
-    @apply_defaults
     def __init__(
         self,
         project: str,
@@ -180,7 +178,6 @@ class DominoSparkOperator(BaseOperator):
     template_fields = ("command",)
     ui_color = "#6C50AD"
 
-    @apply_defaults
     def __init__(
         self,
         project: str,
