@@ -551,7 +551,7 @@ Stop the running app in the project.
 
 ## Jobs
 
-### job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None):
+### job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None, main_repo_git_ref=None):
 
 Start a new job (execution) in the project.
 
@@ -616,6 +616,17 @@ Start a new job (execution) in the project.
     launches with no external volumes mounted.
 
 -   *title (string): (Optional) Title for Job.
+
+-   *main_repo_git_ref (dict):* (Optional) For git-based projects,
+    specifies the branch, tag, or commit to run from. Must contain
+    `"type"` and `"value"` keys. For example:
+
+        {"type": "branch", "value": "my-feature-branch"}
+        {"type": "tag", "value": "v1.2.3"}
+        {"type": "commitId", "value": "abc123def456"}
+
+    If not provided, the job launches from the latest commit on the
+    default branch.
 
 ### job_stop(job_id, commit_results=True):
 

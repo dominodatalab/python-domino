@@ -8,6 +8,41 @@ from requests.exceptions import RequestException
 from domino import Domino
 from domino.helpers import domino_is_reachable
 
+# Realistic mock IDs used in unit tests.
+# Domino IDs (project, job, user) are 24-character hex MongoDB ObjectIds.
+# Commit IDs are Git SHA strings.
+MOCK_PROJECT_ID = "aabbccddeeff001122334454"
+MOCK_JOB_ID = "aabbccddeeff001122334455"
+MOCK_USER_ID = "aabbccddeeff001122334456"
+MOCK_INPUT_COMMIT_ID = "aabbcc112233"
+MOCK_OUTPUT_COMMIT_ID = "ddeeff445566"
+
+# Realistic mock response body from GET /v4/jobs/{id} for a completed job.
+# Mirrors a subset of the actual API response schema.
+MOCK_JOB_RESPONSE_COMPLETED = {
+    "id": MOCK_JOB_ID,
+    "number": 42,
+    "projectId": MOCK_PROJECT_ID,
+    "title": None,
+    "jobRunCommand": "foo.py",
+    "statuses": {
+        "isCompleted": True,
+        "isArchived": False,
+        "isScheduled": False,
+        "executionStatus": "Succeeded",
+    },
+    "stageTime": {
+        "submissionTime": 1700000000000,
+        "runStartTime": 1700000005000,
+        "completedTime": 1700000060000,
+    },
+    "startedBy": {"id": MOCK_USER_ID, "username": "anyuser"},
+    "commitDetails": {
+        "inputCommitId": MOCK_INPUT_COMMIT_ID,
+        "outputCommitId": MOCK_OUTPUT_COMMIT_ID,
+    },
+}
+
 
 @pytest.fixture
 def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
@@ -25,25 +60,56 @@ def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
     # Mock the /version API endpoint (GET)
     requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
 
-    # Mock /findProjectByOwnerAndName API endpoint (GET) and return json with ID abcdef
+    # Mock /findProjectByOwnerAndName API endpoint (GET) and return the mock project ID
     project_endpoint = "v4/gateway/projects/findProjectByOwnerAndName"
     project_query = "ownerName=anyuser&projectName=anyproject"
     requests_mock.get(
-        f"{dummy_hostname}/{project_endpoint}?{project_query}", json={"id": "abcdef"}
+        f"{dummy_hostname}/{project_endpoint}?{project_query}", json={"id": MOCK_PROJECT_ID}
     )
 
-    # Mock the jobs/start API endpoint (POST) and return json with ID 123
+    # Mock the jobs/start API endpoint (POST) and return a realistic job object
+    # representing a newly queued job. Mirrors a subset of the actual API response schema.
     jobs_start_endpoint = "v4/jobs/start"
-    requests_mock.post(f"{dummy_hostname}/{jobs_start_endpoint}", json={"id": "123"})
+    requests_mock.post(
+        f"{dummy_hostname}/{jobs_start_endpoint}",
+        json={
+            "id": MOCK_JOB_ID,
+            "number": 42,
+            "projectId": MOCK_PROJECT_ID,
+            "title": None,
+            "jobRunCommand": "foo.py",
+            "statuses": {
+                "isCompleted": False,
+                "isArchived": False,
+                "isScheduled": False,
+                "executionStatus": "Queued",
+            },
+            "queuedJobHistoryDetails": {
+                "expectedWait": "< 1 minute",
+                "explanation": "Resources are available",
+                "helpText": None,
+            },
+            "stageTime": {
+                "submissionTime": 1700000000000,
+                "runStartTime": None,
+                "completedTime": None,
+            },
+            "startedBy": {"id": MOCK_USER_ID, "username": "anyuser"},
+            "commitDetails": {
+                "inputCommitId": MOCK_INPUT_COMMIT_ID,
+                "outputCommitId": None,
+            },
+        },
+    )
 
-    # Mock STDOUT for run with ID 123 add return json with string value
-    stdout_endpoint = "v1/projects/anyuser/anyproject/run/123/stdout"
+    # Mock STDOUT for the mock job ID
+    stdout_endpoint = f"v1/projects/anyuser/anyproject/run/{MOCK_JOB_ID}/stdout"
     requests_mock.get(
         f"{dummy_hostname}/{stdout_endpoint}", json={"stdout": "whatever"}
     )
 
     # Mock HWT endpoint
-    hwt_endpoint = "v4/projects/abcdef/hardwareTiers"
+    hwt_endpoint = f"v4/projects/{MOCK_PROJECT_ID}/hardwareTiers"
     requests_mock.get(f"{dummy_hostname}/{hwt_endpoint}", json=[])
     yield
 
@@ -54,16 +120,45 @@ def test_job_status_completes_with_default_params(requests_mock, dummy_hostname)
     Confirm that the happy path default case passes (no exceptions thrown)
     """
     # Mock a typical response from the jobs status API endpoint (GET)
-    jobs_status_endpoint = "v4/jobs/123"
+    jobs_status_endpoint = f"v4/jobs/{MOCK_JOB_ID}"
     requests_mock.get(
         f"{dummy_hostname}/{jobs_status_endpoint}",
-        json={"statuses": {"isCompleted": True, "executionStatus": "whatever"}},
+        json=MOCK_JOB_RESPONSE_COMPLETED,
     )
 
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
 
     job_status = d.job_start_blocking(command="foo.py", poll_freq=1, max_poll_time=1)
     assert job_status["statuses"]["isCompleted"] is True
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
+def test_job_start_sends_main_repo_git_ref(requests_mock, dummy_hostname):
+    """
+    Confirm that main_repo_git_ref is passed through to the jobs/start request body.
+    """
+    jobs_status_endpoint = f"v4/jobs/{MOCK_JOB_ID}"
+    requests_mock.get(
+        f"{dummy_hostname}/{jobs_status_endpoint}",
+        json=MOCK_JOB_RESPONSE_COMPLETED,
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+
+    git_ref = {"type": "branch", "value": "my-feature-branch"}
+    d.job_start_blocking(
+        command="foo.py",
+        main_repo_git_ref=git_ref,
+        poll_freq=1,
+        max_poll_time=1,
+    )
+
+    # Verify the last request to jobs/start contained the correct mainRepoGitRef
+    jobs_start_request = next(
+        req for req in requests_mock.request_history
+        if req.path == "/v4/jobs/start"
+    )
+    assert jobs_start_request.json()["mainRepoGitRef"] == git_ref
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
@@ -75,7 +170,7 @@ def test_job_status_ignores_RequestException_and_times_out(
     (In this case, timing out via polling2.TimeoutException is expected.)
     """
     # Force the jobs status API endpoint to throw a RequestException when called
-    jobs_status_endpoint = "v4/jobs/123"
+    jobs_status_endpoint = f"v4/jobs/{MOCK_JOB_ID}"
     requests_mock.get(f"{dummy_hostname}/{jobs_status_endpoint}", exc=RequestException)
 
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
@@ -91,7 +186,7 @@ def test_job_status_without_ignoring_exceptions(requests_mock, dummy_hostname):
     The call should fail immediately with RequestException.
     """
     # Force the jobs status API endpoint to throw a RequestException when called
-    jobs_status_endpoint = "v4/jobs/123"
+    jobs_status_endpoint = f"v4/jobs/{MOCK_JOB_ID}"
     requests_mock.get(f"{dummy_hostname}/{jobs_status_endpoint}", exc=RequestException)
 
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
