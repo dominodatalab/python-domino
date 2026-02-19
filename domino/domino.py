@@ -326,6 +326,7 @@ class Domino:
         compute_cluster_properties: Optional[dict] = None,
         external_volume_mounts: Optional[List[str]] = None,
         title: Optional[str] = None,
+        main_repo_git_ref: Optional[dict] = None,
     ) -> dict:
         """
         Starts a Domino Job via V4 API
@@ -389,6 +390,14 @@ class Domino:
                                                     no external volume mounts mounted.
         :param title                                string (Optional)
                                                     Title for the Job
+        :param main_repo_git_ref:                   dict (Optional)
+                                                    For git-based projects, specifies the branch, tag, or commit to run from.
+                                                    Must be a dict with "type" and "value" keys, e.g.:
+                                                    {
+                                                        "type": "branch",
+                                                        "value": "my-feature-branch"
+                                                    }
+                                                    Supported types: "branch", "tag", "commitId"
         :return: Returns created Job details (number, id etc)
         """
 
@@ -587,6 +596,7 @@ class Domino:
             "projectId": self.project_id,
             "commandToRun": command,
             "commitId": commit_id,
+            "mainRepoGitRef": main_repo_git_ref,
             "overrideHardwareTierId": resolved_hardware_tier_id,
             "onDemandSparkClusterProperties": spark_cluster_properties,
             "computeClusterProperties": validated_compute_cluster_properties,
