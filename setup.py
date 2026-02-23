@@ -47,18 +47,18 @@ setup(
     keywords=["Domino Data Lab", "API"],
     python_requires=">=3.10.0",
     install_requires=[
-        "packaging==23.2",
+        "packaging>=23.2,<27",
         "requests>=2.4.2",
         "beautifulsoup4~=4.11",
         "polling2~=0.5.0",
         "urllib3>=1.26.19,<3",
         "typing-extensions~=4.13.0",
-        "frozendict~=2.3",
+        "frozendict~=2.4.6",
         "python-dateutil~=2.8.2",
         "retry==0.9.2",
     ],
     extras_require={
-        "airflow": ["apache-airflow==2.2.4"],
+        "airflow": ["apache-airflow~=2.11"],
         "data": ["dominodatalab-data>=0.1.0"],
         "agents": [
             "semver>=3.0.4",
@@ -75,10 +75,6 @@ setup(
             "ai-mock>=0.3.1", # used in agent tracing tests
             "black==22.3.0",
             "flake8==4.0.1",
-            "Jinja2==2.11.3",
-            "nbconvert==6.3.0",
-            "packaging==23.2",
-            "polling2==0.5.0",
             "pre-commit==2.19.0",
             "pyspark==3.3.0",
             "pytest==7.4.3",
