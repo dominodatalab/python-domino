@@ -4,6 +4,7 @@ import functools
 import inspect
 import logging
 import mlflow
+from mlflow.entities import SpanType
 from typing import Optional, Callable, Any
 from uuid import uuid4
 
@@ -197,6 +198,8 @@ def add_tracing(
     evaluator: Optional[SpanEvaluator] = None,
     trace_evaluator: Optional[TraceEvaluator] = None,
     eagerly_evaluate_streamed_results: bool = True,
+    span_type: Optional[str] = SpanType.UNKNOWN,
+    attributes: Optional[dict[str, Any]] = None,
 ):
     """This is a decorator that starts an mlflow span for the function it decorates. If there is an existing trace
     a span will be appended to it. If there is no existing trace, a new trace will be created.
@@ -212,6 +215,7 @@ def add_tracing(
 
     @add_tracing(
         name="assistant_chat_bot",
+        span_type=SpanType.LLM,
         evaluator=evaluate_helpfulness,
     )
     def ask_chat_bot(user_input: str) -> dict:
@@ -233,6 +237,10 @@ def add_tracing(
             Each span will have a group_id set in their attributes to indicate that they are part of the same function call.
             Each span will have an index to indicate what order they arrived in.
 
+        span_type: optional string specifying the type of span. Defaults to SpanType.UNKNOWN. See the mlflow documentation for common types.
+
+        attributes: optional dictionary of additional attributes to set on the span for metadata and context.
+
     Returns:
         A decorator that wraps the function to be traced.
     """
@@ -246,7 +254,7 @@ def add_tracing(
             result = DOMINO_NO_RESULT_ADD_TRACING
             init_tracing(autolog_frameworks)
 
-            with mlflow.start_span(name) as parent_span:
+            with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
                 _set_span_inputs(parent_span, func, args, kwargs)
 
                 result = func(*args, **kwargs)
@@ -266,7 +274,7 @@ def add_tracing(
                 result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
-                with mlflow.start_span(name) as parent_span:
+                with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
                     _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = await func(*args, **kwargs)
@@ -288,7 +296,7 @@ def add_tracing(
                 result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
-                with mlflow.start_span(name) as parent_span:
+                with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
                     inputs = _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = func(*args, **kwargs)
@@ -305,7 +313,7 @@ def add_tracing(
                         i = -1
                         for v in result:
                             i += 1
-                            with mlflow.start_span(name) as gen_span:
+                            with mlflow.start_span(name, span_type=span_type, attributes=attributes) as gen_span:
                                 # make span for each yielded value
                                 gen_span.set_inputs(inputs)
                                 gen_span.set_attributes(
