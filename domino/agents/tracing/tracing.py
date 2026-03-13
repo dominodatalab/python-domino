@@ -237,9 +237,9 @@ def add_tracing(
             Each span will have a group_id set in their attributes to indicate that they are part of the same function call.
             Each span will have an index to indicate what order they arrived in.
 
-        span_type: optional string specifying the type of span. Defaults to SpanType.UNKNOWN. See the mlflow documentation for common types.
+        span_type: optional string specifying the type of span, passed directly to mlflow.start_span(). Defaults to SpanType.UNKNOWN. Common types are defined in mlflow.entities.SpanType (e.g. LLM, AGENT, TOOL, CHAIN, RETRIEVER). See https://mlflow.org/docs/latest for details.
 
-        attributes: optional dictionary of additional attributes to set on the span for metadata and context.
+        attributes: optional dictionary of additional attributes to set on the span, passed directly to mlflow.start_span(). See https://mlflow.org/docs/latest for details.
 
     Returns:
         A decorator that wraps the function to be traced.

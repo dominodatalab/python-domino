@@ -1010,14 +1010,17 @@ Parameters:
 - **allow_tracing_evaluator** – optional boolean, defaults to false.
   This determines if inline evaluators will be traced by mlflow autolog.
 
-- **span_type** – optional string specifying the type of span. Defaults
-  to SpanType.UNKNOWN. Common types include SpanType.LLM, SpanType.AGENT,
-  SpanType.TOOL, SpanType.CHAIN, SpanType.RETRIEVER, SpanType.CHAT_MODEL,
-  SpanType.PARSER, SpanType.EMBEDDING, SpanType.RERANKER.
+- **span_type** – optional string specifying the type of span, passed
+  directly to `mlflow.start_span()`. Defaults to `SpanType.UNKNOWN`.
+  Common types from `mlflow.entities.SpanType` include LLM, AGENT,
+  TOOL, CHAIN, RETRIEVER, CHAT_MODEL, PARSER, EMBEDDING, RERANKER.
+  Consult the [MLflow documentation](https://mlflow.org/docs/latest) for more information.
 
 - **attributes** – optional dictionary of additional attributes to set
-  on the span for metadata and context. For example:
+  on the span, passed directly to `mlflow.start_span()`. These can be
+  used to attach metadata and context to the span. For example:
   {"model": "gpt-4", "temperature": 0.7}.
+  Consult the [MLflow documentation](https://mlflow.org/docs/latest) for more information.
 
 Returns:  
 A decorator that wraps the function to be traced.

@@ -922,9 +922,12 @@ def test_add_tracing_span_type_and_attributes(setup_mlflow_tracking_server, mlfl
         result = llm_call("Hello")
         assert result == "Response to: Hello"
 
-        # Test that trace was created
         traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list')
         assert len(traces) == 1, "Should create one trace"
+
+        span = traces[0].data.spans[0]
+        assert span.span_type == "LLM", "Span type should be set to LLM"
+        assert span.attributes.get("model") == "gpt-4", "Custom attribute 'model' should be set on the span"
 
 def test_add_tracing_span_type_with_async_and_generator(setup_mlflow_tracking_server, mlflow, tracing):
         """
@@ -980,6 +983,9 @@ def test_add_tracing_custom_span_type_string(setup_mlflow_tracking_server, mlflo
         result = custom_operation()
         assert result == "custom result"
 
-        # Test trace was created
         traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list')
         assert len(traces) == 1, "Should create one trace"
+
+        span = traces[0].data.spans[0]
+        assert span.span_type == "CUSTOM_OPERATION", "Custom span type string should be preserved"
+        assert span.attributes.get("operation_id") == "op_123", "Custom attribute 'operation_id' should be set on the span"
