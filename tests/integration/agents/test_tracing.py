@@ -922,9 +922,12 @@ def test_add_tracing_span_type_and_attributes(setup_mlflow_tracking_server, mlfl
         result = llm_call("Hello")
         assert result == "Response to: Hello"
 
-        # Test that trace was created
         traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list')
         assert len(traces) == 1, "Should create one trace"
+
+        span = traces[0].data.spans[0]
+        assert span.span_type == "LLM", "Span type should be set to LLM"
+        assert span.attributes.get("model") == "gpt-4", "Custom attribute 'model' should be set on the span"
 
 def test_add_tracing_span_type_with_async_and_generator(setup_mlflow_tracking_server, mlflow, tracing):
         """
@@ -962,6 +965,15 @@ def test_add_tracing_span_type_with_async_and_generator(setup_mlflow_tracking_se
         traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list')
         assert len(traces) >= 2, "Should create at least two traces"
 
+        async_trace = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list', filter_string="trace.name = 'async_retriever'")[0]
+        async_span = async_trace.data.spans[0]
+        assert async_span.span_type == "RETRIEVER", "Async span type should be RETRIEVER"
+        assert async_span.attributes.get("index") == "vector_db", "Async span attribute 'index' should be set"
+
+        gen_trace = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list', filter_string="trace.name = 'generator_chain'")[0]
+        gen_span = gen_trace.data.spans[0]
+        assert gen_span.span_type == "CHAIN", "Generator span type should be CHAIN"
+
 def test_add_tracing_custom_span_type_string(setup_mlflow_tracking_server, mlflow, tracing):
         """
         add_tracing should accept custom span type strings
@@ -980,6 +992,9 @@ def test_add_tracing_custom_span_type_string(setup_mlflow_tracking_server, mlflo
         result = custom_operation()
         assert result == "custom result"
 
-        # Test trace was created
         traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], return_type='list')
         assert len(traces) == 1, "Should create one trace"
+
+        span = traces[0].data.spans[0]
+        assert span.span_type == "CUSTOM_OPERATION", "Custom span type string should be preserved"
+        assert span.attributes.get("operation_id") == "op_123", "Custom attribute 'operation_id' should be set on the span"
