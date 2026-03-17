@@ -956,7 +956,7 @@ The child spans of this trace
 
 &nbsp;
 
-### domino.agents.tracing.add_tracing(*name: str*, *autolog_frameworks: list\[str\] \| None = \[\]*, *evaluator: Callable\[\[mlflow.entities.Span\], dict\[str, int \| float \| str\]\] \| None = None*, *trace_evaluator: Callable\[\[mlflow.entities.Trace\], dict\[str, int \| float \| str\]\] \| None = None*, *eagerly_evaluate_streamed_results: bool = True*, *allow_tracing_evaluator: bool = False*)  
+### domino.agents.tracing.add_tracing(*name: str*, *autolog_frameworks: list\[str\] \| None = \[\]*, *evaluator: Callable\[\[mlflow.entities.Span\], dict\[str, int \| float \| str\]\] \| None = None*, *trace_evaluator: Callable\[\[mlflow.entities.Trace\], dict\[str, int \| float \| str\]\] \| None = None*, *eagerly_evaluate_streamed_results: bool = True*, *span_type: str \| None = SpanType.UNKNOWN*, *attributes: dict\[str, Any\] \| None = None*)
 This is a decorator that starts an mlflow span for the function it
 decorates. If there is an existing trace a span will be appended to it.
 If there is no existing trace, a new trace will be created.
@@ -1009,6 +1009,18 @@ Parameters:
 
 - **allow_tracing_evaluator** – optional boolean, defaults to false.
   This determines if inline evaluators will be traced by mlflow autolog.
+
+- **span_type** – optional string specifying the type of span, passed
+  directly to `mlflow.start_span()`. Defaults to `SpanType.UNKNOWN`.
+  Common types from `mlflow.entities.SpanType` include LLM, AGENT,
+  TOOL, CHAIN, RETRIEVER, CHAT_MODEL, PARSER, EMBEDDING, RERANKER.
+  Consult the [MLflow documentation](https://mlflow.org/docs/latest) for more information.
+
+- **attributes** – optional dictionary of additional attributes to set
+  on the span, passed directly to `mlflow.start_span()`. These can be
+  used to attach metadata and context to the span. For example:
+  {"model": "gpt-4", "temperature": 0.7}.
+  Consult the [MLflow documentation](https://mlflow.org/docs/latest) for more information.
 
 Returns:  
 A decorator that wraps the function to be traced.
