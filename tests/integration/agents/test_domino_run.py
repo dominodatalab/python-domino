@@ -2,6 +2,8 @@ import pytest
 import threading
 from unittest.mock import call
 
+from domino.agents._constants import AGENT_RUN_TAG
+
 def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, logging):
         """
         DominoRun will contain the agent configuration loggged as parameters and the summary metrics for its
@@ -51,6 +53,9 @@ def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, l
         assert run.data.params['chat_assistant.model'] == 'gpt-3.5-turbo'
         assert run.data.params['chat_assistant.temperature'] == '0.7'
         assert run.data.params['version'] == '1.0'
+
+        # verify run is tagged as an agent run
+        assert run.data.tags.get(AGENT_RUN_TAG) == "true", "run should be tagged as an agent run"
 
         # verify run has summary metrics logged to it
         # average of outputs is 2 + 4/2 = 3
@@ -170,6 +175,9 @@ def test_domino_run_extend_current_run(setup_mlflow_tracking_server, mlflow, log
 
         assert first_run_id == second_run_id, "Both runs should have the same run_id"
         assert len(traces) == 2, "There should be two traces for unit"
+
+        resumed_run = mlflow.get_run(first_run_id)
+        assert resumed_run.data.tags.get(AGENT_RUN_TAG) == "true", "resumed run should be tagged as an agent run"
 
         # each domino run should have an external model linked to it
         models = mlflow.search_logged_models(experiment_ids=[run.info.experiment_id], output_format='list')

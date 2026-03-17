@@ -7,7 +7,7 @@ import traceback
 from typing import Literal, Optional, Callable
 
 from .._client import client
-from .._constants import LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG
+from .._constants import LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG, AGENT_RUN_TAG
 from .._eval_tags import build_metric_tag, VALID_LABEL_PATTERN
 from .._verify_domino_support import verify_domino_support
 from ..read_agent_config import get_flattened_agent_config
@@ -169,18 +169,19 @@ class DominoRun:
         without a user specifying the experiment explicitly.
         """
         if not self._run:
+            agent_tags = {AGENT_RUN_TAG: "true"}
+
             if self.run_id:
                 self._run = mlflow.get_run(run_id=self.run_id)
                 experiment_id = self._run.info.experiment_id
                 self._run = mlflow.start_run(
-                    experiment_id=experiment_id, run_id=self.run_id
+                    experiment_id=experiment_id, run_id=self.run_id, tags=agent_tags
                 )
 
             elif self.experiment_id:
-                # start the run in this experiment
-                self._run = mlflow.start_run(experiment_id=self.experiment_id)
+                self._run = mlflow.start_run(experiment_id=self.experiment_id, tags=agent_tags)
             else:
-                self._run = mlflow.start_run()
+                self._run = mlflow.start_run(tags=agent_tags)
 
             self.experiment_id = self._run.info.experiment_id
 
