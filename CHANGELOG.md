@@ -5,6 +5,12 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+## [2.1.0]
+
+### Added
 * `span_type` and `attributes` parameters to `add_tracing` decorator, allowing users to specify span types and custom metadata attributes to spans.
 
 ### Changed
