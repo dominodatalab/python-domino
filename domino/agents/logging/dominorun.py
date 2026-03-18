@@ -111,6 +111,8 @@ def _choose_summarizer(statistic: SummaryStatistic) -> Callable[[list[float]], f
             raise ValueError(f"Unknown summary statistic: {statistic}")
 
 class DominoRun:
+    _is_agent_context = False
+
     def __init__(
         self,
         experiment_name: Optional[str] = None,
@@ -169,21 +171,20 @@ class DominoRun:
         without a user specifying the experiment explicitly.
         """
         if not self._run:
-            agent_tags = {AGENT_RUN_TAG: "true"}
-
             if self.run_id:
                 self._run = mlflow.get_run(run_id=self.run_id)
                 experiment_id = self._run.info.experiment_id
                 self._run = mlflow.start_run(
-                    experiment_id=experiment_id, run_id=self.run_id, tags=agent_tags
+                    experiment_id=experiment_id, run_id=self.run_id
                 )
 
             elif self.experiment_id:
-                self._run = mlflow.start_run(experiment_id=self.experiment_id, tags=agent_tags)
+                self._run = mlflow.start_run(experiment_id=self.experiment_id)
             else:
-                self._run = mlflow.start_run(tags=agent_tags)
+                self._run = mlflow.start_run()
 
             self.experiment_id = self._run.info.experiment_id
+            mlflow.set_tag(AGENT_RUN_TAG, str(self._is_agent_context).lower())
 
     def __enter__(self):
         """
@@ -304,6 +305,10 @@ class DominoRun:
             )
         except Exception as e:
             logger.error(f"Failed to log Agent configuration to run {run_id}: {e}")
+
+
+class DominoAgentContext(DominoRun):
+    _is_agent_context = True
 
 
 logger = logging.getLogger(__name__)

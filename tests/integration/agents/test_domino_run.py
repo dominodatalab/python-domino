@@ -54,8 +54,7 @@ def test_domino_run_dev(setup_mlflow_tracking_server, mocker, mlflow, tracing, l
         assert run.data.params['chat_assistant.temperature'] == '0.7'
         assert run.data.params['version'] == '1.0'
 
-        # verify run is tagged as an agent run
-        assert run.data.tags.get(AGENT_RUN_TAG) == "true", "run should be tagged as an agent run"
+        assert run.data.tags.get(AGENT_RUN_TAG) == "false", "DominoRun should tag the run as not an agent run"
 
         # verify run has summary metrics logged to it
         # average of outputs is 2 + 4/2 = 3
@@ -177,7 +176,7 @@ def test_domino_run_extend_current_run(setup_mlflow_tracking_server, mlflow, log
         assert len(traces) == 2, "There should be two traces for unit"
 
         resumed_run = mlflow.get_run(first_run_id)
-        assert resumed_run.data.tags.get(AGENT_RUN_TAG) == "true", "resumed run should be tagged as an agent run"
+        assert resumed_run.data.tags.get(AGENT_RUN_TAG) == "false", "DominoRun should tag the run as not an agent run"
 
         # each domino run should have an external model linked to it
         models = mlflow.search_logged_models(experiment_ids=[run.info.experiment_id], output_format='list')
@@ -322,3 +321,24 @@ def test_domino_run_recomputes_existing_aggregations(setup_mlflow_tracking_serve
         run = mlflow.get_run(run_id)
         assert run.data.metrics['max_agg'] == 5, 'max should be 5'
         assert run.data.metrics['mean_agg'] == 3, 'mean should be 3'
+
+def test_domino_agent_context_tags_run(setup_mlflow_tracking_server, mlflow, logging):
+        mlflow.set_experiment("test_domino_agent_context_tags_run")
+
+        with logging.DominoAgentContext() as run:
+                run_id = run.info.run_id
+
+        run = mlflow.get_run(run_id)
+        assert run.data.tags.get(AGENT_RUN_TAG) == "true", "DominoAgentContext should tag the run"
+
+def test_domino_agent_context_tags_resumed_run(setup_mlflow_tracking_server, mlflow, logging):
+        mlflow.set_experiment("test_domino_agent_context_tags_resumed_run")
+
+        with logging.DominoAgentContext() as run:
+                first_run_id = run.info.run_id
+
+        with logging.DominoAgentContext(run_id=first_run_id) as run:
+                pass
+
+        run = mlflow.get_run(first_run_id)
+        assert run.data.tags.get(AGENT_RUN_TAG) == "true", "DominoAgentContext should tag the resumed run"
