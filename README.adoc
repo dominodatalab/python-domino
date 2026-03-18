@@ -842,7 +842,43 @@ summary statistics are: “mean”, “median”, “stdev”, “max”, “min
 
 Returns: DominoRun context manager
 
- 
+
+
+=== _class_ domino.agents.logging.DominoAgentContext(_experiment++_++name: str ++|++None = None_, _run++_++id: str ++|++ None = None_,_agent++_++config++_++path: str ++|++ None = None_,_custom++_++summary++_++metrics: list++[++str, Literal++[++'`mean`','`median`', '`stdev`', '`max`', '`min`'++]]++ ++|++ None = None_) +
+Bases: `DominoRun`
+
+DominoAgentContext behaves identically to DominoRun but additionally
+tags the MLflow run to indicate it originated from an agent.
+Use DominoAgentContext instead of DominoRun when the run is part of an agentic workflow.
+
+Example
+
+import mlflow
+
+mlflow.set++_++experiment("my++_++experiment")
+
+with DominoAgentContext(): +
+agent.run()
+
+Parameters: +
+- *experiment++_++name* – the name of the mlflow experiment to log the run
+to.
+
+* *run++_++id* – optional, the ID of the mlflow run to continue logging
+to. If not provided a new run will start.
+
+* *agent++_++config++_++path* – the optional path to the Agent configuration
+file. If not provided, defaults to the DOMINO++_++AGENT++_++CONFIG++_++PATH
+environment variable.
+
+* *custom++_++summary++_++metrics* – an optional list of tuples that define
+what summary statistic to use with what evaluation metric. Valid
+summary statistics are: "`mean`", "`median`", "`stdev`", "`max`", "`min`" e.g.
+++[++("hallucination++_++rate", "max")++]++
+
+Returns: DominoAgentContext context manager
+
+
 
 === domino.agents.logging.log++_++evaluation(_trace++_++id: str_, _name:str_, _value: float ++|++ str_) +
 This logs evaluation data and metadata to a parent trace. This is used

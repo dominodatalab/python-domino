@@ -124,7 +124,7 @@ class DominoRun:
         create a Logged Model with the Agent configuration, and computes summary metrics for evaluation traces made during the run.
         Average metrics are computed by default, but the user can provide a custom list of evaluation metric aggregators.
         This is intended to be used in development mode for Agent evaluation.
-        Context manager docs: https://docs.python.org/3/library/contextlib.html
+        When running an agentic workflow, use DominoAgentContext instead to indicate the run in the context of an agent.
 
         Parallelism: DominoRun is not thread-safe. Runs in different threads will work correctly. This is due to
         Mlflow's architecture. Parallelizing operations within a single DominoRun context however, is supported.
@@ -308,6 +308,30 @@ class DominoRun:
 
 
 class DominoAgentContext(DominoRun):
+    """DominoAgentContext is a context manager for agentic runs. It behaves identically to DominoRun but
+    additionally tags the MLflow run to indicate it originated from an agent.
+
+    Use DominoAgentContext instead of DominoRun when the run is part of an agentic workflow.
+
+    Example:
+        import mlflow
+
+        mlflow.set_experiment("my_experiment")
+
+        with DominoAgentContext():
+            agent.run()
+
+    Args:
+            experiment_name: the name of the mlflow experiment to log the run to.
+
+            run_id: optional, the ID of the mlflow run to continue logging to. If not provided a new run will start.
+
+            agent_config_path: the optional path to the Agent configuration file. If not provided, defaults to the DOMINO_AGENT_CONFIG_PATH environment variable.
+
+            custom_summary_metrics: an optional list of tuples that define what summary statistic to use with what evaluation metric. Valid summary statistics are: "mean", "median", "stdev", "max", "min" e.g. [("hallucination_rate", "max")]
+
+    Returns: DominoAgentContext context manager
+    """
     _is_agent_context = True
 
 

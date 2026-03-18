@@ -803,7 +803,7 @@ Classes
 |----|----|
 | `DominoRun`(\[experiment_name, run_id, ...\]) | DominoRun is a context manager that starts an Mlflow run and attaches the user's Agent configuration to it, create a Logged Model with the Agent configuration, and computes summary metrics for evaluation traces made during the run. |
 
-### *class* domino.agents.logging.DominoRun(*experiment_name: str \| None = None*, *run_id: str \| None = None*, *agent_config_path: str \| None = None*, *custom_summary_metrics: list\[str, Literal\['mean', 'median', 'stdev', 'max', 'min'\]\] \| None = None*)  
+### *class* domino.agents.logging.DominoRun(*experiment_name: str \| None = None*, *run_id: str \| None = None*, *agent_config_path: str \| None = None*, *custom_summary_metrics: list\[str, Literal\['mean', 'median', 'stdev', 'max', 'min'\]\] \| None = None*)
 Bases: `object`
 
 DominoRun is a context manager that starts an Mlflow run and attaches
@@ -824,10 +824,10 @@ import mlflow
 
 mlflow.set_experiment(“my_experiment”)
 
-with DominoRun():  
+with DominoRun():
 train_model()
 
-Parameters:  
+Parameters:
 - **experiment_name** – the name of the mlflow experiment to log the run
   to.
 
@@ -844,6 +844,42 @@ Parameters:
   \[(“hallucination_rate”, “max”)\]
 
 Returns: DominoRun context manager
+
+&nbsp;
+
+### *class* domino.agents.logging.DominoAgentContext(*experiment_name: str \| None = None*, *run_id: str \| None = None*, *agent_config_path: str \| None = None*, *custom_summary_metrics: list\[str, Literal\['mean', 'median', 'stdev', 'max', 'min'\]\] \| None = None*)
+Bases: `DominoRun`
+
+DominoAgentContext behaves identically to DominoRun but additionally
+tags the MLflow run to indicate it originated from an agent.
+Use DominoAgentContext instead of DominoRun when the run is part of an agentic workflow.
+
+Example
+
+import mlflow
+
+mlflow.set_experiment("my_experiment")
+
+with DominoAgentContext():
+agent.run()
+
+Parameters:
+- **experiment_name** – the name of the mlflow experiment to log the run
+  to.
+
+- **run_id** – optional, the ID of the mlflow run to continue logging
+  to. If not provided a new run will start.
+
+- **agent_config_path** – the optional path to the Agent configuration
+  file. If not provided, defaults to the DOMINO_AGENT_CONFIG_PATH
+  environment variable.
+
+- **custom_summary_metrics** – an optional list of tuples that define
+  what summary statistic to use with what evaluation metric. Valid
+  summary statistics are: "mean", "median", "stdev", "max", "min" e.g.
+  \[("hallucination_rate", "max")\]
+
+Returns: DominoAgentContext context manager
 
 &nbsp;
 
