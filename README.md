@@ -813,6 +813,7 @@ made during the run. Average metrics are computed by default, but the
 user can provide a custom list of evaluation metric aggregators. This is
 intended to be used in development mode for Agent evaluation. Context
 manager docs: https://docs.python.org/3/library/contextlib.html
+When running an agentic workflow, use DominoAgentContext instead to indicate the run in the context of an agent.
 
 Parallelism: DominoRun is not thread-safe. Runs in different threads
 will work correctly. This is due to Mlflow’s architecture. Parallelizing
@@ -850,8 +851,7 @@ Returns: DominoRun context manager
 ### *class* domino.agents.logging.DominoAgentContext(*experiment_name: str \| None = None*, *run_id: str \| None = None*, *agent_config_path: str \| None = None*, *custom_summary_metrics: list\[str, Literal\['mean', 'median', 'stdev', 'max', 'min'\]\] \| None = None*)
 Bases: `DominoRun`
 
-DominoAgentContext behaves identically to DominoRun but additionally
-tags the MLflow run to indicate it originated from an agent.
+DominoAgentContext behaves identically to DominoRun but it is used to indicate that the run originated from an agent.
 Use DominoAgentContext instead of DominoRun when the run is part of an agentic workflow.
 
 Example

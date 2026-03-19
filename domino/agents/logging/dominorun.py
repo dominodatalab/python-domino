@@ -309,7 +309,7 @@ class DominoRun:
 
 class DominoAgentContext(DominoRun):
     """DominoAgentContext is a context manager for agentic runs. It behaves identically to DominoRun
-       but used to indicate that the run originated from an agentic workflow.
+       but it is used to indicate that the run originated from an agent.
 
     Use DominoAgentContext instead of DominoRun when the run is part of an agentic workflow.
 
