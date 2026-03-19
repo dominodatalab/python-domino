@@ -621,9 +621,8 @@ Start a new job (execution) in the project.
     specifies the branch, tag, or commit to run from. Must contain
     `"type"` and `"value"` keys. For example:
 
-        {"type": "branch", "value": "my-feature-branch"}
-        {"type": "tag", "value": "v1.2.3"}
-        {"type": "commitId", "value": "abc123def456"}
+        {"type": "branches", "value": "my-feature-branch"}
+        {"type": "tags", "value": "v1.2.3"}
 
     If not provided, the job launches from the latest commit on the
     default branch.
