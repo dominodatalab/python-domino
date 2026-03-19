@@ -145,7 +145,7 @@ def test_job_start_sends_main_repo_git_ref(requests_mock, dummy_hostname):
 
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
 
-    git_ref = {"type": "branch", "value": "my-feature-branch"}
+    git_ref = {"type": "branches", "value": "my-feature-branch"}
     d.job_start_blocking(
         command="foo.py",
         main_repo_git_ref=git_ref,

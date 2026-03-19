@@ -394,10 +394,10 @@ class Domino:
                                                     For git-based projects, specifies the branch, tag, or commit to run from.
                                                     Must be a dict with "type" and "value" keys, e.g.:
                                                     {
-                                                        "type": "branch",
+                                                        "type": "branches",
                                                         "value": "my-feature-branch"
                                                     }
-                                                    Supported types: "branch", "tag", "commitId"
+                                                    Supported types: "branches", "tags"
         :return: Returns created Job details (number, id etc)
         """
 
