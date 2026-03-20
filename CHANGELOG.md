@@ -5,9 +5,18 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
-* `span_type` and `attributes` parameters to `add_tracing` decorator, allowing users to specify span types and custom metadata attributes to spans.
 
 ### Changed
+
+## [2.1.0]
+
+### Added
+* `span_type` and `attributes` parameters to `add_tracing` decorator, allowing users to specify span types and custom metadata attributes to spans.
+* `main_repo_git_ref` parameter to `job_start` for specifying a branch or tag to run from in git-based projects.
+* `DominoAgentContext` class in `domino.agents.logging` for indicating that a run is from an agentic workflow.
+
+### Changed
+* Relaxed `typing-extensions` version constraint.
 
 ## [2.0.0]
 
