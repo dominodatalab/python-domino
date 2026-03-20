@@ -7,7 +7,7 @@ See this documentation for details about the APIs:
 
 -   [Legacy APIs](https://dominodatalab.github.io/api-docs/)
 
-The latest released version of `python-domino` is `2.0.0`.
+The latest released version of `python-domino` is `2.1.0`.
 
 # Version compatibility matrix
 
@@ -134,7 +134,7 @@ See
 # Budgets and Billing Tags
 
 See
-[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/example_budget_manager.py)
+[`example_budget_manager.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/example_budget_manager.py)
 for example code.
 
 ### budget_defaults_list()
@@ -304,7 +304,7 @@ Requires Admin permission
 ## Projects
 
 See
-[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/example_projects_usage.py)
+[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/example_projects_usage.py)
 for example code.
 
 ### project_create_v4(project_name, owner_id, owner_username, description, collaborators, tags, billing_tag, visibility=PUBLIC)
@@ -362,7 +362,7 @@ project, the packages and libraries it uses, or the source of the data
 within.
 
 See
-[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/example_projects_usage.py)
+[`example_projects_usage.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/example_projects_usage.py)
 for example code.
 
 ### tags_list(\*project_id)
@@ -406,9 +406,9 @@ Remove a tag from a project.
 
 See these code example files:
 
--   [`start_run_and_check_status.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/start_run_and_check_status.py)
+-   [`start_run_and_check_status.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/start_run_and_check_status.py)
 
--   [`export_runs.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/export_runs.py)
+-   [`export_runs.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/export_runs.py)
 
 ### runs_list()
 
@@ -492,9 +492,9 @@ Get `stdout` emitted by a particular execution.
 
 See these code example files:
 
--   [`upload_file.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/upload_file.py)
+-   [`upload_file.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/upload_file.py)
 
--   [`upload_and_run_file_and_download_results.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/upload_and_run_file_and_download_results.py)
+-   [`upload_and_run_file_and_download_results.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/upload_and_run_file_and_download_results.py)
 
 ### files_list(commitId, path)
 
@@ -618,7 +618,7 @@ Start a new job (execution) in the project.
 -   *title (string): (Optional) Title for Job.
 
 -   *main_repo_git_ref (dict):* (Optional) For git-based projects,
-    specifies the branch, tag, or commit to run from. Must contain
+    specifies the branch or tag to run from. Must contain
     `"type"` and `"value"` keys. For example:
 
         {"type": "branches", "value": "my-feature-branch"}
@@ -689,7 +689,7 @@ through the Domino UI or through workload executions.
 See [Domino
 Datasets](https://docs.dominodatalab.com/en/latest/user_guide/0a8d11/datasets-overview/)
 for more details, and
-[`example_dataset.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/example_dataset.py)
+[`example_dataset.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/example_dataset.py)
 for example code.
 
 ### datasets_list(project_id=None)
@@ -1159,7 +1159,7 @@ command:
     pip install -e git+https://github.com/dominodatalab/python-domino.git@1.0.6#egg="dominodatalab[airflow]"
 
 See also
-[example_airflow_dag.py](https://github.com/dominodatalab/python-domino/blob/Release-2.0.0/examples/example_airflow_dag.py)
+[example_airflow_dag.py](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/example_airflow_dag.py)
 for example code.
 
 ## DominoOperator
