@@ -5,3 +5,4 @@ MIN_MLFLOW_VERSION = "3.2.0"
 MIN_DOMINO_VERSION = "6.2.0"
 LARGEST_MAX_RESULTS_PAGE_SIZE = 500
 EXPERIMENT_AGENT_TAG = "domino.agent"
+AGENT_RUN_TAG = "domino.internal.run.is_agent"
