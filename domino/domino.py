@@ -391,7 +391,7 @@ class Domino:
         :param title                                string (Optional)
                                                     Title for the Job
         :param main_repo_git_ref:                   dict (Optional)
-                                                    For git-based projects, specifies the branch, tag, or commit to run from.
+                                                    For git-based projects, specifies the branch or tag to run from.
                                                     Must be a dict with "type" and "value" keys, e.g.:
                                                     {
                                                         "type": "branches",
