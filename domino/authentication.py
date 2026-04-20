@@ -1,7 +1,7 @@
 import os
 import re
 
-from requests.auth import AuthBase, HTTPBasicAuth
+from requests.auth import AuthBase
 
 from .constants import DOMINO_TOKEN_FILE_KEY_NAME, DOMINO_USER_API_KEY_KEY_NAME, \
     DOMINO_API_PROXY
@@ -37,6 +37,19 @@ class ProxyAuth(AuthBase):
     def _replaceHostWithProxy(self, url):
         return re.sub('^.*?://[^/]+', self.api_proxy, url)
 
+
+
+class ApiKeyAuth(AuthBase):
+    """
+    Class for authenticating requests using a Domino API key header.
+    """
+
+    def __init__(self, api_key):
+        self.api_key = api_key
+
+    def __call__(self, r):
+        r.headers["X-Domino-Api-Key"] = self.api_key
+        return r
 
 
 class BearerAuth(AuthBase):
@@ -89,7 +102,7 @@ def get_auth_by_type(api_key=None, auth_token=None, domino_token_file=None, api_
     elif domino_token_file:
         return BearerAuth(domino_token_file=domino_token_file)
     elif api_key:
-        return HTTPBasicAuth("", api_key)
+        return ApiKeyAuth(api_key)
     else:
         # In the case that no authentication type was passed when this method
         # called, fall back to deriving the auth info from the environment.
