@@ -5,6 +5,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+* Updated app_publish() to allow selecting branch/commitRef
+* Updated app_publish() to allow selecing specific app
 
 ### Changed
 
