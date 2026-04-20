@@ -1332,7 +1332,7 @@ class Domino:
         return self._get(url)
 
     def _dataset_remove(self, dataset_id):
-        if dataset_id in self.datasets_ids(self.project_id):
+        if dataset_id not in self.datasets_ids(self.project_id):
             raise exceptions.DatasetNotFoundException(
                 f"Dataset with id {dataset_id} does not exist"
             )
