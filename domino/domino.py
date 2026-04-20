@@ -136,6 +136,7 @@ class Domino:
             self._logger.info(
                 f" You need to log in to the Domino UI to start the run. Please do it at {self._routes.host}/relogin?redirectPath=/"
             )
+            raise
 
     def runs_start_blocking(
         self,
@@ -611,6 +612,7 @@ class Domino:
             self._logger.info(
                 f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}/relogin?redirectPath=/"
             )
+            raise
 
     def job_stop(self, job_id: str, commit_results: bool = True):
         """
