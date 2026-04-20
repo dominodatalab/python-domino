@@ -1982,6 +1982,9 @@ class Domino:
         response = self._get(url)
         if key in response.keys():
             return response[key]
+        raise exceptions.ProjectNotFoundException(
+            f"Project '{self._project_name}' not found for owner '{self._owner_username}'"
+        )
 
     # This will fetch app_id of app in current project
     @property
