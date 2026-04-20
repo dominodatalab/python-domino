@@ -214,7 +214,6 @@ class _CustomMetricsClient(_CustomMetricsClientBase):
             "modelMonitoringId": model_monitoring_id,
             "metric": metric,
             "value": value,
-            "targetRange": {"condition": condition},
         }
         if condition:
             request["targetRange"] = {"condition": condition}
