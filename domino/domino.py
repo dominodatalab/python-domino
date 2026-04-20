@@ -955,7 +955,7 @@ class Domino:
             "environmentId": environmentId,
             "externalVolumeMountIds": externalVolumeMountIds
         }
-        omitting_null = {k: v for (k, v) in payload.items() if v is not None}
+        omitting_null = {k: v for (k, v) in request.items() if v is not None}
         response = self.request_manager.post(url, json=omitting_null)
         return response
 
