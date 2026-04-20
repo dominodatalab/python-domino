@@ -1,13 +1,258 @@
+"""
+Tests for project, file, tag, and commit API methods.
+Unit tests at top (no live Domino deployment required).
+Integration tests below (skipped unless a live deployment is reachable).
+"""
 import uuid
+import warnings
 from pprint import pformat
 
-import gzip
 import pytest
 
 from domino import Domino, exceptions
 from domino.exceptions import ProjectNotFoundException
 from domino.helpers import domino_is_reachable
 
+MOCK_PROJECT_ID = "aabbccddeeff001122334455"
+MOCK_COMMIT_ID = "aabbccddeeff001122334456"
+MOCK_TAG_ID = "aabbccddeeff001122334457"
+MOCK_USER_ID = "aabbccddeeff001122334458"
+
+MOCK_PROJECT = {
+    "id": MOCK_PROJECT_ID,
+    "name": "anyproject",
+    "tags": [{"id": MOCK_TAG_ID, "name": "my-tag"}],
+}
+
+
+@pytest.fixture
+def base_mocks(requests_mock, dummy_hostname):
+    requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
+    requests_mock.get(
+        f"{dummy_hostname}/v4/gateway/projects/findProjectByOwnerAndName"
+        "?ownerName=anyuser&projectName=anyproject",
+        json={"id": MOCK_PROJECT_ID},
+    )
+    yield
+
+
+# ---------------------------------------------------------------------------
+# Unit tests (no live Domino deployment required)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_deployment_version_returns_dict(requests_mock, dummy_hostname):
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.deployment_version()
+    assert result["version"] == "9.9.9"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_commits_list_returns_list(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/v1/projects/anyuser/anyproject/commits",
+        json=[MOCK_COMMIT_ID],
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.commits_list()
+    assert isinstance(result, list)
+    assert result[0] == MOCK_COMMIT_ID
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_files_list_returns_dict(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/v1/projects/anyuser/anyproject/files/{MOCK_COMMIT_ID}//",
+        json={"data": [{"path": "main.py", "key": "abc123"}]},
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.files_list(MOCK_COMMIT_ID)
+    assert isinstance(result["data"], list)
+    assert result["data"][0]["path"] == "main.py"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_files_upload_sends_put(requests_mock, dummy_hostname):
+    upload_mock = requests_mock.put(
+        f"{dummy_hostname}/v1/projects/anyuser/anyproject/test.py",
+        json={"path": "test.py"},
+        status_code=201,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    import io
+    response = d.files_upload("test.py", io.BytesIO(b"print('hello')"))
+    assert upload_mock.called
+    assert response.status_code == 201
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_files_upload_prepends_slash_if_missing(requests_mock, dummy_hostname):
+    upload_mock = requests_mock.put(
+        f"{dummy_hostname}/v1/projects/anyuser/anyproject/test.py",
+        json={"path": "test.py"},
+        status_code=201,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    import io
+    d.files_upload("test.py", io.BytesIO(b""))
+    assert upload_mock.called
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_blobs_get_returns_content(requests_mock, dummy_hostname):
+    blob_key = "a" * 40
+    requests_mock.get(
+        f"{dummy_hostname}/v1/projects/anyuser/anyproject/blobs/{blob_key}",
+        content=b"file content here",
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        result = d.blobs_get(blob_key)
+    assert result.read() == b"file content here"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_blobs_get_v2_raises_for_non_canonical_path(requests_mock, dummy_hostname):
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(exceptions.MalformedInputException):
+        d.blobs_get_v2("/domino/mnt/../test.py", MOCK_COMMIT_ID, MOCK_PROJECT_ID)
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_blobs_get_v2_returns_content(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/api/projects/v1/projects/{MOCK_PROJECT_ID}"
+        f"/files/{MOCK_COMMIT_ID}/main.py/content",
+        content=b"print('hello')",
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.blobs_get_v2("main.py", MOCK_COMMIT_ID, MOCK_PROJECT_ID)
+    assert result.read() == b"print('hello')"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_fork_project_sends_correct_payload(requests_mock, dummy_hostname):
+    fork_mock = requests_mock.post(
+        f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/fork",
+        json={"id": "newprojectid", "name": "forked-project"},
+        status_code=200,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    d.fork_project("forked-project")
+    assert fork_mock.called
+    assert fork_mock.last_request.json()["name"] == "forked-project"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_project_create_sends_correct_payload(requests_mock, dummy_hostname):
+    create_mock = requests_mock.post(
+        f"{dummy_hostname}/project",
+        status_code=200,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    d.project_create("my-new-project")
+    assert create_mock.called
+    assert create_mock.last_request.body
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_project_create_v4_sends_correct_payload(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/api/users",
+        json=[{"userName": "anyuser", "id": MOCK_USER_ID}],
+    )
+    create_mock = requests_mock.post(
+        f"{dummy_hostname}/v4/projects",
+        json={"id": MOCK_PROJECT_ID, "name": "new-v4-project"},
+        status_code=200,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    d.project_create_v4("new-v4-project", owner_id=MOCK_USER_ID)
+    body = create_mock.last_request.json()
+    assert body["name"] == "new-v4-project"
+    assert body["ownerId"] == MOCK_USER_ID
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_projects_list_returns_list(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/v4/gateway/projects",
+        json=[MOCK_PROJECT],
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.projects_list()
+    assert isinstance(result, list)
+    assert result[0]["id"] == MOCK_PROJECT_ID
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_tags_list_returns_list(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}",
+        json=MOCK_PROJECT,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.tags_list()
+    assert isinstance(result, list)
+    assert result[0]["name"] == "my-tag"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_tags_add_sends_correct_payload(requests_mock, dummy_hostname):
+    add_mock = requests_mock.post(
+        f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/tags",
+        json=[{"id": MOCK_TAG_ID, "name": "new-tag"}],
+        status_code=200,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    d.tags_add(["new-tag"])
+    assert add_mock.called
+    assert add_mock.last_request.json()["tagNames"] == ["new-tag"]
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_tag_details_returns_dict(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/projectTags/{MOCK_TAG_ID}",
+        json={"_id": MOCK_TAG_ID, "name": "my-tag"},
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.tag_details(MOCK_TAG_ID)
+    assert result["_id"] == MOCK_TAG_ID
+    assert result["name"] == "my-tag"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_tags_remove_sends_delete(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}",
+        json=MOCK_PROJECT,
+    )
+    delete_mock = requests_mock.delete(
+        f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/tags/{MOCK_TAG_ID}",
+        status_code=200,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    d.tags_remove("my-tag")
+    assert delete_mock.called
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_project_archive_raises_for_nonexistent_project(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/v4/gateway/projects",
+        json=[],
+        status_code=200,
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ProjectNotFoundException):
+        d.project_archive("bogus_project")
+
+
+# ---------------------------------------------------------------------------
+# Integration tests (require a live Domino deployment)
+# ---------------------------------------------------------------------------
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
@@ -167,7 +412,6 @@ def test_add_and_remove_project_collaborator(default_domino_client):
     """
 
     def _get_users():
-        # This operation is not yet a public-facing part of the python-domino API
         url = default_domino_client._routes.users_get()
         response = default_domino_client.request_manager.get(url)
         assert response.status_code == 200, f"{response.status_code}: {response.reason}"
@@ -176,7 +420,6 @@ def test_add_and_remove_project_collaborator(default_domino_client):
     users_list = _get_users()
     collaborators = default_domino_client.collaborators_get()
 
-    # Find a username that is not already a collaborator
     for user in users_list:
         username = user["userName"]
         if username not in collaborators:
@@ -260,21 +503,3 @@ def test_tags_list_remove_from_a_project(default_domino_client):
     assert len(new_tags) < len(first_tags)
 
     assert ("new-tags" != tag["id"] for tag in new_tags)
-
-
-def test_archiving_non_existent_project_raises_appropriate_error(
-    dummy_hostname, requests_mock
-):
-    """
-    Confirm that trying to archive a bogus project will throw the appropriate exception.
-    """
-    requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
-    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-
-    projects_list_endpoint = "v4/gateway/projects?relationship=Owned&showCompleted=true"
-
-    with pytest.raises(ProjectNotFoundException):
-        requests_mock.get(
-            f"{dummy_hostname}/{projects_list_endpoint}", json=[], status_code=200
-        )
-        d.project_archive("bogus_project")
