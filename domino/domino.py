@@ -945,9 +945,9 @@ class Domino:
     def app_publish(self, unpublishRunningApps=True, hardwareTierId=None, environmentId=None, externalVolumeMountIds=None, commitId=None, branch=None, appId=None):
         if commitId and branch:
             raise ValueError("Only one of commitId or branch may be specified, not both.")
-        if unpublishRunningApps:
-            self.app_unpublish(appId=appId)
         app_id = appId or self._app_id
+        if unpublishRunningApps:
+            self.app_unpublish(appId=app_id)
         if app_id is None:
             # No App Exists creating one
             app_id = self.__app_create(hardware_tier_id=hardwareTierId)
