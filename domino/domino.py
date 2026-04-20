@@ -1340,10 +1340,8 @@ class Domino:
         response = self.request_manager.delete(url)
         return response
 
-    def datasets_remove(self, dataset_ids: list):
-        for dataset_id in dataset_ids:
-            url = self._routes.datasets_details(dataset_id)
-            self.request_manager.delete(url)
+    def datasets_remove(self, dataset_ids: list) -> list:
+        return [self._dataset_remove(dataset_id) for dataset_id in dataset_ids]
 
     def datasets_upload_files(
         self,
