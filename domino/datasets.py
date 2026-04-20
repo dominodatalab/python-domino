@@ -96,7 +96,7 @@ class Uploader:
             self.request_manager.get(url)
             self.log.info("Upload session ended successfully.")
             return True
-        except:
+        except Exception:
             self.log.error("Ending snapshot upload failed. See error for details. Attempting to cancel "
                            "upload session.")
             self._cancel_upload_session()
