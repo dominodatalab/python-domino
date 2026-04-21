@@ -1,6 +1,7 @@
 import pytest
 
 from domino.agents._eval_tags import InvalidEvaluationLabelException
+
 from .mlflow_fixtures import fixture_create_traces
 
 
@@ -11,26 +12,34 @@ def test_log_evaluation_dev(setup_mlflow_tracking_server, mlflow, logging):
     fixture_create_traces()
 
     # log evaluations to traces
-    traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'test_add'", return_type='list')
+    traces = mlflow.search_traces(
+        experiment_ids=[exp.experiment_id],
+        filter_string="trace.name = 'test_add'",
+        return_type="list",
+    )
     for trace in traces:
         logging.log_evaluation(
-                trace.info.trace_id,
-                value=1,
-                name="helpfulness",
+            trace.info.trace_id,
+            value=1,
+            name="helpfulness",
         )
         logging.log_evaluation(
-                trace.info.trace_id,
-                value="dogs",
-                name="category",
+            trace.info.trace_id,
+            value="dogs",
+            name="category",
         )
 
     # verify tags on traces
-    tagged_traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'test_add'", return_type="list")
+    tagged_traces = mlflow.search_traces(
+        experiment_ids=[exp.experiment_id],
+        filter_string="trace.name = 'test_add'",
+        return_type="list",
+    )
     tags = tagged_traces[0].info.tags
 
-    assert tags['domino.prog.label.category'] == 'dogs'
-    assert tags['domino.prog.metric.helpfulness'] == '1'
-    assert tags['domino.internal.is_eval'] == 'true'
+    assert tags["domino.prog.label.category"] == "dogs"
+    assert tags["domino.prog.metric.helpfulness"] == "1"
+    assert tags["domino.internal.is_eval"] == "true"
 
 
 def test_log_evaluation_invalid_name(setup_mlflow_tracking_server, mlflow, logging):
@@ -40,14 +49,18 @@ def test_log_evaluation_invalid_name(setup_mlflow_tracking_server, mlflow, loggi
     fixture_create_traces()
 
     # log evaluations to traces
-    traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'test_add'", return_type='list')
+    traces = mlflow.search_traces(
+        experiment_ids=[exp.experiment_id],
+        filter_string="trace.name = 'test_add'",
+        return_type="list",
+    )
     trace = traces[0]
 
     with pytest.raises(InvalidEvaluationLabelException):
         logging.log_evaluation(
-                trace.info.trace_id,
-                value=1,
-                name="*",
+            trace.info.trace_id,
+            value=1,
+            name="*",
         )
 
 
@@ -61,12 +74,16 @@ def test_log_evaluation_non_string_float(setup_mlflow_tracking_server, mlflow, l
     fixture_create_traces()
 
     # log evaluations to traces
-    traces = mlflow.search_traces(experiment_ids=[exp.experiment_id], filter_string="trace.name = 'test_add'", return_type='list')
+    traces = mlflow.search_traces(
+        experiment_ids=[exp.experiment_id],
+        filter_string="trace.name = 'test_add'",
+        return_type="list",
+    )
     trace = traces[0]
 
     with pytest.raises(TypeError):
         logging.log_evaluation(
-                trace.info.trace_id,
-                value={},
-                name="myobject",
+            trace.info.trace_id,
+            value={},
+            name="myobject",
         )

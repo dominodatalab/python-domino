@@ -8,4 +8,6 @@ import enum
 class PathValues(str, enum.Enum):
     API_METRIC_ALERTS_V1 = "/api/metricAlerts/v1"
     API_METRIC_VALUES_V1 = "/api/metricValues/v1"
-    API_METRIC_VALUES_V1_MODEL_MONITORING_ID_METRIC = "/api/metricValues/v1/{modelMonitoringId}/{metric}"
+    API_METRIC_VALUES_V1_MODEL_MONITORING_ID_METRIC = (
+        "/api/metricValues/v1/{modelMonitoringId}/{metric}"
+    )

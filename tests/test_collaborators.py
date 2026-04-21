@@ -2,10 +2,10 @@
 Unit tests for collaborator API methods.
 All tests use requests_mock — no live Domino deployment required.
 """
+
 import pytest
 
-from domino import Domino
-from domino import exceptions
+from domino import Domino, exceptions
 
 MOCK_PROJECT_ID = "aabbccddeeff001122334455"
 MOCK_USER_ID = "aabbccddeeff001122334460"

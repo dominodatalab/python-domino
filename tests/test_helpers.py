@@ -2,6 +2,7 @@
 Unit tests for domino.helpers module.
 No HTTP calls — pure logic tests.
 """
+
 import pytest
 
 from domino.helpers import (
@@ -14,8 +15,8 @@ from domino.helpers import (
     is_version_compatible,
 )
 
-
 # --- is_version_compatible ---
+
 
 def test_is_version_compatible_returns_true_for_supported_version():
     assert is_version_compatible("5.0.0") is True
@@ -27,13 +28,18 @@ def test_is_version_compatible_returns_false_for_old_version():
 
 def test_is_version_compatible_returns_true_for_exact_minimum():
     from domino.constants import MINIMUM_SUPPORTED_DOMINO_VERSION
+
     assert is_version_compatible(MINIMUM_SUPPORTED_DOMINO_VERSION) is True
 
 
 # --- clean_host_url ---
 
+
 def test_clean_host_url_strips_path():
-    assert clean_host_url("https://domino.example.com/some/path") == "https://domino.example.com"
+    assert (
+        clean_host_url("https://domino.example.com/some/path")
+        == "https://domino.example.com"
+    )
 
 
 def test_clean_host_url_preserves_scheme_and_host():
@@ -50,6 +56,7 @@ def test_clean_host_url_handles_trailing_slash():
 
 # --- is_compute_cluster_autoscaling_supported ---
 
+
 def test_autoscaling_supported_for_high_version():
     assert is_compute_cluster_autoscaling_supported("9.9.9") is True
 
@@ -59,6 +66,7 @@ def test_autoscaling_not_supported_for_low_version():
 
 
 # --- is_compute_cluster_properties_supported ---
+
 
 def test_cluster_properties_supported_for_high_version():
     assert is_compute_cluster_properties_supported("9.9.9") is True
@@ -70,6 +78,7 @@ def test_cluster_properties_not_supported_for_low_version():
 
 # --- is_on_demand_spark_cluster_supported ---
 
+
 def test_on_demand_spark_supported_for_high_version():
     assert is_on_demand_spark_cluster_supported("9.9.9") is True
 
@@ -80,6 +89,7 @@ def test_on_demand_spark_not_supported_for_low_version():
 
 # --- is_external_volume_mounts_supported ---
 
+
 def test_external_volume_mounts_supported_for_high_version():
     assert is_external_volume_mounts_supported("9.9.9") is True
 
@@ -89,6 +99,7 @@ def test_external_volume_mounts_not_supported_for_low_version():
 
 
 # --- is_cluster_type_supported ---
+
 
 @pytest.mark.parametrize("cluster_type", ["Ray", "Dask", "MPI", "Spark"])
 def test_known_cluster_types_supported_for_high_version(cluster_type):

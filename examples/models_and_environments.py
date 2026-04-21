@@ -3,7 +3,7 @@ import os
 from domino import Domino
 
 domino = Domino(
-    os.environ['DOMINO_TEST_PROJECT'],
+    os.environ["DOMINO_TEST_PROJECT"],
     api_key=os.environ["DOMINO_USER_API_KEY"],
     host=os.environ["DOMINO_API_HOST"],
 )

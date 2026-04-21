@@ -1,8 +1,6 @@
 import warnings
-
-from urllib.parse import quote
-
 from typing import Optional
+from urllib.parse import quote
 
 
 class _Routes:
@@ -59,14 +57,14 @@ class _Routes:
     def runs_start(self):
         return self._build_project_url() + "/runs"
 
-    def runs_status(self, runId):
-        return self._build_project_url() + "/runs/" + runId
+    def runs_status(self, run_id):
+        return self._build_project_url() + "/runs/" + run_id
 
-    def runs_stdout(self, runId):
-        return self._build_project_url() + "/run/" + runId + "/stdout"
+    def runs_stdout(self, run_id):
+        return self._build_project_url() + "/run/" + run_id + "/stdout"
 
-    def files_list(self, commitId, path):
-        return self._build_project_url() + "/files/" + commitId + "/" + path
+    def files_list(self, commit_id, path):
+        return self._build_project_url() + "/files/" + commit_id + "/" + path
 
     def files_upload(self, path):
         return self._build_project_url() + path
@@ -76,13 +74,18 @@ class _Routes:
 
     # Deprecated - use blobs_get_v2 instead
     def blobs_get(self, key):
-        message = "blobs_get is deprecated and will soon be removed. Please migrate to blobs_get_v2 and adjust the " \
-                  "input parameters accordingly "
+        message = (
+            "blobs_get is deprecated and will soon be removed. Please migrate to blobs_get_v2 and adjust the "
+            "input parameters accordingly "
+        )
         warnings.warn(message, DeprecationWarning)
         return self._build_project_url() + "/blobs/" + key
 
     def blobs_get_v2(self, path, commit_id, project_id):
-        return self.host + f"/api/projects/v1/projects/{project_id}/files/{commit_id}/{path}/content"
+        return (
+            self.host
+            + f"/api/projects/v1/projects/{project_id}/files/{commit_id}/{path}/content"
+        )
 
     def fork_project(self, project_id):
         return self.host + f"/v4/projects/{project_id}/fork"
@@ -194,7 +197,10 @@ class _Routes:
         return self._build_beta_environments_url() + f"/{environment_id}/revisions"
 
     def revision_patch(self, environment_id, revision_id):
-        return self._build_beta_environments_url() + f"/{environment_id}/revisions/{revision_id}"
+        return (
+            self._build_beta_environments_url()
+            + f"/{environment_id}/revisions/{revision_id}"
+        )
 
     # Deployment URLs
 
@@ -208,15 +214,17 @@ class _Routes:
     def job_stop(self):
         return f"{self.host}/v4/jobs/stop"
 
-    def jobs_list(self,
-                  project_id,
-                  order_by,
-                  sort_by,
-                  page_size,
-                  page_no,
-                  show_archived,
-                  status,
-                  tag):
+    def jobs_list(
+        self,
+        project_id,
+        order_by,
+        sort_by,
+        page_size,
+        page_no,
+        show_archived,
+        status,
+        tag,
+    ):
 
         order_by_query = f"&order_by={order_by}"
         sort_by_query = f"&sort_by={sort_by}"
@@ -260,20 +268,16 @@ class _Routes:
         return self.host + "/dataset" + "/" + str(dataset_id)
 
     def datasets_start_upload(self, dataset_id):
-        return self.host + f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/start"
+        return (
+            self.host + f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/start"
+        )
 
     def datasets_test_chunk(
-        self,
-        dataset_id,
-        upload_key,
-        chunk_number,
-        total_chunks,
-        identifier,
-        checksum
+        self, dataset_id, upload_key, chunk_number, total_chunks, identifier, checksum
     ):
         return (
-            self.host +
-            f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}"
+            self.host
+            + f"/v4/datasetrw/datasets/{str(dataset_id)}/snapshot/file/test?key={upload_key}"
             f"&resumableChunkNumber={chunk_number}&resumableIdentifier={quote(identifier)}"
             f"&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
         )
@@ -288,21 +292,27 @@ class _Routes:
         current_chunk_size,
         identifier,
         resumable_relative_path,
-        checksum
+        checksum,
     ):
         return (
-            self.host +
-            f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}" +
-            f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}"
+            self.host
+            + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file?key={key}&resumableChunkNumber={chunk_number}"
+            + f"&resumableChunkSize={target_chunk_size}&resumableCurrentChunkSize={current_chunk_size}"
             f"&resumableIdentifier={quote(identifier)}&resumableRelativePath={quote(resumable_relative_path)}"
             f"&resumableTotalChunks={total_chunks}&checksum={quote(checksum)}"
         )
 
     def datasets_cancel_upload(self, dataset_id, upload_key):
-        return self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/cancel/{upload_key}"
+        return (
+            self.host
+            + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/cancel/{upload_key}"
+        )
 
     def datasets_end_upload(self, dataset_id, upload_key, target_relative_path=None):
-        url = self.host + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/end/{upload_key}"
+        url = (
+            self.host
+            + f"/v4/datasetrw/datasets/{dataset_id}/snapshot/file/end/{upload_key}"
+        )
         if target_relative_path:
             url += f"?targetRelativePath={target_relative_path}"
         return url

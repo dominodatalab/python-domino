@@ -1,5 +1,5 @@
+from .dominorun import DominoAgentContext, DominoRun, SummaryStatistic
 from .logging import log_evaluation
-from .dominorun import DominoRun, DominoAgentContext, SummaryStatistic
 
 __all__ = [
     "DominoRun",

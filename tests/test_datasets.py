@@ -3,14 +3,14 @@ Tests for datasets API methods.
 Unit tests at top (no live Domino deployment required).
 Integration tests below (skipped unless a live deployment is reachable).
 """
+
 import os
 import random
-
-import pytest
 from unittest.mock import patch
 
-from domino import Domino
-from domino import exceptions
+import pytest
+
+from domino import Domino, exceptions
 from domino.helpers import domino_is_reachable
 
 MOCK_PROJECT_ID = "aabbccddeeff001122334455"
@@ -45,6 +45,7 @@ def base_mocks(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # Unit tests (no live Domino deployment required)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_datasets_list_returns_list(requests_mock, dummy_hostname):
@@ -103,9 +104,7 @@ def test_datasets_details_returns_dataset(requests_mock, dummy_hostname):
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_datasets_create_returns_new_dataset(requests_mock, dummy_hostname):
-    requests_mock.get(
-        f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}", json=[]
-    )
+    requests_mock.get(f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}", json=[])
     requests_mock.post(f"{dummy_hostname}/dataset", json=MOCK_DATASET_1)
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     result = d.datasets_create("dataset-one", "First dataset")
@@ -125,9 +124,7 @@ def test_datasets_create_raises_when_name_already_exists(requests_mock, dummy_ho
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_datasets_create_sends_correct_payload(requests_mock, dummy_hostname):
-    requests_mock.get(
-        f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}", json=[]
-    )
+    requests_mock.get(f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}", json=[])
     requests_mock.post(f"{dummy_hostname}/dataset", json=MOCK_DATASET_1)
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     d.datasets_create("dataset-one", "First dataset")
@@ -143,12 +140,16 @@ def test_datasets_update_details_returns_updated_dataset(requests_mock, dummy_ho
     requests_mock.patch(f"{dummy_hostname}/dataset/{MOCK_DATASET_ID_1}", json={})
     requests_mock.get(f"{dummy_hostname}/dataset/{MOCK_DATASET_ID_1}", json=updated)
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    result = d.datasets_update_details(MOCK_DATASET_ID_1, dataset_description="Updated description")
+    result = d.datasets_update_details(
+        MOCK_DATASET_ID_1, dataset_description="Updated description"
+    )
     assert result["datasetDescription"] == "Updated description"
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_datasets_update_details_raises_when_new_name_already_exists(requests_mock, dummy_hostname):
+def test_datasets_update_details_raises_when_new_name_already_exists(
+    requests_mock, dummy_hostname
+):
     requests_mock.get(
         f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}",
         json=[MOCK_DATASET_1, MOCK_DATASET_2],
@@ -160,9 +161,7 @@ def test_datasets_update_details_raises_when_new_name_already_exists(requests_mo
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_dataset_remove_raises_when_dataset_missing(requests_mock, dummy_hostname):
-    requests_mock.get(
-        f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}", json=[]
-    )
+    requests_mock.get(f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}", json=[])
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     with pytest.raises(exceptions.DatasetNotFoundException):
         d._dataset_remove("nonexistent-id")
@@ -188,8 +187,12 @@ def test_datasets_remove_delegates_to_dataset_remove(requests_mock, dummy_hostna
         f"{dummy_hostname}/dataset?projectId={MOCK_PROJECT_ID}",
         json=[MOCK_DATASET_1, MOCK_DATASET_2],
     )
-    requests_mock.delete(f"{dummy_hostname}/dataset/{MOCK_DATASET_ID_1}", status_code=204)
-    requests_mock.delete(f"{dummy_hostname}/dataset/{MOCK_DATASET_ID_2}", status_code=204)
+    requests_mock.delete(
+        f"{dummy_hostname}/dataset/{MOCK_DATASET_ID_1}", status_code=204
+    )
+    requests_mock.delete(
+        f"{dummy_hostname}/dataset/{MOCK_DATASET_ID_2}", status_code=204
+    )
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     responses = d.datasets_remove([MOCK_DATASET_ID_1, MOCK_DATASET_ID_2])
     assert len(responses) == 2
@@ -210,6 +213,7 @@ def test_datasets_remove_raises_for_missing_id(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # Integration tests (require a live Domino deployment)
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def random_seq():
@@ -308,7 +312,9 @@ def test_datasets_upload(default_domino_client):
     ]
     assert "test_datasets.py" in os.listdir("tests")
     local_path_to_file = "tests/test_datasets.py"
-    response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file)
+    response = default_domino_client.datasets_upload_files(
+        datasets_id, local_path_to_file
+    )
 
     assert "test_datasets.py" in response
 
@@ -322,15 +328,16 @@ def test_datasets_upload_with_sub_dir(default_domino_client):
     ]
     assert "test_datasets.py" in os.listdir("tests")
     local_path_to_file = "tests/test_datasets.py"
-    response = default_domino_client.datasets_upload_files(datasets_id, local_path_to_file,
-                                                           target_relative_path="sub_d")
+    response = default_domino_client.datasets_upload_files(
+        datasets_id, local_path_to_file, target_relative_path="sub_d"
+    )
     assert "test_datasets.py" in response
 
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
-@patch('os.path.exists')
+@patch("os.path.exists")
 def test_datasets_upload_mixed_slash_path(mock_exists, default_domino_client):
     mock_exists.return_value = True
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
@@ -338,15 +345,16 @@ def test_datasets_upload_mixed_slash_path(mock_exists, default_domino_client):
     ]
     assert "back\\slash.txt" in os.listdir("tests/assets")
     local_path_to_file = "tests/assets/back\\slash.txt"
-    response = default_domino_client.datasets_upload_files(datasets_id,
-                                                           local_path_to_file)
+    response = default_domino_client.datasets_upload_files(
+        datasets_id, local_path_to_file
+    )
     assert "back\\slash.txt" in response
 
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
-@patch('os.path.exists')
+@patch("os.path.exists")
 def test_datasets_upload_windows_path(mock_exists, default_domino_client):
     mock_exists.return_value = True
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
@@ -354,15 +362,16 @@ def test_datasets_upload_windows_path(mock_exists, default_domino_client):
     ]
     assert "test_datasets.py" in os.listdir("tests")
     windows_local_path_to_file = "tests\\test_datasets.py"
-    response = default_domino_client.datasets_upload_files(datasets_id,
-                                                           windows_local_path_to_file)
+    response = default_domino_client.datasets_upload_files(
+        datasets_id, windows_local_path_to_file
+    )
     assert "test_datasets.py" in response
 
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
-@patch('os.path.exists')
+@patch("os.path.exists")
 def test_datasets_upload_with_sub_dir_windows_path(mock_exists, default_domino_client):
     mock_exists.return_value = True
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
@@ -370,9 +379,9 @@ def test_datasets_upload_with_sub_dir_windows_path(mock_exists, default_domino_c
     ]
     assert "test_datasets.py" in os.listdir("tests")
     windows_local_path_to_file = "tests\\test_datasets.py"
-    response = default_domino_client.datasets_upload_files(datasets_id,
-                                                           windows_local_path_to_file,
-                                                           target_relative_path="sub_d")
+    response = default_domino_client.datasets_upload_files(
+        datasets_id, windows_local_path_to_file, target_relative_path="sub_d"
+    )
 
     assert "test_datasets.py" in response
 
@@ -380,7 +389,7 @@ def test_datasets_upload_with_sub_dir_windows_path(mock_exists, default_domino_c
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
-@patch('os.path.exists')
+@patch("os.path.exists")
 def test_datasets_upload_directory_windows_path(mock_exists, default_domino_client):
     mock_exists.return_value = True
     datasets_id = default_domino_client.datasets_ids(default_domino_client.project_id)[
@@ -388,8 +397,9 @@ def test_datasets_upload_directory_windows_path(mock_exists, default_domino_clie
     ]
     assert os.path.isdir("tests/assets")
     windows_local_path_to_dir = "tests/assets"
-    response = default_domino_client.datasets_upload_files(datasets_id,
-                                                           windows_local_path_to_dir)
+    response = default_domino_client.datasets_upload_files(
+        datasets_id, windows_local_path_to_dir
+    )
     assert "tests/assets" in response
 
 

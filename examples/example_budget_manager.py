@@ -1,9 +1,9 @@
 import os
-from pprint import pprint
 import uuid
+from pprint import pprint
 
 from domino import Domino
-from domino.domino_enums import BudgetLabel, BillingTagSettingMode
+from domino.domino_enums import BillingTagSettingMode, BudgetLabel
 
 
 def get_uuid() -> str:
@@ -82,7 +82,9 @@ bt_setting = domino.billing_tag_settings()
 pprint(bt_setting)
 
 # update billingtag settings modes
-bt_settings_optional = domino.billing_tag_settings_mode_update(BillingTagSettingMode.OPTIONAL)
+bt_settings_optional = domino.billing_tag_settings_mode_update(
+    BillingTagSettingMode.OPTIONAL
+)
 bt_setting = domino.billing_tag_settings()
 pprint(bt_setting)
 
@@ -96,7 +98,9 @@ active_billing_tags = domino.billing_tags_list_active()
 pprint(active_billing_tags)
 
 # create new or unarchive existing billingtags
-new_billing_tags = domino.billing_tags_create(["BTExample003", "BTExample04", "BTExample06"])
+new_billing_tags = domino.billing_tags_create(
+    ["BTExample003", "BTExample04", "BTExample06"]
+)
 active_billing_tags = domino.billing_tags_list_active()
 pprint(active_billing_tags)
 
@@ -115,7 +119,9 @@ pprint(projects_by_bt)
 
 # create projects with billing tags (billing tags settings mode must be Optional or Required)
 example_project_name = f"example-project-{get_uuid()}"
-bt_project = domino.project_create_v4(project_name=example_project_name, billing_tag="BTExample04")
+bt_project = domino.project_create_v4(
+    project_name=example_project_name, billing_tag="BTExample04"
+)
 pprint(bt_project)
 
 # create projects with billing tags (billing tags settings mode must be Optional or Disabled)
@@ -142,7 +148,11 @@ projects_bt_04 = domino.projects_by_billing_tag(billing_tag="BTExample04")
 pprint(projects_bt_04)
 
 # update projects' billing tags in bulk
-projects_tags = {bt_project["id"]: "BTExample06", project["id"]: "BTExample06", domino.project_id: "BTExample04"}
+projects_tags = {
+    bt_project["id"]: "BTExample06",
+    project["id"]: "BTExample06",
+    domino.project_id: "BTExample04",
+}
 domino.project_billing_tag_bulk_update(projects_tags)
 
 # query project by billing tag
