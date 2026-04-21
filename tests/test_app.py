@@ -10,7 +10,7 @@ MOCK_APP_ID = "aabbccddeeff001122334457"
 @pytest.fixture
 def mock_app_publish_setup(requests_mock, dummy_hostname):
     """
-    Mocks all API calls that app_publish() depends on when an appId is provided.
+    Mocks all API calls that app_publish() depends on when an app_id is provided.
 
     If any dependent calls are added to app_publish or app_unpublish, they
     must be mocked here as well.
@@ -44,7 +44,7 @@ def test_app_publish_with_branch(requests_mock, dummy_hostname):
     in the app start request body.
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    d.app_publish(appId=MOCK_APP_ID, branch="my-feature-branch")
+    d.app_publish(app_id=MOCK_APP_ID, branch="my-feature-branch")
 
     app_start_request = next(
         req for req in requests_mock.request_history
@@ -59,11 +59,11 @@ def test_app_publish_with_branch(requests_mock, dummy_hostname):
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_app_publish_setup")
 def test_app_publish_with_commit_id(requests_mock, dummy_hostname):
     """
-    Confirm that the commitId parameter is correctly formatted as mainRepoGitRef
+    Confirm that the commit_id parameter is correctly formatted as mainRepoGitRef
     in the app start request body.
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    d.app_publish(appId=MOCK_APP_ID, commitId="abc123def456")
+    d.app_publish(app_id=MOCK_APP_ID, commit_id="abc123def456")
 
     app_start_request = next(
         req for req in requests_mock.request_history
@@ -79,10 +79,10 @@ def test_app_publish_with_commit_id(requests_mock, dummy_hostname):
 def test_app_publish_omits_git_ref_when_not_provided(requests_mock, dummy_hostname):
     """
     Confirm that mainRepoGitRef is omitted from the request body when neither
-    branch nor commitId is provided.
+    branch nor commit_id is provided.
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    d.app_publish(appId=MOCK_APP_ID)
+    d.app_publish(app_id=MOCK_APP_ID)
 
     app_start_request = next(
         req for req in requests_mock.request_history
@@ -94,21 +94,21 @@ def test_app_publish_omits_git_ref_when_not_provided(requests_mock, dummy_hostna
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_app_publish_setup")
 def test_app_publish_raises_if_both_branch_and_commit_id_provided(dummy_hostname):
     """
-    Confirm that providing both branch and commitId raises a ValueError.
+    Confirm that providing both branch and commit_id raises a ValueError.
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    with pytest.raises(ValueError, match="Only one of commitId or branch"):
-        d.app_publish(appId=MOCK_APP_ID, branch="my-branch", commitId="abc123")
+    with pytest.raises(ValueError, match="Only one of commit_id or branch"):
+        d.app_publish(app_id=MOCK_APP_ID, branch="my-branch", commit_id="abc123")
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_app_publish_setup")
 def test_app_publish_unpublishes_running_app(requests_mock, dummy_hostname):
     """
     Confirm that app_publish calls stop on the running app before starting
-    when unpublishRunningApps=True (the default).
+    when unpublish_running_apps=True (the default).
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    d.app_publish(appId=MOCK_APP_ID, unpublishRunningApps=True)
+    d.app_publish(app_id=MOCK_APP_ID, unpublish_running_apps=True)
 
     stop_requests = [
         req for req in requests_mock.request_history
@@ -120,10 +120,10 @@ def test_app_publish_unpublishes_running_app(requests_mock, dummy_hostname):
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_app_publish_setup")
 def test_app_publish_skips_unpublish_when_disabled(requests_mock, dummy_hostname):
     """
-    Confirm that app_publish does not call stop when unpublishRunningApps=False.
+    Confirm that app_publish does not call stop when unpublish_running_apps=False.
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    d.app_publish(appId=MOCK_APP_ID, unpublishRunningApps=False)
+    d.app_publish(app_id=MOCK_APP_ID, unpublish_running_apps=False)
 
     stop_requests = [
         req for req in requests_mock.request_history
@@ -135,11 +135,11 @@ def test_app_publish_skips_unpublish_when_disabled(requests_mock, dummy_hostname
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_app_publish_setup")
 def test_app_publish_targets_specific_app_id(requests_mock, dummy_hostname):
     """
-    Confirm that the provided appId is used in the start endpoint URL, not the
+    Confirm that the provided app_id is used in the start endpoint URL, not the
     default first-app lookup.
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    d.app_publish(appId=MOCK_APP_ID)
+    d.app_publish(app_id=MOCK_APP_ID)
 
     start_requests = [
         req for req in requests_mock.request_history

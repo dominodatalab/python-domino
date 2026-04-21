@@ -112,22 +112,32 @@ class Domino:
     def runs_start(
         self,
         command,
-        isDirect=False,
-        commitId=None,
+        is_direct=False,
+        commit_id=None,
         title=None,
         tier=None,
-        publishApiEndpoint=None,
+        publish_api_endpoint=None,
+        **kwargs,
     ):
+        if "isDirect" in kwargs:
+            warnings.warn("isDirect is deprecated, use is_direct", DeprecationWarning, stacklevel=2)
+            is_direct = kwargs.pop("isDirect")
+        if "commitId" in kwargs:
+            warnings.warn("commitId is deprecated, use commit_id", DeprecationWarning, stacklevel=2)
+            commit_id = kwargs.pop("commitId")
+        if "publishApiEndpoint" in kwargs:
+            warnings.warn("publishApiEndpoint is deprecated, use publish_api_endpoint", DeprecationWarning, stacklevel=2)
+            publish_api_endpoint = kwargs.pop("publishApiEndpoint")
 
         url = self._routes.runs_start()
 
         request = {
             "command": command,
-            "isDirect": isDirect,
-            "commitId": commitId,
+            "isDirect": is_direct,
+            "commitId": commit_id,
             "title": title,
             "tier": tier,
-            "publishApiEndpoint": publishApiEndpoint,
+            "publishApiEndpoint": publish_api_endpoint,
         }
         try:
             response = self.request_manager.post(url, json=request)
@@ -141,14 +151,15 @@ class Domino:
     def runs_start_blocking(
         self,
         command,
-        isDirect=False,
-        commitId=None,
+        is_direct=False,
+        commit_id=None,
         title=None,
         tier=None,
-        publishApiEndpoint=None,
+        publish_api_endpoint=None,
         poll_freq=5,
         max_poll_time=6000,
         retry_count=5,
+        **kwargs,
     ):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
@@ -162,12 +173,12 @@ class Domino:
                   example:
                   >> domino.runs_start(["main.py", "arg1", "arg2"])
 
-        isDirect : boolean (Optional)
+        is_direct : boolean (Optional)
                    Whether or not this command should be passed directly to
                    a shell.
 
-        commitId : string (Optional)
-                   The commitId to launch from. If not provided, will launch
+        commit_id : string (Optional)
+                   The commit_id to launch from. If not provided, will launch
                    from latest commit.
 
         title    : string (Optional)
@@ -177,7 +188,7 @@ class Domino:
                    The hardware tier to use for the run. Will use project
                    default tier if not provided.
 
-        publishApiEndpoint : boolean (Optional)
+        publish_api_endpoint : boolean (Optional)
                             Whether or not to publish an API endpoint from the
                             resulting output.
 
@@ -195,8 +206,18 @@ class Domino:
                         (in-case of transient http errors). If this
                         threshold exceeds, an exception is raised.
         """
+        if "isDirect" in kwargs:
+            warnings.warn("isDirect is deprecated, use is_direct", DeprecationWarning, stacklevel=2)
+            is_direct = kwargs.pop("isDirect")
+        if "commitId" in kwargs:
+            warnings.warn("commitId is deprecated, use commit_id", DeprecationWarning, stacklevel=2)
+            commit_id = kwargs.pop("commitId")
+        if "publishApiEndpoint" in kwargs:
+            warnings.warn("publishApiEndpoint is deprecated, use publish_api_endpoint", DeprecationWarning, stacklevel=2)
+            publish_api_endpoint = kwargs.pop("publishApiEndpoint")
+
         run_response = self.runs_start(
-            command, isDirect, commitId, title, tier, publishApiEndpoint
+            command, is_direct, commit_id, title, tier, publish_api_endpoint
         )
         run_id = run_response["runId"]
 
@@ -239,7 +260,7 @@ class Domino:
 
             # once task has finished running check to see if it was successful
             else:
-                stdout_msg = self.get_run_log(runId=run_id, includeSetupLog=False)
+                stdout_msg = self.get_run_log(run_id=run_id, include_setup_log=False)
 
                 if run_info["status"] != "Succeeded":
                     self.process_log(stdout_msg)
@@ -251,31 +272,46 @@ class Domino:
 
         return run_response
 
-    def run_stop(self, runId, saveChanges=True):
+    def run_stop(self, run_id=None, save_changes=True, **kwargs):
+        if "runId" in kwargs:
+            warnings.warn("runId is deprecated, use run_id", DeprecationWarning, stacklevel=2)
+            run_id = kwargs.pop("runId")
+        if "saveChanges" in kwargs:
+            warnings.warn("saveChanges is deprecated, use save_changes", DeprecationWarning, stacklevel=2)
+            save_changes = kwargs.pop("saveChanges")
         self.log.warning("Use job_stop method instead")
-        return self.job_stop(job_id=runId, commit_results=saveChanges)
+        return self.job_stop(job_id=run_id, commit_results=save_changes)
 
-    def runs_status(self, runId):
-        url = self._routes.runs_status(runId)
+    def runs_status(self, run_id=None, **kwargs):
+        if "runId" in kwargs:
+            warnings.warn("runId is deprecated, use run_id", DeprecationWarning, stacklevel=2)
+            run_id = kwargs.pop("runId")
+        url = self._routes.runs_status(run_id)
         return self._get(url)
 
-    def get_run_log(self, runId, includeSetupLog=True):
+    def get_run_log(self, run_id=None, include_setup_log=True, **kwargs):
         """
         Get the unified log for a run (setup + stdout).
 
         parameters
         ----------
-        runId : string
+        run_id : string
                 the id associated with the run.
-        includeSetupLog : bool
+        include_setup_log : bool
                 whether or not to include the setup log in the output.
         """
+        if "runId" in kwargs:
+            warnings.warn("runId is deprecated, use run_id", DeprecationWarning, stacklevel=2)
+            run_id = kwargs.pop("runId")
+        if "includeSetupLog" in kwargs:
+            warnings.warn("includeSetupLog is deprecated, use include_setup_log", DeprecationWarning, stacklevel=2)
+            include_setup_log = kwargs.pop("includeSetupLog")
 
-        url = self._routes.runs_stdout(runId)
+        url = self._routes.runs_stdout(run_id)
 
         logs = list()
 
-        if includeSetupLog:
+        if include_setup_log:
             logs.append(self._get(url)["setup"])
 
         logs.append(self._get(url)["stdout"])
@@ -287,15 +323,18 @@ class Domino:
             if run_info["id"] == run_id:
                 return run_info
 
-    def runs_stdout(self, runId):
+    def runs_stdout(self, run_id=None, **kwargs):
         """
         Get std out emitted by a particular run.
 
         parameters
         ----------
-        runId : string
+        run_id : string
                 the id associated with the run.
         """
+        if "runId" in kwargs:
+            warnings.warn("runId is deprecated, use run_id", DeprecationWarning, stacklevel=2)
+            run_id = kwargs.pop("runId")
 
         html_start_tags = (
             "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; "
@@ -305,7 +344,7 @@ class Domino:
         span_regex = re.compile("<?span.*?>")
         returns = "'\\n'\n"
 
-        url = self._routes.runs_stdout(runId)
+        url = self._routes.runs_stdout(run_id)
         raw_stdout = self._get(url)["stdout"]
 
         stdout = (
@@ -728,12 +767,15 @@ class Domino:
             step=poll_freq,
             log_error=self.log.level,
         )
-        stdout_msg = self.get_run_log(runId=job_id, includeSetupLog=False)
+        stdout_msg = self.get_run_log(run_id=job_id, include_setup_log=False)
         self.process_log(stdout_msg)
         return job_status
 
-    def files_list(self, commitId, path="/"):
-        url = self._routes.files_list(commitId, path)
+    def files_list(self, commit_id=None, path="/", **kwargs):
+        if "commitId" in kwargs:
+            warnings.warn("commitId is deprecated, use commit_id", DeprecationWarning, stacklevel=2)
+            commit_id = kwargs.pop("commitId")
+        url = self._routes.files_list(commit_id, path)
         return self._get(url)
 
     def files_upload(self, path, file):
@@ -775,11 +817,14 @@ class Domino:
         response = self.request_manager.delete(url)
         return response
 
-    def endpoint_publish(self, file, function, commitId):
+    def endpoint_publish(self, file, function, commit_id=None, **kwargs):
+        if "commitId" in kwargs:
+            warnings.warn("commitId is deprecated, use commit_id", DeprecationWarning, stacklevel=2)
+            commit_id = kwargs.pop("commitId")
         url = self._routes.endpoint_publish()
 
         request = {
-            "commitId": commitId,
+            "commitId": commit_id,
             "bindingDefinition": {"file": file, "function": function},
         }
 
@@ -944,34 +989,56 @@ class Domino:
         return response
 
     # App functions
-    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None, environmentId=None, externalVolumeMountIds=None, commitId=None, branch=None, appId=None):
-        if commitId and branch:
-            raise ValueError("Only one of commitId or branch may be specified, not both.")
-        app_id = appId or self._app_id
-        if unpublishRunningApps:
-            self.app_unpublish(appId=app_id)
+    def app_publish(self, unpublish_running_apps=True, hardware_tier_id=None, environment_id=None, external_volume_mount_ids=None, commit_id=None, branch=None, app_id=None, **kwargs):
+        if "unpublishRunningApps" in kwargs:
+            warnings.warn("unpublishRunningApps is deprecated, use unpublish_running_apps", DeprecationWarning, stacklevel=2)
+            unpublish_running_apps = kwargs.pop("unpublishRunningApps")
+        if "hardwareTierId" in kwargs:
+            warnings.warn("hardwareTierId is deprecated, use hardware_tier_id", DeprecationWarning, stacklevel=2)
+            hardware_tier_id = kwargs.pop("hardwareTierId")
+        if "environmentId" in kwargs:
+            warnings.warn("environmentId is deprecated, use environment_id", DeprecationWarning, stacklevel=2)
+            environment_id = kwargs.pop("environmentId")
+        if "externalVolumeMountIds" in kwargs:
+            warnings.warn("externalVolumeMountIds is deprecated, use external_volume_mount_ids", DeprecationWarning, stacklevel=2)
+            external_volume_mount_ids = kwargs.pop("externalVolumeMountIds")
+        if "commitId" in kwargs:
+            warnings.warn("commitId is deprecated, use commit_id", DeprecationWarning, stacklevel=2)
+            commit_id = kwargs.pop("commitId")
+        if "appId" in kwargs:
+            warnings.warn("appId is deprecated, use app_id", DeprecationWarning, stacklevel=2)
+            app_id = kwargs.pop("appId")
+
+        if commit_id and branch:
+            raise ValueError("Only one of commit_id or branch may be specified, not both.")
+        app_id = app_id or self._app_id
+        if unpublish_running_apps:
+            self.app_unpublish(app_id=app_id)
         if app_id is None:
             # No App Exists creating one
-            app_id = self.__app_create(hardware_tier_id=hardwareTierId)
+            app_id = self.__app_create(hardware_tier_id=hardware_tier_id)
         url = self._routes.app_start(app_id)
-        if commitId:
-            main_repo_git_ref = {"type": "commitId", "value": commitId}
+        if commit_id:
+            main_repo_git_ref = {"type": "commitId", "value": commit_id}
         elif branch:
             main_repo_git_ref = {"type": "branches", "value": branch}
         else:
             main_repo_git_ref = None
         request = {
-            "hardwareTierId": hardwareTierId,
-            "environmentId": environmentId,
-            "externalVolumeMountIds": externalVolumeMountIds,
+            "hardwareTierId": hardware_tier_id,
+            "environmentId": environment_id,
+            "externalVolumeMountIds": external_volume_mount_ids,
             "mainRepoGitRef": main_repo_git_ref,
         }
         omitting_null = {k: v for (k, v) in request.items() if v is not None}
         response = self.request_manager.post(url, json=omitting_null)
         return response
 
-    def app_unpublish(self, appId=None):
-        app_id = appId or self._app_id
+    def app_unpublish(self, app_id=None, **kwargs):
+        if "appId" in kwargs:
+            warnings.warn("appId is deprecated, use app_id", DeprecationWarning, stacklevel=2)
+            app_id = kwargs.pop("appId")
+        app_id = app_id or self._app_id
         if app_id is None:
             return
         status = self.__app_get_status(app_id)
@@ -981,10 +1048,10 @@ class Domino:
             response = self.request_manager.post(url)
             return response
 
-    def __app_get_status(self, id) -> Optional[str]:
-        if id is None:
+    def __app_get_status(self, app_id) -> Optional[str]:
+        if app_id is None:
             return None
-        url = self._routes.app_get(id)
+        url = self._routes.app_get(app_id)
         response = self.request_manager.get(url).json()
         return response.get("status", None)
 
