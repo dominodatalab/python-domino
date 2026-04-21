@@ -2,6 +2,7 @@
 Unit tests for app publish/unpublish methods.
 All tests use requests_mock — no live Domino deployment required.
 """
+
 import pytest
 
 from domino import Domino
@@ -56,9 +57,7 @@ def test_app_publish_creates_app_when_none_exists(requests_mock, dummy_hostname)
         f"{dummy_hostname}/v4/modelProducts?projectId={MOCK_PROJECT_ID}", json=[]
     )
     # __app_create
-    requests_mock.post(
-        f"{dummy_hostname}/v4/modelProducts", json={"id": MOCK_APP_ID}
-    )
+    requests_mock.post(f"{dummy_hostname}/v4/modelProducts", json={"id": MOCK_APP_ID})
     # app_start
     requests_mock.post(
         f"{dummy_hostname}/v4/modelProducts/{MOCK_APP_ID}/start",
@@ -162,7 +161,9 @@ def test_app_unpublish_does_nothing_when_no_app_exists(requests_mock, dummy_host
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_app_unpublish_does_nothing_when_app_already_stopped(requests_mock, dummy_hostname):
+def test_app_unpublish_does_nothing_when_app_already_stopped(
+    requests_mock, dummy_hostname
+):
     requests_mock.get(
         f"{dummy_hostname}/v4/modelProducts?projectId={MOCK_PROJECT_ID}",
         json=[MOCK_APP],

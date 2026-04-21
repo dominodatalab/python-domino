@@ -5,6 +5,7 @@ _CustomMetricsClientGen wraps OpenAPI-generated validation that requires
 integration-level setup. Our Bug 6 fix lives in _CustomMetricsClient.
 All tests use requests_mock — no live Domino deployment required.
 """
+
 import pytest
 
 from domino import Domino
@@ -33,7 +34,9 @@ def hand_rolled_client(requests_mock, dummy_hostname, base_mocks):
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_trigger_alert_payload_without_condition(requests_mock, dummy_hostname, hand_rolled_client):
+def test_trigger_alert_payload_without_condition(
+    requests_mock, dummy_hostname, hand_rolled_client
+):
     alert_mock = requests_mock.post(
         f"{dummy_hostname}/api/metricAlerts/v1", status_code=200
     )
@@ -50,7 +53,9 @@ def test_trigger_alert_payload_without_condition(requests_mock, dummy_hostname, 
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_trigger_alert_payload_with_condition(requests_mock, dummy_hostname, hand_rolled_client):
+def test_trigger_alert_payload_with_condition(
+    requests_mock, dummy_hostname, hand_rolled_client
+):
     alert_mock = requests_mock.post(
         f"{dummy_hostname}/api/metricAlerts/v1", status_code=200
     )
@@ -69,7 +74,9 @@ def test_trigger_alert_payload_with_condition(requests_mock, dummy_hostname, han
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_trigger_alert_payload_with_condition_no_limits(requests_mock, dummy_hostname, hand_rolled_client):
+def test_trigger_alert_payload_with_condition_no_limits(
+    requests_mock, dummy_hostname, hand_rolled_client
+):
     alert_mock = requests_mock.post(
         f"{dummy_hostname}/api/metricAlerts/v1", status_code=200
     )
@@ -86,7 +93,9 @@ def test_trigger_alert_payload_with_condition_no_limits(requests_mock, dummy_hos
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_trigger_alert_includes_description_when_provided(requests_mock, dummy_hostname, hand_rolled_client):
+def test_trigger_alert_includes_description_when_provided(
+    requests_mock, dummy_hostname, hand_rolled_client
+):
     alert_mock = requests_mock.post(
         f"{dummy_hostname}/api/metricAlerts/v1", status_code=200
     )
@@ -101,7 +110,9 @@ def test_trigger_alert_includes_description_when_provided(requests_mock, dummy_h
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_trigger_alert_omits_description_when_not_provided(requests_mock, dummy_hostname, hand_rolled_client):
+def test_trigger_alert_omits_description_when_not_provided(
+    requests_mock, dummy_hostname, hand_rolled_client
+):
     alert_mock = requests_mock.post(
         f"{dummy_hostname}/api/metricAlerts/v1", status_code=200
     )
@@ -115,7 +126,9 @@ def test_trigger_alert_omits_description_when_not_provided(requests_mock, dummy_
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_log_metric_sends_correct_payload(requests_mock, dummy_hostname, hand_rolled_client):
+def test_log_metric_sends_correct_payload(
+    requests_mock, dummy_hostname, hand_rolled_client
+):
     log_mock = requests_mock.post(
         f"{dummy_hostname}/api/metricValues/v1", status_code=200
     )
@@ -134,7 +147,9 @@ def test_log_metric_sends_correct_payload(requests_mock, dummy_hostname, hand_ro
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_log_metric_includes_tags_when_provided(requests_mock, dummy_hostname, hand_rolled_client):
+def test_log_metric_includes_tags_when_provided(
+    requests_mock, dummy_hostname, hand_rolled_client
+):
     log_mock = requests_mock.post(
         f"{dummy_hostname}/api/metricValues/v1", status_code=200
     )

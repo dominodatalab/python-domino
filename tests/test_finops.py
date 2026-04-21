@@ -3,7 +3,9 @@ Tests for budget and billing tag (FinOps) API methods.
 Unit tests at top (no live Domino deployment required).
 Integration tests below (skipped unless a live deployment is reachable).
 """
+
 import uuid
+
 import pytest
 
 from domino import Domino
@@ -38,6 +40,7 @@ def base_mocks(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # Unit tests (no live Domino deployment required)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_budget_defaults_list_returns_list(requests_mock, dummy_hostname):
@@ -94,7 +97,9 @@ def test_budget_override_create_sends_correct_payload(requests_mock, dummy_hostn
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_budget_override_update_sends_put_with_correct_url(requests_mock, dummy_hostname):
+def test_budget_override_update_sends_put_with_correct_url(
+    requests_mock, dummy_hostname
+):
     update_mock = requests_mock.put(
         f"{dummy_hostname}/v4/cost/budgets/overrides/{MOCK_BUDGET_ID}",
         json={"labelId": MOCK_BUDGET_ID, "limit": 0.9},
@@ -233,7 +238,9 @@ def test_billing_tag_settings_mode_returns_dict(requests_mock, dummy_hostname):
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_billing_tag_settings_mode_update_sends_correct_payload(requests_mock, dummy_hostname):
+def test_billing_tag_settings_mode_update_sends_correct_payload(
+    requests_mock, dummy_hostname
+):
     update_mock = requests_mock.put(
         f"{dummy_hostname}/v4/cost/billingtagSettings/mode",
         json={"mode": "Required"},
@@ -255,7 +262,9 @@ def test_project_billing_tag_returns_tag(requests_mock, dummy_hostname):
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_project_billing_tag_update_sends_correct_payload(requests_mock, dummy_hostname):
+def test_project_billing_tag_update_sends_correct_payload(
+    requests_mock, dummy_hostname
+):
     update_mock = requests_mock.post(
         f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/billingtag",
         json={"tag": "env-staging"},
@@ -289,7 +298,9 @@ def test_projects_by_billing_tag_returns_dict(requests_mock, dummy_hostname):
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
-def test_project_billing_tag_bulk_update_sends_correct_payload(requests_mock, dummy_hostname):
+def test_project_billing_tag_bulk_update_sends_correct_payload(
+    requests_mock, dummy_hostname
+):
     bulk_mock = requests_mock.post(
         f"{dummy_hostname}/v4/projects/billingtags/projects",
         json={"updated": 1},
@@ -307,6 +318,7 @@ def test_project_billing_tag_bulk_update_sends_correct_payload(requests_mock, du
 # Integration tests (require a live Domino deployment)
 # ---------------------------------------------------------------------------
 
+
 def get_short_id() -> str:
     return str(uuid.uuid4())[:8]
 
@@ -315,7 +327,10 @@ def get_short_id() -> str:
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
 @pytest.mark.parametrize("new_limit", [0.0006, 0.0037])
-@pytest.mark.parametrize("budget_label", [BudgetLabel.PROJECT, BudgetLabel.ORGANIZATION, BudgetLabel.BILLINGTAG])
+@pytest.mark.parametrize(
+    "budget_label",
+    [BudgetLabel.PROJECT, BudgetLabel.ORGANIZATION, BudgetLabel.BILLINGTAG],
+)
 def test_budgets_defaults(budget_label, new_limit, default_domino_client):
     """
     Test get and update default budgets
@@ -327,7 +342,7 @@ def test_budgets_defaults(budget_label, new_limit, default_domino_client):
     budget_defaults = default_domino_client.budget_defaults_list()
     for budget in budget_defaults:
         if budget["budgetLabel"] == budget_label.value:
-            assert (budget["limit"] == new_limit)
+            assert budget["limit"] == new_limit
 
 
 @pytest.mark.skipif(
@@ -338,15 +353,25 @@ def test_budgets_overrides(default_domino_client):
     Test creating, updating and deleting budget overrides
     """
 
-    budget_ids = ["6626b3c64fa2ef89b5def375", "6626b3cf9106c3938a2c5f01", "6626b3d73473d4a99c2c642b"]
+    budget_ids = [
+        "6626b3c64fa2ef89b5def375",
+        "6626b3cf9106c3938a2c5f01",
+        "6626b3d73473d4a99c2c642b",
+    ]
     budget_limit: float = 0.2048
 
     curr_overrides = default_domino_client.budget_overrides_list()
     overrides_count_start = len(curr_overrides)
 
-    default_domino_client.budget_override_create(BudgetLabel.PROJECT, budget_ids[0], budget_limit)
-    default_domino_client.budget_override_create(BudgetLabel.ORGANIZATION, budget_ids[1], budget_limit)
-    default_domino_client.budget_override_create(BudgetLabel.BILLINGTAG, budget_ids[2], budget_limit)
+    default_domino_client.budget_override_create(
+        BudgetLabel.PROJECT, budget_ids[0], budget_limit
+    )
+    default_domino_client.budget_override_create(
+        BudgetLabel.ORGANIZATION, budget_ids[1], budget_limit
+    )
+    default_domino_client.budget_override_create(
+        BudgetLabel.BILLINGTAG, budget_ids[2], budget_limit
+    )
 
     budget_overrides = default_domino_client.budget_overrides_list()
 
@@ -356,7 +381,9 @@ def test_budgets_overrides(default_domino_client):
             assert budget["limit"] == budget_limit
 
     new_limit = 0.1024
-    default_domino_client.budget_override_update(BudgetLabel.BILLINGTAG, budget_ids[2], new_limit)
+    default_domino_client.budget_override_update(
+        BudgetLabel.BILLINGTAG, budget_ids[2], new_limit
+    )
 
     updated_override = default_domino_client.budget_overrides_list()
     assert len(updated_override) >= 3
@@ -379,14 +406,18 @@ def test_budgets_alerts_settings(default_domino_client):
     Test creating a budget with current project, and other projects
     """
     alert_settings = default_domino_client.budget_alerts_settings()
-    assert 'alertsEnabled' in alert_settings.keys()
+    assert "alertsEnabled" in alert_settings.keys()
 
-    default_domino_client.budget_alerts_settings_update(alerts_enabled=False, notify_org_owner=False)
+    default_domino_client.budget_alerts_settings_update(
+        alerts_enabled=False, notify_org_owner=False
+    )
     update_setting_1 = default_domino_client.budget_alerts_settings()
     assert update_setting_1["alertsEnabled"] is False
     assert update_setting_1["notifyOrgOwner"] is False
 
-    default_domino_client.budget_alerts_settings_update(alerts_enabled=True, notify_org_owner=True)
+    default_domino_client.budget_alerts_settings_update(
+        alerts_enabled=True, notify_org_owner=True
+    )
     update_setting_2 = default_domino_client.budget_alerts_settings()
     assert update_setting_2["alertsEnabled"] is True
     assert update_setting_2["notifyOrgOwner"] is True
@@ -426,15 +457,19 @@ def test_billing_tag_settings(default_domino_client):
     Test creating a budget with current project, and other projects
     """
     billing_tag_setting = default_domino_client.billing_tag_settings()
-    assert 'mode' in billing_tag_setting.keys()
+    assert "mode" in billing_tag_setting.keys()
 
-    default_domino_client.billing_tag_settings_mode_update(BillingTagSettingMode.REQUIRED)
+    default_domino_client.billing_tag_settings_mode_update(
+        BillingTagSettingMode.REQUIRED
+    )
     updated_tag_setting = default_domino_client.billing_tag_settings()
     assert updated_tag_setting["mode"] == BillingTagSettingMode.REQUIRED.value
     mode = default_domino_client.billing_tag_settings_mode()
     assert mode["mode"] == BillingTagSettingMode.REQUIRED.value
 
-    default_domino_client.billing_tag_settings_mode_update(BillingTagSettingMode.OPTIONAL)
+    default_domino_client.billing_tag_settings_mode_update(
+        BillingTagSettingMode.OPTIONAL
+    )
     newer_tag_setting = default_domino_client.billing_tag_settings()
     assert newer_tag_setting["mode"] == BillingTagSettingMode.OPTIONAL.value
 
@@ -446,7 +481,11 @@ def test_billing_tags(default_domino_client):
     """
     Test creating a budget with current project, and other projects
     """
-    billing_tags = ["PYTHON-DOMINO-ACTIVE-tag-001", "PYTHON-DOMINO-ACTIVE-tag-002", "PYTHON-DOMINO-ACTIVE-tag-003"]
+    billing_tags = [
+        "PYTHON-DOMINO-ACTIVE-tag-001",
+        "PYTHON-DOMINO-ACTIVE-tag-002",
+        "PYTHON-DOMINO-ACTIVE-tag-003",
+    ]
     new_billing_tags = default_domino_client.billing_tags_create(billing_tags)
     assert len(new_billing_tags["billingTags"]) == 3
 
@@ -473,17 +512,23 @@ def test_projects_billing_tag(default_domino_client):
 
     setting_mode = default_domino_client.billing_tag_settings_mode()
     if setting_mode["mode"] != BillingTagSettingMode.OPTIONAL.value:
-        default_domino_client.billing_tag_settings_mode_update(BillingTagSettingMode.OPTIONAL)
+        default_domino_client.billing_tag_settings_mode_update(
+            BillingTagSettingMode.OPTIONAL
+        )
 
     test_billing_tag = f"TestBillingTag-{get_short_id()}"
     test_billing_tag2 = f"TestBillingTag-{get_short_id()}"
     test_billing_tag3 = f"TestBillingTag-{get_short_id()}"
-    default_domino_client.billing_tags_create([test_billing_tag, test_billing_tag2, test_billing_tag3])
+    default_domino_client.billing_tags_create(
+        [test_billing_tag, test_billing_tag2, test_billing_tag3]
+    )
 
     test_project_name = f"project-{get_short_id()}"
     test_project_name_2 = f"project-{get_short_id()}"
 
-    bt_project = default_domino_client.project_create_v4(project_name=test_project_name, billing_tag=test_billing_tag)
+    bt_project = default_domino_client.project_create_v4(
+        project_name=test_project_name, billing_tag=test_billing_tag
+    )
     project = default_domino_client.project_create_v4(project_name=test_project_name_2)
 
     project_bt = default_domino_client.project_billing_tag(bt_project["id"])
@@ -500,15 +545,22 @@ def test_projects_billing_tag(default_domino_client):
     project_bt_reset = default_domino_client.project_billing_tag(project["id"])
     assert project_bt_reset is None
 
-    query_p = default_domino_client.projects_by_billing_tag(billing_tag=test_billing_tag)
+    query_p = default_domino_client.projects_by_billing_tag(
+        billing_tag=test_billing_tag
+    )
     assert query_p["totalMatches"] == 1
     assert query_p["page"][0]["id"] == bt_project["id"]
     assert query_p["page"][0]["billingTag"]["tag"] == test_billing_tag
 
-    projects_tags = {bt_project["id"]: test_billing_tag3, project["id"]: test_billing_tag3}
+    projects_tags = {
+        bt_project["id"]: test_billing_tag3,
+        project["id"]: test_billing_tag3,
+    }
     default_domino_client.project_billing_tag_bulk_update(projects_tags)
 
-    query_p = default_domino_client.projects_by_billing_tag(billing_tag=test_billing_tag3)
+    query_p = default_domino_client.projects_by_billing_tag(
+        billing_tag=test_billing_tag3
+    )
     assert query_p["totalMatches"] == 2
     assert query_p["page"][0]["id"] in {bt_project["id"], project["id"]}
     assert query_p["page"][0]["billingTag"]["tag"] == test_billing_tag3

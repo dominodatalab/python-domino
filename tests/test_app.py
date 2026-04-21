@@ -47,7 +47,8 @@ def test_app_publish_with_branch(requests_mock, dummy_hostname):
     d.app_publish(app_id=MOCK_APP_ID, branch="my-feature-branch")
 
     app_start_request = next(
-        req for req in requests_mock.request_history
+        req
+        for req in requests_mock.request_history
         if req.path == f"/v4/modelproducts/{MOCK_APP_ID}/start"
     )
     assert app_start_request.json()["mainRepoGitRef"] == {
@@ -66,7 +67,8 @@ def test_app_publish_with_commit_id(requests_mock, dummy_hostname):
     d.app_publish(app_id=MOCK_APP_ID, commit_id="abc123def456")
 
     app_start_request = next(
-        req for req in requests_mock.request_history
+        req
+        for req in requests_mock.request_history
         if req.path == f"/v4/modelproducts/{MOCK_APP_ID}/start"
     )
     assert app_start_request.json()["mainRepoGitRef"] == {
@@ -85,7 +87,8 @@ def test_app_publish_omits_git_ref_when_not_provided(requests_mock, dummy_hostna
     d.app_publish(app_id=MOCK_APP_ID)
 
     app_start_request = next(
-        req for req in requests_mock.request_history
+        req
+        for req in requests_mock.request_history
         if req.path == f"/v4/modelproducts/{MOCK_APP_ID}/start"
     )
     assert "mainRepoGitRef" not in app_start_request.json()
@@ -111,7 +114,8 @@ def test_app_publish_unpublishes_running_app(requests_mock, dummy_hostname):
     d.app_publish(app_id=MOCK_APP_ID, unpublish_running_apps=True)
 
     stop_requests = [
-        req for req in requests_mock.request_history
+        req
+        for req in requests_mock.request_history
         if req.path == f"/v4/modelproducts/{MOCK_APP_ID}/stop"
     ]
     assert len(stop_requests) == 1
@@ -126,7 +130,8 @@ def test_app_publish_skips_unpublish_when_disabled(requests_mock, dummy_hostname
     d.app_publish(app_id=MOCK_APP_ID, unpublish_running_apps=False)
 
     stop_requests = [
-        req for req in requests_mock.request_history
+        req
+        for req in requests_mock.request_history
         if req.path == f"/v4/modelproducts/{MOCK_APP_ID}/stop"
     ]
     assert len(stop_requests) == 0
@@ -142,7 +147,8 @@ def test_app_publish_targets_specific_app_id(requests_mock, dummy_hostname):
     d.app_publish(app_id=MOCK_APP_ID)
 
     start_requests = [
-        req for req in requests_mock.request_history
+        req
+        for req in requests_mock.request_history
         if req.path == f"/v4/modelproducts/{MOCK_APP_ID}/start"
     ]
     assert len(start_requests) == 1

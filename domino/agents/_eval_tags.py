@@ -1,8 +1,8 @@
 import re
 from typing import Optional
 
-from ._constants import EVALUATION_TAG_PREFIX
 from ..exceptions import DominoException
+from ._constants import EVALUATION_TAG_PREFIX
 
 VALID_LABEL_PATTERN = r"[a-zA-Z0-9_-]+"
 TAG_MATCHER_PATTERN = (

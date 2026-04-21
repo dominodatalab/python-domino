@@ -21,3 +21,6 @@ ignore =
     E203,
     # Line lengths are recommended to be no greater than 79 characters
     E501,
+per-file-ignores =
+    # Auto-generated OpenAPI client — forward-reference annotations flagged as undefined
+    domino/_impl/custommetrics/*.py: F821

@@ -2,16 +2,14 @@ import os
 from datetime import datetime
 
 import pytest
-from airflow.operators.dummy import DummyOperator
-from airflow import settings
+from airflow import DAG, settings
+from airflow.models import TaskInstance
 from airflow.models.base import Base
+from airflow.operators.dummy import DummyOperator
 
 from domino.airflow import DominoOperator
 from domino.exceptions import RunFailedException
 from domino.helpers import domino_is_reachable
-from airflow import DAG
-from airflow.models import TaskInstance
-
 
 TEST_PROJECT = os.environ.get("DOMINO_TEST_PROJECT")
 dag_id = "test_operator"
@@ -35,7 +33,7 @@ def test_airflow_dags():
     dag = DAG(dag_id, start_date=start_time)
     task = DummyOperator(
         dag=dag,
-        task_id='test_airflow_dags',
+        task_id="test_airflow_dags",
     )
 
     task.run()

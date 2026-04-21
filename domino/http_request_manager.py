@@ -10,13 +10,12 @@ from requests.auth import AuthBase
 from .constants import DOMINO_VERIFY_CERTIFICATE
 from .exceptions import ReloginRequiredException
 
-
 R_SESSION_MAX_RETRIES = 4
 
 
 class _SessionInitializer:
     def __initialize__(self, session):
-        raise NotImplementedError('Session initializers must be callable.')
+        raise NotImplementedError("Session initializers must be callable.")
 
 
 class _HttpRequestManager:

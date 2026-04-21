@@ -2,10 +2,10 @@
 Unit tests for the project_id property.
 All tests use requests_mock — no live Domino deployment required.
 """
+
 import pytest
 
-from domino import Domino
-from domino import exceptions
+from domino import Domino, exceptions
 
 MOCK_PROJECT_ID = "aabbccddeeff001122334455"
 
@@ -57,7 +57,6 @@ def test_project_id_is_cached(requests_mock, dummy_hostname):
     _ = d.project_id
 
     find_calls = [
-        r for r in requests_mock.request_history
-        if "findProjectByOwnerAndName" in r.url
+        r for r in requests_mock.request_history if "findProjectByOwnerAndName" in r.url
     ]
     assert len(find_calls) == 1

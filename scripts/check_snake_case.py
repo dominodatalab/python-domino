@@ -3,6 +3,7 @@
 Check that no camelCase parameter or variable names are introduced in domino/ source.
 Usage: python scripts/check_snake_case.py [file ...]
 """
+
 import ast
 import re
 import sys

@@ -16,7 +16,7 @@ from domino.constants import (
 TEST_AGENTS_ENV_VARS = {
     "MLFLOW_TRACKING_URI": "http://localhost:5000",
     "DOMINO_AGENT_CONFIG_PATH": "tests/assets/agent_config.yaml",
-    "DOMINO_AGENT_IS_PROD": "false"
+    "DOMINO_AGENT_IS_PROD": "false",
 }
 
 version_info = {
@@ -195,6 +195,7 @@ def test_auth_base():
         def __init__(self, *args, **kwargs):
             super(TestAuth, self).__init__(*args, **kwargs)
             self.header = None
+
     return TestAuth()
 
 

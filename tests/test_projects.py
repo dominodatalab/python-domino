@@ -3,6 +3,7 @@ Tests for project, file, tag, and commit API methods.
 Unit tests at top (no live Domino deployment required).
 Integration tests below (skipped unless a live deployment is reachable).
 """
+
 import uuid
 import warnings
 from pprint import pformat
@@ -39,6 +40,7 @@ def base_mocks(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # Unit tests (no live Domino deployment required)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_deployment_version_returns_dict(requests_mock, dummy_hostname):
@@ -80,6 +82,7 @@ def test_files_upload_sends_put(requests_mock, dummy_hostname):
     )
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     import io
+
     response = d.files_upload("test.py", io.BytesIO(b"print('hello')"))
     assert upload_mock.called
     assert response.status_code == 201
@@ -94,6 +97,7 @@ def test_files_upload_prepends_slash_if_missing(requests_mock, dummy_hostname):
     )
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     import io
+
     d.files_upload("test.py", io.BytesIO(b""))
     assert upload_mock.called
 
@@ -254,6 +258,7 @@ def test_project_archive_raises_for_nonexistent_project(requests_mock, dummy_hos
 # Integration tests (require a live Domino deployment)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
@@ -381,7 +386,9 @@ def test_get_file_from_a_project_v2(default_domino_client):
 
     for file in files_list["data"]:
         if file["path"] == ".dominoignore":
-            file_contents = default_domino_client.blobs_get_v2(file["path"], commits_list[0], default_domino_client.project_id).read()
+            file_contents = default_domino_client.blobs_get_v2(
+                file["path"], commits_list[0], default_domino_client.project_id
+            ).read()
             break
 
     assert "ignore certain files" in str(
@@ -400,7 +407,9 @@ def test_get_blobs_v2_non_canonical(default_domino_client):
     commits_list = default_domino_client.commits_list()
 
     with pytest.raises(exceptions.MalformedInputException):
-        default_domino_client.blobs_get_v2(non_canonical_path, commits_list[0], default_domino_client.project_id).read()
+        default_domino_client.blobs_get_v2(
+            non_canonical_path, commits_list[0], default_domino_client.project_id
+        ).read()
 
 
 @pytest.mark.skipif(

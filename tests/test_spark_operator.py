@@ -4,11 +4,13 @@ local mode and run:
 
 `airflow db init`
 """
+
 import os
 from datetime import datetime
+
+import pytest
 from airflow import DAG
 from airflow.models import TaskInstance
-import pytest
 
 from domino.airflow import DominoSparkOperator
 from domino.exceptions import RunFailedException

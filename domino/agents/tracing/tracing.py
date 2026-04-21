@@ -1,19 +1,20 @@
-from dataclasses import dataclass
-from datetime import datetime
 import functools
 import inspect
 import logging
-import mlflow
-from mlflow.entities import SpanType
-from typing import Optional, Callable, Any
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Callable, Optional
 from uuid import uuid4
 
+import mlflow
+from mlflow.entities import SpanType
+
 from .._client import client
-from .inittracing import init_tracing
-from ..logging.logging import log_evaluation
-from ._util import get_is_production, build_agent_experiment_name
-from .._eval_tags import validate_label, get_eval_tag_name
+from .._eval_tags import get_eval_tag_name, validate_label
 from .._verify_domino_support import verify_domino_support
+from ..logging.logging import log_evaluation
+from ._util import build_agent_experiment_name, get_is_production
+from .inittracing import init_tracing
 
 EvalResult = dict[str, int | float | str]
 
@@ -256,7 +257,9 @@ def add_tracing(
             result = DOMINO_NO_RESULT_ADD_TRACING
             init_tracing(autolog_frameworks)
 
-            with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
+            with mlflow.start_span(
+                name, span_type=span_type, attributes=attributes
+            ) as parent_span:
                 _set_span_inputs(parent_span, func, args, kwargs)
 
                 result = func(*args, **kwargs)
@@ -276,7 +279,9 @@ def add_tracing(
                 result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
-                with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
+                with mlflow.start_span(
+                    name, span_type=span_type, attributes=attributes
+                ) as parent_span:
                     _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = await func(*args, **kwargs)
@@ -294,11 +299,13 @@ def add_tracing(
         if inspect.isgeneratorfunction(func):
 
             @functools.wraps(func)
-            def wrapper(*args, **kwargs):
+            def gen_wrapper(*args, **kwargs):
                 result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
-                with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
+                with mlflow.start_span(
+                    name, span_type=span_type, attributes=attributes
+                ) as parent_span:
                     inputs = _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = func(*args, **kwargs)
@@ -315,7 +322,9 @@ def add_tracing(
                         i = -1
                         for v in result:
                             i += 1
-                            with mlflow.start_span(name, span_type=span_type, attributes=attributes) as gen_span:
+                            with mlflow.start_span(
+                                name, span_type=span_type, attributes=attributes
+                            ) as gen_span:
                                 # make span for each yielded value
                                 gen_span.set_inputs(inputs)
                                 gen_span.set_attributes(
@@ -330,10 +339,13 @@ def add_tracing(
                         for v in all_results:
                             yield v
 
-                if eagerly_evaluate_streamed_results and result != DOMINO_NO_RESULT_ADD_TRACING:
+                if (
+                    eagerly_evaluate_streamed_results
+                    and result != DOMINO_NO_RESULT_ADD_TRACING
+                ):
                     _log_eval_results(parent_span, evaluator, trace_evaluator)
 
-            return wrapper
+            return gen_wrapper
 
         return wrapper
 
@@ -469,9 +481,7 @@ def _search_traces(
         )
 
     if agent_version and not agent_id:
-        raise Exception(
-            "If agent_version is provided, agent_id must also be provided"
-        )
+        raise Exception("If agent_version is provided, agent_id must also be provided")
 
     filter_clauses = []
 
