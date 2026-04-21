@@ -59,7 +59,6 @@ jobs:
             types-redis \
             types-protobuf \
             types-frozendict \
-            types-typing-extensions \
             types-urllib3
 
       - name: mypy
