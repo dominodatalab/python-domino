@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
 
 import yaml
 
@@ -21,7 +21,7 @@ def flatten_dict(d, parent_key="", sep="."):
     return dict(items)
 
 
-def get_flattened_agent_config(path: Optional[str] = None) -> dict[str, any]:
+def get_flattened_agent_config(path: Optional[str] = None) -> dict[str, Any]:
     config = read_agent_config(path)
     return flatten_dict(config)
 

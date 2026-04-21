@@ -5,7 +5,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from logging import Logger
-from typing import AnyStr
+from typing import Optional
 
 from retry import retry
 
@@ -39,16 +39,16 @@ class UploadChunk:
 class Uploader:
     def __init__(
         self,
-        csrf_no_check_header: {str, str},
+        csrf_no_check_header: dict[str, str],
         dataset_id: str,
         local_path_to_file_or_directory: str,
         log: Logger,
         request_manager: _HttpRequestManager,
         routes: _Routes,
-        target_relative_path: str,
-        file_upload_setting: str,
-        max_workers: int,
-        target_chunk_size: int,
+        target_relative_path: Optional[str],
+        file_upload_setting: Optional[str],
+        max_workers: Optional[int],
+        target_chunk_size: Optional[int],
         interrupted: bool = False,
     ):
         cleaned_relative_local_path = os.path.relpath(
@@ -70,7 +70,9 @@ class Uploader:
         self.max_workers = max_workers or MAX_WORKERS
         self.target_relative_path = target_relative_path
         self.interrupted = interrupted
-        self.upload_key = None  # this will be set once the session is started
+        self.upload_key: Optional[str] = (
+            None  # this will be set once the session is started
+        )
 
     def __enter__(self):
         # creating upload session
@@ -157,6 +159,8 @@ class Uploader:
         return chunk_q
 
     def _create_chunks(self, local_path_file, starting_index=1) -> list[UploadChunk]:
+        upload_key = self.upload_key
+        assert upload_key is not None
         file_size = os.path.getsize(local_path_file)
         file_name = os.path.basename(local_path_file)
         total_chunks = max(int(math.ceil(float(file_size) / self.target_chunk_size)), 1)
@@ -171,7 +175,7 @@ class Uploader:
                 relative_path=local_path_file,
                 target_chunk_size=self.target_chunk_size,
                 total_chunks=total_chunks,
-                upload_key=self.upload_key,
+                upload_key=upload_key,
             )
             for chunk_num in range(starting_index, total_chunks + 1)
         ]
@@ -240,7 +244,7 @@ class Uploader:
             f"in {duration_ns / 1_000_000:.1f}ms ({bandwidth_bytes_per_second:.1f} B/s)"
         )
 
-    def _test_chunk(self, chunk: UploadChunk, chunk_data: AnyStr) -> (bool, int):
+    def _test_chunk(self, chunk: UploadChunk, chunk_data: bytes) -> tuple[bool, str]:
         # computing the MD5 checksum
         digest = hashlib.md5()
         digest.update(chunk_data)

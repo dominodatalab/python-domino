@@ -36,10 +36,10 @@ class _CustomMetricsClientBase(ABC):
         model_monitoring_id: str,
         metric: str,
         value: Any,
-        condition: str = None,
+        condition: Optional[str] = None,
         lower_limit: Any = None,
         upper_limit: Any = None,
-        description: str = None,
+        description: Optional[str] = None,
     ) -> None:
         pass
 
@@ -50,7 +50,7 @@ class _CustomMetricsClientBase(ABC):
         metric: str,
         value: Any,
         timestamp: str,
-        tags: Dict = None,
+        tags: Optional[Dict] = None,
     ) -> None:
         pass
 
@@ -83,10 +83,10 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
         model_monitoring_id: str,
         metric: str,
         value: Any,
-        condition: str = None,
+        condition: Optional[str] = None,
         lower_limit: Any = None,
         upper_limit: Any = None,
-        description: str = None,
+        description: Optional[str] = None,
     ) -> None:
         url = self._routes.metric_alerts()
         target_range: Optional[TargetRangeV1] = (
@@ -117,7 +117,7 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
         metric: str,
         value: Any,
         timestamp: str,
-        tags: Dict = None,
+        tags: Optional[Dict] = None,
     ) -> None:
         item = {
             "modelMonitoringId": model_monitoring_id,
@@ -198,10 +198,10 @@ class _CustomMetricsClient(_CustomMetricsClientBase):
         model_monitoring_id: str,
         metric: str,
         value: Any,
-        condition: str = None,
+        condition: Optional[str] = None,
         lower_limit: Any = None,
         upper_limit: Any = None,
-        description: str = None,
+        description: Optional[str] = None,
     ) -> None:
         url = self._routes.metric_alerts()
         request = {
@@ -225,7 +225,7 @@ class _CustomMetricsClient(_CustomMetricsClientBase):
         metric: str,
         value: Any,
         timestamp: str,
-        tags: Dict = None,
+        tags: Optional[Dict] = None,
     ) -> None:
         item = {
             "modelMonitoringId": model_monitoring_id,

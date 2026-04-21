@@ -13,8 +13,7 @@ from ._util import get_running_agent_experiment_name, is_agent
 # autolog frameworks, then the worst case scenario is that we get duplicate autolog calls. These are local to the process
 # so not a big deal
 
-global triggered_autolog_frameworks
-triggered_autolog_frameworks = set()
+triggered_autolog_frameworks: set[str] = set()
 
 global _is_prod_tracing_initialized
 _is_prod_tracing_initialized = False

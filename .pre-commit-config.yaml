@@ -6,6 +6,7 @@ repos:
         entry: python scripts/check_snake_case.py
         language: python
         files: ^domino/.*\.py$
+        exclude: ^domino/_impl/|^domino/airflow/
         pass_filenames: true
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

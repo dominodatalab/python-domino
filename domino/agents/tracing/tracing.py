@@ -83,7 +83,7 @@ class SearchTracesResponse:
     """The token for the next page of results"""
 
 
-def _datetime_to_ms(dt: datetime) -> int:
+def _datetime_to_ms(dt: datetime) -> float:
     return dt.timestamp() * 1000
 
 
@@ -353,13 +353,15 @@ def add_tracing(
 
 
 def _build_evaluation_result(tag_key: str, tag_value: str) -> EvaluationResult:
-    value = tag_value
+    value: float | str = tag_value
     try:
         value = float(tag_value)
     except Exception:
         pass
 
-    return EvaluationResult(name=get_eval_tag_name(tag_key), value=value)
+    name = get_eval_tag_name(tag_key)
+    assert name is not None
+    return EvaluationResult(name=name, value=value)
 
 
 def _build_trace_summaries(traces) -> list[TraceSummary]:
@@ -491,6 +493,7 @@ def _search_traces(
         run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
         filter_clauses.append(run_filter_clause)
     else:
+        assert agent_id is not None
         experiment_name = build_agent_experiment_name(agent_id)
         experiment = client.get_experiment_by_name(experiment_name)
         if not experiment:
@@ -546,7 +549,7 @@ def _search_traces(
     return SearchTracesResponse(trace_summaries, next_page_token)
 
 
-def _return_traced_result(result: any):
+def _return_traced_result(result: Any):
     if result != DOMINO_NO_RESULT_ADD_TRACING:
         return result
     else:
