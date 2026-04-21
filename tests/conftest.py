@@ -28,6 +28,7 @@ version_info = {
     "version": "9.9.9",
 }
 
+
 @pytest.fixture
 def dummy_hostname():
     return "http://domino.somefakecompany.com"
@@ -129,7 +130,6 @@ def mock_proxy_response():
         yield response
 
 
-
 @pytest.fixture
 def mock_domino_version_response():
     """
@@ -196,6 +196,7 @@ def test_auth_base():
             super(TestAuth, self).__init__(*args, **kwargs)
             self.header = None
     return TestAuth()
+
 
 @pytest.fixture(scope="session")
 def docker_client():

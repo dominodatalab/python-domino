@@ -11,7 +11,6 @@
 
 import logging
 import ssl
-from urllib.parse import urlencode
 import typing
 
 import certifi

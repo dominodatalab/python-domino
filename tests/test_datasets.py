@@ -339,7 +339,7 @@ def test_datasets_upload_mixed_slash_path(mock_exists, default_domino_client):
     assert "back\\slash.txt" in os.listdir("tests/assets")
     local_path_to_file = "tests/assets/back\\slash.txt"
     response = default_domino_client.datasets_upload_files(datasets_id,
-                                                            local_path_to_file)
+                                                           local_path_to_file)
     assert "back\\slash.txt" in response
 
 
@@ -355,7 +355,7 @@ def test_datasets_upload_windows_path(mock_exists, default_domino_client):
     assert "test_datasets.py" in os.listdir("tests")
     windows_local_path_to_file = "tests\\test_datasets.py"
     response = default_domino_client.datasets_upload_files(datasets_id,
-                                                            windows_local_path_to_file)
+                                                           windows_local_path_to_file)
     assert "test_datasets.py" in response
 
 
@@ -389,7 +389,7 @@ def test_datasets_upload_directory_windows_path(mock_exists, default_domino_clie
     assert os.path.isdir("tests/assets")
     windows_local_path_to_dir = "tests/assets"
     response = default_domino_client.datasets_upload_files(datasets_id,
-                                                            windows_local_path_to_dir)
+                                                           windows_local_path_to_dir)
     assert "tests/assets" in response
 
 

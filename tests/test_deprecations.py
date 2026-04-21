@@ -49,8 +49,8 @@ class TestRunsStartDeprecations:
     def test_new_names_accepted_without_warning(self, client, recwarn):
         client.runs_start("main.py", is_direct=True, commit_id=MOCK_COMMIT_ID)
         deprecation_warnings = [w for w in recwarn.list if issubclass(w.category, DeprecationWarning)
-                                 and "deprecated" in str(w.message).lower()
-                                 and any(x in str(w.message) for x in ["isDirect", "commitId"])]
+                                and "deprecated" in str(w.message).lower()
+                                and any(x in str(w.message) for x in ["isDirect", "commitId"])]
         assert len(deprecation_warnings) == 0
 
 

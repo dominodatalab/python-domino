@@ -38,7 +38,6 @@ class ProxyAuth(AuthBase):
         return re.sub('^.*?://[^/]+', self.api_proxy, url)
 
 
-
 class ApiKeyAuth(AuthBase):
     """
     Class for authenticating requests using a Domino API key header.

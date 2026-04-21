@@ -32,13 +32,12 @@ class MetricTagV1(
     Do not edit the class manually.
     """
 
-
     class MetaOapg:
         required = {
             "value",
             "key",
         }
-        
+
         class properties:
             key = schemas.StrSchema
             value = schemas.StrSchema
@@ -46,36 +45,34 @@ class MetricTagV1(
                 "key": key,
                 "value": value,
             }
-    
+
     value: MetaOapg.properties.value
     key: MetaOapg.properties.key
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["key"]) -> MetaOapg.properties.key: ...
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["value"]) -> MetaOapg.properties.value: ...
-    
+
     @typing.overload
     def __getitem__(self, name: str) -> schemas.UnsetAnyTypeSchema: ...
-    
+
     def __getitem__(self, name: typing.Union[typing_extensions.Literal["key", "value", ], str]):
         # dict_instance[name] accessor
         return super().__getitem__(name)
-    
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["key"]) -> MetaOapg.properties.key: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["value"]) -> MetaOapg.properties.value: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: str) -> typing.Union[schemas.UnsetAnyTypeSchema, schemas.Unset]: ...
-    
+
     def get_item_oapg(self, name: typing.Union[typing_extensions.Literal["key", "value", ], str]):
         return super().get_item_oapg(name)
-    
 
     def __new__(
         cls,

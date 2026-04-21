@@ -104,6 +104,7 @@ def test_object_creation_with_api_proxy():
     ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"
     assert d.request_manager.auth.api_proxy == "http://localhost:1234"
 
+
 @pytest.mark.usefixtures("mock_domino_version_response", "clear_token_file_from_env", "mock_proxy_response_https")
 def test_object_creation_with_api_proxy_with_scheme():
     """

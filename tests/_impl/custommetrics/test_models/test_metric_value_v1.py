@@ -11,8 +11,6 @@
 
 import unittest
 
-import domino._impl.custommetrics
-from domino._impl.custommetrics.model.metric_value_v1 import MetricValueV1
 from domino._impl.custommetrics import configuration
 
 

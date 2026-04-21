@@ -75,10 +75,12 @@ class UnsupportedFieldException(DominoException):
 
     pass
 
+
 class UnsupportedOperationException(DominoException):
     """Unsupported operation Exception"""
 
     pass
+
 
 class MalformedInputException(DominoException):
     """Malformed input Exception"""

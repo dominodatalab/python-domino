@@ -32,21 +32,18 @@ class TargetRangeV1(
     Do not edit the class manually.
     """
 
-
     class MetaOapg:
         required = {
             "condition",
         }
-        
+
         class properties:
-            
-            
+
             class condition(
                 schemas.EnumBase,
                 schemas.StrSchema
             ):
-            
-            
+
                 class MetaOapg:
                     enum_value_to_name = {
                         "lessThan": "LESS_THAN",
@@ -55,23 +52,23 @@ class TargetRangeV1(
                         "greaterThanEqual": "GREATER_THAN_EQUAL",
                         "between": "BETWEEN",
                     }
-                
+
                 @schemas.classproperty
                 def LESS_THAN(cls):
                     return cls("lessThan")
-                
+
                 @schemas.classproperty
                 def LESS_THAN_EQUAL(cls):
                     return cls("lessThanEqual")
-                
+
                 @schemas.classproperty
                 def GREATER_THAN(cls):
                     return cls("greaterThan")
-                
+
                 @schemas.classproperty
                 def GREATER_THAN_EQUAL(cls):
                     return cls("greaterThanEqual")
-                
+
                 @schemas.classproperty
                 def BETWEEN(cls):
                     return cls("between")
@@ -82,41 +79,39 @@ class TargetRangeV1(
                 "lowerLimit": lowerLimit,
                 "upperLimit": upperLimit,
             }
-    
+
     condition: MetaOapg.properties.condition
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["condition"]) -> MetaOapg.properties.condition: ...
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["lowerLimit"]) -> MetaOapg.properties.lowerLimit: ...
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["upperLimit"]) -> MetaOapg.properties.upperLimit: ...
-    
+
     @typing.overload
     def __getitem__(self, name: str) -> schemas.UnsetAnyTypeSchema: ...
-    
+
     def __getitem__(self, name: typing.Union[typing_extensions.Literal["condition", "lowerLimit", "upperLimit", ], str]):
         # dict_instance[name] accessor
         return super().__getitem__(name)
-    
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["condition"]) -> MetaOapg.properties.condition: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["lowerLimit"]) -> typing.Union[MetaOapg.properties.lowerLimit, schemas.Unset]: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["upperLimit"]) -> typing.Union[MetaOapg.properties.upperLimit, schemas.Unset]: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: str) -> typing.Union[schemas.UnsetAnyTypeSchema, schemas.Unset]: ...
-    
+
     def get_item_oapg(self, name: typing.Union[typing_extensions.Literal["condition", "lowerLimit", "upperLimit", ], str]):
         return super().get_item_oapg(name)
-    
 
     def __new__(
         cls,

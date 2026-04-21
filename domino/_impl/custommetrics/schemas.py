@@ -38,6 +38,7 @@ class Unset(object):
     """
     pass
 
+
 unset = Unset()
 
 none_type = type(None)
@@ -227,7 +228,6 @@ class MetaOapgTyped:
     max_items: int
     min_items: int
     discriminator: typing.Dict[str, typing.Dict[str, typing.Type['Schema']]]
-
 
     class properties:
         # to hold object properties
@@ -552,6 +552,7 @@ class Schema:
         """
         pass
 
+
 """
 import itertools
 data_types = ('None', 'FrozenDict', 'Tuple', 'Str', 'Decimal', 'Bool')
@@ -582,269 +583,394 @@ if typing.TYPE_CHECKING:
     BytesMixin = bytes
     FileMixin = FileIO
     # qty 2
+
     class BinaryMixin(bytes, FileIO):
         pass
+
     class NoneFrozenDictMixin(NoneClass, frozendict.frozendict):
         pass
+
     class NoneTupleMixin(NoneClass, tuple):
         pass
+
     class NoneStrMixin(NoneClass, str):
         pass
+
     class NoneDecimalMixin(NoneClass, decimal.Decimal):
         pass
+
     class NoneBoolMixin(NoneClass, BoolClass):
         pass
+
     class FrozenDictTupleMixin(frozendict.frozendict, tuple):
         pass
+
     class FrozenDictStrMixin(frozendict.frozendict, str):
         pass
+
     class FrozenDictDecimalMixin(frozendict.frozendict, decimal.Decimal):
         pass
+
     class FrozenDictBoolMixin(frozendict.frozendict, BoolClass):
         pass
+
     class TupleStrMixin(tuple, str):
         pass
+
     class TupleDecimalMixin(tuple, decimal.Decimal):
         pass
+
     class TupleBoolMixin(tuple, BoolClass):
         pass
+
     class StrDecimalMixin(str, decimal.Decimal):
         pass
+
     class StrBoolMixin(str, BoolClass):
         pass
+
     class DecimalBoolMixin(decimal.Decimal, BoolClass):
         pass
     # qty 3
+
     class NoneFrozenDictTupleMixin(NoneClass, frozendict.frozendict, tuple):
         pass
+
     class NoneFrozenDictStrMixin(NoneClass, frozendict.frozendict, str):
         pass
+
     class NoneFrozenDictDecimalMixin(NoneClass, frozendict.frozendict, decimal.Decimal):
         pass
+
     class NoneFrozenDictBoolMixin(NoneClass, frozendict.frozendict, BoolClass):
         pass
+
     class NoneTupleStrMixin(NoneClass, tuple, str):
         pass
+
     class NoneTupleDecimalMixin(NoneClass, tuple, decimal.Decimal):
         pass
+
     class NoneTupleBoolMixin(NoneClass, tuple, BoolClass):
         pass
+
     class NoneStrDecimalMixin(NoneClass, str, decimal.Decimal):
         pass
+
     class NoneStrBoolMixin(NoneClass, str, BoolClass):
         pass
+
     class NoneDecimalBoolMixin(NoneClass, decimal.Decimal, BoolClass):
         pass
+
     class FrozenDictTupleStrMixin(frozendict.frozendict, tuple, str):
         pass
+
     class FrozenDictTupleDecimalMixin(frozendict.frozendict, tuple, decimal.Decimal):
         pass
+
     class FrozenDictTupleBoolMixin(frozendict.frozendict, tuple, BoolClass):
         pass
+
     class FrozenDictStrDecimalMixin(frozendict.frozendict, str, decimal.Decimal):
         pass
+
     class FrozenDictStrBoolMixin(frozendict.frozendict, str, BoolClass):
         pass
+
     class FrozenDictDecimalBoolMixin(frozendict.frozendict, decimal.Decimal, BoolClass):
         pass
+
     class TupleStrDecimalMixin(tuple, str, decimal.Decimal):
         pass
+
     class TupleStrBoolMixin(tuple, str, BoolClass):
         pass
+
     class TupleDecimalBoolMixin(tuple, decimal.Decimal, BoolClass):
         pass
+
     class StrDecimalBoolMixin(str, decimal.Decimal, BoolClass):
         pass
     # qty 4
+
     class NoneFrozenDictTupleStrMixin(NoneClass, frozendict.frozendict, tuple, str):
         pass
+
     class NoneFrozenDictTupleDecimalMixin(NoneClass, frozendict.frozendict, tuple, decimal.Decimal):
         pass
+
     class NoneFrozenDictTupleBoolMixin(NoneClass, frozendict.frozendict, tuple, BoolClass):
         pass
+
     class NoneFrozenDictStrDecimalMixin(NoneClass, frozendict.frozendict, str, decimal.Decimal):
         pass
+
     class NoneFrozenDictStrBoolMixin(NoneClass, frozendict.frozendict, str, BoolClass):
         pass
+
     class NoneFrozenDictDecimalBoolMixin(NoneClass, frozendict.frozendict, decimal.Decimal, BoolClass):
         pass
+
     class NoneTupleStrDecimalMixin(NoneClass, tuple, str, decimal.Decimal):
         pass
+
     class NoneTupleStrBoolMixin(NoneClass, tuple, str, BoolClass):
         pass
+
     class NoneTupleDecimalBoolMixin(NoneClass, tuple, decimal.Decimal, BoolClass):
         pass
+
     class NoneStrDecimalBoolMixin(NoneClass, str, decimal.Decimal, BoolClass):
         pass
+
     class FrozenDictTupleStrDecimalMixin(frozendict.frozendict, tuple, str, decimal.Decimal):
         pass
+
     class FrozenDictTupleStrBoolMixin(frozendict.frozendict, tuple, str, BoolClass):
         pass
+
     class FrozenDictTupleDecimalBoolMixin(frozendict.frozendict, tuple, decimal.Decimal, BoolClass):
         pass
+
     class FrozenDictStrDecimalBoolMixin(frozendict.frozendict, str, decimal.Decimal, BoolClass):
         pass
+
     class TupleStrDecimalBoolMixin(tuple, str, decimal.Decimal, BoolClass):
         pass
     # qty 5
+
     class NoneFrozenDictTupleStrDecimalMixin(NoneClass, frozendict.frozendict, tuple, str, decimal.Decimal):
         pass
+
     class NoneFrozenDictTupleStrBoolMixin(NoneClass, frozendict.frozendict, tuple, str, BoolClass):
         pass
+
     class NoneFrozenDictTupleDecimalBoolMixin(NoneClass, frozendict.frozendict, tuple, decimal.Decimal, BoolClass):
         pass
+
     class NoneFrozenDictStrDecimalBoolMixin(NoneClass, frozendict.frozendict, str, decimal.Decimal, BoolClass):
         pass
+
     class NoneTupleStrDecimalBoolMixin(NoneClass, tuple, str, decimal.Decimal, BoolClass):
         pass
+
     class FrozenDictTupleStrDecimalBoolMixin(frozendict.frozendict, tuple, str, decimal.Decimal, BoolClass):
         pass
     # qty 6
+
     class NoneFrozenDictTupleStrDecimalBoolMixin(NoneClass, frozendict.frozendict, tuple, str, decimal.Decimal, BoolClass):
         pass
     # qty 8
+
     class NoneFrozenDictTupleStrDecimalBoolFileBytesMixin(NoneClass, frozendict.frozendict, tuple, str, decimal.Decimal, BoolClass, FileIO, bytes):
         pass
 else:
     # qty 1
     class NoneMixin:
         _types = {NoneClass}
+
     class FrozenDictMixin:
         _types = {frozendict.frozendict}
+
     class TupleMixin:
         _types = {tuple}
+
     class StrMixin:
         _types = {str}
+
     class DecimalMixin:
         _types = {decimal.Decimal}
+
     class BoolMixin:
         _types = {BoolClass}
+
     class BytesMixin:
         _types = {bytes}
+
     class FileMixin:
         _types = {FileIO}
     # qty 2
+
     class BinaryMixin:
         _types = {bytes, FileIO}
+
     class NoneFrozenDictMixin:
         _types = {NoneClass, frozendict.frozendict}
+
     class NoneTupleMixin:
         _types = {NoneClass, tuple}
+
     class NoneStrMixin:
         _types = {NoneClass, str}
+
     class NoneDecimalMixin:
         _types = {NoneClass, decimal.Decimal}
+
     class NoneBoolMixin:
         _types = {NoneClass, BoolClass}
+
     class FrozenDictTupleMixin:
         _types = {frozendict.frozendict, tuple}
+
     class FrozenDictStrMixin:
         _types = {frozendict.frozendict, str}
+
     class FrozenDictDecimalMixin:
         _types = {frozendict.frozendict, decimal.Decimal}
+
     class FrozenDictBoolMixin:
         _types = {frozendict.frozendict, BoolClass}
+
     class TupleStrMixin:
         _types = {tuple, str}
+
     class TupleDecimalMixin:
         _types = {tuple, decimal.Decimal}
+
     class TupleBoolMixin:
         _types = {tuple, BoolClass}
+
     class StrDecimalMixin:
         _types = {str, decimal.Decimal}
+
     class StrBoolMixin:
         _types = {str, BoolClass}
+
     class DecimalBoolMixin:
         _types = {decimal.Decimal, BoolClass}
     # qty 3
+
     class NoneFrozenDictTupleMixin:
         _types = {NoneClass, frozendict.frozendict, tuple}
+
     class NoneFrozenDictStrMixin:
         _types = {NoneClass, frozendict.frozendict, str}
+
     class NoneFrozenDictDecimalMixin:
         _types = {NoneClass, frozendict.frozendict, decimal.Decimal}
+
     class NoneFrozenDictBoolMixin:
         _types = {NoneClass, frozendict.frozendict, BoolClass}
+
     class NoneTupleStrMixin:
         _types = {NoneClass, tuple, str}
+
     class NoneTupleDecimalMixin:
         _types = {NoneClass, tuple, decimal.Decimal}
+
     class NoneTupleBoolMixin:
         _types = {NoneClass, tuple, BoolClass}
+
     class NoneStrDecimalMixin:
         _types = {NoneClass, str, decimal.Decimal}
+
     class NoneStrBoolMixin:
         _types = {NoneClass, str, BoolClass}
+
     class NoneDecimalBoolMixin:
         _types = {NoneClass, decimal.Decimal, BoolClass}
+
     class FrozenDictTupleStrMixin:
         _types = {frozendict.frozendict, tuple, str}
+
     class FrozenDictTupleDecimalMixin:
         _types = {frozendict.frozendict, tuple, decimal.Decimal}
+
     class FrozenDictTupleBoolMixin:
         _types = {frozendict.frozendict, tuple, BoolClass}
+
     class FrozenDictStrDecimalMixin:
         _types = {frozendict.frozendict, str, decimal.Decimal}
+
     class FrozenDictStrBoolMixin:
         _types = {frozendict.frozendict, str, BoolClass}
+
     class FrozenDictDecimalBoolMixin:
         _types = {frozendict.frozendict, decimal.Decimal, BoolClass}
+
     class TupleStrDecimalMixin:
         _types = {tuple, str, decimal.Decimal}
+
     class TupleStrBoolMixin:
         _types = {tuple, str, BoolClass}
+
     class TupleDecimalBoolMixin:
         _types = {tuple, decimal.Decimal, BoolClass}
+
     class StrDecimalBoolMixin:
         _types = {str, decimal.Decimal, BoolClass}
     # qty 4
+
     class NoneFrozenDictTupleStrMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, str}
+
     class NoneFrozenDictTupleDecimalMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, decimal.Decimal}
+
     class NoneFrozenDictTupleBoolMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, BoolClass}
+
     class NoneFrozenDictStrDecimalMixin:
         _types = {NoneClass, frozendict.frozendict, str, decimal.Decimal}
+
     class NoneFrozenDictStrBoolMixin:
         _types = {NoneClass, frozendict.frozendict, str, BoolClass}
+
     class NoneFrozenDictDecimalBoolMixin:
         _types = {NoneClass, frozendict.frozendict, decimal.Decimal, BoolClass}
+
     class NoneTupleStrDecimalMixin:
         _types = {NoneClass, tuple, str, decimal.Decimal}
+
     class NoneTupleStrBoolMixin:
         _types = {NoneClass, tuple, str, BoolClass}
+
     class NoneTupleDecimalBoolMixin:
         _types = {NoneClass, tuple, decimal.Decimal, BoolClass}
+
     class NoneStrDecimalBoolMixin:
         _types = {NoneClass, str, decimal.Decimal, BoolClass}
+
     class FrozenDictTupleStrDecimalMixin:
         _types = {frozendict.frozendict, tuple, str, decimal.Decimal}
+
     class FrozenDictTupleStrBoolMixin:
         _types = {frozendict.frozendict, tuple, str, BoolClass}
+
     class FrozenDictTupleDecimalBoolMixin:
         _types = {frozendict.frozendict, tuple, decimal.Decimal, BoolClass}
+
     class FrozenDictStrDecimalBoolMixin:
         _types = {frozendict.frozendict, str, decimal.Decimal, BoolClass}
+
     class TupleStrDecimalBoolMixin:
         _types = {tuple, str, decimal.Decimal, BoolClass}
     # qty 5
+
     class NoneFrozenDictTupleStrDecimalMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, str, decimal.Decimal}
+
     class NoneFrozenDictTupleStrBoolMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, str, BoolClass}
+
     class NoneFrozenDictTupleDecimalBoolMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, decimal.Decimal, BoolClass}
+
     class NoneFrozenDictStrDecimalBoolMixin:
         _types = {NoneClass, frozendict.frozendict, str, decimal.Decimal, BoolClass}
+
     class NoneTupleStrDecimalBoolMixin:
         _types = {NoneClass, tuple, str, decimal.Decimal, BoolClass}
+
     class FrozenDictTupleStrDecimalBoolMixin:
         _types = {frozendict.frozendict, tuple, str, decimal.Decimal, BoolClass}
     # qty 6
+
     class NoneFrozenDictTupleStrDecimalBoolMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, str, decimal.Decimal, BoolClass}
     # qty 8
+
     class NoneFrozenDictTupleStrDecimalBoolFileBytesMixin:
         _types = {NoneClass, frozendict.frozendict, tuple, str, decimal.Decimal, BoolClass, FileIO, bytes}
 
@@ -864,8 +990,8 @@ class ValidatorBase:
         """
 
         return (configuration is None or
-            not hasattr(configuration, '_disabled_client_side_validations') or
-            schema_keyword not in configuration._disabled_client_side_validations)
+                not hasattr(configuration, '_disabled_client_side_validations') or
+                schema_keyword not in configuration._disabled_client_side_validations)
 
     @staticmethod
     def _raise_validation_errror_message_oapg(value, constraint_msg, constraint_value, path_to_item, additional_txt=""):
@@ -1224,7 +1350,7 @@ class NumberBase(ValidatorBase):
         if not hasattr(cls, 'MetaOapg'):
             return
         if cls._is_json_validation_enabled_oapg('multipleOf',
-                                      validation_metadata.configuration) and hasattr(cls.MetaOapg, 'multiple_of'):
+                                                validation_metadata.configuration) and hasattr(cls.MetaOapg, 'multiple_of'):
             multiple_of_value = cls.MetaOapg.multiple_of
             if (not (float(arg) / multiple_of_value).is_integer()):
                 # Note 'multipleOf' will be as good as the floating point arithmetic.
@@ -2247,6 +2373,7 @@ class Float64Base:
         """
         cls.__validate_format(arg, validation_metadata=validation_metadata)
         return super()._validate_oapg(arg, validation_metadata=validation_metadata)
+
 
 class Float64Schema(
     Float64Base,

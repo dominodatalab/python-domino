@@ -18,7 +18,6 @@ import functools  # noqa: F401
 import io  # noqa: F401
 import re  # noqa: F401
 import typing  # noqa: F401
-import typing_extensions  # noqa: F401
 import uuid  # noqa: F401
 
 import frozendict  # noqa: F401
@@ -60,9 +59,8 @@ class SchemaFor400ResponseBodyApplicationJson(
     schemas.ComposedSchema,
 ):
 
-
     class MetaOapg:
-        
+
         @classmethod
         @functools.lru_cache()
         def one_of(cls):
@@ -77,7 +75,6 @@ class SchemaFor400ResponseBodyApplicationJson(
                 FailureEnvelopeV1,
                 InvalidBodyEnvelopeV1,
             ]
-
 
     def __new__(
         cls,
@@ -225,7 +222,6 @@ class BaseApi(api_client.Api):
         ApiResponseFor201,
     ]: ...
 
-
     @typing.overload
     def _log_metric_values_oapg(
         self,
@@ -339,7 +335,6 @@ class LogMetricValues(BaseApi):
         ApiResponseFor201,
     ]: ...
 
-
     @typing.overload
     def log_metric_values(
         self,
@@ -413,7 +408,6 @@ class ApiForpost(BaseApi):
         ApiResponseFor201,
     ]: ...
 
-
     @typing.overload
     def post(
         self,
@@ -456,5 +450,3 @@ class ApiForpost(BaseApi):
             timeout=timeout,
             skip_deserialization=skip_deserialization
         )
-
-

@@ -11,8 +11,6 @@
 
 import unittest
 
-import domino._impl.custommetrics
-from domino._impl.custommetrics.model.metadata_v1 import MetadataV1
 from domino._impl.custommetrics import configuration
 
 

@@ -15,7 +15,7 @@ extensions = [
 
 autodoc_default_options = {
     'members': True,
-    'undoc-members': False, # Don't show undocumented members
+    'undoc-members': False,  # Don't show undocumented members
     'show-inheritance': False,
 }
 

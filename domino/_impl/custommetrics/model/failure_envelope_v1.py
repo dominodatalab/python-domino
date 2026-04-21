@@ -32,25 +32,22 @@ class FailureEnvelopeV1(
     Do not edit the class manually.
     """
 
-
     class MetaOapg:
         required = {
             "requestId",
             "errors",
         }
-        
+
         class properties:
             requestId = schemas.StrSchema
-            
-            
+
             class errors(
                 schemas.ListSchema
             ):
-            
-            
+
                 class MetaOapg:
                     items = schemas.StrSchema
-            
+
                 def __new__(
                     cls,
                     arg: typing.Union[typing.Tuple[typing.Union[MetaOapg.items, str, ]], typing.List[typing.Union[MetaOapg.items, str, ]]],
@@ -61,43 +58,41 @@ class FailureEnvelopeV1(
                         arg,
                         _configuration=_configuration,
                     )
-            
+
                 def __getitem__(self, i: int) -> MetaOapg.items:
                     return super().__getitem__(i)
             __annotations__ = {
                 "requestId": requestId,
                 "errors": errors,
             }
-    
+
     requestId: MetaOapg.properties.requestId
     errors: MetaOapg.properties.errors
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["requestId"]) -> MetaOapg.properties.requestId: ...
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["errors"]) -> MetaOapg.properties.errors: ...
-    
+
     @typing.overload
     def __getitem__(self, name: str) -> schemas.UnsetAnyTypeSchema: ...
-    
+
     def __getitem__(self, name: typing.Union[typing_extensions.Literal["requestId", "errors", ], str]):
         # dict_instance[name] accessor
         return super().__getitem__(name)
-    
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["requestId"]) -> MetaOapg.properties.requestId: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["errors"]) -> MetaOapg.properties.errors: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: str) -> typing.Union[schemas.UnsetAnyTypeSchema, schemas.Unset]: ...
-    
+
     def get_item_oapg(self, name: typing.Union[typing_extensions.Literal["requestId", "errors", ], str]):
         return super().get_item_oapg(name)
-    
 
     def __new__(
         cls,

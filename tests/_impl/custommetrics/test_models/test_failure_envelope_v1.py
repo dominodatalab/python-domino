@@ -11,8 +11,6 @@
 
 import unittest
 
-import domino._impl.custommetrics
-from domino._impl.custommetrics.model.failure_envelope_v1 import FailureEnvelopeV1
 from domino._impl.custommetrics import configuration
 
 

@@ -9,7 +9,7 @@ from typing import Optional, Callable, Any
 from uuid import uuid4
 
 from .._client import client
-from .inittracing import init_tracing, triggered_autolog_frameworks, call_autolog
+from .inittracing import init_tracing
 from ..logging.logging import log_evaluation
 from ._util import get_is_production, build_agent_experiment_name
 from .._eval_tags import validate_label, get_eval_tag_name
@@ -21,6 +21,7 @@ SpanEvaluator = Callable[[mlflow.entities.Span], EvalResult]
 TraceEvaluator = Callable[[mlflow.entities.Trace], EvalResult]
 
 DOMINO_NO_RESULT_ADD_TRACING = "domino_no_result"
+
 
 @dataclass
 class SpanSummary:
@@ -40,6 +41,7 @@ class SpanSummary:
 
     outputs: Any
     """The outputs of the function that created the span"""
+
 
 @dataclass
 class EvaluationResult:
@@ -154,6 +156,7 @@ def _do_evaluation(
 
     return None
 
+
 def _log_eval_results(
     parent_span: mlflow.entities.Span,
     evaluator: Optional[SpanEvaluator],
@@ -245,7 +248,6 @@ def add_tracing(
         A decorator that wraps the function to be traced.
     """
     validate_label(name)
-
 
     def decorator(func):
         # For Regular Functions (e.g., langgraph_agents.run_agent)
@@ -533,10 +535,12 @@ def _search_traces(
 
     return SearchTracesResponse(trace_summaries, next_page_token)
 
+
 def _return_traced_result(result: any):
     if result != DOMINO_NO_RESULT_ADD_TRACING:
         return result
     else:
         logger.warning("No result returned from traced function")
+
 
 logger = logging.getLogger(__name__)

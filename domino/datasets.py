@@ -53,7 +53,7 @@ class Uploader:
     ):
         cleaned_relative_local_path = os.path.relpath(os.path.normpath(local_path_to_file_or_directory), start=os.curdir)
         # in case running on windows
-        cleaned_relative_local_path = self._get_unix_style_path(cleaned_relative_local_path)        
+        cleaned_relative_local_path = self._get_unix_style_path(cleaned_relative_local_path)
 
         self.csrf_no_check_header = csrf_no_check_header
         self.dataset_id = dataset_id
@@ -133,7 +133,7 @@ class Uploader:
 
                 # in case running on windows
                 cleaned_relative_path = self._get_unix_style_path(relative_path_to_file)
-                
+
                 # append chunk to queue
                 chunk_q.extend(self._create_chunks(cleaned_relative_path))
         return chunk_q
