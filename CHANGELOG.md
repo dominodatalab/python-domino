@@ -12,6 +12,32 @@ All notable changes to the `python-domino` library will be documented in this fi
 * 18 new unit tests covering deprecation warnings for all renamed parameters (`tests/test_deprecations.py`).
 * `pyproject.toml` with `isort` and `black` configuration (`profile = "black"`, `target-version = ["py310"]`).
 
+### Deprecated
+The following public API parameters have been renamed to follow PEP 8 (`snake_case`).
+The old names continue to work but will emit a `DeprecationWarning`. They will be
+removed in the next major version.
+
+| Method | Old name | New name |
+|--------|----------|----------|
+| `runs_start`, `runs_start_blocking` | `isDirect` | `is_direct` |
+| `runs_start`, `runs_start_blocking` | `commitId` | `commit_id` |
+| `runs_start`, `runs_start_blocking` | `publishApiEndpoint` | `publish_api_endpoint` |
+| `run_stop` | `runId` | `run_id` |
+| `run_stop` | `saveChanges` | `save_changes` |
+| `runs_status` | `runId` | `run_id` |
+| `get_run_log` | `runId` | `run_id` |
+| `get_run_log` | `includeSetupLog` | `include_setup_log` |
+| `runs_stdout` | `runId` | `run_id` |
+| `files_list` | `commitId` | `commit_id` |
+| `endpoint_publish` | `commitId` | `commit_id` |
+| `app_publish` | `unpublishRunningApps` | `unpublish_running_apps` |
+| `app_publish` | `hardwareTierId` | `hardware_tier_id` |
+| `app_publish` | `environmentId` | `environment_id` |
+| `app_publish` | `externalVolumeMountIds` | `external_volume_mount_ids` |
+| `app_publish` | `commitId` | `commit_id` |
+| `app_publish` | `appId` | `app_id` |
+| `app_unpublish` | `appId` | `app_id` |
+
 ### Changed
 * Resolved all 38 pre-existing `mypy` type errors across `domino/`, bringing the codebase to a clean `mypy` pass with `--python-version=3.10`.
 * Resolved all `flake8`, `isort`, and `black` formatting errors across the codebase.
