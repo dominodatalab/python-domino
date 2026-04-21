@@ -1,14 +1,23 @@
 [flake8]
 max-complexity = 33
-# Default plus E266 - There should be only one leading # for a block comment
 ignore =
-    E121,  # A line is less indented than it should be for hanging indents
-    E123,  # Closing brackets should match the same indentation level of the line that their opening bracket started on
-    E126,  # A continuation line is indented farther than it should be for a hanging indent
-    E226,  # There should be one space before and after an arithmetic operator (+, -, /, and *)
-    E704,  # Multiple statements of a function definition should be on their own separate lines
-    W503,  # Line breaks should occur after the binary operator to keep all variable names aligned
-    W504,  # Line breaks should occur before the binary operator to keep all operators aligned
-    E266,  # There should be only one leading # for a block comment
-    E203,  # Colons should not have any space before them
-    E501,  # Line lengths are recommended to be no greater than 79 characters
+    # A line is less indented than it should be for hanging indents
+    E121,
+    # Closing brackets should match the same indentation level
+    E123,
+    # A continuation line is indented farther than it should be
+    E126,
+    # There should be one space before and after an arithmetic operator
+    E226,
+    # Multiple statements of a function definition should be on their own lines
+    E704,
+    # Line breaks should occur after the binary operator
+    W503,
+    # Line breaks should occur before the binary operator
+    W504,
+    # There should be only one leading # for a block comment
+    E266,
+    # Colons should not have any space before them
+    E203,
+    # Line lengths are recommended to be no greater than 79 characters
+    E501,
