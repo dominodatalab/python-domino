@@ -374,7 +374,7 @@ class Domino:
                                                     Command to execute in Job
                                                     >> domino.job_start(command="main.py arg1 arg2")
         :param commit_id:                           string (Optional)
-                                                    The commitId to launch from. If not provided, will launch
+                                                    The commit_id to launch from. If not provided, will launch
                                                     from latest commit.
         :param hardware_tier_id:                    string (Optional)
                                                     The hardware tier ID to launch job in. If not provided
