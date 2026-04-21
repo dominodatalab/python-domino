@@ -86,8 +86,8 @@ def test_object_creation_with_api_key():
 
     d = Domino(host=dummy_host, project="anyuser/quick-start", api_key=dummy_api_key)
     assert isinstance(
-        d.request_manager.auth, requests.auth.HTTPBasicAuth
-    ), "Authentication using API key should be of type requests.auth.HTTPBasicAuth"
+        d.request_manager.auth, domino.authentication.ApiKeyAuth
+    ), "Authentication using API key should be of type domino.authentication.ApiKeyAuth"
 
 
 @pytest.mark.usefixtures("mock_domino_version_response", "clear_token_file_from_env", "mock_proxy_response")
@@ -155,8 +155,8 @@ def test_re_authentication_with_a_new_type(dummy_token_file):
 
     d.authenticate(api_key="bogus_api_key")
     assert isinstance(
-        d.request_manager.auth, requests.auth.HTTPBasicAuth
-    ), "Re-authentication with API key should be of type requests.auth.HTTPBasicAuth"
+        d.request_manager.auth, domino.authentication.ApiKeyAuth
+    ), "Re-authentication with API key should be of type domino.authentication.ApiKeyAuth"
 
 
 @pytest.mark.usefixtures("mock_domino_version_response")
@@ -237,8 +237,8 @@ def test_auth_against_real_deployment_with_api_key():
 
     d = Domino(host=host, project="anyuser/quick-start", api_key=api_key)
     assert isinstance(
-        d.request_manager.auth, requests.auth.HTTPBasicAuth
-    ), "Authentication using API key should be of type requests.auth.HTTPBasicAuth"
+        d.request_manager.auth, domino.authentication.ApiKeyAuth
+    ), "Authentication using API key should be of type domino.authentication.ApiKeyAuth"
 
     # Raises a requests.exceptions.HTTPError if authentication failed
     d.environments_list()

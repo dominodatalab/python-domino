@@ -136,6 +136,7 @@ class Domino:
             self._logger.info(
                 f" You need to log in to the Domino UI to start the run. Please do it at {self._routes.host}/relogin?redirectPath=/"
             )
+            raise
 
     def runs_start_blocking(
         self,
@@ -611,6 +612,7 @@ class Domino:
             self._logger.info(
                 f" You need to log in to the Domino UI to start the job. Please do it at {self._routes.host}/relogin?redirectPath=/"
             )
+            raise
 
     def job_stop(self, job_id: str, commit_results: bool = True):
         """
@@ -1340,7 +1342,7 @@ class Domino:
         return self._get(url)
 
     def _dataset_remove(self, dataset_id):
-        if dataset_id in self.datasets_ids(self.project_id):
+        if dataset_id not in self.datasets_ids(self.project_id):
             raise exceptions.DatasetNotFoundException(
                 f"Dataset with id {dataset_id} does not exist"
             )
@@ -1348,10 +1350,8 @@ class Domino:
         response = self.request_manager.delete(url)
         return response
 
-    def datasets_remove(self, dataset_ids: list):
-        for dataset_id in dataset_ids:
-            url = self._routes.datasets_details(dataset_id)
-            self.request_manager.delete(url)
+    def datasets_remove(self, dataset_ids: list) -> list:
+        return [self._dataset_remove(dataset_id) for dataset_id in dataset_ids]
 
     def datasets_upload_files(
         self,
@@ -1990,6 +1990,9 @@ class Domino:
         response = self._get(url)
         if key in response.keys():
             return response[key]
+        raise exceptions.ProjectNotFoundException(
+            f"Project '{self._project_name}' not found for owner '{self._owner_username}'"
+        )
 
     # This will fetch app_id of app in current project
     @property
