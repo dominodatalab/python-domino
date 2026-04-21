@@ -1131,7 +1131,7 @@ class Domino:
             )
         app_id = app_id or self._app_id
         if unpublish_running_apps:
-            self.app_unpublish(app_id=app_id)
+            self.app_unpublish(app_id)
         if app_id is None:
             # No App Exists creating one
             app_id = self.__app_create(hardware_tier_id=hardware_tier_id)
