@@ -124,7 +124,7 @@ class DominoRun:
         experiment_name: Optional[str] = None,
         run_id: Optional[str] = None,
         agent_config_path: Optional[str] = None,
-        custom_summary_metrics: Optional[list[(str, SummaryStatistic)]] = None,
+        custom_summary_metrics: Optional[list[tuple[str, SummaryStatistic]]] = None,
     ):
         """DominoRun is a context manager that starts an Mlflow run and attaches the user's Agent configuration to it,
         create a Logged Model with the Agent configuration, and computes summary metrics for evaluation traces made during the run.

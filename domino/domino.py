@@ -588,7 +588,7 @@ class Domino:
                     + f" This version of Domino supports the following cluster types: {supported_types_str}"
                 )
 
-            def throw_if_information_invalid(key: str, info: dict) -> bool:
+            def throw_if_information_invalid(key: str, info: dict) -> None:
                 try:
                     self._validate_information_data_type(info)
                 except Exception as e:
@@ -934,7 +934,7 @@ class Domino:
         )
         data = {
             "name": project_name,
-            "visibility": visibility.value,
+            "visibility": visibility.value if visibility else None,
             "ownerId": owner,
             "description": description,
             "collaborators": collaborators if collaborators is not None else [],
@@ -1175,7 +1175,9 @@ class Domino:
         response = self.request_manager.get(url).json()
         return response.get("status", None)
 
-    def __app_create(self, name: str = "", hardware_tier_id: str = None) -> str:
+    def __app_create(
+        self, name: str = "", hardware_tier_id: Optional[str] = None
+    ) -> str:
         """
         Private method to create app
 
@@ -1541,10 +1543,10 @@ class Domino:
         self,
         dataset_id: str,
         local_path_to_file_or_directory: str,
-        file_upload_setting: str = None,
-        max_workers: int = None,
-        target_chunk_size: int = None,
-        target_relative_path: str = None,
+        file_upload_setting: Optional[str] = None,
+        max_workers: Optional[int] = None,
+        target_chunk_size: Optional[int] = None,
+        target_relative_path: Optional[str] = None,
     ) -> str:
         """Upload file to dataset with multithreaded support.
 
@@ -1669,7 +1671,7 @@ class Domino:
         url = self._routes.hardware_tiers_list(self.project_id)
         return self._get(url)
 
-    def get_hardware_tier_id_from_name(self, hardware_tier_name: str):
+    def get_hardware_tier_id_from_name(self, hardware_tier_name: Optional[str]):
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_name == hardware_tier["hardwareTier"]["name"]:
                 return hardware_tier["hardwareTier"]["id"]

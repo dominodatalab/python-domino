@@ -37,7 +37,7 @@ class DominoOperator(BaseOperator):
         host: Optional[str] = None,
         api_key: Optional[str] = None,
         domino_token_file: Optional[str] = None,
-        isDirect: bool = None,
+        isDirect: Optional[bool] = None,
         commitId: Optional[str] = None,
         title: Optional[str] = None,
         tier: Optional[str] = None,
