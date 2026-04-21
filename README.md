@@ -534,20 +534,55 @@ Retrieve a file from the Domino server in a project from its path and commit id.
 
 ## Apps
 
-### app_publish(unpublishRunningApps=True, hardwareTierId=None)
+### app_publish(unpublish_running_apps=True, hardware_tier_id=None, environment_id=None, external_volume_mount_ids=None, commit_id=None, branch=None, app_id=None)
 
 Publish an app within a project, or republish an existing app.
 
--   *unpublishRunningApps:* (Defaults to True) Check for an active app
-    instance in the current project and unpublish it before
+-   *unpublish_running_apps:* (Defaults to `True`) Check for an active
+    app instance in the current project and stop it before
     re/publishing.
 
--   *hardwareTierId:* (Optional) Launch the app on the specified
-    hardware tier.
+-   *hardware_tier_id:* (Optional) Launch the app on the specified
+    hardware tier ID.
 
-### app_unpublish()
+-   *environment_id:* (Optional) Launch the app with the specified
+    environment ID.
+
+-   *external_volume_mount_ids:* (Optional) List of external volume
+    mount IDs to attach to the app.
+
+-   *commit_id:* (Optional) Launch the app from a specific commit.
+    Cannot be combined with `branch`.
+
+-   *branch:* (Optional) Launch the app from the tip of a specific
+    branch. Cannot be combined with `commit_id`.
+
+-   *app_id:* (Optional) The ID of the app to publish. If omitted, the
+    project's default app is used (or a new one is created if none
+    exists).
+
+```python
+# Publish from a specific branch
+d.app_publish(branch="my-feature-branch")
+
+# Publish from a specific commit
+d.app_publish(commit_id="abc123def456")
+
+# Publish a specific app by ID
+d.app_publish(app_id="aabbccddeeff001122334457")
+```
+
+> **Note:** The parameters `unpublishRunningApps`, `hardwareTierId`,
+> `environmentId`, `externalVolumeMountIds`, `commitId`, and `appId`
+> are deprecated and will be removed in the next major version.
+> Use the `snake_case` equivalents listed above.
+
+### app_unpublish(app_id=None)
 
 Stop the running app in the project.
+
+-   *app_id:* (Optional) The ID of the app to stop. If omitted, the
+    project's default app is used.
 
 ## Jobs
 
