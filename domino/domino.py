@@ -942,25 +942,34 @@ class Domino:
         return response
 
     # App functions
-    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None, environmentId=None, externalVolumeMountIds=None):
+    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None, environmentId=None, externalVolumeMountIds=None, commitId=None, branch=None, appId=None):
+        if commitId and branch:
+            raise ValueError("Only one of commitId or branch may be specified, not both.")
+        app_id = appId or self._app_id
         if unpublishRunningApps:
-            self.app_unpublish()
-        app_id = self._app_id
+            self.app_unpublish(appId=app_id)
         if app_id is None:
             # No App Exists creating one
             app_id = self.__app_create(hardware_tier_id=hardwareTierId)
         url = self._routes.app_start(app_id)
+        if commitId:
+            main_repo_git_ref = {"type": "commitId", "value": commitId}
+        elif branch:
+            main_repo_git_ref = {"type": "branches", "value": branch}
+        else:
+            main_repo_git_ref = None
         request = {
             "hardwareTierId": hardwareTierId,
             "environmentId": environmentId,
-            "externalVolumeMountIds": externalVolumeMountIds
+            "externalVolumeMountIds": externalVolumeMountIds,
+            "mainRepoGitRef": main_repo_git_ref,
         }
         omitting_null = {k: v for (k, v) in request.items() if v is not None}
         response = self.request_manager.post(url, json=omitting_null)
         return response
 
-    def app_unpublish(self):
-        app_id = self._app_id
+    def app_unpublish(self, appId=None):
+        app_id = appId or self._app_id
         if app_id is None:
             return
         status = self.__app_get_status(app_id)
@@ -971,10 +980,9 @@ class Domino:
             return response
 
     def __app_get_status(self, id) -> Optional[str]:
-        app_id = self._app_id
-        if app_id is None:
+        if id is None:
             return None
-        url = self._routes.app_get(app_id)
+        url = self._routes.app_get(id)
         response = self.request_manager.get(url).json()
         return response.get("status", None)
 
