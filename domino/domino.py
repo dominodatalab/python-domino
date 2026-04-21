@@ -15,7 +15,12 @@ from bs4 import BeautifulSoup
 from domino import exceptions, helpers, datasets
 from domino._version import __version__
 from domino.authentication import get_auth_by_type
-from domino.domino_enums import BillingTagSettingMode, BudgetLabel, BudgetType, ProjectVisibility
+from domino.domino_enums import (
+    BillingTagSettingMode,
+    BudgetLabel,
+    BudgetType,
+    ProjectVisibility,
+)
 from domino.constants import (
     CLUSTER_TYPE_MIN_SUPPORT,
     DOMINO_HOST_KEY_NAME,
@@ -26,12 +31,22 @@ from domino.constants import (
 )
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
-from domino._custom_metrics import _CustomMetricsClientBase, _CustomMetricsClientGen, _CustomMetricsClient
+from domino._custom_metrics import (
+    _CustomMetricsClientBase,
+    _CustomMetricsClientGen,
+    _CustomMetricsClient,
+)
 
 
 class Domino:
     def __init__(
-        self, project, api_key=None, host=None, domino_token_file=None, auth_token=None, api_proxy=None,
+        self,
+        project,
+        api_key=None,
+        host=None,
+        domino_token_file=None,
+        auth_token=None,
+        api_proxy=None,
     ):
 
         self._configure_logging()
@@ -87,7 +102,9 @@ class Domino:
         logging.basicConfig(level=logging_level)
         self._logger = logging.getLogger(__name__)
 
-    def authenticate(self, api_key=None, auth_token=None, domino_token_file=None, api_proxy=None):
+    def authenticate(
+        self, api_key=None, auth_token=None, domino_token_file=None, api_proxy=None
+    ):
         """
         Method to authenticate the request manager. An existing domino client object can
         use this with a new token if the existing credentials expire.
@@ -519,9 +536,13 @@ class Domino:
                 )
 
             if "masterHardwareTierId" in compute_cluster_properties:
-                self._validate_hardware_tier_id(compute_cluster_properties["masterHardwareTierId"])
+                self._validate_hardware_tier_id(
+                    compute_cluster_properties["masterHardwareTierId"]
+                )
 
-            self._validate_hardware_tier_id(compute_cluster_properties["workerHardwareTierId"])
+            self._validate_hardware_tier_id(
+                compute_cluster_properties["workerHardwareTierId"]
+            )
 
         def validate_is_external_volume_mounts_supported():
             if not helpers.is_external_volume_mounts_supported(self._version):
@@ -629,15 +650,17 @@ class Domino:
         response = self.request_manager.post(url, json=request)
         return response
 
-    def jobs_list(self,
-                  project_id: str,
-                  order_by: str = "number",
-                  sort_by: str = "desc",
-                  page_size: Optional[int] = None,
-                  page_no: int = 1,
-                  show_archived: str = "false",
-                  status: str = "all",
-                  tag: Optional[str] = None):
+    def jobs_list(
+        self,
+        project_id: str,
+        order_by: str = "number",
+        sort_by: str = "desc",
+        page_size: Optional[int] = None,
+        page_no: int = 1,
+        show_archived: str = "false",
+        status: str = "all",
+        tag: Optional[str] = None,
+    ):
         """
         Lists job history for a given project_id
         :param project_id: The project to query
@@ -650,7 +673,16 @@ class Domino:
         :param tag: Optional tag filter
         :return: The details
         """
-        url = self._routes.jobs_list(project_id, order_by, sort_by, page_size, page_no, show_archived, status, tag)
+        url = self._routes.jobs_list(
+            project_id,
+            order_by,
+            sort_by,
+            page_size,
+            page_no,
+            show_archived,
+            status,
+            tag,
+        )
         return self._get(url)
 
     def job_status(self, job_id: str) -> dict:
@@ -661,11 +693,7 @@ class Domino:
         """
         return self.request_manager.get(self._routes.job_status(job_id)).json()
 
-    def job_restart(
-                self,
-                job_id: str,
-                should_use_original_input_commit: bool = True
-            ):
+    def job_restart(self, job_id: str, should_use_original_input_commit: bool = True):
         """
         Restarts a previous job
         :param job_id:                              ID of the original job that should be restarted
@@ -674,7 +702,7 @@ class Domino:
         url = self._routes.job_restart()
         request = {
             "jobId": job_id,
-            "shouldUseOriginalInputCommit": should_use_original_input_commit
+            "shouldUseOriginalInputCommit": should_use_original_input_commit,
         }
         response = self.request_manager.post(url, json=request)
         return response
@@ -747,8 +775,10 @@ class Domino:
         :param key: blob key
         :return: blob content
         """
-        message = "blobs_get is deprecated and will soon be removed. Please migrate to blobs_get_v2 and adjust the " \
-                  "input parameters accordingly "
+        message = (
+            "blobs_get is deprecated and will soon be removed. Please migrate to blobs_get_v2 and adjust the "
+            "input parameters accordingly "
+        )
         warnings.warn(message, DeprecationWarning)
         self._validate_blob_key(key)
         url = self._routes.blobs_get(key)
@@ -801,8 +831,13 @@ class Domino:
         visibility: Optional[ProjectVisibility] = ProjectVisibility.PUBLIC,
     ):
         owner = (
-            owner_id if owner_id else self.get_user_id(owner_username) if owner_username
-            else self.get_user_id(self._owner_username)
+            owner_id
+            if owner_id
+            else (
+                self.get_user_id(owner_username)
+                if owner_username
+                else self.get_user_id(self._owner_username)
+            )
         )
         data = {
             "name": project_name,
@@ -818,7 +853,9 @@ class Domino:
 
         url = self._routes.project_v4()
         payload = json.dumps(data)
-        response = self.request_manager.post(url, data=payload, headers={'Content-Type': 'application/json'})
+        response = self.request_manager.post(
+            url, data=payload, headers={"Content-Type": "application/json"}
+        )
         return response.json()
 
     def project_create(self, project_name, owner_username=None):
@@ -943,9 +980,20 @@ class Domino:
         return response
 
     # App functions
-    def app_publish(self, unpublishRunningApps=True, hardwareTierId=None, environmentId=None, externalVolumeMountIds=None, commitId=None, branch=None, appId=None):
+    def app_publish(
+        self,
+        unpublishRunningApps=True,
+        hardwareTierId=None,
+        environmentId=None,
+        externalVolumeMountIds=None,
+        commitId=None,
+        branch=None,
+        appId=None,
+    ):
         if commitId and branch:
-            raise ValueError("Only one of commitId or branch may be specified, not both.")
+            raise ValueError(
+                "Only one of commitId or branch may be specified, not both."
+            )
         app_id = appId or self._app_id
         if unpublishRunningApps:
             self.app_unpublish(appId=app_id)
@@ -1047,26 +1095,26 @@ class Domino:
         self.request_manager.delete(url)
 
     def create_environment(
-            self,
-            name: str,
-            visibility: str,
-            dockerfile_instructions: str = "",
-            environment_variables: Optional[List[Dict[str, Any]]] = None,
-            base_image: str = "",
-            post_run_script: str = "",
-            post_setup_script: str = "",
-            pre_run_script: str = "",
-            pre_setup_script: str = "",
-            skip_cache: bool = False,
-            summary: str = "",
-            supported_clusters: Optional[List[str]] = None,
-            tags: Optional[List[str]] = None,
-            use_vpn: bool = False,
-            workspace_tools: Optional[List[Dict[str, Any]]] = None,
-            add_base_dependencies: bool = True,
-            description: str = "",
-            is_restricted: bool = False,
-            organization_owner_id: Optional[str] = None,
+        self,
+        name: str,
+        visibility: str,
+        dockerfile_instructions: str = "",
+        environment_variables: Optional[List[Dict[str, Any]]] = None,
+        base_image: str = "",
+        post_run_script: str = "",
+        post_setup_script: str = "",
+        pre_run_script: str = "",
+        pre_setup_script: str = "",
+        skip_cache: bool = False,
+        summary: str = "",
+        supported_clusters: Optional[List[str]] = None,
+        tags: Optional[List[str]] = None,
+        use_vpn: bool = False,
+        workspace_tools: Optional[List[Dict[str, Any]]] = None,
+        add_base_dependencies: bool = True,
+        description: str = "",
+        is_restricted: bool = False,
+        organization_owner_id: Optional[str] = None,
     ) -> dict:
         """
         Create a new Domino compute environment.
@@ -1128,36 +1176,36 @@ class Domino:
             "description": description,
             "isRestricted": is_restricted,
             "name": name,
-            "visibility": visibility
+            "visibility": visibility,
         }
 
         if organization_owner_id:
-            data.update({
-                "orgOwnerId": organization_owner_id
-            })
+            data.update({"orgOwnerId": organization_owner_id})
 
         url = self._routes.environment_create()
         payload = json.dumps(data)
-        response = self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"})
+        response = self.request_manager.post(
+            url, data=payload, headers={"Content-Type": "application/json"}
+        )
         return response.json()
 
     def create_environment_revision(
-                self,
-                environment_id: str,
-                dockerfile_instructions: str = "",
-                environment_variables: Optional[List[Dict[str, Any]]] = None,
-                base_image: Optional[str] = None,
-                post_run_script: str = "",
-                post_setup_script: str = "",
-                pre_run_script: str = "",
-                pre_setup_script: str = "",
-                skip_cache: bool = False,
-                summary: str = "",
-                supported_clusters: Optional[List[str]] = None,
-                tags: Optional[List[str]] = None,
-                use_vpn: bool = False,
-                workspace_tools: Optional[List[Dict[str, Any]]] = None,
-            ) -> dict:
+        self,
+        environment_id: str,
+        dockerfile_instructions: str = "",
+        environment_variables: Optional[List[Dict[str, Any]]] = None,
+        base_image: Optional[str] = None,
+        post_run_script: str = "",
+        post_setup_script: str = "",
+        pre_run_script: str = "",
+        pre_setup_script: str = "",
+        skip_cache: bool = False,
+        summary: str = "",
+        supported_clusters: Optional[List[str]] = None,
+        tags: Optional[List[str]] = None,
+        use_vpn: bool = False,
+        workspace_tools: Optional[List[Dict[str, Any]]] = None,
+    ) -> dict:
         """
         Create a new revision of an existing Domino environment.
 
@@ -1208,30 +1256,30 @@ class Domino:
             "supportedClusters": supported_clusters,
             "tags": tags,
             "useVpn": use_vpn,
-            "workspaceTools": workspace_tools
+            "workspaceTools": workspace_tools,
         }
 
         url = self._routes.revision_create(environment_id)
         payload = json.dumps(data)
-        response = self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"})
+        response = self.request_manager.post(
+            url, data=payload, headers={"Content-Type": "application/json"}
+        )
         return response.json()
 
     def restrict_environment_revision(
-            self,
-            environment_id: str,
-            revision_id: str
-       ) -> None:
+        self, environment_id: str, revision_id: str
+    ) -> None:
         """
         Restrict an environment revision.
         """
 
-        data = {
-            "isRestricted": True
-        }
+        data = {"isRestricted": True}
 
         url = self._routes.revision_patch(environment_id, revision_id)
         payload = json.dumps(data)
-        self.request_manager.patch(url, data=payload, headers={"Content-Type": "application/json"})
+        self.request_manager.patch(
+            url, data=payload, headers={"Content-Type": "application/json"}
+        )
 
     # Model Manager functions
 
@@ -1356,7 +1404,7 @@ class Domino:
         file_upload_setting: str = None,
         max_workers: int = None,
         target_chunk_size: int = None,
-        target_relative_path: str = None
+        target_relative_path: str = None,
     ) -> str:
         """Upload file to dataset with multithreaded support.
 
@@ -1378,15 +1426,21 @@ class Domino:
         if file_upload_setting is None or file_upload_setting == "Ignore":
             text = "Ignore setting selected - any file with naming conflict will not be uploaded."
         elif file_upload_setting == "Overwrite":
-            text = "Overwrite setting selected - note that any existing file with naming conflict " \
-                   "will be overridden."
+            text = (
+                "Overwrite setting selected - note that any existing file with naming conflict "
+                "will be overridden."
+            )
         elif file_upload_setting == "Rename":
-            text = "Rename setting selected - note that naming conflicts will be resolved by appending " \
-                   "an increasing integer at the end of the uploaded files. In case of a directory with " \
-                   "numerous conflicts, this will cause severe file proliferation."
+            text = (
+                "Rename setting selected - note that naming conflicts will be resolved by appending "
+                "an increasing integer at the end of the uploaded files. In case of a directory with "
+                "numerous conflicts, this will cause severe file proliferation."
+            )
         else:
-            raise ValueError(f"input file_upload_setting {file_upload_setting} not allowed. Please use "
-                             f"`Overwrite`, `Rename`, or `Ignore` only.")
+            raise ValueError(
+                f"input file_upload_setting {file_upload_setting} not allowed. Please use "
+                f"`Overwrite`, `Rename`, or `Ignore` only."
+            )
         self.log.warning(text)
 
         with datasets.Uploader(
@@ -1396,15 +1450,16 @@ class Domino:
             log=self.log,
             request_manager=self.request_manager,
             routes=self._routes,
-
             file_upload_setting=file_upload_setting,
             max_workers=max_workers,
             target_chunk_size=target_chunk_size,
-            target_relative_path=target_relative_path
+            target_relative_path=target_relative_path,
         ) as uploader:
             path = uploader.upload()
-            self.log.info(f"Uploading chunks for file or directory `{path}` to dataset {dataset_id} completed. "
-                          f"Now attempting to end upload session.")
+            self.log.info(
+                f"Uploading chunks for file or directory `{path}` to dataset {dataset_id} completed. "
+                f"Now attempting to end upload session."
+            )
             return path
 
     def model_version_export(
@@ -1504,7 +1559,9 @@ class Domino:
         url = self._routes.budgets_default()
         return self.request_manager.get(url).json()
 
-    def budget_defaults_update(self, budget_label: BudgetLabel, budget_limit: float) -> dict:
+    def budget_defaults_update(
+        self, budget_label: BudgetLabel, budget_limit: float
+    ) -> dict:
         """
         Update default budgets limits (or quota) by BudgetLabel
         Requires Admin permission
@@ -1515,10 +1572,16 @@ class Domino:
         :return: Returns the updated budget with the newly assigned limit.
         """
         url = self._routes.budgets_default(budget_label.value)
-        updated_budget = {"budgetLabel": budget_label.value, "budgetType": "Default", "limit": budget_limit,
-                          "window": "monthly"}
+        updated_budget = {
+            "budgetLabel": budget_label.value,
+            "budgetType": "Default",
+            "limit": budget_limit,
+            "window": "monthly",
+        }
         data = json.dumps(updated_budget)
-        return self.request_manager.put(url, data=data, headers={"Content-Type": "application/json"}).json()
+        return self.request_manager.put(
+            url, data=data, headers={"Content-Type": "application/json"}
+        ).json()
 
     def budget_overrides_list(self):
         """
@@ -1530,7 +1593,9 @@ class Domino:
         url = self._routes.budget_overrides()
         return self.request_manager.get(url).json()
 
-    def budget_override_create(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
+    def budget_override_create(
+        self, budget_label: BudgetLabel, budget_id: str, budget_limit: float
+    ) -> dict:
         """
         Create Budget overrides based on BudgetLabels, ie BillingTags, Organization, or Projects
         the object id is used as budget ids
@@ -1545,9 +1610,13 @@ class Domino:
         url = self._routes.budget_overrides()
         new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
-        return self.request_manager.post(url, data=data, headers={"Content-Type": "application/json"}).json()
+        return self.request_manager.post(
+            url, data=data, headers={"Content-Type": "application/json"}
+        ).json()
 
-    def budget_override_update(self, budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
+    def budget_override_update(
+        self, budget_label: BudgetLabel, budget_id: str, budget_limit: float
+    ) -> dict:
         """
         Update Budget overrides based on BudgetLabel and budget id
         Requires Admin roles
@@ -1561,7 +1630,9 @@ class Domino:
         url = self._routes.budget_overrides(budget_id)
         new_budget: dict = self._generate_budget(budget_label, budget_id, budget_limit)
         data = json.dumps(new_budget)
-        return self.request_manager.put(url, data=data, headers={"Content-Type": "application/json"}).json()
+        return self.request_manager.put(
+            url, data=data, headers={"Content-Type": "application/json"}
+        ).json()
 
     def budget_override_delete(self, budget_id: str) -> list:
         """
@@ -1588,7 +1659,7 @@ class Domino:
     def budget_alerts_settings_update(
         self,
         alerts_enabled: Optional[bool] = None,
-        notify_org_owner: Optional[bool] = None
+        notify_org_owner: Optional[bool] = None,
     ) -> dict:
         """
         Update the current budget alerts settings to enable/disable budget notifications
@@ -1604,7 +1675,7 @@ class Domino:
 
         optional_fields = {
             "alertsEnabled": alerts_enabled,
-            "notifyOrgOwner": notify_org_owner
+            "notifyOrgOwner": notify_org_owner,
         }
 
         updated_settings = self._update_if_set(current_settings, optional_fields)
@@ -1631,7 +1702,9 @@ class Domino:
 
         for target in current_targets:
             if target["label"] in targets:
-                updated_targets.append({"label": target["label"], "emails": targets[target["label"]]})
+                updated_targets.append(
+                    {"label": target["label"], "emails": targets[target["label"]]}
+                )
             else:
                 updated_targets.append(target)
 
@@ -1664,7 +1737,9 @@ class Domino:
         self.requires_at_least("5.11.0")
         url = self._routes.billing_tags()
         payload = json.dumps({"billingTags": tags_list})
-        return self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"}).json()
+        return self.request_manager.post(
+            url, data=payload, headers={"Content-Type": "application/json"}
+        ).json()
 
     def active_billing_tag_by_name(self, name: str) -> dict:
         """
@@ -1710,7 +1785,9 @@ class Domino:
         url = self._routes.billing_tags_settings(mode_only=True)
         return self.request_manager.get(url).json()
 
-    def billing_tag_settings_mode_update(self, mode: BillingTagSettingMode) -> dict[str, BillingTagSettingMode]:
+    def billing_tag_settings_mode_update(
+        self, mode: BillingTagSettingMode
+    ) -> dict[str, BillingTagSettingMode]:
         """
         Update the current billing tag settings mode
         Requires Admin permission
@@ -1721,7 +1798,9 @@ class Domino:
         """
         url = self._routes.billing_tags_settings(mode_only=True)
         payload = json.dumps({"mode": mode.value})
-        return self.request_manager.put(url, data=payload, headers={"Content-Type": "application/json"}).json()
+        return self.request_manager.put(
+            url, data=payload, headers={"Content-Type": "application/json"}
+        ).json()
 
     def project_billing_tag(self, project_id: Optional[str] = None) -> Optional[dict]:
         """
@@ -1732,10 +1811,14 @@ class Domino:
 
         :return: Returns the billing tag if assigned or None
         """
-        url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
+        url = self._routes.project_billing_tag(
+            project_id if project_id else self.project_id
+        )
         return self.request_manager.get(url).json()
 
-    def project_billing_tag_update(self, billing_tag: str, project_id: Optional[str] = None) -> dict:
+    def project_billing_tag_update(
+        self, billing_tag: str, project_id: Optional[str] = None
+    ) -> dict:
         """
         Update project's billing tag with new billing tag.
         Requires Admin permission
@@ -1745,10 +1828,10 @@ class Domino:
 
         :return: Returns the project details including the new billing tag
         """
-        url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
-        data = {
-            "tag": billing_tag
-        }
+        url = self._routes.project_billing_tag(
+            project_id if project_id else self.project_id
+        )
+        data = {"tag": billing_tag}
         return self.request_manager.post(url, data=json.dumps(data)).json()
 
     def project_billing_tag_reset(self, project_id: Optional[str] = None) -> dict:
@@ -1760,7 +1843,9 @@ class Domino:
 
         :return: Returns the project details
         """
-        url = self._routes.project_billing_tag(project_id if project_id else self.project_id)
+        url = self._routes.project_billing_tag(
+            project_id if project_id else self.project_id
+        )
         return self.request_manager.delete(url).json()
 
     def projects_by_billing_tag(
@@ -1793,7 +1878,7 @@ class Domino:
         parameters = {
             "offset": offset,
             "pageSize": page_size,
-            "missingBillingTagOnly": str(missing_tag_only).lower()
+            "missingBillingTagOnly": str(missing_tag_only).lower(),
         }
 
         optional_params = {
@@ -1820,18 +1905,9 @@ class Domino:
         """
         value_list = []
         for key, value in projects_tag.items():
-            value_list.append(
-                {
-                    "projectId": key,
-                    "billingTag": {
-                        "tag": value
-                    }
-                }
-            )
+            value_list.append({"projectId": key, "billingTag": {"tag": value}})
 
-        data = {
-            "projectsBillingTags": value_list
-        }
+        data = {"projectsBillingTags": value_list}
 
         url = self._routes.projects_billing_tags()
         return self.request_manager.post(url, data=json.dumps(data)).json()
@@ -1932,10 +2008,7 @@ class Domino:
         normalized_path = os.path.normpath(path)
         if path != normalized_path:
             raise exceptions.MalformedInputException(
-                (
-                    "Path should be normalized and cannot contain "
-                    "'..' or '../'. "
-                )
+                ("Path should be normalized and cannot contain " "'..' or '../'. ")
             )
 
     @staticmethod
@@ -1954,13 +2027,15 @@ class Domino:
             )
 
     @staticmethod
-    def _generate_budget(budget_label: BudgetLabel, budget_id: str, budget_limit: float) -> dict:
+    def _generate_budget(
+        budget_label: BudgetLabel, budget_id: str, budget_limit: float
+    ) -> dict:
         return {
             "limit": budget_limit,
             "labelId": budget_id,
             "window": "monthly",
             "budgetLabel": budget_label.value,
-            "budgetType": BudgetType.OVERRIDE.value
+            "budgetType": BudgetType.OVERRIDE.value,
         }
 
     @staticmethod
