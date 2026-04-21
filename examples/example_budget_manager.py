@@ -142,7 +142,7 @@ projects_bt_04 = domino.projects_by_billing_tag(billing_tag="BTExample04")
 pprint(projects_bt_04)
 
 # update projects' billing tags in bulk
-projects_tags = {bt_project["id"]: "BTExample06", project["id"]:  "BTExample06", domino.project_id: "BTExample04"}
+projects_tags = {bt_project["id"]: "BTExample06", project["id"]: "BTExample06", domino.project_id: "BTExample04"}
 domino.project_billing_tag_bulk_update(projects_tags)
 
 # query project by billing tag

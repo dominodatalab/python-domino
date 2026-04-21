@@ -11,8 +11,6 @@
 
 import unittest
 
-import domino._impl.custommetrics
-from domino._impl.custommetrics.model.metric_alert_request_v1 import MetricAlertRequestV1
 from domino._impl.custommetrics import configuration
 
 

@@ -5,7 +5,7 @@ import sys
 from setuptools import find_packages, setup
 
 if sys.version_info < (3, 10):
-    message = f"dominodatalab requires Python '>=3.10.0' but the running Python is {'.'.join(map(str,sys.version_info[:3]))}"
+    message = f"dominodatalab requires Python '>=3.10.0' but the running Python is {'.'.join(map(str, sys.version_info[:3]))}"
     message += "\nConsider Checking python-domino and domino compatibility"
     sys.exit(message)
 
@@ -71,8 +71,8 @@ setup(
             "pytest-order>=1.3.0",
             "pytest-asyncio>=0.23.8",
             "scikit-learn>=1.6.1",  # used in agent tracing tests
-            "openai>=2.7.2", # used in agent tracing tests
-            "ai-mock>=0.3.1", # used in agent tracing tests
+            "openai>=2.7.2",  # used in agent tracing tests
+            "ai-mock>=0.3.1",  # used in agent tracing tests
             "black==22.3.0",
             "flake8==4.0.1",
             "Jinja2==2.11.3",
@@ -90,7 +90,7 @@ setup(
         ],
         "docs": [
             "sphinx>=7.4.0",
-            "markupsafe==2.0.1", # added for using Jinja2 with sphinx and python 3.10
+            "markupsafe==2.0.1",  # added for using Jinja2 with sphinx and python 3.10
         ]
     },
 )

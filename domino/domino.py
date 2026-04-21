@@ -653,7 +653,6 @@ class Domino:
         url = self._routes.jobs_list(project_id, order_by, sort_by, page_size, page_no, show_archived, status, tag)
         return self._get(url)
 
-
     def job_status(self, job_id: str) -> dict:
         """
         Gets the status of job with given job_id
@@ -663,10 +662,10 @@ class Domino:
         return self.request_manager.get(self._routes.job_status(job_id)).json()
 
     def job_restart(
-            self,
-            job_id:str,
-            should_use_original_input_commit: bool = True
-        ):
+                self,
+                job_id: str,
+                should_use_original_input_commit: bool = True
+            ):
         """
         Restarts a previous job
         :param job_id:                              ID of the original job that should be restarted
@@ -1047,7 +1046,6 @@ class Domino:
         url = self._routes.environment_get(environment_id)
         self.request_manager.delete(url)
 
-
     def create_environment(
             self,
             name: str,
@@ -1072,7 +1070,7 @@ class Domino:
     ) -> dict:
         """
         Create a new Domino compute environment.
-        
+
         Args:
             name: Name of the compute environment
             visibility: Visibility level ("Private" or "Global")
@@ -1093,7 +1091,7 @@ class Domino:
             description: Detailed description
             is_restricted: Whether the environment is restricted
             organization_owner_id: ID of an organization that will own the environment
-            
+
         Returns:
             dict: Created environment details
         """
@@ -1143,27 +1141,26 @@ class Domino:
         response = self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"})
         return response.json()
 
-
     def create_environment_revision(
-            self,
-            environment_id: str,
-            dockerfile_instructions: str = "",
-            environment_variables: Optional[List[Dict[str, Any]]] = None,
-            base_image: Optional[str] = None,
-            post_run_script: str = "",
-            post_setup_script: str = "",
-            pre_run_script: str = "",
-            pre_setup_script: str = "",
-            skip_cache: bool = False,
-            summary: str = "",
-            supported_clusters: Optional[List[str]] = None,
-            tags: Optional[List[str]] = None,
-            use_vpn: bool = False,
-            workspace_tools: Optional[List[Dict[str, Any]]] = None,
-        ) -> dict:
+                self,
+                environment_id: str,
+                dockerfile_instructions: str = "",
+                environment_variables: Optional[List[Dict[str, Any]]] = None,
+                base_image: Optional[str] = None,
+                post_run_script: str = "",
+                post_setup_script: str = "",
+                pre_run_script: str = "",
+                pre_setup_script: str = "",
+                skip_cache: bool = False,
+                summary: str = "",
+                supported_clusters: Optional[List[str]] = None,
+                tags: Optional[List[str]] = None,
+                use_vpn: bool = False,
+                workspace_tools: Optional[List[Dict[str, Any]]] = None,
+            ) -> dict:
         """
         Create a new revision of an existing Domino environment.
-        
+
         Args:
             environment_id: ID of the environment for which to create a revision
             dockerfile_instructions: Dockerfile instructions to customize the environment
@@ -1179,7 +1176,7 @@ class Domino:
             tags: List of tags for the environment
             use_vpn: Whether to use VPN for this environment
             workspace_tools: List of workspace tools configuration
-            
+
         Returns:
             dict: Response content from the API
         """
@@ -1214,11 +1211,10 @@ class Domino:
             "workspaceTools": workspace_tools
         }
 
-        url=self._routes.revision_create(environment_id)
-        payload=json.dumps(data)
+        url = self._routes.revision_create(environment_id)
+        payload = json.dumps(data)
         response = self.request_manager.post(url, data=payload, headers={"Content-Type": "application/json"})
         return response.json()
-
 
     def restrict_environment_revision(
             self,
@@ -1233,12 +1229,12 @@ class Domino:
             "isRestricted": True
         }
 
-        url=self._routes.revision_patch(environment_id, revision_id)
-        payload=json.dumps(data)
+        url = self._routes.revision_patch(environment_id, revision_id)
+        payload = json.dumps(data)
         self.request_manager.patch(url, data=payload, headers={"Content-Type": "application/json"})
 
-
     # Model Manager functions
+
     def models_list(self):
         url = self._routes.models_list()
         return self._get(url)

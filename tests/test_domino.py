@@ -22,18 +22,19 @@ def test_versioning(requests_mock, dummy_hostname):
     with pytest.raises(Exception):
         dom.requires_at_least("5.11.0")
 
+
 def test_request_session(test_auth_base):
-     request_manager = _HttpRequestManager(auth=test_auth_base)
-     start_time = time.time()
-     try:
-         response = request_manager.request_session.get(
-             'https://localhost:9999' # ConnectionError
-         )
-     except Exception as ex:
-         print('It failed :(', ex.__class__.__name__)
-     else:
-         print('It eventually worked', response.status_code)
-     finally:
-         end_time = time.time()
-         total_time = end_time - start_time
-         assert(total_time > 5) # actual value should be around 6.0210....
+    request_manager = _HttpRequestManager(auth=test_auth_base)
+    start_time = time.time()
+    try:
+        response = request_manager.request_session.get(
+            'https://localhost:9999'  # ConnectionError
+        )
+    except Exception as ex:
+        print('It failed :(', ex.__class__.__name__)
+    else:
+        print('It eventually worked', response.status_code)
+    finally:
+        end_time = time.time()
+        total_time = end_time - start_time
+        assert (total_time > 5)  # actual value should be around 6.0210....

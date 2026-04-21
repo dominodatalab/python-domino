@@ -11,8 +11,6 @@
 
 import unittest
 
-import domino._impl.custommetrics
-from domino._impl.custommetrics.model.new_metric_values_envelope_v1 import NewMetricValuesEnvelopeV1
 from domino._impl.custommetrics import configuration
 
 

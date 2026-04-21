@@ -32,25 +32,22 @@ class MetadataV1(
     Do not edit the class manually.
     """
 
-
     class MetaOapg:
         required = {
             "notices",
             "requestId",
         }
-        
+
         class properties:
             requestId = schemas.StrSchema
-            
-            
+
             class notices(
                 schemas.ListSchema
             ):
-            
-            
+
                 class MetaOapg:
                     items = schemas.StrSchema
-            
+
                 def __new__(
                     cls,
                     arg: typing.Union[typing.Tuple[typing.Union[MetaOapg.items, str, ]], typing.List[typing.Union[MetaOapg.items, str, ]]],
@@ -61,43 +58,41 @@ class MetadataV1(
                         arg,
                         _configuration=_configuration,
                     )
-            
+
                 def __getitem__(self, i: int) -> MetaOapg.items:
                     return super().__getitem__(i)
             __annotations__ = {
                 "requestId": requestId,
                 "notices": notices,
             }
-    
+
     notices: MetaOapg.properties.notices
     requestId: MetaOapg.properties.requestId
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["requestId"]) -> MetaOapg.properties.requestId: ...
-    
+
     @typing.overload
     def __getitem__(self, name: typing_extensions.Literal["notices"]) -> MetaOapg.properties.notices: ...
-    
+
     @typing.overload
     def __getitem__(self, name: str) -> schemas.UnsetAnyTypeSchema: ...
-    
+
     def __getitem__(self, name: typing.Union[typing_extensions.Literal["requestId", "notices", ], str]):
         # dict_instance[name] accessor
         return super().__getitem__(name)
-    
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["requestId"]) -> MetaOapg.properties.requestId: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: typing_extensions.Literal["notices"]) -> MetaOapg.properties.notices: ...
-    
+
     @typing.overload
     def get_item_oapg(self, name: str) -> typing.Union[schemas.UnsetAnyTypeSchema, schemas.Unset]: ...
-    
+
     def get_item_oapg(self, name: typing.Union[typing_extensions.Literal["requestId", "notices", ], str]):
         return super().get_item_oapg(name)
-    
 
     def __new__(
         cls,

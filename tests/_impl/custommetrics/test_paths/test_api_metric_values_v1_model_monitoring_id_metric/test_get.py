@@ -7,13 +7,10 @@
 """
 
 import unittest
-from unittest.mock import patch
 
-import urllib3
 
-import domino._impl.custommetrics
 from domino._impl.custommetrics.paths.api_metric_values_v1_model_monitoring_id_metric import get  # noqa: E501
-from domino._impl.custommetrics import configuration, schemas, api_client
+from domino._impl.custommetrics import configuration, api_client
 
 from .. import ApiTestMixin
 
@@ -33,8 +30,6 @@ class TestApiMetricValuesV1ModelMonitoringIdMetric(ApiTestMixin, unittest.TestCa
         pass
 
     response_status = 200
-
-
 
 
 if __name__ == '__main__':

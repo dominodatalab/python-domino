@@ -17,15 +17,9 @@ from ._impl.custommetrics.model.metric_tag_v1 import MetricTagV1
 from ._impl.custommetrics.paths.api_metric_values_v1.post import (
     request_body_new_metric_values_envelope_v1,
 )
-from ._impl.custommetrics.paths.api_metric_values_v1_model_monitoring_id_metric.get import (
-    _response_for_200,
-    ApiResponseFor200,
-)
 from ._impl.custommetrics.model.metric_values_envelope_v1 import MetricValuesEnvelopeV1
-from ._impl.custommetrics.model.metadata_v1 import MetadataV1
 from ._impl.custommetrics.api_client import SerializedRequestBody
 from ._impl.custommetrics import schemas
-from ._impl.custommetrics import configuration
 
 
 class _CustomMetricsClientBase(ABC):
@@ -106,14 +100,14 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
             modelMonitoringId=model_monitoring_id,
             metric=metric,
             value=value,
-            targetRange=target_range, # type: ignore
+            targetRange=target_range,  # type: ignore
             description=description,
         )
         ser_body: SerializedRequestBody = (
             request_body_metric_alert_request_v1.serialize(req, "application/json")
         )
         json_data = json.loads(
-            ser_body["body"].decode("utf-8") # type: ignore
+            ser_body["body"].decode("utf-8")  # type: ignore
         )  # extra work to reuse request_manager
         self._parent.request_manager.post(url, json=json_data)
 
@@ -136,7 +130,7 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
         self.log_metrics([item])
 
     def _to_new_metric_value(self, item: Dict) -> NewMetricValueV1:
-        tags: Union[List[MetricTagV1],schemas.Unset] = schemas.unset
+        tags: Union[List[MetricTagV1], schemas.Unset] = schemas.unset
         if "tags" in item:
             tags = [MetricTagV1(key=k, value=v) for k, v in item["tags"].items()]
         ret = NewMetricValueV1(
@@ -158,7 +152,7 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
             )
         )
         json_data = json.loads(
-            ser_body["body"].decode("utf-8") # type: ignore
+            ser_body["body"].decode("utf-8")  # type: ignore
         )  # extra work to reuse request_manager
         self._parent.request_manager.post(url, json=json_data)
 

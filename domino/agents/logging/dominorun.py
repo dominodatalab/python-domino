@@ -110,6 +110,7 @@ def _choose_summarizer(statistic: SummaryStatistic) -> Callable[[list[float]], f
         case _:
             raise ValueError(f"Unknown summary statistic: {statistic}")
 
+
 class DominoRun:
     _is_agent_context = False
 

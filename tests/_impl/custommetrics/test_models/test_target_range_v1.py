@@ -11,8 +11,6 @@
 
 import unittest
 
-import domino._impl.custommetrics
-from domino._impl.custommetrics.model.target_range_v1 import TargetRangeV1
 from domino._impl.custommetrics import configuration
 
 

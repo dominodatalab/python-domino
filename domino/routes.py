@@ -185,8 +185,8 @@ class _Routes:
     def environment_get(self, environment_id):
         return self._build_v1_environments_url() + f"/{environment_id}"
 
-
     # # Environment Revision URLs
+
     def revision_get(self, revision_id):
         return self._build_v4_environments_url() + f"/environmentRevision/{revision_id}"
 
@@ -196,8 +196,8 @@ class _Routes:
     def revision_patch(self, environment_id, revision_id):
         return self._build_beta_environments_url() + f"/{environment_id}/revisions/{revision_id}"
 
-
     # Deployment URLs
+
     def deployment_version(self):
         return self.host + "/version"
 
@@ -331,7 +331,7 @@ class _Routes:
         return self.host + "/api/metricAlerts/v1"
 
     def log_metrics(self):
-        return self.host + f"/api/metricValues/v1"
+        return self.host + "/api/metricValues/v1"
 
     def read_metrics(self, model_monitoring_id, metric):
         return self.host + f"/api/metricValues/v1/{model_monitoring_id}/{metric}"
