@@ -2,6 +2,7 @@
 Tests confirming that renamed camelCase parameters emit DeprecationWarning
 and that the call still succeeds with the old name.
 """
+
 import pytest
 
 from domino import Domino
@@ -21,6 +22,7 @@ def client(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # runs_start
 # ---------------------------------------------------------------------------
+
 
 class TestRunsStartDeprecations:
     @pytest.fixture(autouse=True)
@@ -48,9 +50,13 @@ class TestRunsStartDeprecations:
     @pytest.mark.usefixtures("clear_token_file_from_env")
     def test_new_names_accepted_without_warning(self, client, recwarn):
         client.runs_start("main.py", is_direct=True, commit_id=MOCK_COMMIT_ID)
-        deprecation_warnings = [w for w in recwarn.list if issubclass(w.category, DeprecationWarning)
-                                 and "deprecated" in str(w.message).lower()
-                                 and any(x in str(w.message) for x in ["isDirect", "commitId"])]
+        deprecation_warnings = [
+            w
+            for w in recwarn.list
+            if issubclass(w.category, DeprecationWarning)
+            and "deprecated" in str(w.message).lower()
+            and any(x in str(w.message) for x in ["isDirect", "commitId"])
+        ]
         assert len(deprecation_warnings) == 0
 
 
@@ -58,16 +64,29 @@ class TestRunsStartDeprecations:
 # runs_start_blocking (spot-check one param — same shim logic)
 # ---------------------------------------------------------------------------
 
+
 class TestRunsStartBlockingDeprecations:
     @pytest.fixture(autouse=True)
     def mock_endpoints(self, requests_mock, dummy_hostname):
         requests_mock.post(
             f"{dummy_hostname}/v1/projects/anyuser/anyproject/runs",
-            json={"runId": MOCK_RUN_ID, "outputCommitId": MOCK_COMMIT_ID, "status": "Succeeded"},
+            json={
+                "runId": MOCK_RUN_ID,
+                "outputCommitId": MOCK_COMMIT_ID,
+                "status": "Succeeded",
+            },
         )
         requests_mock.get(
             f"{dummy_hostname}/v1/projects/anyuser/anyproject/runs",
-            json={"data": [{"id": MOCK_RUN_ID, "outputCommitId": MOCK_COMMIT_ID, "status": "Succeeded"}]},
+            json={
+                "data": [
+                    {
+                        "id": MOCK_RUN_ID,
+                        "outputCommitId": MOCK_COMMIT_ID,
+                        "status": "Succeeded",
+                    }
+                ]
+            },
         )
         requests_mock.get(
             f"{dummy_hostname}/v1/projects/anyuser/anyproject/run/{MOCK_RUN_ID}/stdout",
@@ -77,12 +96,15 @@ class TestRunsStartBlockingDeprecations:
     @pytest.mark.usefixtures("clear_token_file_from_env")
     def test_isDirect_warns(self, client):
         with pytest.warns(DeprecationWarning, match="isDirect is deprecated"):
-            client.runs_start_blocking("main.py", isDirect=True, poll_freq=1, max_poll_time=5)
+            client.runs_start_blocking(
+                "main.py", isDirect=True, poll_freq=1, max_poll_time=5
+            )
 
 
 # ---------------------------------------------------------------------------
 # run_stop / runs_status / get_run_log / runs_stdout
 # ---------------------------------------------------------------------------
+
 
 class TestLegacyRunMethodDeprecations:
     @pytest.fixture(autouse=True)
@@ -137,6 +159,7 @@ class TestLegacyRunMethodDeprecations:
 # files_list
 # ---------------------------------------------------------------------------
 
+
 class TestFilesListDeprecations:
     @pytest.fixture(autouse=True)
     def mock_files_list(self, requests_mock, dummy_hostname):
@@ -155,6 +178,7 @@ class TestFilesListDeprecations:
 # endpoint_publish
 # ---------------------------------------------------------------------------
 
+
 class TestEndpointPublishDeprecations:
     @pytest.fixture(autouse=True)
     def mock_endpoint_publish(self, requests_mock, dummy_hostname):
@@ -172,6 +196,7 @@ class TestEndpointPublishDeprecations:
 # ---------------------------------------------------------------------------
 # app_publish / app_unpublish
 # ---------------------------------------------------------------------------
+
 
 class TestAppDeprecations:
     @pytest.fixture(autouse=True)
@@ -196,7 +221,9 @@ class TestAppDeprecations:
 
     @pytest.mark.usefixtures("clear_token_file_from_env")
     def test_app_publish_unpublishRunningApps_warns(self, client):
-        with pytest.warns(DeprecationWarning, match="unpublishRunningApps is deprecated"):
+        with pytest.warns(
+            DeprecationWarning, match="unpublishRunningApps is deprecated"
+        ):
             client.app_publish(app_id=MOCK_APP_ID, unpublishRunningApps=True)
 
     @pytest.mark.usefixtures("clear_token_file_from_env")
