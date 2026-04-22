@@ -1145,7 +1145,7 @@ class Domino:
             raise ValueError(
                 "Only one of commit_id or branch may be specified, not both."
             )
-        app_id = app_id or self._app_id
+        app_id = app_id or self.app_id
         if unpublish_running_apps:
             self.app_unpublish(app_id)
         if app_id is None:
@@ -1174,17 +1174,23 @@ class Domino:
                 "appId is deprecated, use app_id", DeprecationWarning, stacklevel=2
             )
             app_id = kwargs.pop("appId")
-        app_id = app_id or self._app_id
+        app_id = app_id or self.app_id
         if app_id is None:
             return
-        status = self.__app_get_status(app_id)
+        status = self.app_get_status(app_id)
         self.log.debug(f"App {app_id} status={status}")
         if status and status != "Stopped" and status != "Failed":
             url = self._routes.app_stop(app_id)
             response = self.request_manager.post(url)
             return response
 
-    def __app_get_status(self, app_id) -> Optional[str]:
+    def app_get_status(self, app_id: str) -> Optional[str]:
+        """
+        Return the current status of an app, or None if the app does not exist.
+
+        :param app_id: The ID of the app to query.
+        :return: Status string (e.g. "Running", "Stopped", "Failed") or None.
+        """
         if app_id is None:
             return None
         url = self._routes.app_get(app_id)
@@ -2223,20 +2229,15 @@ class Domino:
             f"Project '{self._project_name}' not found for owner '{self._owner_username}'"
         )
 
-    # This will fetch app_id of app in current project
     @property
-    def _app_id(self):
+    def app_id(self) -> Optional[str]:
+        """Return the ID of the first app in the current project, or None if no app exists."""
         url = self._routes.app_list(self.project_id)
         response = self._get(url)
         if len(response) != 0:
             app = response[0]
         else:
             return None
-        key = "id"
-        if key in app.keys():
-            app_id = app[key]
-        else:
-            app_id = None
-        return app_id
+        return app.get("id", None)
 
     _csrf_no_check_header = {"Csrf-Token": "nocheck"}

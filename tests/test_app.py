@@ -17,7 +17,7 @@ def mock_app_publish_setup(requests_mock, dummy_hostname):
     """
     requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
 
-    # Mock app status lookup (GET) used by app_unpublish via __app_get_status
+    # Mock app status lookup (GET) used by app_unpublish via app_get_status
     requests_mock.get(
         f"{dummy_hostname}/v4/modelproducts/{MOCK_APP_ID}",
         json={"id": MOCK_APP_ID, "status": "Running"},
@@ -152,3 +152,37 @@ def test_app_publish_targets_specific_app_id(requests_mock, dummy_hostname):
         if req.path == f"/v4/modelproducts/{MOCK_APP_ID}/start"
     ]
     assert len(start_requests) == 1
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env")
+def test_app_get_status_returns_status(requests_mock, dummy_hostname):
+    """
+    Confirm that app_get_status() is publicly accessible and returns the
+    status string from the API response.
+    """
+    requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
+    requests_mock.get(
+        f"{dummy_hostname}/v4/modelproducts/{MOCK_APP_ID}",
+        json={"id": MOCK_APP_ID, "status": "Running"},
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    status = d.app_get_status(MOCK_APP_ID)
+    assert status == "Running"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env")
+def test_app_get_status_returns_none_when_status_missing(requests_mock, dummy_hostname):
+    """
+    Confirm that app_get_status() returns None when the API response
+    does not contain a status field.
+    """
+    requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
+    requests_mock.get(
+        f"{dummy_hostname}/v4/modelproducts/{MOCK_APP_ID}",
+        json={"id": MOCK_APP_ID},
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    status = d.app_get_status(MOCK_APP_ID)
+    assert status is None
