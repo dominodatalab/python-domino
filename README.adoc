@@ -536,31 +536,87 @@ Retrieve a file from the Domino server in a project from its path and commit id.
 * _commit_id:_ ID of the commit to retrieve the file from.
 * _project_id:_ ID of the project to retrieve the file from.
 
+==== files_download(path, commit_id=None)
+
+Convenience wrapper around `blobs_get_v2` that downloads a file by path without
+needing to look up a commit ID first.
+
+* _path (string):_ Path to the file within the project, e.g. `"/README.md"`.
+* _commit_id (string):_ (Optional) The commit to download from. Defaults to the latest commit.
+
+Returns a raw file content stream (urllib3 response).
+
+[source,python]
+----
+content = d.files_download("/results/output.csv").read()
+----
+
 === Apps
 
-==== app_publish(unpublishRunningApps=True, hardwareTierId=None)
+==== app_publish(unpublish_running_apps=True, hardware_tier_id=None, environment_id=None, external_volume_mount_ids=None, commit_id=None, branch=None, app_id=None)
 
 Publish an app within a project, or republish an existing app.
 
-* _unpublishRunningApps:_ (Defaults to True) Check for an active app instance in the current project and unpublish it before re/publishing.
-* _hardwareTierId:_ (Optional) Launch the app on the specified hardware tier.
+* _unpublish_running_apps:_ (Defaults to `true`) Check for an active app instance in the current project and stop it before re/publishing.
+* _hardware_tier_id:_ (Optional) Launch the app on the specified hardware tier ID.
+* _environment_id:_ (Optional) Launch the app with the specified environment ID.
+* _external_volume_mount_ids:_ (Optional) List of external volume mount IDs to attach to the app.
+* _commit_id:_ (Optional) Launch the app from a specific commit. Cannot be combined with `branch`.
+* _branch:_ (Optional) Launch the app from the tip of a specific branch. Cannot be combined with `commit_id`.
+* _app_id:_ (Optional) The ID of the app to publish. If omitted, the project's default app is used (or a new one is created if none exists).
 
-==== app_unpublish()
+[source,python]
+----
+# Publish from a specific branch
+d.app_publish(branch="my-feature-branch")
+
+# Publish from a specific commit
+d.app_publish(commit_id="abc123def456")
+
+# Publish a specific app by ID
+d.app_publish(app_id="aabbccddeeff001122334457")
+----
+
+NOTE: The parameters `unpublishRunningApps`, `hardwareTierId`, `environmentId`, `externalVolumeMountIds`, `commitId`, and `appId` are deprecated and will be removed in the next major version. Use the `snake_case` equivalents listed above.
+
+==== app_unpublish(app_id=None)
 
 Stop the running app in the project.
+
+* _app_id:_ (Optional) The ID of the app to stop. If omitted, the project's default app is used.
+
+==== app_get_status(app_id)
+
+Return the current status of an app.
+
+* _app_id (string):_ The ID of the app to query.
+
+Returns the status string (e.g. `"Running"`, `"Stopped"`, `"Failed"`), or `None` if the app does not exist.
+
+==== app_id
+
+Read-only property. Returns the ID of the first app in the current project, or `None` if no app exists.
+
+[source,python]
+----
+print(d.app_id)  # e.g. "aabbccddeeff001122334457"
+----
 
 === Jobs
 
 NOTE: Prefer `job_start` over `runs_start` for all new work. See the <<Executions>> section for a full comparison.
 
-==== job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None):
+==== job_start(command, commit_id=None, branch=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None, main_repo_git_ref=None):
 
 Start a new job (execution) in the project using the v4 Jobs API.
 
 * _command (string):_ Command to execute in Job.
 For example: `domino.job_start(command="main.py arg1 arg2")`
-* _commit_id (string):_ (Optional) The `commitId` to launch from.
-If not provided, the job launches from the latest commit.
+* _commit_id (string):_ (Optional) The commit ID to launch from.
+If not provided, the job launches from the latest commit. Mutually exclusive with `branch`.
+* _branch (string):_ (Optional) The branch name to launch from.
+If not provided, the job launches from the latest commit on the default branch.
+Mutually exclusive with `commit_id` and `main_repo_git_ref`.
 * _hardware_tier_name (string):_ (Optional) The hardware tier NAME to launch job in.
 If not provided, the project's default tier is used.
 * _environment_id (string):_ (Optional) The environment ID with which to launch the job.
@@ -608,6 +664,9 @@ If `on_demand_spark_cluster_properties` and `compute_cluster_properties` are bot
 * _external_volume_mounts (List[string]):_ (Optional) External volume mount IDs to mount to execution.
 If not provided, the job launches with no external volumes mounted.
 * _title (string):_ (Optional) Title for Job.
+* _main_repo_git_ref (dict):_ (Optional) Raw git ref dict for advanced use cases.
+For example: `{"type": "branches", "value": "my-feature-branch"}` or `{"type": "tags", "value": "v1.2.3"}`.
+Mutually exclusive with `branch`.
 
 ==== job_stop(job_id, commit_results=True):
 
