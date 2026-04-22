@@ -425,6 +425,50 @@ def test_job_start_raises_if_branch_and_main_repo_git_ref_both_provided(dummy_ho
         )
 
 
+@pytest.mark.usefixtures("clear_token_file_from_env")
+def test_validate_hardware_tier_id_accepts_dict(requests_mock, dummy_hostname):
+    """
+    Confirm that _validate_hardware_tier_id extracts the string value from a dict
+    instead of raising HardwareTierNotFoundException (#174).
+
+    Some call paths (e.g. compute_cluster_properties["workerHardwareTierId"]) pass
+    a dict like {"value": "small-k8s"} rather than a plain string.
+    """
+    requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
+    requests_mock.get(
+        f"{dummy_hostname}/v4/gateway/projects/findProjectByOwnerAndName"
+        "?ownerName=anyuser&projectName=anyproject",
+        json={"id": MOCK_PROJECT_ID},
+    )
+    requests_mock.get(
+        f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/hardwareTiers",
+        json=[{"hardwareTier": {"id": "small-k8s", "name": "Small"}}],
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    assert d._validate_hardware_tier_id({"value": "small-k8s"}) is True
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env")
+def test_validate_hardware_tier_id_accepts_string(requests_mock, dummy_hostname):
+    """
+    Confirm that _validate_hardware_tier_id still works with a plain string ID.
+    """
+    requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
+    requests_mock.get(
+        f"{dummy_hostname}/v4/gateway/projects/findProjectByOwnerAndName"
+        "?ownerName=anyuser&projectName=anyproject",
+        json={"id": MOCK_PROJECT_ID},
+    )
+    requests_mock.get(
+        f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/hardwareTiers",
+        json=[{"hardwareTier": {"id": "small-k8s", "name": "Small"}}],
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    assert d._validate_hardware_tier_id("small-k8s") is True
+
+
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_status_ignores_RequestException_and_times_out(
     requests_mock, dummy_hostname
