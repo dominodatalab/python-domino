@@ -5,7 +5,7 @@ import os
 import re
 import time
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import polling2
 import requests
@@ -2104,7 +2104,9 @@ class Domino:
             f"{environment_id} environment not found"
         )
 
-    def _validate_hardware_tier_id(self, hardware_tier_id: str) -> bool:
+    def _validate_hardware_tier_id(self, hardware_tier_id: Union[str, Dict]) -> bool:
+        if isinstance(hardware_tier_id, dict):
+            hardware_tier_id = hardware_tier_id.get("value", hardware_tier_id)
         self.log.debug(f"Validating hardware tier id: {hardware_tier_id}")
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_id == hardware_tier["hardwareTier"]["id"]:
