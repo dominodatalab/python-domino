@@ -548,6 +548,22 @@ Retrieve a file from the Domino server in a project from its path and commit id.
 -   *commit_id:* ID of the commit to retrieve the file from.
 -   *project_id:* ID of the project to retrieve the file from.
 
+### files_download(path, commit_id=None)
+
+Convenience wrapper around `blobs_get_v2` that downloads a file by path without
+needing to look up a commit ID first.
+
+-   *path (string):* Path to the file within the project, e.g. `"/README.md"`.
+
+-   *commit_id (string):* (Optional) The commit to download from. Defaults to
+    the latest commit in the project.
+
+Returns a raw file content stream (urllib3 response). Example:
+
+```python
+content = d.files_download("/results/output.csv").read()
+```
+
 ## Apps
 
 ### app_publish(unpublish_running_apps=True, hardware_tier_id=None, environment_id=None, external_volume_mount_ids=None, commit_id=None, branch=None, app_id=None)
@@ -600,19 +616,43 @@ Stop the running app in the project.
 -   *app_id:* (Optional) The ID of the app to stop. If omitted, the
     project's default app is used.
 
+### app_get_status(app_id)
+
+Return the current status of an app.
+
+-   *app_id (string):* The ID of the app to query.
+
+Returns the status string (e.g. `"Running"`, `"Stopped"`, `"Failed"`), or
+`None` if the app does not exist.
+
+### app_id
+
+Read-only property. Returns the ID of the first app in the current project,
+or `None` if no app exists. Useful when you need the app ID to pass to
+`app_get_status()` or `app_publish()`.
+
+```python
+print(d.app_id)  # e.g. "aabbccddeeff001122334457"
+```
+
 ## Jobs
 
 > **Prefer `job_start` over `runs_start` for all new work.** See the [Executions](#executions) section for a full comparison.
 
-### job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None, main_repo_git_ref=None):
+### job_start(command, commit_id=None, branch=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None, main_repo_git_ref=None):
 
 Start a new job (execution) in the project using the v4 Jobs API.
 
 -   *command (string):* Command to execute in Job. For example:
     `domino.job_start(command="main.py arg1 arg2")`
 
--   *commit_id (string):* (Optional) The `commitId` to launch from. If
-    not provided, the job launches from the latest commit.
+-   *commit_id (string):* (Optional) The commit ID to launch from. If
+    not provided, the job launches from the latest commit. Mutually
+    exclusive with `branch`.
+
+-   *branch (string):* (Optional) The branch name to launch from. If
+    not provided, the job launches from the latest commit on the default
+    branch. Mutually exclusive with `commit_id` and `main_repo_git_ref`.
 
 -   *hardware_tier_name (string):* (Optional) The hardware tier NAME
     to launch job in. If not provided, the project’s default tier is
