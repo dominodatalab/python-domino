@@ -426,6 +426,19 @@ Remove a tag from a project.
 
 === Executions
 
+NOTE: *`runs_start` vs `job_start` — which should I use?* +
+The SDK exposes two ways to start an execution. `job_start` uses the v4 Jobs API and is recommended for all new work. `runs_start` uses the legacy v1 API and is retained for backwards compatibility only.
+[cols="1,2,2", options="header"]
+|===
+| | `runs_start` / `runs_start_blocking` | `job_start` / `job_start_blocking`
+| *API version* | v1 (legacy) | v4 (current)
+| *Command format* | List of strings: `["main.py", "arg1"]` | Single string: `"main.py arg1"`
+| *Compute clusters* | Not supported | Spark, Ray, Dask, MPI via `compute_cluster_properties`
+| *Git ref targeting* | Commit ID only | Commit ID, branch, or `main_repo_git_ref` dict
+| *External volumes* | Not supported | Supported via `external_volume_mounts`
+| *Recommended for* | Legacy scripts | All new work
+|===
+
 See these code example files:
 
 * {python-domino-repo}/blob/Release-{latest-version}/examples/start_run_and_check_status.py[`start_run_and_check_status.py`^]
@@ -538,9 +551,11 @@ Stop the running app in the project.
 
 === Jobs
 
+NOTE: Prefer `job_start` over `runs_start` for all new work. See the <<Executions>> section for a full comparison.
+
 ==== job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None):
 
-Start a new job (execution) in the project.
+Start a new job (execution) in the project using the v4 Jobs API.
 
 * _command (string):_ Command to execute in Job.
 For example: `domino.job_start(command="main.py arg1 arg2")`
