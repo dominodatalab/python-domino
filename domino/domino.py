@@ -891,6 +891,18 @@ class Domino:
         url = self._routes.blobs_get_v2(path, commit_id, project_id)
         return self.request_manager.get_raw(url)
 
+    def files_download(self, path: str, commit_id: Optional[str] = None):
+        """
+        Download a file from the project by path.
+
+        :param path: Path to the file within the project (e.g. "/README.md").
+        :param commit_id: The commit to download from. Defaults to the latest commit.
+        :return: Raw file content (urllib3 response stream).
+        """
+        if commit_id is None:
+            commit_id = self.commits_list()[0]["id"]
+        return self.blobs_get_v2(path, commit_id, self.project_id)
+
     def fork_project(self, target_name):
         url = self._routes.fork_project(self.project_id)
         request = {"name": target_name}
