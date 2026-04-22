@@ -345,6 +345,7 @@ class Domino:
         external_volume_mounts: Optional[List[str]] = None,
         title: Optional[str] = None,
         main_repo_git_ref: Optional[dict] = None,
+        branch: Optional[str] = None,
     ) -> dict:
         """
         Starts a Domino Job via V4 API
@@ -415,9 +416,24 @@ class Domino:
                                                         "type": "branches",
                                                         "value": "my-feature-branch"
                                                     }
-                                                    Supported types: "branches", "tags"
+                                                    Supported types: "branches", "tags".
+                                                    Cannot be combined with branch.
+        :param branch:                              string (Optional)
+                                                    Convenience parameter. For git-based projects, launch the job
+                                                    from the tip of the specified branch. Cannot be combined with
+                                                    commit_id or main_repo_git_ref.
         :return: Returns created Job details (number, id etc)
         """
+        if branch and commit_id:
+            raise ValueError(
+                "Only one of branch or commit_id may be specified, not both."
+            )
+        if branch and main_repo_git_ref:
+            raise ValueError(
+                "Only one of branch or main_repo_git_ref may be specified, not both."
+            )
+        if branch:
+            main_repo_git_ref = {"type": "branches", "value": branch}
 
         def validate_on_demand_spark_cluster_properties(max_execution_slot_per_user):
             self.log.debug(

@@ -377,6 +377,55 @@ def test_job_start_sends_main_repo_git_ref(requests_mock, dummy_hostname):
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
+def test_job_start_branch_sets_main_repo_git_ref(requests_mock, dummy_hostname):
+    """
+    Confirm that the branch convenience parameter is translated to mainRepoGitRef
+    in the jobs/start request body.
+    """
+    requests_mock.get(
+        f"{dummy_hostname}/v4/jobs/{MOCK_JOB_ID}",
+        json=MOCK_JOB_RESPONSE_COMPLETED,
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    d.job_start_blocking(
+        command="foo.py", branch="my-feature-branch", poll_freq=1, max_poll_time=1
+    )
+
+    jobs_start_request = next(
+        req for req in requests_mock.request_history if req.path == "/v4/jobs/start"
+    )
+    assert jobs_start_request.json()["mainRepoGitRef"] == {
+        "type": "branches",
+        "value": "my-feature-branch",
+    }
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
+def test_job_start_raises_if_branch_and_commit_id_both_provided(dummy_hostname):
+    """
+    Confirm that providing both branch and commit_id raises a ValueError.
+    """
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ValueError, match="Only one of branch or commit_id"):
+        d.job_start(command="foo.py", branch="my-branch", commit_id="abc123")
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
+def test_job_start_raises_if_branch_and_main_repo_git_ref_both_provided(dummy_hostname):
+    """
+    Confirm that providing both branch and main_repo_git_ref raises a ValueError.
+    """
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ValueError, match="Only one of branch or main_repo_git_ref"):
+        d.job_start(
+            command="foo.py",
+            branch="my-branch",
+            main_repo_git_ref={"type": "branches", "value": "other-branch"},
+        )
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_status_ignores_RequestException_and_times_out(
     requests_mock, dummy_hostname
 ):
