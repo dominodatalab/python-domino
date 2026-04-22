@@ -1037,7 +1037,9 @@ class Domino:
         response = self.request_manager.get(url).json()
         return response.get("status", None)
 
-    def __app_create(self, name: str = "", hardware_tier_id: Optional[str] = None) -> str:
+    def __app_create(
+        self, name: str = "", hardware_tier_id: Optional[str] = None
+    ) -> str:
         """
         Private method to create app
 
