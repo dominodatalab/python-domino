@@ -136,6 +136,10 @@ class Domino:
         publish_api_endpoint=None,
         **kwargs,
     ):
+        """
+        Start a run via the legacy v1 Runs API. For new work, prefer job_start() which uses
+        the v4 Jobs API and supports compute clusters, external volumes, and branch targeting.
+        """
         if "isDirect" in kwargs:
             warnings.warn(
                 "isDirect is deprecated, use is_direct",
@@ -427,7 +431,9 @@ class Domino:
         branch: Optional[str] = None,
     ) -> dict:
         """
-        Starts a Domino Job via V4 API
+        Start a Domino Job via the v4 Jobs API. Preferred over runs_start() for all new work —
+        supports hardware tiers, compute clusters (Spark/Ray/Dask/MPI), external volumes, and
+        git ref targeting by branch or commit.
         :param command:                             string
                                                     Command to execute in Job
                                                     >> domino.job_start(command="main.py arg1 arg2")
