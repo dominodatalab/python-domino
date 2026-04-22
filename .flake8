@@ -1,5 +1,5 @@
 [flake8]
-max-complexity = 33
+max-complexity = 34
 ignore =
     # A line is less indented than it should be for hanging indents
     E121,

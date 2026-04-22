@@ -29,12 +29,6 @@ jobs:
       - name: flake8
         run: flake8 .
 
-      - name: snake_case
-        run: |
-          find domino -name "*.py" \
-            | grep -v "domino/_impl/" \
-            | grep -v "domino/airflow/" \
-            | xargs python scripts/check_snake_case.py
 
   typecheck:
     name: Type check

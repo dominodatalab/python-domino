@@ -2,25 +2,24 @@ import functools
 import json
 import logging
 import os
-from packaging import version
 import re
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
 import warnings
+from typing import Any, Dict, List, Optional, Tuple
 
 import polling2
 import requests
 from bs4 import BeautifulSoup
+from packaging import version
 
-from domino import exceptions, helpers, datasets
+from domino import datasets, exceptions, helpers
+from domino._custom_metrics import (
+    _CustomMetricsClient,
+    _CustomMetricsClientBase,
+    _CustomMetricsClientGen,
+)
 from domino._version import __version__
 from domino.authentication import get_auth_by_type
-from domino.domino_enums import (
-    BillingTagSettingMode,
-    BudgetLabel,
-    BudgetType,
-    ProjectVisibility,
-)
 from domino.constants import (
     CLUSTER_TYPE_MIN_SUPPORT,
     DOMINO_HOST_KEY_NAME,
@@ -29,13 +28,14 @@ from domino.constants import (
     MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION,
     MINIMUM_SUPPORTED_DOMINO_VERSION,
 )
+from domino.domino_enums import (
+    BillingTagSettingMode,
+    BudgetLabel,
+    BudgetType,
+    ProjectVisibility,
+)
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
-from domino._custom_metrics import (
-    _CustomMetricsClientBase,
-    _CustomMetricsClientGen,
-    _CustomMetricsClient,
-)
 
 
 class Domino:
