@@ -404,6 +404,22 @@ Remove a tag from a project.
 
 ## Executions
 
+> **`runs_start` vs `job_start` — which should I use?**
+>
+> The SDK exposes two ways to start an execution:
+>
+> | | `runs_start` / `runs_start_blocking` | `job_start` / `job_start_blocking` |
+> |---|---|---|
+> | **API version** | v1 (legacy) | v4 (current) |
+> | **Command format** | List of strings: `["main.py", "arg1"]` | Single string: `"main.py arg1"` |
+> | **Hardware tier** | By name (`tier`) | By name (`hardware_tier_name`) or ID (`hardware_tier_id`) |
+> | **Compute clusters** | Not supported | Spark, Ray, Dask, MPI via `compute_cluster_properties` |
+> | **Git ref targeting** | By commit ID only | By commit ID, branch, or raw `main_repo_git_ref` dict |
+> | **External volumes** | Not supported | Supported via `external_volume_mounts` |
+> | **Recommended for** | Legacy scripts and simple use cases | All new work |
+>
+> Use `job_start` for all new development. `runs_start` is retained for backwards compatibility.
+
 See these code example files:
 
 -   [`start_run_and_check_status.py`](https://github.com/dominodatalab/python-domino/blob/Release-2.1.0/examples/start_run_and_check_status.py)
@@ -586,9 +602,11 @@ Stop the running app in the project.
 
 ## Jobs
 
+> **Prefer `job_start` over `runs_start` for all new work.** See the [Executions](#executions) section for a full comparison.
+
 ### job_start(command, commit_id=None, hardware_tier_name=None, environment_id=None, on_demand_spark_cluster_properties=None, compute_cluster_properties=None, external_volume_mounts=None, title=None, main_repo_git_ref=None):
 
-Start a new job (execution) in the project.
+Start a new job (execution) in the project using the v4 Jobs API.
 
 -   *command (string):* Command to execute in Job. For example:
     `domino.job_start(command="main.py arg1 arg2")`
