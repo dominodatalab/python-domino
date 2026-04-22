@@ -100,7 +100,7 @@ def test_app_publish_raises_if_both_branch_and_commit_id_provided(dummy_hostname
     Confirm that providing both branch and commitId raises a ValueError.
     """
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    with pytest.raises(ValueError, match="Only one of commitId or branch"):
+    with pytest.raises(ValueError, match="Only one of commit_id or branch"):
         d.app_publish(appId=MOCK_APP_ID, branch="my-branch", commitId="abc123")
 
 
