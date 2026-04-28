@@ -5,11 +5,8 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
-* `app_publish()` now accepts `branch` and `commit_id` parameters to launch an app from a specific git ref.
-* `app_publish()` now accepts an explicit `app_id` parameter to target a specific app.
 * `scripts/check_snake_case.py` — AST-based lint script that catches camelCase parameter names in new code.
 * GitHub Actions CI workflow (`.github/workflows/ci.yml`) that runs lint, type-checking, and tests on every PR and push to `master`. All checks must pass before a PR can be merged.
-* 18 new unit tests covering deprecation warnings for all renamed parameters (`tests/test_deprecations.py`).
 * `pyproject.toml` with `isort` and `black` configuration (`profile = "black"`, `target-version = ["py310"]`).
 
 ### Changed
