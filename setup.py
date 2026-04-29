@@ -58,7 +58,7 @@ setup(
         "retry==0.9.2",
     ],
     extras_require={
-        "airflow": ["apache-airflow==2.2.4"],
+        "airflow": ["apache-airflow==3.2.0"],
         "data": ["dominodatalab-data>=0.1.0"],
         "agents": [
             "semver>=3.0.4",
