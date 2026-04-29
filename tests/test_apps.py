@@ -30,7 +30,7 @@ def base_mocks(requests_mock, dummy_hostname):
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_app_publish_starts_existing_app(requests_mock, dummy_hostname):
-    # _app_id: returns existing app
+    # app_id: returns existing app
     requests_mock.get(
         f"{dummy_hostname}/v4/modelProducts?projectId={MOCK_PROJECT_ID}",
         json=[MOCK_APP],
@@ -52,7 +52,7 @@ def test_app_publish_starts_existing_app(requests_mock, dummy_hostname):
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_app_publish_creates_app_when_none_exists(requests_mock, dummy_hostname):
-    # _app_id returns empty list — no app exists
+    # app_id returns empty list — no app exists
     requests_mock.get(
         f"{dummy_hostname}/v4/modelProducts?projectId={MOCK_PROJECT_ID}", json=[]
     )
@@ -174,3 +174,30 @@ def test_app_unpublish_does_nothing_when_app_already_stopped(
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     result = d.app_unpublish()
     assert result is None
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_app_id_returns_id_when_app_exists(requests_mock, dummy_hostname):
+    """
+    Confirm that the public app_id property returns the ID of the first app
+    in the current project.
+    """
+    requests_mock.get(
+        f"{dummy_hostname}/v4/modelProducts?projectId={MOCK_PROJECT_ID}",
+        json=[MOCK_APP],
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    assert d.app_id == MOCK_APP_ID
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_app_id_returns_none_when_no_app_exists(requests_mock, dummy_hostname):
+    """
+    Confirm that the public app_id property returns None when the project
+    has no apps.
+    """
+    requests_mock.get(
+        f"{dummy_hostname}/v4/modelProducts?projectId={MOCK_PROJECT_ID}", json=[]
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    assert d.app_id is None
