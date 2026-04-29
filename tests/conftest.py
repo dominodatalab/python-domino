@@ -16,7 +16,7 @@ from domino.constants import (
 TEST_AGENTS_ENV_VARS = {
     "MLFLOW_TRACKING_URI": "http://localhost:5000",
     "DOMINO_AGENT_CONFIG_PATH": "tests/assets/agent_config.yaml",
-    "DOMINO_AGENT_IS_PROD": "false"
+    "DOMINO_AGENT_IS_PROD": "false",
 }
 
 version_info = {
@@ -27,6 +27,7 @@ version_info = {
     "timestamp": "2021-06-14T16:50:02Z",
     "version": "9.9.9",
 }
+
 
 @pytest.fixture
 def dummy_hostname():
@@ -129,7 +130,6 @@ def mock_proxy_response():
         yield response
 
 
-
 @pytest.fixture
 def mock_domino_version_response():
     """
@@ -195,7 +195,9 @@ def test_auth_base():
         def __init__(self, *args, **kwargs):
             super(TestAuth, self).__init__(*args, **kwargs)
             self.header = None
+
     return TestAuth()
+
 
 @pytest.fixture(scope="session")
 def docker_client():

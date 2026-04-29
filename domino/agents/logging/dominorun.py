@@ -1,14 +1,19 @@
 import itertools
 import logging
-import mlflow
 import re
-from statistics import median, stdev
 import traceback
-from typing import Literal, Optional, Callable
+from statistics import median, stdev
+from typing import Callable, Literal, Optional
+
+import mlflow
 
 from .._client import client
-from .._constants import LARGEST_MAX_RESULTS_PAGE_SIZE, DOMINO_INTERNAL_EVAL_TAG, AGENT_RUN_TAG
-from .._eval_tags import build_metric_tag, VALID_LABEL_PATTERN
+from .._constants import (
+    AGENT_RUN_TAG,
+    DOMINO_INTERNAL_EVAL_TAG,
+    LARGEST_MAX_RESULTS_PAGE_SIZE,
+)
+from .._eval_tags import VALID_LABEL_PATTERN, build_metric_tag
 from .._verify_domino_support import verify_domino_support
 from ..read_agent_config import get_flattened_agent_config
 
@@ -110,6 +115,7 @@ def _choose_summarizer(statistic: SummaryStatistic) -> Callable[[list[float]], f
         case _:
             raise ValueError(f"Unknown summary statistic: {statistic}")
 
+
 class DominoRun:
     _is_agent_context = False
 
@@ -118,7 +124,7 @@ class DominoRun:
         experiment_name: Optional[str] = None,
         run_id: Optional[str] = None,
         agent_config_path: Optional[str] = None,
-        custom_summary_metrics: Optional[list[(str, SummaryStatistic)]] = None,
+        custom_summary_metrics: Optional[list[tuple[str, SummaryStatistic]]] = None,
     ):
         """DominoRun is a context manager that starts an Mlflow run and attaches the user's Agent configuration to it,
         create a Logged Model with the Agent configuration, and computes summary metrics for evaluation traces made during the run.
@@ -332,6 +338,7 @@ class DominoAgentContext(DominoRun):
 
     Returns: DominoAgentContext context manager
     """
+
     _is_agent_context = True
 
 

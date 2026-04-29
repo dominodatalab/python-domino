@@ -4,6 +4,7 @@ In Domino, models are deployed as endpoints — these are tested together.
 Unit tests at top (no live Domino deployment required).
 Integration tests below (skipped unless a live deployment is reachable).
 """
+
 from pprint import pformat
 
 import pytest
@@ -44,6 +45,7 @@ def base_mocks(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # API Endpoints (endpoint_state / endpoint_publish / endpoint_unpublish)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_endpoint_state_returns_dict(requests_mock, dummy_hostname):
@@ -99,13 +101,16 @@ def test_endpoint_publish_returns_response(requests_mock, dummy_hostname):
         status_code=200,
     )
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    response = d.endpoint_publish(file="predict.py", function="predict", commitId=MOCK_COMMIT_ID)
+    response = d.endpoint_publish(
+        file="predict.py", function="predict", commitId=MOCK_COMMIT_ID
+    )
     assert response.status_code == 200
 
 
 # ---------------------------------------------------------------------------
 # Model Endpoints (models_list / model_publish / model_version_*)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_models_list_returns_list(requests_mock, dummy_hostname):
@@ -243,6 +248,7 @@ def test_model_version_export_logs_returns_dict(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # Integration tests (require a live Domino deployment)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"

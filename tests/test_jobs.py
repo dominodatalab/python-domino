@@ -3,6 +3,7 @@ Tests for the runs/jobs API (v1 runs API and v4 jobs API).
 Unit tests at top (no live Domino deployment required).
 Integration tests below (skipped unless a live deployment is reachable).
 """
+
 import time
 from pprint import pformat
 
@@ -10,8 +11,7 @@ import polling2
 import pytest
 from requests.exceptions import RequestException
 
-from domino import Domino
-from domino import exceptions
+from domino import Domino, exceptions
 from domino.helpers import domino_is_reachable
 
 # Realistic mock IDs used in unit tests.
@@ -97,7 +97,8 @@ def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
     project_endpoint = "v4/gateway/projects/findProjectByOwnerAndName"
     project_query = "ownerName=anyuser&projectName=anyproject"
     requests_mock.get(
-        f"{dummy_hostname}/{project_endpoint}?{project_query}", json={"id": MOCK_PROJECT_ID}
+        f"{dummy_hostname}/{project_endpoint}?{project_query}",
+        json={"id": MOCK_PROJECT_ID},
     )
 
     requests_mock.post(
@@ -146,6 +147,7 @@ def mock_job_start_blocking_setup(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # Unit tests — v1 Runs API
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_runs_list_returns_dict(requests_mock, dummy_hostname):
@@ -249,6 +251,7 @@ def test_get_run_log_includes_setup_by_default(requests_mock, dummy_hostname):
 # Unit tests — v4 Jobs API
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_job_start_reraises_relogin_exception(dummy_hostname):
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
@@ -281,7 +284,9 @@ def test_job_stop_defaults_commit_results_true(requests_mock, dummy_hostname):
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_job_restart_sends_correct_payload(requests_mock, dummy_hostname):
     restart_mock = requests_mock.post(
-        f"{dummy_hostname}/v4/jobs/restart", json=MOCK_JOB_RESPONSE_SIMPLE, status_code=200
+        f"{dummy_hostname}/v4/jobs/restart",
+        json=MOCK_JOB_RESPONSE_SIMPLE,
+        status_code=200,
     )
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     d.job_restart(MOCK_JOB_ID)
@@ -328,6 +333,7 @@ def test_hardware_tiers_list_returns_list(requests_mock, dummy_hostname):
 # Unit tests — job_start_blocking
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_status_completes_with_default_params(requests_mock, dummy_hostname):
     """
@@ -365,8 +371,7 @@ def test_job_start_sends_main_repo_git_ref(requests_mock, dummy_hostname):
     )
 
     jobs_start_request = next(
-        req for req in requests_mock.request_history
-        if req.path == "/v4/jobs/start"
+        req for req in requests_mock.request_history if req.path == "/v4/jobs/start"
     )
     assert jobs_start_request.json()["mainRepoGitRef"] == git_ref
 
@@ -405,6 +410,7 @@ def test_job_status_without_ignoring_exceptions(requests_mock, dummy_hostname):
 # Integration tests (require a live Domino deployment)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"
 )
@@ -425,7 +431,9 @@ def test_job_start_override_hardware_tier_id(default_domino_client):
     """
     hardware_tiers = default_domino_client.hardware_tiers_list()
     non_default_hardware_tiers = [
-        hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["hwtFlags"]["isDefault"]
+        hwt
+        for hwt in hardware_tiers
+        if not hwt["hardwareTier"]["hwtFlags"]["isDefault"]
     ]
     if len(non_default_hardware_tiers) == 0:
         pytest.xfail("No non-default hardware tiers found: cannot run test")
@@ -450,7 +458,9 @@ def test_job_start_override_hardware_tier_name(default_domino_client):
     hardware_tiers = default_domino_client.hardware_tiers_list()
 
     non_default_hardware_tiers = [
-        hwt for hwt in hardware_tiers if not hwt["hardwareTier"]["hwtFlags"]["isDefault"]
+        hwt
+        for hwt in hardware_tiers
+        if not hwt["hardwareTier"]["hwtFlags"]["isDefault"]
     ]
     if len(non_default_hardware_tiers) == 0:
         pytest.xfail("No non-default hardware tiers found: cannot run test")

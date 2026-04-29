@@ -37,7 +37,7 @@ class DominoOperator(BaseOperator):
         host: Optional[str] = None,
         api_key: Optional[str] = None,
         domino_token_file: Optional[str] = None,
-        isDirect: bool = None,
+        isDirect: Optional[bool] = None,
         commitId: Optional[str] = None,
         title: Optional[str] = None,
         tier: Optional[str] = None,
@@ -47,7 +47,7 @@ class DominoOperator(BaseOperator):
         startup_delay: Optional[int] = 10,
         include_setup_log: Optional[bool] = True,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super(DominoOperator, self).__init__(*args, **kwargs)
 
@@ -197,7 +197,7 @@ class DominoSparkOperator(BaseOperator):
         on_demand_spark_cluster_properties: Optional[dict] = None,
         compute_cluster_properties: Optional[dict] = None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super(DominoSparkOperator, self).__init__(*args, **kwargs)
 

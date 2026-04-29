@@ -1,13 +1,15 @@
 import logging
-import mlflow
 import os
-import semver
 from urllib.parse import urljoin
 
+import mlflow
+import semver
+
 from domino.exceptions import UnsupportedOperationException
+
 from ..authentication import get_auth_by_type
-from ._constants import MIN_MLFLOW_VERSION, MIN_DOMINO_VERSION
 from ..http_request_manager import _HttpRequestManager
+from ._constants import MIN_DOMINO_VERSION, MIN_MLFLOW_VERSION
 
 # not thread safe. I am not sure if this will be a problem for users, so am not implementing locking
 # it is ok if multiple requests are sent to verify Domino version support

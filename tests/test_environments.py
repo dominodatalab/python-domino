@@ -33,6 +33,7 @@ def base_mocks(requests_mock, dummy_hostname):
 # Unit tests (no live Domino deployment required)
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_environments_list_returns_list(requests_mock, dummy_hostname):
     requests_mock.get(f"{dummy_hostname}/v1/environments", json=[MOCK_ENVIRONMENT])
@@ -120,6 +121,7 @@ def test_useable_environments_list_returns_list(requests_mock, dummy_hostname):
 # ---------------------------------------------------------------------------
 # Integration tests (require a live Domino deployment)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.skipif(
     not domino_is_reachable(), reason="No access to a live Domino deployment"

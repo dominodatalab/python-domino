@@ -1,31 +1,25 @@
+import json
 from abc import ABC, abstractmethod
 from copy import deepcopy
-import json
-from typing import Dict, List, Any, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
-from ._impl.custommetrics.model.metric_value_v1 import MetricValueV1
+from ._impl.custommetrics import schemas
+from ._impl.custommetrics.api_client import SerializedRequestBody
 from ._impl.custommetrics.model.metric_alert_request_v1 import MetricAlertRequestV1
+from ._impl.custommetrics.model.metric_tag_v1 import MetricTagV1
+from ._impl.custommetrics.model.metric_value_v1 import MetricValueV1
+from ._impl.custommetrics.model.metric_values_envelope_v1 import MetricValuesEnvelopeV1
+from ._impl.custommetrics.model.new_metric_value_v1 import NewMetricValueV1
+from ._impl.custommetrics.model.new_metric_values_envelope_v1 import (
+    NewMetricValuesEnvelopeV1,
+)
 from ._impl.custommetrics.model.target_range_v1 import TargetRangeV1
 from ._impl.custommetrics.paths.api_metric_alerts_v1.post import (
     request_body_metric_alert_request_v1,
 )
-from ._impl.custommetrics.model.new_metric_values_envelope_v1 import (
-    NewMetricValuesEnvelopeV1,
-)
-from ._impl.custommetrics.model.new_metric_value_v1 import NewMetricValueV1
-from ._impl.custommetrics.model.metric_tag_v1 import MetricTagV1
 from ._impl.custommetrics.paths.api_metric_values_v1.post import (
     request_body_new_metric_values_envelope_v1,
 )
-from ._impl.custommetrics.paths.api_metric_values_v1_model_monitoring_id_metric.get import (
-    _response_for_200,
-    ApiResponseFor200,
-)
-from ._impl.custommetrics.model.metric_values_envelope_v1 import MetricValuesEnvelopeV1
-from ._impl.custommetrics.model.metadata_v1 import MetadataV1
-from ._impl.custommetrics.api_client import SerializedRequestBody
-from ._impl.custommetrics import schemas
-from ._impl.custommetrics import configuration
 
 
 class _CustomMetricsClientBase(ABC):
@@ -42,10 +36,10 @@ class _CustomMetricsClientBase(ABC):
         model_monitoring_id: str,
         metric: str,
         value: Any,
-        condition: str = None,
+        condition: Optional[str] = None,
         lower_limit: Any = None,
         upper_limit: Any = None,
-        description: str = None,
+        description: Optional[str] = None,
     ) -> None:
         pass
 
@@ -56,7 +50,7 @@ class _CustomMetricsClientBase(ABC):
         metric: str,
         value: Any,
         timestamp: str,
-        tags: Dict = None,
+        tags: Optional[Dict] = None,
     ) -> None:
         pass
 
@@ -89,10 +83,10 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
         model_monitoring_id: str,
         metric: str,
         value: Any,
-        condition: str = None,
+        condition: Optional[str] = None,
         lower_limit: Any = None,
         upper_limit: Any = None,
-        description: str = None,
+        description: Optional[str] = None,
     ) -> None:
         url = self._routes.metric_alerts()
         target_range: Optional[TargetRangeV1] = (
@@ -106,14 +100,14 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
             modelMonitoringId=model_monitoring_id,
             metric=metric,
             value=value,
-            targetRange=target_range, # type: ignore
+            targetRange=target_range,  # type: ignore
             description=description,
         )
         ser_body: SerializedRequestBody = (
             request_body_metric_alert_request_v1.serialize(req, "application/json")
         )
         json_data = json.loads(
-            ser_body["body"].decode("utf-8") # type: ignore
+            ser_body["body"].decode("utf-8")  # type: ignore
         )  # extra work to reuse request_manager
         self._parent.request_manager.post(url, json=json_data)
 
@@ -123,7 +117,7 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
         metric: str,
         value: Any,
         timestamp: str,
-        tags: Dict = None,
+        tags: Optional[Dict] = None,
     ) -> None:
         item = {
             "modelMonitoringId": model_monitoring_id,
@@ -136,7 +130,7 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
         self.log_metrics([item])
 
     def _to_new_metric_value(self, item: Dict) -> NewMetricValueV1:
-        tags: Union[List[MetricTagV1],schemas.Unset] = schemas.unset
+        tags: Union[List[MetricTagV1], schemas.Unset] = schemas.unset
         if "tags" in item:
             tags = [MetricTagV1(key=k, value=v) for k, v in item["tags"].items()]
         ret = NewMetricValueV1(
@@ -158,7 +152,7 @@ class _CustomMetricsClientGen(_CustomMetricsClientBase):
             )
         )
         json_data = json.loads(
-            ser_body["body"].decode("utf-8") # type: ignore
+            ser_body["body"].decode("utf-8")  # type: ignore
         )  # extra work to reuse request_manager
         self._parent.request_manager.post(url, json=json_data)
 
@@ -204,10 +198,10 @@ class _CustomMetricsClient(_CustomMetricsClientBase):
         model_monitoring_id: str,
         metric: str,
         value: Any,
-        condition: str = None,
+        condition: Optional[str] = None,
         lower_limit: Any = None,
         upper_limit: Any = None,
-        description: str = None,
+        description: Optional[str] = None,
     ) -> None:
         url = self._routes.metric_alerts()
         request = {
@@ -231,7 +225,7 @@ class _CustomMetricsClient(_CustomMetricsClientBase):
         metric: str,
         value: Any,
         timestamp: str,
-        tags: Dict = None,
+        tags: Optional[Dict] = None,
     ) -> None:
         item = {
             "modelMonitoringId": model_monitoring_id,

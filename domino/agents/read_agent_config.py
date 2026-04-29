@@ -1,6 +1,7 @@
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
+
 import yaml
 
 
@@ -20,7 +21,7 @@ def flatten_dict(d, parent_key="", sep="."):
     return dict(items)
 
 
-def get_flattened_agent_config(path: Optional[str] = None) -> dict[str, any]:
+def get_flattened_agent_config(path: Optional[str] = None) -> dict[str, Any]:
     config = read_agent_config(path)
     return flatten_dict(config)
 
@@ -40,10 +41,10 @@ def read_agent_config(path: Optional[str] = None) -> dict:
     path = path or _get_agent_config_path()
     params = {}
     try:
-            with open(path, 'r') as f:
-                params = yaml.safe_load(f)
+        with open(path, "r") as f:
+            params = yaml.safe_load(f)
     except Exception as e:
-            logging.warning(f"Failed to read agent config yaml at path {path}: {e}")
+        logging.warning(f"Failed to read agent config yaml at path {path}: {e}")
 
     return params
 

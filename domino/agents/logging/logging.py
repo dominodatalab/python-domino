@@ -1,9 +1,9 @@
 import json
 
 from .._client import client
+from .._constants import DOMINO_INTERNAL_EVAL_TAG
 from .._eval_tags import build_eval_result_tag, validate_label
 from .._verify_domino_support import verify_domino_support
-from .._constants import DOMINO_INTERNAL_EVAL_TAG
 
 
 def add_domino_tags(trace_id: str):
@@ -16,10 +16,10 @@ def add_domino_tags(trace_id: str):
 
 
 def log_evaluation(
-        trace_id: str,
-        name: str,
-        value: float | str,
-    ):
+    trace_id: str,
+    name: str,
+    value: float | str,
+):
     """This logs evaluation data and metadata to a parent trace. This is used to log the evaluation of a span
     after it was created. This is useful for analyzing past performance of an Agent component.
 

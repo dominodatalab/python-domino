@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lint tools
+        run: pip install black==25.1.0 isort==5.13.2 "flake8==7.2.0"
+
+      - name: black
+        run: black --check .
+
+      - name: isort
+        run: isort --check .
+
+      - name: flake8
+        run: flake8 .
+
+
+  typecheck:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package and type stubs
+        run: |
+          pip install -e .
+          pip install "mypy==1.15.0" \
+            types-pyyaml \
+            types-requests \
+            types-retry \
+            types-pytz \
+            types-tabulate \
+            types-python-dateutil \
+            types-redis \
+            types-protobuf \
+            types-frozendict \
+            types-urllib3
+
+      - name: mypy
+        run: |
+          mypy domino/ \
+            --no-warn-no-return \
+            --namespace-packages \
+            --explicit-package-bases \
+            --ignore-missing-imports \
+            --follow-imports=silent \
+            --python-version=3.10
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install -e .
+          pip install pytest pytest-cov requests-mock docker pytest-mock
+
+      - name: Run tests
+        run: |
+          pytest tests/ \
+            --ignore=tests/agents \
+            --ignore=tests/integration \
+            --ignore=tests/scripts \
+            --ignore=tests/test_operator.py \
+            --ignore=tests/test_spark_operator.py \
+            -v --tb=short \
+            --cov=domino \
+            --cov-report=xml \
+            --cov-report=term-missing
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml

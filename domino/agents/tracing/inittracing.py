@@ -1,19 +1,19 @@
 import logging
-import mlflow
 import threading
 from typing import Optional
 
+import mlflow
+
 from .._client import client
 from .._constants import EXPERIMENT_AGENT_TAG
-from ._util import is_agent, get_running_agent_experiment_name
 from .._verify_domino_support import verify_domino_support
+from ._util import get_running_agent_experiment_name, is_agent
 
 # init_tracing is not thread safe. this likely won't cause an issue with the autolog frameworks. If data inconsistency is caused with
 # autolog frameworks, then the worst case scenario is that we get duplicate autolog calls. These are local to the process
 # so not a big deal
 
-global triggered_autolog_frameworks
-triggered_autolog_frameworks = set()
+triggered_autolog_frameworks: set[str] = set()
 
 global _is_prod_tracing_initialized
 _is_prod_tracing_initialized = False
@@ -85,7 +85,6 @@ def init_tracing(autolog_frameworks: Optional[list[str]] = None):
                 _is_prod_tracing_initialized = True
 
     for fw in frameworks:
-        global triggered_autolog_frameworks
         if fw not in triggered_autolog_frameworks:
             triggered_autolog_frameworks.add(fw)
             call_autolog(fw)

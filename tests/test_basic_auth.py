@@ -90,7 +90,9 @@ def test_object_creation_with_api_key():
     ), "Authentication using API key should be of type domino.authentication.ApiKeyAuth"
 
 
-@pytest.mark.usefixtures("mock_domino_version_response", "clear_token_file_from_env", "mock_proxy_response")
+@pytest.mark.usefixtures(
+    "mock_domino_version_response", "clear_token_file_from_env", "mock_proxy_response"
+)
 def test_object_creation_with_api_proxy():
     """
     Confirm that the expected auth type is used when using api proxy.
@@ -98,13 +100,20 @@ def test_object_creation_with_api_proxy():
     dummy_host = "http://domino.somefakecompany.com"
     dummy_api_proxy = "localhost:1234"
 
-    d = Domino(host=dummy_host, project="anyuser/quick-start", api_proxy=dummy_api_proxy)
+    d = Domino(
+        host=dummy_host, project="anyuser/quick-start", api_proxy=dummy_api_proxy
+    )
     assert isinstance(
         d.request_manager.auth, domino.authentication.ProxyAuth
     ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"
     assert d.request_manager.auth.api_proxy == "http://localhost:1234"
 
-@pytest.mark.usefixtures("mock_domino_version_response", "clear_token_file_from_env", "mock_proxy_response_https")
+
+@pytest.mark.usefixtures(
+    "mock_domino_version_response",
+    "clear_token_file_from_env",
+    "mock_proxy_response_https",
+)
 def test_object_creation_with_api_proxy_with_scheme():
     """
     Confirm that the expected auth type is used when using api proxy.
@@ -112,7 +121,9 @@ def test_object_creation_with_api_proxy_with_scheme():
     dummy_host = "http://domino.somefakecompany.com"
     dummy_api_proxy = "https://localhost:1234"
 
-    d = Domino(host=dummy_host, project="anyuser/quick-start", api_proxy=dummy_api_proxy)
+    d = Domino(
+        host=dummy_host, project="anyuser/quick-start", api_proxy=dummy_api_proxy
+    )
     assert isinstance(
         d.request_manager.auth, domino.authentication.ProxyAuth
     ), "Authentication using API proxy should be of type domino.authentication.ProxyAuth"

@@ -19,5 +19,7 @@ def build_agent_experiment_name(id: str) -> str:
 
 def get_running_agent_experiment_name() -> str | None:
     if is_agent():
-        return build_agent_experiment_name(_get_agent_id())
+        agent_id = _get_agent_id()
+        assert agent_id is not None
+        return build_agent_experiment_name(agent_id)
     return None

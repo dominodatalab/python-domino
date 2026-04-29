@@ -1,19 +1,20 @@
-from dataclasses import dataclass
-from datetime import datetime
 import functools
 import inspect
 import logging
-import mlflow
-from mlflow.entities import SpanType
-from typing import Optional, Callable, Any
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Callable, Optional
 from uuid import uuid4
 
+import mlflow
+from mlflow.entities import SpanType
+
 from .._client import client
-from .inittracing import init_tracing, triggered_autolog_frameworks, call_autolog
-from ..logging.logging import log_evaluation
-from ._util import get_is_production, build_agent_experiment_name
-from .._eval_tags import validate_label, get_eval_tag_name
+from .._eval_tags import get_eval_tag_name, validate_label
 from .._verify_domino_support import verify_domino_support
+from ..logging.logging import log_evaluation
+from ._util import build_agent_experiment_name, get_is_production
+from .inittracing import init_tracing
 
 EvalResult = dict[str, int | float | str]
 
@@ -21,6 +22,7 @@ SpanEvaluator = Callable[[mlflow.entities.Span], EvalResult]
 TraceEvaluator = Callable[[mlflow.entities.Trace], EvalResult]
 
 DOMINO_NO_RESULT_ADD_TRACING = "domino_no_result"
+
 
 @dataclass
 class SpanSummary:
@@ -40,6 +42,7 @@ class SpanSummary:
 
     outputs: Any
     """The outputs of the function that created the span"""
+
 
 @dataclass
 class EvaluationResult:
@@ -80,7 +83,7 @@ class SearchTracesResponse:
     """The token for the next page of results"""
 
 
-def _datetime_to_ms(dt: datetime) -> int:
+def _datetime_to_ms(dt: datetime) -> float:
     return dt.timestamp() * 1000
 
 
@@ -153,6 +156,7 @@ def _do_evaluation(
             return {**(trace_eval_result or {}), **(span_eval_result or {})}
 
     return None
+
 
 def _log_eval_results(
     parent_span: mlflow.entities.Span,
@@ -246,7 +250,6 @@ def add_tracing(
     """
     validate_label(name)
 
-
     def decorator(func):
         # For Regular Functions (e.g., langgraph_agents.run_agent)
         @functools.wraps(func)
@@ -254,7 +257,9 @@ def add_tracing(
             result = DOMINO_NO_RESULT_ADD_TRACING
             init_tracing(autolog_frameworks)
 
-            with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
+            with mlflow.start_span(
+                name, span_type=span_type, attributes=attributes
+            ) as parent_span:
                 _set_span_inputs(parent_span, func, args, kwargs)
 
                 result = func(*args, **kwargs)
@@ -274,7 +279,9 @@ def add_tracing(
                 result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
-                with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
+                with mlflow.start_span(
+                    name, span_type=span_type, attributes=attributes
+                ) as parent_span:
                     _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = await func(*args, **kwargs)
@@ -292,11 +299,13 @@ def add_tracing(
         if inspect.isgeneratorfunction(func):
 
             @functools.wraps(func)
-            def wrapper(*args, **kwargs):
+            def gen_wrapper(*args, **kwargs):
                 result = DOMINO_NO_RESULT_ADD_TRACING
                 init_tracing(autolog_frameworks)
 
-                with mlflow.start_span(name, span_type=span_type, attributes=attributes) as parent_span:
+                with mlflow.start_span(
+                    name, span_type=span_type, attributes=attributes
+                ) as parent_span:
                     inputs = _set_span_inputs(parent_span, func, args, kwargs)
 
                     result = func(*args, **kwargs)
@@ -313,7 +322,9 @@ def add_tracing(
                         i = -1
                         for v in result:
                             i += 1
-                            with mlflow.start_span(name, span_type=span_type, attributes=attributes) as gen_span:
+                            with mlflow.start_span(
+                                name, span_type=span_type, attributes=attributes
+                            ) as gen_span:
                                 # make span for each yielded value
                                 gen_span.set_inputs(inputs)
                                 gen_span.set_attributes(
@@ -328,10 +339,13 @@ def add_tracing(
                         for v in all_results:
                             yield v
 
-                if eagerly_evaluate_streamed_results and result != DOMINO_NO_RESULT_ADD_TRACING:
+                if (
+                    eagerly_evaluate_streamed_results
+                    and result != DOMINO_NO_RESULT_ADD_TRACING
+                ):
                     _log_eval_results(parent_span, evaluator, trace_evaluator)
 
-            return wrapper
+            return gen_wrapper
 
         return wrapper
 
@@ -339,13 +353,15 @@ def add_tracing(
 
 
 def _build_evaluation_result(tag_key: str, tag_value: str) -> EvaluationResult:
-    value = tag_value
+    value: float | str = tag_value
     try:
         value = float(tag_value)
     except Exception:
         pass
 
-    return EvaluationResult(name=get_eval_tag_name(tag_key), value=value)
+    name = get_eval_tag_name(tag_key)
+    assert name is not None
+    return EvaluationResult(name=name, value=value)
 
 
 def _build_trace_summaries(traces) -> list[TraceSummary]:
@@ -467,9 +483,7 @@ def _search_traces(
         )
 
     if agent_version and not agent_id:
-        raise Exception(
-            "If agent_version is provided, agent_id must also be provided"
-        )
+        raise Exception("If agent_version is provided, agent_id must also be provided")
 
     filter_clauses = []
 
@@ -479,6 +493,7 @@ def _search_traces(
         run_filter_clause = f'metadata.mlflow.sourceRun = "{run_id}"'
         filter_clauses.append(run_filter_clause)
     else:
+        assert agent_id is not None
         experiment_name = build_agent_experiment_name(agent_id)
         experiment = client.get_experiment_by_name(experiment_name)
         if not experiment:
@@ -533,10 +548,12 @@ def _search_traces(
 
     return SearchTracesResponse(trace_summaries, next_page_token)
 
-def _return_traced_result(result: any):
+
+def _return_traced_result(result: Any):
     if result != DOMINO_NO_RESULT_ADD_TRACING:
         return result
     else:
         logger.warning("No result returned from traced function")
+
 
 logger = logging.getLogger(__name__)
