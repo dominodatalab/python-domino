@@ -2262,4 +2262,13 @@ class Domino:
             return None
         return app.get("id", None)
 
+    @property
+    def _app_id(self) -> Optional[str]:
+        warnings.warn(
+            "_app_id is deprecated, use app_id",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.app_id
+
     _csrf_no_check_header = {"Csrf-Token": "nocheck"}
