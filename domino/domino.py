@@ -37,6 +37,35 @@ from domino.domino_enums import (
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
 
+# Sentinel used as the default value of renamed parameters so we can detect
+# whether the caller passed the new name, the deprecated name, or neither.
+_UNSET: Any = object()
+
+
+def _resolve_renamed_kwarg(new_value, old_name, new_name, kwargs, default):
+    """Resolve a renamed parameter, raising if both old and new names were passed.
+
+    If the deprecated name is present in kwargs, emit a DeprecationWarning and
+    return its value. If both the new name (non-sentinel) and the deprecated
+    name are provided in the same call, raise ValueError so the caller can fix
+    the ambiguity instead of silently picking one.
+    """
+    has_old = old_name in kwargs
+    has_new = new_value is not _UNSET
+    if has_old and has_new:
+        raise ValueError(
+            f"Pass either '{new_name}' or '{old_name}', not both. "
+            f"'{old_name}' is deprecated; use '{new_name}'."
+        )
+    if has_old:
+        warnings.warn(
+            f"{old_name} is deprecated, use {new_name}",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return kwargs.pop(old_name)
+    return new_value if has_new else default
+
 
 
 class Domino:
@@ -130,38 +159,30 @@ class Domino:
     def runs_start(
         self,
         command,
-        is_direct=False,
-        commit_id=None,
+        is_direct=_UNSET,
+        commit_id=_UNSET,
         title=None,
         tier=None,
-        publish_api_endpoint=None,
+        publish_api_endpoint=_UNSET,
         **kwargs,
     ):
         """
         Start a run via the legacy v1 Runs API. For new work, prefer job_start() which uses
         the v4 Jobs API and supports compute clusters, external volumes, and branch targeting.
         """
-        if "isDirect" in kwargs:
-            warnings.warn(
-                "isDirect is deprecated, use is_direct",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            is_direct = kwargs.pop("isDirect")
-        if "commitId" in kwargs:
-            warnings.warn(
-                "commitId is deprecated, use commit_id",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            commit_id = kwargs.pop("commitId")
-        if "publishApiEndpoint" in kwargs:
-            warnings.warn(
-                "publishApiEndpoint is deprecated, use publish_api_endpoint",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            publish_api_endpoint = kwargs.pop("publishApiEndpoint")
+        is_direct = _resolve_renamed_kwarg(
+            is_direct, "isDirect", "is_direct", kwargs, False
+        )
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
+        publish_api_endpoint = _resolve_renamed_kwarg(
+            publish_api_endpoint,
+            "publishApiEndpoint",
+            "publish_api_endpoint",
+            kwargs,
+            None,
+        )
 
         url = self._routes.runs_start()
 
@@ -185,11 +206,11 @@ class Domino:
     def runs_start_blocking(
         self,
         command,
-        is_direct=False,
-        commit_id=None,
+        is_direct=_UNSET,
+        commit_id=_UNSET,
         title=None,
         tier=None,
-        publish_api_endpoint=None,
+        publish_api_endpoint=_UNSET,
         poll_freq=5,
         max_poll_time=6000,
         retry_count=5,
@@ -240,27 +261,19 @@ class Domino:
                         (in-case of transient http errors). If this
                         threshold exceeds, an exception is raised.
         """
-        if "isDirect" in kwargs:
-            warnings.warn(
-                "isDirect is deprecated, use is_direct",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            is_direct = kwargs.pop("isDirect")
-        if "commitId" in kwargs:
-            warnings.warn(
-                "commitId is deprecated, use commit_id",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            commit_id = kwargs.pop("commitId")
-        if "publishApiEndpoint" in kwargs:
-            warnings.warn(
-                "publishApiEndpoint is deprecated, use publish_api_endpoint",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            publish_api_endpoint = kwargs.pop("publishApiEndpoint")
+        is_direct = _resolve_renamed_kwarg(
+            is_direct, "isDirect", "is_direct", kwargs, False
+        )
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
+        publish_api_endpoint = _resolve_renamed_kwarg(
+            publish_api_endpoint,
+            "publishApiEndpoint",
+            "publish_api_endpoint",
+            kwargs,
+            None,
+        )
 
         run_response = self.runs_start(
             command, is_direct, commit_id, title, tier, publish_api_endpoint
@@ -318,32 +331,20 @@ class Domino:
 
         return run_response
 
-    def run_stop(self, run_id=None, save_changes=True, **kwargs):
-        if "runId" in kwargs:
-            warnings.warn(
-                "runId is deprecated, use run_id", DeprecationWarning, stacklevel=2
-            )
-            run_id = kwargs.pop("runId")
-        if "saveChanges" in kwargs:
-            warnings.warn(
-                "saveChanges is deprecated, use save_changes",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            save_changes = kwargs.pop("saveChanges")
+    def run_stop(self, run_id=_UNSET, save_changes=_UNSET, **kwargs):
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
+        save_changes = _resolve_renamed_kwarg(
+            save_changes, "saveChanges", "save_changes", kwargs, True
+        )
         self.log.warning("Use job_stop method instead")
         return self.job_stop(job_id=run_id, commit_results=save_changes)
 
-    def runs_status(self, run_id=None, **kwargs):
-        if "runId" in kwargs:
-            warnings.warn(
-                "runId is deprecated, use run_id", DeprecationWarning, stacklevel=2
-            )
-            run_id = kwargs.pop("runId")
+    def runs_status(self, run_id=_UNSET, **kwargs):
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
         url = self._routes.runs_status(run_id)
         return self._get(url)
 
-    def get_run_log(self, run_id=None, include_setup_log=True, **kwargs):
+    def get_run_log(self, run_id=_UNSET, include_setup_log=_UNSET, **kwargs):
         """
         Get the unified log for a run (setup + stdout).
 
@@ -354,18 +355,14 @@ class Domino:
         include_setup_log : bool
                 whether or not to include the setup log in the output.
         """
-        if "runId" in kwargs:
-            warnings.warn(
-                "runId is deprecated, use run_id", DeprecationWarning, stacklevel=2
-            )
-            run_id = kwargs.pop("runId")
-        if "includeSetupLog" in kwargs:
-            warnings.warn(
-                "includeSetupLog is deprecated, use include_setup_log",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            include_setup_log = kwargs.pop("includeSetupLog")
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
+        include_setup_log = _resolve_renamed_kwarg(
+            include_setup_log,
+            "includeSetupLog",
+            "include_setup_log",
+            kwargs,
+            True,
+        )
 
         url = self._routes.runs_stdout(run_id)
 
@@ -383,7 +380,7 @@ class Domino:
             if run_info["id"] == run_id:
                 return run_info
 
-    def runs_stdout(self, run_id=None, **kwargs):
+    def runs_stdout(self, run_id=_UNSET, **kwargs):
         """
         Get std out emitted by a particular run.
 
@@ -392,11 +389,7 @@ class Domino:
         run_id : string
                 the id associated with the run.
         """
-        if "runId" in kwargs:
-            warnings.warn(
-                "runId is deprecated, use run_id", DeprecationWarning, stacklevel=2
-            )
-            run_id = kwargs.pop("runId")
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
 
         html_start_tags = (
             "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; "
@@ -863,14 +856,10 @@ class Domino:
         self.process_log(stdout_msg)
         return job_status
 
-    def files_list(self, commit_id=None, path="/", **kwargs):
-        if "commitId" in kwargs:
-            warnings.warn(
-                "commitId is deprecated, use commit_id",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            commit_id = kwargs.pop("commitId")
+    def files_list(self, commit_id=_UNSET, path="/", **kwargs):
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
         url = self._routes.files_list(commit_id, path)
         return self._get(url)
 
@@ -933,14 +922,10 @@ class Domino:
         response = self.request_manager.delete(url)
         return response
 
-    def endpoint_publish(self, file, function, commit_id=None, **kwargs):
-        if "commitId" in kwargs:
-            warnings.warn(
-                "commitId is deprecated, use commit_id",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            commit_id = kwargs.pop("commitId")
+    def endpoint_publish(self, file, function, commit_id=_UNSET, **kwargs):
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
         url = self._routes.endpoint_publish()
 
         request = {
@@ -1118,55 +1103,47 @@ class Domino:
     # App functions
     def app_publish(
         self,
-        unpublish_running_apps=True,
-        hardware_tier_id=None,
-        environment_id=None,
-        external_volume_mount_ids=None,
-        commit_id=None,
+        unpublish_running_apps=_UNSET,
+        hardware_tier_id=_UNSET,
+        environment_id=_UNSET,
+        external_volume_mount_ids=_UNSET,
+        commit_id=_UNSET,
         branch=None,
-        app_id=None,
+        app_id=_UNSET,
         **kwargs,
     ):
-        if "unpublishRunningApps" in kwargs:
-            warnings.warn(
-                "unpublishRunningApps is deprecated, use unpublish_running_apps",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            unpublish_running_apps = kwargs.pop("unpublishRunningApps")
-        if "hardwareTierId" in kwargs:
-            warnings.warn(
-                "hardwareTierId is deprecated, use hardware_tier_id",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            hardware_tier_id = kwargs.pop("hardwareTierId")
-        if "environmentId" in kwargs:
-            warnings.warn(
-                "environmentId is deprecated, use environment_id",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            environment_id = kwargs.pop("environmentId")
-        if "externalVolumeMountIds" in kwargs:
-            warnings.warn(
-                "externalVolumeMountIds is deprecated, use external_volume_mount_ids",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            external_volume_mount_ids = kwargs.pop("externalVolumeMountIds")
-        if "commitId" in kwargs:
-            warnings.warn(
-                "commitId is deprecated, use commit_id",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            commit_id = kwargs.pop("commitId")
-        if "appId" in kwargs:
-            warnings.warn(
-                "appId is deprecated, use app_id", DeprecationWarning, stacklevel=2
-            )
-            app_id = kwargs.pop("appId")
+        unpublish_running_apps = _resolve_renamed_kwarg(
+            unpublish_running_apps,
+            "unpublishRunningApps",
+            "unpublish_running_apps",
+            kwargs,
+            True,
+        )
+        hardware_tier_id = _resolve_renamed_kwarg(
+            hardware_tier_id,
+            "hardwareTierId",
+            "hardware_tier_id",
+            kwargs,
+            None,
+        )
+        environment_id = _resolve_renamed_kwarg(
+            environment_id,
+            "environmentId",
+            "environment_id",
+            kwargs,
+            None,
+        )
+        external_volume_mount_ids = _resolve_renamed_kwarg(
+            external_volume_mount_ids,
+            "externalVolumeMountIds",
+            "external_volume_mount_ids",
+            kwargs,
+            None,
+        )
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
+        app_id = _resolve_renamed_kwarg(app_id, "appId", "app_id", kwargs, None)
 
         if commit_id and branch:
             raise ValueError(
@@ -1195,12 +1172,8 @@ class Domino:
         response = self.request_manager.post(url, json=omitting_null)
         return response
 
-    def app_unpublish(self, app_id=None, **kwargs):
-        if "appId" in kwargs:
-            warnings.warn(
-                "appId is deprecated, use app_id", DeprecationWarning, stacklevel=2
-            )
-            app_id = kwargs.pop("appId")
+    def app_unpublish(self, app_id=_UNSET, **kwargs):
+        app_id = _resolve_renamed_kwarg(app_id, "appId", "app_id", kwargs, None)
         app_id = app_id or self.app_id
         if app_id is None:
             return

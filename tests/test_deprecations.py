@@ -240,3 +240,49 @@ class TestAppDeprecations:
     def test_app_unpublish_appId_warns(self, client):
         with pytest.warns(DeprecationWarning, match="appId is deprecated"):
             client.app_unpublish(appId=MOCK_APP_ID)
+
+
+# ---------------------------------------------------------------------------
+# Both-passed guard: providing both the new and deprecated names should raise
+# ValueError instead of silently letting one win.
+# ---------------------------------------------------------------------------
+
+
+class TestRejectsBothNamesPassed:
+    @pytest.fixture(autouse=True)
+    def _mock_routes(self, requests_mock, dummy_hostname):
+        requests_mock.get(
+            f"{dummy_hostname}/v4/gateway/projects/findProjectByOwnerAndName"
+            "?ownerName=anyuser&projectName=anyproject",
+            json={"id": MOCK_PROJECT_ID},
+        )
+
+    @pytest.mark.usefixtures("clear_token_file_from_env")
+    def test_runs_start_rejects_both_is_direct_and_isDirect(self, client):
+        with pytest.raises(ValueError, match="not both"):
+            client.runs_start("main.py", is_direct=True, isDirect=False)
+
+    @pytest.mark.usefixtures("clear_token_file_from_env")
+    def test_runs_start_rejects_both_commit_id_and_commitId(self, client):
+        with pytest.raises(ValueError, match="not both"):
+            client.runs_start("main.py", commit_id="new", commitId="old")
+
+    @pytest.mark.usefixtures("clear_token_file_from_env")
+    def test_run_stop_rejects_both_run_id_and_runId(self, client):
+        with pytest.raises(ValueError, match="not both"):
+            client.run_stop(run_id=MOCK_RUN_ID, runId=MOCK_RUN_ID)
+
+    @pytest.mark.usefixtures("clear_token_file_from_env")
+    def test_runs_status_rejects_both_run_id_and_runId(self, client):
+        with pytest.raises(ValueError, match="not both"):
+            client.runs_status(run_id=MOCK_RUN_ID, runId=MOCK_RUN_ID)
+
+    @pytest.mark.usefixtures("clear_token_file_from_env")
+    def test_app_publish_rejects_both_app_id_and_appId(self, client):
+        with pytest.raises(ValueError, match="not both"):
+            client.app_publish(app_id=MOCK_APP_ID, appId=MOCK_APP_ID)
+
+    @pytest.mark.usefixtures("clear_token_file_from_env")
+    def test_app_unpublish_rejects_both_app_id_and_appId(self, client):
+        with pytest.raises(ValueError, match="not both"):
+            client.app_unpublish(app_id=MOCK_APP_ID, appId=MOCK_APP_ID)
