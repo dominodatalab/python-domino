@@ -469,6 +469,26 @@ def test_validate_hardware_tier_id_accepts_string(requests_mock, dummy_hostname)
     assert d._validate_hardware_tier_id("small-k8s") is True
 
 
+@pytest.mark.usefixtures("clear_token_file_from_env")
+def test_validate_hardware_tier_id_rejects_dict_without_value_key(
+    requests_mock, dummy_hostname
+):
+    """
+    Confirm that a dict missing the 'value' key raises a clear ValueError
+    instead of falling through to the misleading "tier not found" error.
+    """
+    requests_mock.get(f"{dummy_hostname}/version", json={"version": "9.9.9"})
+    requests_mock.get(
+        f"{dummy_hostname}/v4/gateway/projects/findProjectByOwnerAndName"
+        "?ownerName=anyuser&projectName=anyproject",
+        json={"id": MOCK_PROJECT_ID},
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ValueError, match="missing 'value' key"):
+        d._validate_hardware_tier_id({"name": "small-k8s"})
+
+
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_status_ignores_RequestException_and_times_out(
     requests_mock, dummy_hostname

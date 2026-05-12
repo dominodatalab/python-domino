@@ -2126,7 +2126,11 @@ class Domino:
 
     def _validate_hardware_tier_id(self, hardware_tier_id: Union[str, Dict]) -> bool:
         if isinstance(hardware_tier_id, dict):
-            hardware_tier_id = hardware_tier_id.get("value", hardware_tier_id)
+            if "value" not in hardware_tier_id:
+                raise ValueError(
+                    f"hardware_tier_id dict missing 'value' key: {hardware_tier_id}"
+                )
+            hardware_tier_id = hardware_tier_id["value"]
         self.log.debug(f"Validating hardware tier id: {hardware_tier_id}")
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_id == hardware_tier["hardwareTier"]["id"]:
