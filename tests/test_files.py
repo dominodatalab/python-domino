@@ -59,3 +59,21 @@ def test_files_download_defaults_to_latest_commit(requests_mock, dummy_hostname)
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
     result = d.files_download("/README.md")
     assert result.read() == FILE_CONTENT
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_files_download_raises_when_project_has_no_commits(
+    requests_mock, dummy_hostname
+):
+    """
+    Confirm that files_download() raises a clear ValueError instead of
+    IndexError when commits_list() returns empty and commit_id is omitted.
+    """
+    requests_mock.get(
+        f"{dummy_hostname}/v1/projects/anyuser/anyproject/commits",
+        json=[],
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ValueError, match="Project has no commits"):
+        d.files_download("/README.md")

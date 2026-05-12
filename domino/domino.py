@@ -908,7 +908,13 @@ class Domino:
         :return: Raw file content (urllib3 response stream).
         """
         if commit_id is None:
-            commit_id = self.commits_list()[0]["id"]
+            commits = self.commits_list()
+            if not commits:
+                raise ValueError(
+                    "Project has no commits; cannot resolve latest commit. "
+                    "Pass commit_id explicitly."
+                )
+            commit_id = commits[0]["id"]
         return self.blobs_get_v2(path, commit_id, self.project_id)
 
     def fork_project(self, target_name):
