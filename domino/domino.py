@@ -711,8 +711,10 @@ class Domino:
                 "masterHardwareTierId": master_hardware_tier_id,
             }
 
-        resolved_hardware_tier_id = (
-            hardware_tier_id or self.get_hardware_tier_id_from_name(hardware_tier_name)
+        resolved_hardware_tier_id = hardware_tier_id or (
+            self.get_hardware_tier_id_from_name(hardware_tier_name)
+            if hardware_tier_name
+            else None
         )
         url = self._routes.job_start()
         payload = {
