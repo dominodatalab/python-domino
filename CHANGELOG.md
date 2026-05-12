@@ -14,6 +14,10 @@ The following public API parameters have been renamed to follow PEP 8 (`snake_ca
 The old names continue to work but will emit a `DeprecationWarning`. They will be
 removed in the next major version.
 
+> **Note:** these renames are Python-side only. The JSON keys sent to the
+> Domino HTTP API are unchanged — the SDK still emits `commitId`, `isDirect`,
+> `hardwareTierId`, etc. on the wire. The HTTP API contract is not affected.
+
 | Method | Old name | New name |
 |--------|----------|----------|
 | `runs_start`, `runs_start_blocking` | `isDirect` | `is_direct` |
