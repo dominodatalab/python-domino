@@ -640,6 +640,48 @@ or `None` if no app exists. Useful when you need the app ID to pass to
 print(d.app_id)  # e.g. "aabbccddeeff001122334457"
 ```
 
+## Model deployment lifecycle
+
+Methods for starting, stopping, and checking the status of a deployed model
+API version. A "model" can have multiple versions; lifecycle is controlled
+per-version.
+
+### model_deployment_start(model_id, model_version_id)
+
+Start (or restart) the serving endpoint for a specific model version.
+
+-   *model_id (string):* The ID of the model.
+-   *model_version_id (string):* The ID of the model version to start.
+
+Returns the HTTP response from the Domino API.
+
+### model_deployment_stop(model_id, model_version_id)
+
+Stop the serving endpoint for a specific model version. Useful for taking
+a deployed model offline (e.g. to save compute when the endpoint isn't
+in use).
+
+-   *model_id (string):* The ID of the model.
+-   *model_version_id (string):* The ID of the model version to stop.
+
+Returns the HTTP response from the Domino API.
+
+### model_deployment_status(model_id, model_version_id)
+
+Get the current deployment status of a specific model version.
+
+-   *model_id (string):* The ID of the model.
+-   *model_version_id (string):* The ID of the model version.
+
+Returns a dict with `modelId`, `modelVersionId`, and `status` (e.g.
+`"running"`, `"stopped"`).
+
+```python
+status = d.model_deployment_status("64...", "65...")
+if status["status"] == "stopped":
+    d.model_deployment_start("64...", "65...")
+```
+
 ## Jobs
 
 > **Prefer `job_start` over `runs_start` for all new work.** See the [Executions](#executions) section for a full comparison.

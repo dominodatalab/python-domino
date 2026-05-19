@@ -5,6 +5,9 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
+* `model_deployment_start(model_id, model_version_id)` — start (or restart) the serving endpoint for a deployed model version. Closes #84.
+* `model_deployment_stop(model_id, model_version_id)` — stop a deployed model version. Closes #84.
+* `model_deployment_status(model_id, model_version_id)` — query the deployment status of a model version (returns `running`, `stopped`, etc.).
 * `scripts/check_snake_case.py` — AST-based lint script that catches camelCase parameter names in new code.
 * GitHub Actions CI workflow (`.github/workflows/ci.yml`) that runs lint, type-checking, and tests on every PR and push to `master`. All checks must pass before a PR can be merged.
 * `pyproject.toml` with `isort` and `black` configuration (`profile = "black"`, `target-version = ["py310"]`).
