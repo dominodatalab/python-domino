@@ -577,7 +577,7 @@ d.app_publish(commit_id="abc123def456")
 d.app_publish(app_id="aabbccddeeff001122334457")
 ----
 
-NOTE: The parameters `unpublishRunningApps`, `hardwareTierId`, `environmentId`, `externalVolumeMountIds`, `commitId`, and `appId` are deprecated and will be removed in the next major version. Use the `snake_case` equivalents listed above.
+NOTE: The parameters `unpublishRunningApps`, `hardwareTierId`, `environmentId`, `externalVolumeMountIds`, `commitId`, and `appId` are deprecated and will be removed in the next major version. Use the `snake_case` equivalents listed above. These renames are Python-side only — the JSON keys sent to the Domino HTTP API are unchanged (the SDK still emits `commitId`, `hardwareTierId`, etc. on the wire). The HTTP API contract is not affected.
 
 ==== app_unpublish(app_id=None)
 
