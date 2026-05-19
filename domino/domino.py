@@ -67,7 +67,6 @@ def _resolve_renamed_kwarg(new_value, old_name, new_name, kwargs, default):
     return new_value if has_new else default
 
 
-
 class Domino:
     def __init__(
         self,
