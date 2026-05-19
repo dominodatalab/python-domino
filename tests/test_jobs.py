@@ -202,6 +202,19 @@ def test_runs_start_reraises_relogin_exception(requests_mock, dummy_hostname):
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_run_stop_raises_when_run_id_missing(requests_mock, dummy_hostname):
+    """
+    Confirm that run_stop() without a run_id raises ValueError instead of
+    silently passing None to job_stop. Restores the pre-rename safety:
+    the original signature was `run_stop(self, runId, ...)` (required
+    positional), so calling without args used to raise TypeError.
+    """
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ValueError, match="run_id is required"):
+        d.run_stop()
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
 def test_runs_status_returns_dict(requests_mock, dummy_hostname):
     requests_mock.get(
         f"{dummy_hostname}/v1/projects/anyuser/anyproject/runs/{MOCK_RUN_ID}",

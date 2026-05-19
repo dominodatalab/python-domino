@@ -335,6 +335,8 @@ class Domino:
         save_changes = _resolve_renamed_kwarg(
             save_changes, "saveChanges", "save_changes", kwargs, True
         )
+        if not run_id:
+            raise ValueError("run_id is required")
         self.log.warning("Use job_stop method instead")
         return self.job_stop(job_id=run_id, commit_results=save_changes)
 
