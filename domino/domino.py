@@ -5,7 +5,7 @@ import os
 import re
 import time
 import warnings
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import polling2
 import requests
@@ -36,6 +36,35 @@ from domino.domino_enums import (
 )
 from domino.http_request_manager import _HttpRequestManager
 from domino.routes import _Routes
+
+# Sentinel used as the default value of renamed parameters so we can detect
+# whether the caller passed the new name, the deprecated name, or neither.
+_UNSET: Any = object()
+
+
+def _resolve_renamed_kwarg(new_value, old_name, new_name, kwargs, default):
+    """Resolve a renamed parameter, raising if both old and new names were passed.
+
+    If the deprecated name is present in kwargs, emit a DeprecationWarning and
+    return its value. If both the new name (non-sentinel) and the deprecated
+    name are provided in the same call, raise ValueError so the caller can fix
+    the ambiguity instead of silently picking one.
+    """
+    has_old = old_name in kwargs
+    has_new = new_value is not _UNSET
+    if has_old and has_new:
+        raise ValueError(
+            f"Pass either '{new_name}' or '{old_name}', not both. "
+            f"'{old_name}' is deprecated; use '{new_name}'."
+        )
+    if has_old:
+        warnings.warn(
+            f"{old_name} is deprecated, use {new_name}",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return kwargs.pop(old_name)
+    return new_value if has_new else default
 
 
 class Domino:
@@ -129,22 +158,40 @@ class Domino:
     def runs_start(
         self,
         command,
-        isDirect=False,
-        commitId=None,
+        is_direct=_UNSET,
+        commit_id=_UNSET,
         title=None,
         tier=None,
-        publishApiEndpoint=None,
+        publish_api_endpoint=_UNSET,
+        **kwargs,
     ):
+        """
+        Start a run via the legacy v1 Runs API. For new work, prefer job_start() which uses
+        the v4 Jobs API and supports compute clusters, external volumes, and branch targeting.
+        """
+        is_direct = _resolve_renamed_kwarg(
+            is_direct, "isDirect", "is_direct", kwargs, False
+        )
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
+        publish_api_endpoint = _resolve_renamed_kwarg(
+            publish_api_endpoint,
+            "publishApiEndpoint",
+            "publish_api_endpoint",
+            kwargs,
+            None,
+        )
 
         url = self._routes.runs_start()
 
         request = {
             "command": command,
-            "isDirect": isDirect,
-            "commitId": commitId,
+            "isDirect": is_direct,
+            "commitId": commit_id,
             "title": title,
             "tier": tier,
-            "publishApiEndpoint": publishApiEndpoint,
+            "publishApiEndpoint": publish_api_endpoint,
         }
         try:
             response = self.request_manager.post(url, json=request)
@@ -158,14 +205,15 @@ class Domino:
     def runs_start_blocking(
         self,
         command,
-        isDirect=False,
-        commitId=None,
+        is_direct=_UNSET,
+        commit_id=_UNSET,
         title=None,
         tier=None,
-        publishApiEndpoint=None,
+        publish_api_endpoint=_UNSET,
         poll_freq=5,
         max_poll_time=6000,
         retry_count=5,
+        **kwargs,
     ):
         """
         Run a tasks that runs in a blocking loop that periodically checks to
@@ -179,12 +227,12 @@ class Domino:
                   example:
                   >> domino.runs_start(["main.py", "arg1", "arg2"])
 
-        isDirect : boolean (Optional)
+        is_direct : boolean (Optional)
                    Whether or not this command should be passed directly to
                    a shell.
 
-        commitId : string (Optional)
-                   The commitId to launch from. If not provided, will launch
+        commit_id : string (Optional)
+                   The commit_id to launch from. If not provided, will launch
                    from latest commit.
 
         title    : string (Optional)
@@ -194,7 +242,7 @@ class Domino:
                    The hardware tier to use for the run. Will use project
                    default tier if not provided.
 
-        publishApiEndpoint : boolean (Optional)
+        publish_api_endpoint : boolean (Optional)
                             Whether or not to publish an API endpoint from the
                             resulting output.
 
@@ -212,8 +260,22 @@ class Domino:
                         (in-case of transient http errors). If this
                         threshold exceeds, an exception is raised.
         """
+        is_direct = _resolve_renamed_kwarg(
+            is_direct, "isDirect", "is_direct", kwargs, False
+        )
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
+        publish_api_endpoint = _resolve_renamed_kwarg(
+            publish_api_endpoint,
+            "publishApiEndpoint",
+            "publish_api_endpoint",
+            kwargs,
+            None,
+        )
+
         run_response = self.runs_start(
-            command, isDirect, commitId, title, tier, publishApiEndpoint
+            command, is_direct, commit_id, title, tier, publish_api_endpoint
         )
         run_id = run_response["runId"]
 
@@ -256,7 +318,7 @@ class Domino:
 
             # once task has finished running check to see if it was successful
             else:
-                stdout_msg = self.get_run_log(runId=run_id, includeSetupLog=False)
+                stdout_msg = self.get_run_log(run_id=run_id, include_setup_log=False)
 
                 if run_info["status"] != "Succeeded":
                     self.process_log(stdout_msg)
@@ -268,31 +330,46 @@ class Domino:
 
         return run_response
 
-    def run_stop(self, runId, saveChanges=True):
+    def run_stop(self, run_id=_UNSET, save_changes=_UNSET, **kwargs):
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
+        save_changes = _resolve_renamed_kwarg(
+            save_changes, "saveChanges", "save_changes", kwargs, True
+        )
+        if not run_id:
+            raise ValueError("run_id is required")
         self.log.warning("Use job_stop method instead")
-        return self.job_stop(job_id=runId, commit_results=saveChanges)
+        return self.job_stop(job_id=run_id, commit_results=save_changes)
 
-    def runs_status(self, runId):
-        url = self._routes.runs_status(runId)
+    def runs_status(self, run_id=_UNSET, **kwargs):
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
+        url = self._routes.runs_status(run_id)
         return self._get(url)
 
-    def get_run_log(self, runId, includeSetupLog=True):
+    def get_run_log(self, run_id=_UNSET, include_setup_log=_UNSET, **kwargs):
         """
         Get the unified log for a run (setup + stdout).
 
         parameters
         ----------
-        runId : string
+        run_id : string
                 the id associated with the run.
-        includeSetupLog : bool
+        include_setup_log : bool
                 whether or not to include the setup log in the output.
         """
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
+        include_setup_log = _resolve_renamed_kwarg(
+            include_setup_log,
+            "includeSetupLog",
+            "include_setup_log",
+            kwargs,
+            True,
+        )
 
-        url = self._routes.runs_stdout(runId)
+        url = self._routes.runs_stdout(run_id)
 
         logs = list()
 
-        if includeSetupLog:
+        if include_setup_log:
             logs.append(self._get(url)["setup"])
 
         logs.append(self._get(url)["stdout"])
@@ -304,15 +381,16 @@ class Domino:
             if run_info["id"] == run_id:
                 return run_info
 
-    def runs_stdout(self, runId):
+    def runs_stdout(self, run_id=_UNSET, **kwargs):
         """
         Get std out emitted by a particular run.
 
         parameters
         ----------
-        runId : string
+        run_id : string
                 the id associated with the run.
         """
+        run_id = _resolve_renamed_kwarg(run_id, "runId", "run_id", kwargs, None)
 
         html_start_tags = (
             "<pre style='white-space: pre-wrap; white-space: -moz-pre-wrap; white-space: -pre-wrap; "
@@ -322,7 +400,7 @@ class Domino:
         span_regex = re.compile("<?span.*?>")
         returns = "'\\n'\n"
 
-        url = self._routes.runs_stdout(runId)
+        url = self._routes.runs_stdout(run_id)
         raw_stdout = self._get(url)["stdout"]
 
         stdout = (
@@ -333,7 +411,7 @@ class Domino:
 
         return stdout
 
-    def job_start(
+    def job_start(  # noqa: C901
         self,
         command: str,
         commit_id: Optional[str] = None,
@@ -345,14 +423,17 @@ class Domino:
         external_volume_mounts: Optional[List[str]] = None,
         title: Optional[str] = None,
         main_repo_git_ref: Optional[dict] = None,
+        branch: Optional[str] = None,
     ) -> dict:
         """
-        Starts a Domino Job via V4 API
+        Start a Domino Job via the v4 Jobs API. Preferred over runs_start() for all new work —
+        supports hardware tiers, compute clusters (Spark/Ray/Dask/MPI), external volumes, and
+        git ref targeting by branch or commit.
         :param command:                             string
                                                     Command to execute in Job
                                                     >> domino.job_start(command="main.py arg1 arg2")
         :param commit_id:                           string (Optional)
-                                                    The commitId to launch from. If not provided, will launch
+                                                    The commit_id to launch from. If not provided, will launch
                                                     from latest commit.
         :param hardware_tier_id:                    string (Optional)
                                                     The hardware tier ID to launch job in. If not provided
@@ -415,9 +496,24 @@ class Domino:
                                                         "type": "branches",
                                                         "value": "my-feature-branch"
                                                     }
-                                                    Supported types: "branches", "tags"
+                                                    Supported types: "branches", "tags".
+                                                    Cannot be combined with branch.
+        :param branch:                              string (Optional)
+                                                    Convenience parameter. For git-based projects, launch the job
+                                                    from the tip of the specified branch. Cannot be combined with
+                                                    commit_id or main_repo_git_ref.
         :return: Returns created Job details (number, id etc)
         """
+        if branch and commit_id:
+            raise ValueError(
+                "Only one of branch or commit_id may be specified, not both."
+            )
+        if branch and main_repo_git_ref:
+            raise ValueError(
+                "Only one of branch or main_repo_git_ref may be specified, not both."
+            )
+        if branch:
+            main_repo_git_ref = {"type": "branches", "value": branch}
 
         def validate_on_demand_spark_cluster_properties(max_execution_slot_per_user):
             self.log.debug(
@@ -757,12 +853,15 @@ class Domino:
             step=poll_freq,
             log_error=self.log.level,
         )
-        stdout_msg = self.get_run_log(runId=job_id, includeSetupLog=False)
+        stdout_msg = self.get_run_log(run_id=job_id, include_setup_log=False)
         self.process_log(stdout_msg)
         return job_status
 
-    def files_list(self, commitId, path="/"):
-        url = self._routes.files_list(commitId, path)
+    def files_list(self, commit_id=_UNSET, path="/", **kwargs):
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
+        url = self._routes.files_list(commit_id, path)
         return self._get(url)
 
     def files_upload(self, path, file):
@@ -791,6 +890,24 @@ class Domino:
         url = self._routes.blobs_get_v2(path, commit_id, project_id)
         return self.request_manager.get_raw(url)
 
+    def files_download(self, path: str, commit_id: Optional[str] = None):
+        """
+        Download a file from the project by path.
+
+        :param path: Path to the file within the project (e.g. "/README.md").
+        :param commit_id: The commit to download from. Defaults to the latest commit.
+        :return: Raw file content (urllib3 response stream).
+        """
+        if commit_id is None:
+            commits = self.commits_list()
+            if not commits:
+                raise ValueError(
+                    "Project has no commits; cannot resolve latest commit. "
+                    "Pass commit_id explicitly."
+                )
+            commit_id = commits[0]["id"]
+        return self.blobs_get_v2(path, commit_id, self.project_id)
+
     def fork_project(self, target_name):
         url = self._routes.fork_project(self.project_id)
         request = {"name": target_name}
@@ -806,11 +923,14 @@ class Domino:
         response = self.request_manager.delete(url)
         return response
 
-    def endpoint_publish(self, file, function, commitId):
+    def endpoint_publish(self, file, function, commit_id=_UNSET, **kwargs):
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
         url = self._routes.endpoint_publish()
 
         request = {
-            "commitId": commitId,
+            "commitId": commit_id,
             "bindingDefinition": {"file": file, "function": function},
         }
 
@@ -984,56 +1104,97 @@ class Domino:
     # App functions
     def app_publish(
         self,
-        unpublishRunningApps=True,
-        hardwareTierId=None,
-        environmentId=None,
-        externalVolumeMountIds=None,
-        commitId=None,
+        unpublish_running_apps=_UNSET,
+        hardware_tier_id=_UNSET,
+        environment_id=_UNSET,
+        external_volume_mount_ids=_UNSET,
+        commit_id=_UNSET,
         branch=None,
-        appId=None,
+        app_id=_UNSET,
+        **kwargs,
     ):
-        if commitId and branch:
+        unpublish_running_apps = _resolve_renamed_kwarg(
+            unpublish_running_apps,
+            "unpublishRunningApps",
+            "unpublish_running_apps",
+            kwargs,
+            True,
+        )
+        hardware_tier_id = _resolve_renamed_kwarg(
+            hardware_tier_id,
+            "hardwareTierId",
+            "hardware_tier_id",
+            kwargs,
+            None,
+        )
+        environment_id = _resolve_renamed_kwarg(
+            environment_id,
+            "environmentId",
+            "environment_id",
+            kwargs,
+            None,
+        )
+        external_volume_mount_ids = _resolve_renamed_kwarg(
+            external_volume_mount_ids,
+            "externalVolumeMountIds",
+            "external_volume_mount_ids",
+            kwargs,
+            None,
+        )
+        commit_id = _resolve_renamed_kwarg(
+            commit_id, "commitId", "commit_id", kwargs, None
+        )
+        app_id = _resolve_renamed_kwarg(app_id, "appId", "app_id", kwargs, None)
+
+        if commit_id and branch:
             raise ValueError(
-                "Only one of commitId or branch may be specified, not both."
+                "Only one of commit_id or branch may be specified, not both."
             )
-        app_id = appId or self._app_id
-        if unpublishRunningApps:
-            self.app_unpublish(appId=app_id)
+        app_id = app_id or self.app_id
+        if unpublish_running_apps:
+            self.app_unpublish(app_id)
         if app_id is None:
             # No App Exists creating one
-            app_id = self.__app_create(hardware_tier_id=hardwareTierId)
+            app_id = self.__app_create(hardware_tier_id=hardware_tier_id)
         url = self._routes.app_start(app_id)
-        if commitId:
-            main_repo_git_ref = {"type": "commitId", "value": commitId}
+        if commit_id:
+            main_repo_git_ref = {"type": "commitId", "value": commit_id}
         elif branch:
             main_repo_git_ref = {"type": "branches", "value": branch}
         else:
             main_repo_git_ref = None
         request = {
-            "hardwareTierId": hardwareTierId,
-            "environmentId": environmentId,
-            "externalVolumeMountIds": externalVolumeMountIds,
+            "hardwareTierId": hardware_tier_id,
+            "environmentId": environment_id,
+            "externalVolumeMountIds": external_volume_mount_ids,
             "mainRepoGitRef": main_repo_git_ref,
         }
         omitting_null = {k: v for (k, v) in request.items() if v is not None}
         response = self.request_manager.post(url, json=omitting_null)
         return response
 
-    def app_unpublish(self, appId=None):
-        app_id = appId or self._app_id
+    def app_unpublish(self, app_id=_UNSET, **kwargs):
+        app_id = _resolve_renamed_kwarg(app_id, "appId", "app_id", kwargs, None)
+        app_id = app_id or self.app_id
         if app_id is None:
             return
-        status = self.__app_get_status(app_id)
+        status = self.app_get_status(app_id)
         self.log.debug(f"App {app_id} status={status}")
         if status and status != "Stopped" and status != "Failed":
             url = self._routes.app_stop(app_id)
             response = self.request_manager.post(url)
             return response
 
-    def __app_get_status(self, id) -> Optional[str]:
-        if id is None:
+    def app_get_status(self, app_id: str) -> Optional[str]:
+        """
+        Return the current status of an app, or None if the app does not exist.
+
+        :param app_id: The ID of the app to query.
+        :return: Status string (e.g. "Running", "Stopped", "Failed") or None.
+        """
+        if app_id is None:
             return None
-        url = self._routes.app_get(id)
+        url = self._routes.app_get(app_id)
         response = self.request_manager.get(url).json()
         return response.get("status", None)
 
@@ -1944,7 +2105,13 @@ class Domino:
             f"{environment_id} environment not found"
         )
 
-    def _validate_hardware_tier_id(self, hardware_tier_id: str) -> bool:
+    def _validate_hardware_tier_id(self, hardware_tier_id: Union[str, Dict]) -> bool:
+        if isinstance(hardware_tier_id, dict):
+            if "value" not in hardware_tier_id:
+                raise ValueError(
+                    f"hardware_tier_id dict missing 'value' key: {hardware_tier_id}"
+                )
+            hardware_tier_id = hardware_tier_id["value"]
         self.log.debug(f"Validating hardware tier id: {hardware_tier_id}")
         for hardware_tier in self.hardware_tiers_list():
             if hardware_tier_id == hardware_tier["hardwareTier"]["id"]:
@@ -2069,20 +2236,24 @@ class Domino:
             f"Project '{self._project_name}' not found for owner '{self._owner_username}'"
         )
 
-    # This will fetch app_id of app in current project
     @property
-    def _app_id(self):
+    def app_id(self) -> Optional[str]:
+        """Return the ID of the first app in the current project, or None if no app exists."""
         url = self._routes.app_list(self.project_id)
         response = self._get(url)
         if len(response) != 0:
             app = response[0]
         else:
             return None
-        key = "id"
-        if key in app.keys():
-            app_id = app[key]
-        else:
-            app_id = None
-        return app_id
+        return app.get("id", None)
+
+    @property
+    def _app_id(self) -> Optional[str]:
+        warnings.warn(
+            "_app_id is deprecated, use app_id",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.app_id
 
     _csrf_no_check_header = {"Csrf-Token": "nocheck"}
