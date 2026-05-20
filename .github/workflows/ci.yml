@@ -29,6 +29,11 @@ jobs:
       - name: flake8
         run: flake8 .
 
+      - name: snake_case
+        # check_snake_case.py owns the include/exclude rules; pass it everything
+        # under domino/ and it will skip paths that don't apply. Keeps CI in
+        # lockstep with the pre-commit hook (both invoke the same script).
+        run: find domino -name "*.py" | xargs python scripts/check_snake_case.py
 
   typecheck:
     name: Type check
