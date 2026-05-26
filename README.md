@@ -653,7 +653,7 @@ Start (or restart) the serving endpoint for a specific model version.
 -   *model_id (string):* The ID of the model.
 -   *model_version_id (string):* The ID of the model version to start.
 
-Returns the HTTP response from the Domino API.
+Returns a dict with the response from the Domino API.
 
 ### model_deployment_stop(model_id, model_version_id)
 
@@ -664,7 +664,7 @@ in use).
 -   *model_id (string):* The ID of the model.
 -   *model_version_id (string):* The ID of the model version to stop.
 
-Returns the HTTP response from the Domino API.
+Returns a dict with the response from the Domino API.
 
 ### model_deployment_status(model_id, model_version_id)
 

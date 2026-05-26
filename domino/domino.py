@@ -1698,14 +1698,14 @@ class Domino:
 
         :param model_id: The id of the model.
         :param model_version_id: The id of the model version to start.
-        :return: The HTTP response from the Domino API.
+        :return: Dict containing the response from the Domino API.
         """
         if not model_id:
             raise ValueError("model_id is required")
         if not model_version_id:
             raise ValueError("model_version_id is required")
         url = self._routes.model_deployment_start(model_id, model_version_id)
-        return self.request_manager.post(url)
+        return self.request_manager.post(url).json()
 
     def model_deployment_stop(self, model_id: str, model_version_id: str):
         """
@@ -1717,14 +1717,14 @@ class Domino:
 
         :param model_id: The id of the model.
         :param model_version_id: The id of the model version to stop.
-        :return: The HTTP response from the Domino API.
+        :return: Dict containing the response from the Domino API.
         """
         if not model_id:
             raise ValueError("model_id is required")
         if not model_version_id:
             raise ValueError("model_version_id is required")
         url = self._routes.model_deployment_stop(model_id, model_version_id)
-        return self.request_manager.post(url)
+        return self.request_manager.post(url).json()
 
     def model_deployment_status(self, model_id: str, model_version_id: str):
         """

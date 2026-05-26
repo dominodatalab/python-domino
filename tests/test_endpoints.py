@@ -255,12 +255,16 @@ def test_model_deployment_start_posts_to_correct_url(requests_mock, dummy_hostna
     start_mock = requests_mock.post(
         f"{dummy_hostname}/v4/models/{MOCK_MODEL_ID}/"
         f"{MOCK_MODEL_VERSION_ID}/startModelDeployment",
-        status_code=200,
+        json={
+            "modelId": MOCK_MODEL_ID,
+            "modelVersionId": MOCK_MODEL_VERSION_ID,
+            "status": "running",
+        },
     )
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    response = d.model_deployment_start(MOCK_MODEL_ID, MOCK_MODEL_VERSION_ID)
+    result = d.model_deployment_start(MOCK_MODEL_ID, MOCK_MODEL_VERSION_ID)
     assert start_mock.called
-    assert response.status_code == 200
+    assert result["status"] == "running"
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
@@ -268,12 +272,16 @@ def test_model_deployment_stop_posts_to_correct_url(requests_mock, dummy_hostnam
     stop_mock = requests_mock.post(
         f"{dummy_hostname}/v4/models/{MOCK_MODEL_ID}/"
         f"{MOCK_MODEL_VERSION_ID}/stopModelDeployment",
-        status_code=200,
+        json={
+            "modelId": MOCK_MODEL_ID,
+            "modelVersionId": MOCK_MODEL_VERSION_ID,
+            "status": "stopped",
+        },
     )
     d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
-    response = d.model_deployment_stop(MOCK_MODEL_ID, MOCK_MODEL_VERSION_ID)
+    result = d.model_deployment_stop(MOCK_MODEL_ID, MOCK_MODEL_VERSION_ID)
     assert stop_mock.called
-    assert response.status_code == 200
+    assert result["status"] == "stopped"
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
