@@ -1689,6 +1689,61 @@ class Domino:
         url = self._routes.model_version_export_logs(model_export_id)
         return self._get(url)
 
+    def model_deployment_start(self, model_id: str, model_version_id: str):
+        """
+        Start the deployment of a specific model API version.
+
+        Wraps POST /v4/models/{model_id}/{model_version_id}/startModelDeployment.
+        Use this to bring a stopped model version's serving endpoint back online.
+
+        :param model_id: The id of the model.
+        :param model_version_id: The id of the model version to start.
+        :return: Dict containing the response from the Domino API.
+        """
+        if not model_id:
+            raise ValueError("model_id is required")
+        if not model_version_id:
+            raise ValueError("model_version_id is required")
+        url = self._routes.model_deployment_start(model_id, model_version_id)
+        return self.request_manager.post(url).json()
+
+    def model_deployment_stop(self, model_id: str, model_version_id: str):
+        """
+        Stop the deployment of a specific model API version.
+
+        Wraps POST /v4/models/{model_id}/{model_version_id}/stopModelDeployment.
+        Useful for taking a running model offline (e.g. to save compute when
+        the endpoint is not in use).
+
+        :param model_id: The id of the model.
+        :param model_version_id: The id of the model version to stop.
+        :return: Dict containing the response from the Domino API.
+        """
+        if not model_id:
+            raise ValueError("model_id is required")
+        if not model_version_id:
+            raise ValueError("model_version_id is required")
+        url = self._routes.model_deployment_stop(model_id, model_version_id)
+        return self.request_manager.post(url).json()
+
+    def model_deployment_status(self, model_id: str, model_version_id: str):
+        """
+        Get the deployment status of a specific model API version.
+
+        Wraps GET /v4/models/{model_id}/{model_version_id}/getModelDeploymentStatus.
+        The response includes a `status` field (e.g. "running", "stopped").
+
+        :param model_id: The id of the model.
+        :param model_version_id: The id of the model version to query.
+        :return: Dict with model deployment status (modelId, modelVersionId, status).
+        """
+        if not model_id:
+            raise ValueError("model_id is required")
+        if not model_version_id:
+            raise ValueError("model_version_id is required")
+        url = self._routes.model_deployment_status(model_id, model_version_id)
+        return self._get(url)
+
     # Hardware Tier Functions
     def hardware_tiers_list(self):
         url = self._routes.hardware_tiers_list(self.project_id)

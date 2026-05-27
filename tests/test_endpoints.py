@@ -246,6 +246,89 @@ def test_model_version_export_logs_returns_dict(requests_mock, dummy_hostname):
 
 
 # ---------------------------------------------------------------------------
+# Model deployment lifecycle (start / stop / status) — #84
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_model_deployment_start_posts_to_correct_url(requests_mock, dummy_hostname):
+    start_mock = requests_mock.post(
+        f"{dummy_hostname}/v4/models/{MOCK_MODEL_ID}/"
+        f"{MOCK_MODEL_VERSION_ID}/startModelDeployment",
+        json={
+            "modelId": MOCK_MODEL_ID,
+            "modelVersionId": MOCK_MODEL_VERSION_ID,
+            "status": "running",
+        },
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.model_deployment_start(MOCK_MODEL_ID, MOCK_MODEL_VERSION_ID)
+    assert start_mock.called
+    assert result["status"] == "running"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_model_deployment_stop_posts_to_correct_url(requests_mock, dummy_hostname):
+    stop_mock = requests_mock.post(
+        f"{dummy_hostname}/v4/models/{MOCK_MODEL_ID}/"
+        f"{MOCK_MODEL_VERSION_ID}/stopModelDeployment",
+        json={
+            "modelId": MOCK_MODEL_ID,
+            "modelVersionId": MOCK_MODEL_VERSION_ID,
+            "status": "stopped",
+        },
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.model_deployment_stop(MOCK_MODEL_ID, MOCK_MODEL_VERSION_ID)
+    assert stop_mock.called
+    assert result["status"] == "stopped"
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_model_deployment_status_returns_dict(requests_mock, dummy_hostname):
+    requests_mock.get(
+        f"{dummy_hostname}/v4/models/{MOCK_MODEL_ID}/"
+        f"{MOCK_MODEL_VERSION_ID}/getModelDeploymentStatus",
+        json={
+            "modelId": MOCK_MODEL_ID,
+            "modelVersionId": MOCK_MODEL_VERSION_ID,
+            "status": "running",
+        },
+    )
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    result = d.model_deployment_status(MOCK_MODEL_ID, MOCK_MODEL_VERSION_ID)
+    assert result["status"] == "running"
+    assert result["modelId"] == MOCK_MODEL_ID
+    assert result["modelVersionId"] == MOCK_MODEL_VERSION_ID
+
+
+@pytest.mark.parametrize(
+    "method_name",
+    ["model_deployment_start", "model_deployment_stop", "model_deployment_status"],
+)
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_model_deployment_methods_require_model_id(
+    requests_mock, dummy_hostname, method_name
+):
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ValueError, match="model_id is required"):
+        getattr(d, method_name)("", MOCK_MODEL_VERSION_ID)
+
+
+@pytest.mark.parametrize(
+    "method_name",
+    ["model_deployment_start", "model_deployment_stop", "model_deployment_status"],
+)
+@pytest.mark.usefixtures("clear_token_file_from_env", "base_mocks")
+def test_model_deployment_methods_require_model_version_id(
+    requests_mock, dummy_hostname, method_name
+):
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+    with pytest.raises(ValueError, match="model_version_id is required"):
+        getattr(d, method_name)(MOCK_MODEL_ID, "")
+
+
+# ---------------------------------------------------------------------------
 # Integration tests (require a live Domino deployment)
 # ---------------------------------------------------------------------------
 

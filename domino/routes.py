@@ -163,6 +163,24 @@ class _Routes:
     def model_version_export_logs(self, model_export_id):
         return self._build_models_v4_url() + "/" + model_export_id + "/getExportLogs"
 
+    def model_deployment_start(self, model_id, model_version_id):
+        return (
+            self._build_models_v4_url()
+            + f"/{model_id}/{model_version_id}/startModelDeployment"
+        )
+
+    def model_deployment_stop(self, model_id, model_version_id):
+        return (
+            self._build_models_v4_url()
+            + f"/{model_id}/{model_version_id}/stopModelDeployment"
+        )
+
+    def model_deployment_status(self, model_id, model_version_id):
+        return (
+            self._build_models_v4_url()
+            + f"/{model_id}/{model_version_id}/getModelDeploymentStatus"
+        )
+
     # Environment URLs
     def _build_v4_environments_url(self) -> str:
         return self.host + "/v4/environments"
