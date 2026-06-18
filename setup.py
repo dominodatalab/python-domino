@@ -80,7 +80,7 @@ setup(
             "packaging==23.2",
             "polling2==0.5.0",
             "pre-commit==2.19.0",
-            "pyspark==3.3.0",
+            "pyspark==3.4.4",
             "pytest==7.4.3",
             "requests_mock==1.9.3",
             "tox==3.25.1",
