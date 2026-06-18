@@ -76,7 +76,7 @@ setup(
             "black==22.3.0",
             "flake8==4.0.1",
             "Jinja2==2.11.3",
-            "nbconvert==6.3.0",
+            "nbconvert==7.17.1",
             "packaging==23.2",
             "polling2==0.5.0",
             "pre-commit==2.19.0",
