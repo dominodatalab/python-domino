@@ -566,80 +566,6 @@ class Domino:
                     f"Minimum support version {MINIMUM_ON_DEMAND_SPARK_CLUSTER_SUPPORT_DOMINO_VERSION}"
                 )
 
-        def validate_distributed_compute_cluster_properties():
-            if not helpers.is_compute_cluster_properties_supported(self._version):
-                raise exceptions.UnsupportedFieldException(
-                    f"'compute_cluster_properties' is not supported in Domino {self._version}."
-                )
-
-            required_keys = [
-                "clusterType",
-                "computeEnvironmentId",
-                "masterHardwareTierId",
-                "workerHardwareTierId",
-                "workerCount",
-            ]
-            required_key_overrides = {("masterHardwareTierId", "MPI"): False}
-
-            for key in required_keys:
-                key_required = required_key_overrides.get(
-                    (key, compute_cluster_properties["clusterType"]), True
-                )
-
-                if key_required and (key not in compute_cluster_properties):
-                    raise exceptions.MissingRequiredFieldException(
-                        f"{key} is required in compute_cluster_properties"
-                    )
-
-            if not helpers.is_cluster_type_supported(
-                self._version, compute_cluster_properties["clusterType"]
-            ):
-                supported_types = [
-                    ct
-                    for ct, min_version in CLUSTER_TYPE_MIN_SUPPORT
-                    if helpers.is_cluster_type_supported(self._version, ct)
-                ]
-                supported_types_str = ", ".join(supported_types)
-                raise exceptions.MalformedInputException(
-                    f"Domino {self._version} does not support cluster type {compute_cluster_properties['clusterType']}."
-                    + f" This version of Domino supports the following cluster types: {supported_types_str}"
-                )
-
-            def throw_if_information_invalid(key: str, info: dict) -> None:
-                try:
-                    self._validate_information_data_type(info)
-                except Exception as e:
-                    raise exceptions.MalformedInputException(
-                        f"{key} in compute_cluster_properties failed validation: {e}"
-                    )
-
-            if "workerStorage" in compute_cluster_properties:
-                throw_if_information_invalid(
-                    "workerStorage", compute_cluster_properties["workerStorage"]
-                )
-
-            if compute_cluster_properties["workerCount"] < 1:
-                raise exceptions.MalformedInputException(
-                    "compute_cluster_properties.workerCount must be greater than 0"
-                )
-
-            if (
-                "maxWorkerCount" in compute_cluster_properties
-                and not helpers.is_compute_cluster_autoscaling_supported(self._version)
-            ):
-                raise exceptions.UnsupportedFieldException(
-                    f"'maxWorkerCount' is not supported in Domino {self._version}."
-                )
-
-            if "masterHardwareTierId" in compute_cluster_properties:
-                self._validate_hardware_tier_id(
-                    compute_cluster_properties["masterHardwareTierId"]
-                )
-
-            self._validate_hardware_tier_id(
-                compute_cluster_properties["workerHardwareTierId"]
-            )
-
         def validate_is_external_volume_mounts_supported():
             if not helpers.is_external_volume_mounts_supported(self._version):
                 raise exceptions.ExternalVolumeMountsNotSupportedException(
@@ -661,18 +587,9 @@ class Domino:
         if external_volume_mounts is not None:
             validate_is_external_volume_mounts_supported()
         if compute_cluster_properties is not None:
-            validate_distributed_compute_cluster_properties()
-
-            validated_compute_cluster_properties = compute_cluster_properties.copy()
-
-            if "masterHardwareTierId" in compute_cluster_properties:
-                validated_compute_cluster_properties["masterHardwareTierId"] = {
-                    "value": compute_cluster_properties["masterHardwareTierId"]
-                }
-
-            validated_compute_cluster_properties["workerHardwareTierId"] = {
-                "value": compute_cluster_properties["workerHardwareTierId"]
-            }
+            validated_compute_cluster_properties = self._validate_compute_cluster_properties(
+                compute_cluster_properties
+            )
 
         elif on_demand_spark_cluster_properties is not None:
             validate_is_on_demand_spark_supported()
@@ -856,6 +773,249 @@ class Domino:
         stdout_msg = self.get_run_log(run_id=job_id, include_setup_log=False)
         self.process_log(stdout_msg)
         return job_status
+
+    def scheduled_jobs_list(self, project_id: Optional[str] = None) -> list:
+        """
+        List all scheduled jobs for a project.
+        :param project_id: The project ID (defaults to the current project)
+        :return: List of scheduled job definitions
+        """
+        project_id = project_id or self.project_id
+        url = self._routes.scheduled_jobs(project_id)
+        return self._get(url)
+
+    def scheduled_job_get(self, scheduled_job_id: str) -> dict:
+        """
+        Retrieve a scheduled job by ID.
+        :param scheduled_job_id: The scheduled job ID
+        :return: Scheduled job definition
+        """
+        url = self._routes.scheduled_job(self.project_id, scheduled_job_id)
+        return self.request_manager.get(url).json()
+
+    def scheduled_job_create(
+        self,
+        title: str,
+        command: str,
+        cron_string: str,
+        timezone_id: str,
+        hardware_tier_identifier: str,
+        environment_revision_spec: Union[str, dict] = "ActiveRevision",
+        is_paused: bool = False,
+        allow_concurrent_execution: bool = False,
+        is_custom_schedule: bool = True,
+        notify_on_complete_email_addresses: Optional[List[str]] = None,
+        publish_model_id: Optional[str] = None,
+        capacity_type: Optional[str] = None,
+        override_environment_id: Optional[str] = None,
+        dataset_config: Optional[str] = None,
+        compute_cluster_properties: Optional[dict] = None,
+        external_volume_mounts: Optional[List[str]] = None,
+        snapshot_datasets_on_completion: Optional[bool] = None,
+        snapshot_net_app_volumes_on_completion: Optional[bool] = None,
+        main_repo_git_ref: Optional[dict] = None,
+    ) -> dict:
+        """
+        Create a new scheduled job.
+        :param title:                               string
+                                                    Display name for the scheduled job
+        :param command:                             string
+                                                    Command to run (e.g. "main.py arg1 arg2")
+        :param cron_string:                         string
+                                                    Cron expression defining the schedule (e.g. "0 9 * * 1")
+        :param timezone_id:                         string
+                                                    IANA timezone (e.g. "America/New_York", "UTC")
+        :param hardware_tier_identifier:            string
+                                                    Hardware tier identifier to run on
+        :param environment_revision_spec:           string or dict (Optional)
+                                                    One of "ActiveRevision", "LatestRevision",
+                                                    "RestrictedRevision", or {"revisionId": "<id>"}
+        :param is_paused:                           bool (Optional)
+                                                    Whether to create the job in a paused state (default False)
+        :param allow_concurrent_execution:          bool (Optional)
+                                                    Allow multiple instances to run simultaneously (default False)
+        :param is_custom_schedule:                  bool (Optional)
+                                                    Whether the cron string is a custom schedule (default True)
+        :param notify_on_complete_email_addresses:  list of string (Optional)
+                                                    Email addresses to notify on completion
+        :param publish_model_id:                    string (Optional)
+                                                    Model ID to publish results to
+        :param capacity_type:                       string (Optional)
+                                                    "on-demand" or "spot"
+        :param override_environment_id:             string (Optional)
+                                                    Override the project's default environment
+        :param dataset_config:                      string (Optional)
+                                                    Dataset configuration
+        :param compute_cluster_properties:          dict (Optional)
+                                                    Compute cluster configuration (Spark/Ray/Dask/MPI)
+        :param external_volume_mounts:              list of string (Optional)
+                                                    External volume mount IDs
+        :param snapshot_datasets_on_completion:     bool (Optional)
+                                                    Snapshot datasets when the job completes
+        :param snapshot_net_app_volumes_on_completion: bool (Optional)
+                                                    Snapshot NetApp volumes when the job completes
+        :param main_repo_git_ref:                   dict (Optional)
+                                                    Git ref for the main repo, e.g. {"type": "branches", "value": "main"}
+        :return: Created scheduled job definition
+        """
+        self._validate_hardware_tier_id(hardware_tier_identifier)
+        if override_environment_id is not None:
+            self._validate_environment_id(override_environment_id)
+        if compute_cluster_properties is not None:
+            compute_cluster_properties = self._validate_compute_cluster_properties(
+                compute_cluster_properties
+            )
+        scheduled_by_user_id = self.get_user_id(self._owner_username)
+        request: Dict[str, Any] = {
+            "title": title,
+            "command": command,
+            "schedule": {"cronString": cron_string, "isCustom": is_custom_schedule},
+            "timezoneId": timezone_id,
+            "isPaused": is_paused,
+            "allowConcurrentExecution": allow_concurrent_execution,
+            "hardwareTierIdentifier": hardware_tier_identifier,
+            "environmentRevisionSpec": environment_revision_spec,
+            "scheduledByUserId": scheduled_by_user_id,
+            "notifyOnCompleteEmailAddresses": notify_on_complete_email_addresses or [],
+        }
+        if publish_model_id is not None:
+            request["publishModelId"] = publish_model_id
+        if capacity_type is not None:
+            request["capacityType"] = capacity_type
+        if override_environment_id is not None:
+            request["overrideEnvironmentId"] = override_environment_id
+        if dataset_config is not None:
+            request["datasetConfig"] = dataset_config
+        if compute_cluster_properties is not None:
+            request["computeClusterProperties"] = compute_cluster_properties
+        if external_volume_mounts is not None:
+            request["externalVolumeMounts"] = external_volume_mounts
+        if snapshot_datasets_on_completion is not None:
+            request["snapshotDatasetsOnCompletion"] = snapshot_datasets_on_completion
+        if snapshot_net_app_volumes_on_completion is not None:
+            request["snapshotNetAppVolumesOnCompletion"] = snapshot_net_app_volumes_on_completion
+        if main_repo_git_ref is not None:
+            request["mainRepoGitRef"] = main_repo_git_ref
+        url = self._routes.scheduled_jobs(self.project_id)
+        return self.request_manager.post(url, json=request).json()
+
+    def scheduled_job_update(
+        self,
+        scheduled_job_id: str,
+        title: str,
+        command: str,
+        cron_string: str,
+        timezone_id: str,
+        hardware_tier_identifier: str,
+        environment_revision_spec: Union[str, dict] = "ActiveRevision",
+        is_paused: bool = False,
+        allow_concurrent_execution: bool = False,
+        is_custom_schedule: bool = True,
+        notify_on_complete_email_addresses: Optional[List[str]] = None,
+        publish_model_id: Optional[str] = None,
+        capacity_type: Optional[str] = None,
+        override_environment_id: Optional[str] = None,
+        dataset_config: Optional[str] = None,
+        compute_cluster_properties: Optional[dict] = None,
+        external_volume_mounts: Optional[List[str]] = None,
+        snapshot_datasets_on_completion: Optional[bool] = None,
+        snapshot_net_app_volumes_on_completion: Optional[bool] = None,
+        main_repo_git_ref: Optional[dict] = None,
+    ) -> dict:
+        """
+        Update an existing scheduled job. All scheduling and execution parameters are replaced.
+        :param scheduled_job_id:                    string
+                                                    The scheduled job ID to update
+        :param title:                               string
+                                                    Display name for the scheduled job
+        :param command:                             string
+                                                    Command to run (e.g. "main.py arg1 arg2")
+        :param cron_string:                         string
+                                                    Cron expression defining the schedule (e.g. "0 9 * * 1")
+        :param timezone_id:                         string
+                                                    IANA timezone (e.g. "America/New_York", "UTC")
+        :param hardware_tier_identifier:            string
+                                                    Hardware tier identifier to run on
+        :param environment_revision_spec:           string or dict (Optional)
+                                                    One of "ActiveRevision", "LatestRevision",
+                                                    "RestrictedRevision", or {"revisionId": "<id>"}
+        :param is_paused:                           bool (Optional)
+                                                    Whether the job is paused (default False)
+        :param allow_concurrent_execution:          bool (Optional)
+                                                    Allow multiple instances to run simultaneously (default False)
+        :param is_custom_schedule:                  bool (Optional)
+                                                    Whether the cron string is a custom schedule (default True)
+        :param notify_on_complete_email_addresses:  list of string (Optional)
+                                                    Email addresses to notify on completion
+        :param publish_model_id:                    string (Optional)
+                                                    Model ID to publish results to
+        :param capacity_type:                       string (Optional)
+                                                    "on-demand" or "spot"
+        :param override_environment_id:             string (Optional)
+                                                    Override the project's default environment
+        :param dataset_config:                      string (Optional)
+                                                    Dataset configuration
+        :param compute_cluster_properties:          dict (Optional)
+                                                    Compute cluster configuration (Spark/Ray/Dask/MPI)
+        :param external_volume_mounts:              list of string (Optional)
+                                                    External volume mount IDs
+        :param snapshot_datasets_on_completion:     bool (Optional)
+                                                    Snapshot datasets when the job completes
+        :param snapshot_net_app_volumes_on_completion: bool (Optional)
+                                                    Snapshot NetApp volumes when the job completes
+        :param main_repo_git_ref:                   dict (Optional)
+                                                    Git ref for the main repo, e.g. {"type": "branches", "value": "main"}
+        :return: Updated scheduled job definition
+        """
+        self._validate_hardware_tier_id(hardware_tier_identifier)
+        if override_environment_id is not None:
+            self._validate_environment_id(override_environment_id)
+        if compute_cluster_properties is not None:
+            compute_cluster_properties = self._validate_compute_cluster_properties(
+                compute_cluster_properties
+            )
+        scheduled_by_user_id = self.get_user_id(self._owner_username)
+        request: Dict[str, Any] = {
+            "title": title,
+            "command": command,
+            "schedule": {"cronString": cron_string, "isCustom": is_custom_schedule},
+            "timezoneId": timezone_id,
+            "isPaused": is_paused,
+            "allowConcurrentExecution": allow_concurrent_execution,
+            "hardwareTierIdentifier": hardware_tier_identifier,
+            "environmentRevisionSpec": environment_revision_spec,
+            "scheduledByUserId": scheduled_by_user_id,
+            "notifyOnCompleteEmailAddresses": notify_on_complete_email_addresses or [],
+        }
+        if publish_model_id is not None:
+            request["publishModelId"] = publish_model_id
+        if capacity_type is not None:
+            request["capacityType"] = capacity_type
+        if override_environment_id is not None:
+            request["overrideEnvironmentId"] = override_environment_id
+        if dataset_config is not None:
+            request["datasetConfig"] = dataset_config
+        if compute_cluster_properties is not None:
+            request["computeClusterProperties"] = compute_cluster_properties
+        if external_volume_mounts is not None:
+            request["externalVolumeMounts"] = external_volume_mounts
+        if snapshot_datasets_on_completion is not None:
+            request["snapshotDatasetsOnCompletion"] = snapshot_datasets_on_completion
+        if snapshot_net_app_volumes_on_completion is not None:
+            request["snapshotNetAppVolumesOnCompletion"] = snapshot_net_app_volumes_on_completion
+        if main_repo_git_ref is not None:
+            request["mainRepoGitRef"] = main_repo_git_ref
+        url = self._routes.scheduled_job(self.project_id, scheduled_job_id)
+        return self.request_manager.put(url, json=request).json()
+
+    def scheduled_job_delete(self, scheduled_job_id: str):
+        """
+        Delete a scheduled job.
+        :param scheduled_job_id: The scheduled job ID to delete
+        :return: Response from the server
+        """
+        url = self._routes.scheduled_job(self.project_id, scheduled_job_id)
+        return self.request_manager.delete(url)
 
     def files_list(self, commit_id=_UNSET, path="/", **kwargs):
         commit_id = _resolve_renamed_kwarg(
@@ -2095,6 +2255,86 @@ class Domino:
         return self.request_manager.get(useable_environment_list_url).json()[
             "environments"
         ]
+
+    def _validate_compute_cluster_properties(self, compute_cluster_properties: dict) -> dict:
+        """Validate compute cluster properties and return a normalized copy with hardware tier
+        IDs in the {value: str} object form expected by the API."""
+        if not helpers.is_compute_cluster_properties_supported(self._version):
+            raise exceptions.UnsupportedFieldException(
+                f"'compute_cluster_properties' is not supported in Domino {self._version}."
+            )
+
+        required_keys = [
+            "clusterType",
+            "computeEnvironmentId",
+            "masterHardwareTierId",
+            "workerHardwareTierId",
+            "workerCount",
+        ]
+        required_key_overrides = {("masterHardwareTierId", "MPI"): False}
+
+        for key in required_keys:
+            key_required = required_key_overrides.get(
+                (key, compute_cluster_properties["clusterType"]), True
+            )
+            if key_required and (key not in compute_cluster_properties):
+                raise exceptions.MissingRequiredFieldException(
+                    f"{key} is required in compute_cluster_properties"
+                )
+
+        if not helpers.is_cluster_type_supported(
+            self._version, compute_cluster_properties["clusterType"]
+        ):
+            supported_types = [
+                ct
+                for ct, _ in CLUSTER_TYPE_MIN_SUPPORT
+                if helpers.is_cluster_type_supported(self._version, ct)
+            ]
+            raise exceptions.MalformedInputException(
+                f"Domino {self._version} does not support cluster type {compute_cluster_properties['clusterType']}."
+                + f" This version of Domino supports the following cluster types: {', '.join(supported_types)}"
+            )
+
+        if "workerStorage" in compute_cluster_properties:
+            try:
+                self._validate_information_data_type(
+                    compute_cluster_properties["workerStorage"]
+                )
+            except Exception as e:
+                raise exceptions.MalformedInputException(
+                    f"workerStorage in compute_cluster_properties failed validation: {e}"
+                )
+
+        if compute_cluster_properties["workerCount"] < 1:
+            raise exceptions.MalformedInputException(
+                "compute_cluster_properties.workerCount must be greater than 0"
+            )
+
+        if (
+            "maxWorkerCount" in compute_cluster_properties
+            and not helpers.is_compute_cluster_autoscaling_supported(self._version)
+        ):
+            raise exceptions.UnsupportedFieldException(
+                f"'maxWorkerCount' is not supported in Domino {self._version}."
+            )
+
+        if "masterHardwareTierId" in compute_cluster_properties:
+            self._validate_hardware_tier_id(
+                compute_cluster_properties["masterHardwareTierId"]
+            )
+        self._validate_hardware_tier_id(
+            compute_cluster_properties["workerHardwareTierId"]
+        )
+
+        normalized = compute_cluster_properties.copy()
+        if "masterHardwareTierId" in compute_cluster_properties:
+            normalized["masterHardwareTierId"] = {
+                "value": compute_cluster_properties["masterHardwareTierId"]
+            }
+        normalized["workerHardwareTierId"] = {
+            "value": compute_cluster_properties["workerHardwareTierId"]
+        }
+        return normalized
 
     def _validate_environment_id(self, environment_id) -> bool:
         self.log.debug(f"Validating environment id: {environment_id}")

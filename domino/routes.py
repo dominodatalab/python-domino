@@ -250,6 +250,13 @@ class _Routes:
     def useable_environments_list(self, project_id):
         return f"{self.host}/v4/projects/{project_id}/useableEnvironments"
 
+    # Scheduled Job URLs
+    def scheduled_jobs(self, project_id: str) -> str:
+        return f"{self.host}/v4/projects/{project_id}/scheduledjobs"
+
+    def scheduled_job(self, project_id: str, scheduled_job_id: str) -> str:
+        return f"{self.host}/v4/projects/{project_id}/scheduledjobs/{scheduled_job_id}"
+
     # App URLs
     def app_publish(self):
         return self._build_project_url_private_api() + "/nb/startSession"
