@@ -65,7 +65,9 @@ def base_mocks(requests_mock, dummy_hostname):
     )
     requests_mock.get(
         f"{dummy_hostname}/v4/users",
-        json=[{"id": MOCK_USER_ID, "userName": "anyuser", "email": "anyuser@example.com"}],
+        json=[
+            {"id": MOCK_USER_ID, "userName": "anyuser", "email": "anyuser@example.com"}
+        ],
     )
     requests_mock.get(
         f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/hardwareTiers",
@@ -90,7 +92,9 @@ def test_scheduled_jobs_list(requests_mock, dummy_hostname, base_mocks):
     assert result[0]["id"] == MOCK_SCHEDULED_JOB_ID
 
 
-def test_scheduled_jobs_list_with_explicit_project_id(requests_mock, dummy_hostname, base_mocks):
+def test_scheduled_jobs_list_with_explicit_project_id(
+    requests_mock, dummy_hostname, base_mocks
+):
     other_project_id = "bbccddeeff0011223344aabb"
     requests_mock.get(
         f"{dummy_hostname}/v4/projects/{other_project_id}/scheduledjobs",
@@ -145,7 +149,9 @@ def test_scheduled_job_create(requests_mock, dummy_hostname, base_mocks):
     assert body["notifyOnCompleteEmailAddresses"] == []
 
 
-def test_scheduled_job_create_with_optional_fields(requests_mock, dummy_hostname, base_mocks):
+def test_scheduled_job_create_with_optional_fields(
+    requests_mock, dummy_hostname, base_mocks
+):
     requests_mock.post(
         f"{dummy_hostname}/v4/projects/{MOCK_PROJECT_ID}/scheduledjobs",
         json=MOCK_SCHEDULED_JOB,

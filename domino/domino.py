@@ -587,8 +587,8 @@ class Domino:
         if external_volume_mounts is not None:
             validate_is_external_volume_mounts_supported()
         if compute_cluster_properties is not None:
-            validated_compute_cluster_properties = self._validate_compute_cluster_properties(
-                compute_cluster_properties
+            validated_compute_cluster_properties = (
+                self._validate_compute_cluster_properties(compute_cluster_properties)
             )
 
         elif on_demand_spark_cluster_properties is not None:
@@ -894,7 +894,9 @@ class Domino:
         if snapshot_datasets_on_completion is not None:
             request["snapshotDatasetsOnCompletion"] = snapshot_datasets_on_completion
         if snapshot_net_app_volumes_on_completion is not None:
-            request["snapshotNetAppVolumesOnCompletion"] = snapshot_net_app_volumes_on_completion
+            request[
+                "snapshotNetAppVolumesOnCompletion"
+            ] = snapshot_net_app_volumes_on_completion
         if main_repo_git_ref is not None:
             request["mainRepoGitRef"] = main_repo_git_ref
         url = self._routes.scheduled_jobs(self.project_id)
@@ -1004,7 +1006,9 @@ class Domino:
         if snapshot_datasets_on_completion is not None:
             request["snapshotDatasetsOnCompletion"] = snapshot_datasets_on_completion
         if snapshot_net_app_volumes_on_completion is not None:
-            request["snapshotNetAppVolumesOnCompletion"] = snapshot_net_app_volumes_on_completion
+            request[
+                "snapshotNetAppVolumesOnCompletion"
+            ] = snapshot_net_app_volumes_on_completion
         if main_repo_git_ref is not None:
             request["mainRepoGitRef"] = main_repo_git_ref
         url = self._routes.scheduled_job(self.project_id, scheduled_job_id)
@@ -2258,7 +2262,9 @@ class Domino:
             "environments"
         ]
 
-    def _validate_compute_cluster_properties(self, compute_cluster_properties: dict) -> dict:
+    def _validate_compute_cluster_properties(
+        self, compute_cluster_properties: dict
+    ) -> dict:
         """Validate compute cluster properties and return a normalized copy with hardware tier
         IDs in the {value: str} object form expected by the API."""
         if not helpers.is_compute_cluster_properties_supported(self._version):
