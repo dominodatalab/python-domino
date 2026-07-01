@@ -822,7 +822,8 @@ class Domino:
         :param command:                             string
                                                     Command to run (e.g. "main.py arg1 arg2")
         :param cron_string:                         string
-                                                    Cron expression defining the schedule (e.g. "0 9 * * 1")
+                                                    Quartz cron expression (6 fields: sec min hour dom month dow),
+                                                    e.g. "0 0 9 ? * MON" for every Monday at 09:00
         :param timezone_id:                         string
                                                     IANA timezone (e.g. "America/New_York", "UTC")
         :param hardware_tier_identifier:            string
@@ -931,7 +932,8 @@ class Domino:
         :param command:                             string
                                                     Command to run (e.g. "main.py arg1 arg2")
         :param cron_string:                         string
-                                                    Cron expression defining the schedule (e.g. "0 9 * * 1")
+                                                    Quartz cron expression (6 fields: sec min hour dom month dow),
+                                                    e.g. "0 0 9 ? * MON" for every Monday at 09:00
         :param timezone_id:                         string
                                                     IANA timezone (e.g. "America/New_York", "UTC")
         :param hardware_tier_identifier:            string

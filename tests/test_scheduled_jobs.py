@@ -12,7 +12,7 @@ MOCK_USER_ID = "aabbccddeeff001122334456"
 MOCK_SCHEDULED_JOB_ID = "aabbccddeeff001122334458"
 
 MOCK_CRON_SCHEDULE = {
-    "cronString": "0 9 * * 1",
+    "cronString": "0 0 9 ? * MON",
     "isCustom": True,
     "humanReadableCronString": "At 09:00 on Monday",
 }
@@ -122,7 +122,7 @@ def test_scheduled_job_create(requests_mock, dummy_hostname, base_mocks):
     result = d.scheduled_job_create(
         title="Weekly Report",
         command="report.py",
-        cron_string="0 9 * * 1",
+        cron_string="0 0 9 ? * MON",
         timezone_id="America/New_York",
         hardware_tier_identifier="small-k8s",
     )
@@ -134,7 +134,7 @@ def test_scheduled_job_create(requests_mock, dummy_hostname, base_mocks):
     body = last_request.json()
     assert body["title"] == "Weekly Report"
     assert body["command"] == "report.py"
-    assert body["schedule"]["cronString"] == "0 9 * * 1"
+    assert body["schedule"]["cronString"] == "0 0 9 ? * MON"
     assert body["schedule"]["isCustom"] is True
     assert body["timezoneId"] == "America/New_York"
     assert body["hardwareTierIdentifier"] == "small-k8s"
@@ -154,7 +154,7 @@ def test_scheduled_job_create_with_optional_fields(requests_mock, dummy_hostname
     d.scheduled_job_create(
         title="Weekly Report",
         command="report.py",
-        cron_string="0 9 * * 1",
+        cron_string="0 0 9 ? * MON",
         timezone_id="America/New_York",
         hardware_tier_identifier="small-k8s",
         environment_revision_spec="LatestRevision",
@@ -193,7 +193,7 @@ def test_scheduled_job_update(requests_mock, dummy_hostname, base_mocks):
         scheduled_job_id=MOCK_SCHEDULED_JOB_ID,
         title="Updated Report",
         command="report.py",
-        cron_string="0 9 * * 1",
+        cron_string="0 0 9 ? * MON",
         timezone_id="America/New_York",
         hardware_tier_identifier="small-k8s",
         is_paused=True,
