@@ -894,9 +894,9 @@ class Domino:
         if snapshot_datasets_on_completion is not None:
             request["snapshotDatasetsOnCompletion"] = snapshot_datasets_on_completion
         if snapshot_net_app_volumes_on_completion is not None:
-            request[
-                "snapshotNetAppVolumesOnCompletion"
-            ] = snapshot_net_app_volumes_on_completion
+            request["snapshotNetAppVolumesOnCompletion"] = (
+                snapshot_net_app_volumes_on_completion
+            )
         if main_repo_git_ref is not None:
             request["mainRepoGitRef"] = main_repo_git_ref
         url = self._routes.scheduled_jobs(self.project_id)
@@ -1006,9 +1006,9 @@ class Domino:
         if snapshot_datasets_on_completion is not None:
             request["snapshotDatasetsOnCompletion"] = snapshot_datasets_on_completion
         if snapshot_net_app_volumes_on_completion is not None:
-            request[
-                "snapshotNetAppVolumesOnCompletion"
-            ] = snapshot_net_app_volumes_on_completion
+            request["snapshotNetAppVolumesOnCompletion"] = (
+                snapshot_net_app_volumes_on_completion
+            )
         if main_repo_git_ref is not None:
             request["mainRepoGitRef"] = main_repo_git_ref
         url = self._routes.scheduled_job(self.project_id, scheduled_job_id)
