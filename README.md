@@ -24,6 +24,7 @@ Domino:
 | 5.11.0 or higher | [1.4.1](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.1.zip) or Higher |
 | 6.0.0 or higher | [1.4.8](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-1.4.8.zip) or Higher |
 | 6.2.0 or higher | [2.0.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-2.0.0.zip) or Higher |
+| 6.3.0 or higher | [2.1.0](https://github.com/dominodatalab/python-domino/archive/refs/tags/Release-2.1.0.zip) or Higher |
 
 # Development
 
