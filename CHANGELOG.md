@@ -5,9 +5,16 @@ All notable changes to the `python-domino` library will be documented in this fi
 ## [Unreleased]
 
 ### Added
-* `scripts/check_snake_case.py` — AST-based lint script that catches camelCase parameter names in new code.
-* GitHub Actions CI workflow (`.github/workflows/ci.yml`) that runs lint, type-checking, and tests on every PR and push to `master`. All checks must pass before a PR can be merged.
-* `pyproject.toml` with `isort` and `black` configuration (`profile = "black"`, `target-version = ["py310"]`).
+
+### Changed
+
+## [2.2.0]
+
+### Added
+* `app_publish()` support for `branch`, `commitId`, and `appId`. (#259)
+* `job_start(branch=...)`, public `app_id` property, `app_get_status()`, and `files_download()`. (#266)
+* GitHub Actions CI, snake_case lint script, and `pyproject.toml`. (#265)
+* Unit test coverage for all public API methods. (#261)
 
 ### Deprecated
 The following public API parameters have been renamed to follow PEP 8 (`snake_case`).
@@ -40,11 +47,11 @@ removed in the next major version.
 | `app_unpublish` | `appId` | `app_id` |
 
 ### Changed
-* Resolved all 38 pre-existing `mypy` type errors across `domino/`, bringing the codebase to a clean `mypy` pass with `--python-version=3.10`.
-* Resolved all `flake8`, `isort`, and `black` formatting errors across the codebase.
-* Updated `.pre-commit-config.yaml` to latest tool versions: `pre-commit-hooks` v5.0.0, `flake8` 7.2.0, `isort` 5.13.2, `black` 25.1.0, `mypy` v1.15.0. Added the `check-snake-case` hook.
-* Updated `tox.ini` to run the full test suite across Python 3.10, 3.11, and 3.12 (previously only ran two files on Python 3.9).
-* Updated `pytest.ini` with coverage configuration.
+* Fixed `app_publish()` NameError when building request payload. (#258)
+* Fixed bugs in dataset removal, relogin handling, `project_id` errors, upload session handling, `trigger_alert()` payload, and API key auth. (#261)
+* Fixed `_validate_hardware_tier_id()` accepting dict tier input. (#266)
+* Resolved mypy, flake8, isort, and black issues; updated pre-commit, tox, and pytest. (#265)
+* Pinned `typing-extensions` to `~=4.13`. (#263)
 
 ## [2.1.0]
 
