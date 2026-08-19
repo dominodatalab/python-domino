@@ -390,6 +390,39 @@ def test_job_start_sends_main_repo_git_ref(requests_mock, dummy_hostname):
 
 
 @pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
+def test_job_start_main_repo_git_ref_supports_commit_id_type(
+    requests_mock, dummy_hostname
+):
+    """
+    Confirm main_repo_git_ref with type "commitId" is passed through as-is, and that
+    it is independent of the (DFS-only) commit_id field: for git-based projects this
+    is the correct way to pin a main-repository commit, since commit_id cannot be
+    used for that purpose.
+    """
+    requests_mock.get(
+        f"{dummy_hostname}/v4/jobs/{MOCK_JOB_ID}",
+        json=MOCK_JOB_RESPONSE_COMPLETED,
+    )
+
+    d = Domino(host=dummy_hostname, project="anyuser/anyproject", api_key="whatever")
+
+    git_ref = {"type": "commitId", "value": "960a4c99a4cc38194cbacbcce41caa68ba5369ea"}
+    d.job_start_blocking(
+        command="foo.py",
+        main_repo_git_ref=git_ref,
+        poll_freq=1,
+        max_poll_time=1,
+    )
+
+    jobs_start_request = next(
+        req for req in requests_mock.request_history if req.path == "/v4/jobs/start"
+    )
+    request_body = jobs_start_request.json()
+    assert request_body["mainRepoGitRef"] == git_ref
+    assert request_body["commitId"] is None
+
+
+@pytest.mark.usefixtures("clear_token_file_from_env", "mock_job_start_blocking_setup")
 def test_job_start_branch_sets_main_repo_git_ref(requests_mock, dummy_hostname):
     """
     Confirm that the branch convenience parameter is translated to mainRepoGitRef
