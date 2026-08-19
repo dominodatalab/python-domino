@@ -435,10 +435,12 @@ class Domino:
         :param commit_id:                           string (Optional)
                                                     The commit_id to launch from. If not provided, will launch
                                                     from latest commit.
-                                                    NOTE: for git-based projects, this pins the project's internal
-                                                    DFS commit, NOT a commit on the main git repository. Passing a
-                                                    commit SHA from the main repository here will fail. To pin a
-                                                    commit on a git-based project's main repository, use
+                                                    NOTE: this always pins the project's internal DFS commit,
+                                                    regardless of project type. For git-based projects, that is
+                                                    NOT the same as a commit on the main git repository — a valid
+                                                    DFS commit SHA still works here, but a commit SHA from the
+                                                    main git repository will fail. To pin a commit on a git-based
+                                                    project's main repository, use
                                                     main_repo_git_ref={"type": "commitId", "value": <sha>} instead.
         :param hardware_tier_id:                    string (Optional)
                                                     The hardware tier ID to launch job in. If not provided

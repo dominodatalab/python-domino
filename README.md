@@ -654,10 +654,12 @@ Start a new job (execution) in the project using the v4 Jobs API.
 
 -   *commit_id (string):* (Optional) The commit ID to launch from. If
     not provided, the job launches from the latest commit. Mutually
-    exclusive with `branch`. **Note:** for git-based projects, this pins
-    the project's internal DFS commit, not a commit on the main git
-    repository — passing a commit SHA from the main repository here will
-    fail. To pin a commit on a git-based project's main repository, use
+    exclusive with `branch`. **Note:** this always pins the project's
+    internal DFS commit, regardless of project type. For git-based
+    projects, that is not the same as a commit on the main git
+    repository — a valid DFS commit SHA still works here, but a commit
+    SHA from the main git repository will fail. To pin a commit on a
+    git-based project's main repository, use
     `main_repo_git_ref={"type": "commitId", "value": "<sha>"}` instead.
 
 -   *branch (string):* (Optional) The branch name to launch from. If
