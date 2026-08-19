@@ -7,6 +7,12 @@ All notable changes to the `python-domino` library will be documented in this fi
 ### Added
 
 ### Changed
+* Clarified `job_start()` docstrings: `commit_id` pins the project's internal DFS
+  commit and cannot be used to pin a commit on a git-based project's main git
+  repository (it will fail). Documented that `main_repo_git_ref` already supports
+  `{"type": "commitId", "value": <sha>}` for that purpose, alongside the previously
+  documented `"branches"`/`"tags"` types. No behavior change — this type was already
+  accepted by the API. (DOM-79862)
 
 ## [2.2.0]
 

@@ -435,6 +435,11 @@ class Domino:
         :param commit_id:                           string (Optional)
                                                     The commit_id to launch from. If not provided, will launch
                                                     from latest commit.
+                                                    NOTE: for git-based projects, this pins the project's internal
+                                                    DFS commit, NOT a commit on the main git repository. Passing a
+                                                    commit SHA from the main repository here will fail. To pin a
+                                                    commit on a git-based project's main repository, use
+                                                    main_repo_git_ref={"type": "commitId", "value": <sha>} instead.
         :param hardware_tier_id:                    string (Optional)
                                                     The hardware tier ID to launch job in. If not provided
                                                     it will use the default hardware tier for the project
@@ -490,13 +495,15 @@ class Domino:
         :param title                                string (Optional)
                                                     Title for the Job
         :param main_repo_git_ref:                   dict (Optional)
-                                                    For git-based projects, specifies the branch or tag to run from.
-                                                    Must be a dict with "type" and "value" keys, e.g.:
+                                                    For git-based projects, specifies the branch, tag, or commit to
+                                                    run from. Must be a dict with "type" and "value" keys, e.g.:
                                                     {
                                                         "type": "branches",
                                                         "value": "my-feature-branch"
                                                     }
-                                                    Supported types: "branches", "tags".
+                                                    Supported types: "branches", "tags", "commitId". Use type
+                                                    "commitId" to pin a specific commit SHA on the main git
+                                                    repository (commit_id cannot be used for that purpose).
                                                     Cannot be combined with branch.
         :param branch:                              string (Optional)
                                                     Convenience parameter. For git-based projects, launch the job
