@@ -59,6 +59,22 @@ removed in the next major version.
 * Resolved mypy, flake8, isort, and black issues; updated pre-commit, tox, and pytest. (#265)
 * Pinned `typing-extensions` to `~=4.13`. (#263)
 
+## [2.2.0]
+
+### Added
+* Updated `app_publish()` to allow selecting a specific branch or commit ref.
+* Updated `app_publish()` to allow targeting a specific app by `appId`.
+
+### Changed
+* Fixed a `NameError` in `app_publish()` caused by referencing the wrong request variable.
+* Updated API key authentication to send the `X-Domino-Api-Key` header instead of using HTTP Basic auth.
+* Corrected dataset removal validation and updated `datasets_remove()` to return the delete responses from each dataset.
+* Updated `runs_start()` and `job_start()` to re-raise `ReloginRequiredException` after logging guidance for UI relogin.
+* Updated project lookup to raise `ProjectNotFoundException` when the project ID is missing from the response.
+* Updated custom metric alerts to only include `targetRange` when a condition is provided.
+* Improved dataset upload error handling by replacing a bare `except` with `except Exception`.
+* Added broad public-method test coverage across apps, datasets, jobs, projects, auth, endpoints, and helpers.
+
 ## [2.1.0]
 
 ### Added
