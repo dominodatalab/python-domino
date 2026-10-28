@@ -47,7 +47,7 @@ setup(
     keywords=["Domino Data Lab", "API"],
     python_requires=">=3.10.0",
     install_requires=[
-        "packaging==23.2",
+        "packaging>=23.2",
         "requests>=2.4.2",
         "beautifulsoup4~=4.11",
         "polling2~=0.5.0",
@@ -77,7 +77,7 @@ setup(
             "flake8==4.0.1",
             "Jinja2==2.11.3",
             "nbconvert==6.3.0",
-            "packaging==23.2",
+            "packaging>=23.2",
             "polling2==0.5.0",
             "pre-commit==2.19.0",
             "pyspark==3.3.0",
